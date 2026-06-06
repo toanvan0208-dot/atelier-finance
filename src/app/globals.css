@@ -1,0 +1,50 @@
+@import url("https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color: #0b1f2a;
+  background: #faf8f0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background:
+    linear-gradient(rgba(11, 31, 42, 0.026) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(11, 31, 42, 0.026) 1px, transparent 1px),
+    #faf8f0;
+  background-size: 32px 32px, 32px 32px, auto;
+  font-size: 13px;
+  line-height: 1.65;
+  letter-spacing: 0;
+  color: #0b1f2a;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid rgba(240, 185, 11, 0.36);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: #fff2bf;
+  color: #0b1f2a;
+}
