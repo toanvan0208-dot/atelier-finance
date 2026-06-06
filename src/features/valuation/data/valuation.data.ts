@@ -129,8 +129,13 @@ export const valuationPageData: ValuationPageData = {
     tutor: {
       title: "AI Tutor",
       content:
-        "Không nên chỉ nhìn một năm lợi nhuận tăng đột biến vì khoản bất thường. Hãy hỏi phần lợi nhuận nào có thể lặp lại.",
+        "Định giá nên dựa trên lợi nhuận có khả năng lặp lại, không chỉ nhìn một năm lợi nhuận tăng đột biến vì khoản bất thường. Hãy hỏi phần lợi nhuận nào có thể lặp lại.",
     },
+    details: [
+      "Nếu lợi nhuận tăng do bán tài sản, hoàn nhập dự phòng hoặc khoản một lần, vùng giá tham khảo cần được đọc thận trọng hơn.",
+      "Nếu biên lợi nhuận chịu ảnh hưởng chu kỳ, nên xem dữ liệu nhiều năm thay vì một kỳ riêng lẻ.",
+      "Nếu dữ liệu chưa đủ, phần định giá chỉ nên được xem là bài tập giả định.",
+    ],
   },
   businessType: {
     id: "business-type",
@@ -144,6 +149,8 @@ export const valuationPageData: ValuationPageData = {
       { label: "Sản xuất", value: "P/E + EV/EBITDA" },
       { label: "Bán lẻ", value: "P/E + EV/EBITDA + DCF đơn giản", tone: "accent" },
       { label: "Công nghệ", value: "P/E + DCF" },
+      { label: "Hàng hóa chu kỳ", value: "P/E chuẩn hóa" },
+      { label: "Tiện ích", value: "DDM + EV/EBITDA" },
       { label: "Holding", value: "SOTP" },
     ],
     tutor: {
@@ -169,6 +176,11 @@ export const valuationPageData: ValuationPageData = {
       content:
         "P/E cao không có nghĩa cổ phiếu chắc chắn đắt. Có thể thị trường đang kỳ vọng lợi nhuận phục hồi mạnh.",
     },
+    details: [
+      "P/E, P/B và EV/EBITDA chỉ là cách thị trường đang trả giá cho lợi nhuận, vốn chủ và dòng lợi nhuận vận hành.",
+      "Market Cap và Enterprise Value nên được đọc cùng nợ vay, tiền mặt và chất lượng lợi nhuận.",
+      "Một chỉ số cao hoặc thấp cần được đặt cạnh tăng trưởng, rủi ro và chu kỳ ngành.",
+    ],
   },
   methodSelection: {
     id: "method-selection",
@@ -205,6 +217,11 @@ export const valuationPageData: ValuationPageData = {
       { id: "sotp", name: "SOTP", purpose: "Cộng từng mảng kinh doanh", whenToUse: "Khi mảng đủ tách biệt", failureMode: "Thiếu dữ liệu từng mảng", range: "Tham khảo", reliability: "Thấp", tone: "neutral" },
       { id: "ddm", name: "DDM nâng cao", purpose: "Dựa trên cổ tức", whenToUse: "Doanh nghiệp cổ tức ổn định", failureMode: "Không phù hợp khi tái đầu tư lớn", range: "Không ưu tiên", reliability: "Thấp", tone: "neutral" },
     ],
+    details: [
+      "P/E và EV/EBITDA dễ đọc hơn với doanh nghiệp bán lẻ có lợi nhuận và EBITDA tương đối quan sát được.",
+      "DCF giúp hiểu độ nhạy của giả định tăng trưởng, biên lợi nhuận và chiết khấu, nhưng không nên xem là đáp án duy nhất.",
+      "RNAV, SOTP và DDM được giữ lại để người dùng hiểu vì sao không phải phương pháp nào cũng phù hợp với mọi doanh nghiệp.",
+    ],
   },
   historicalComparison: {
     id: "historical-comparison",
@@ -225,6 +242,11 @@ export const valuationPageData: ValuationPageData = {
       content:
         "P/E chỉ có ý nghĩa khi được đặt cạnh lịch sử của chính doanh nghiệp, ngành và triển vọng lợi nhuận.",
     },
+    details: [
+      "So sánh với quá khứ giúp biết mức hiện tại có khác thường so với chính doanh nghiệp không.",
+      "So sánh với ngành giúp tránh đọc một doanh nghiệp tách khỏi bối cảnh cạnh tranh.",
+      "Nếu triển vọng lợi nhuận thay đổi mạnh, mức trung bình quá khứ có thể không còn là mốc tham khảo tốt.",
+    ],
   },
   marketExpectation: {
     id: "market-expectation",
@@ -243,6 +265,11 @@ export const valuationPageData: ValuationPageData = {
       title: "AI Tutor",
       content: "Một cổ phiếu không tăng chỉ vì doanh nghiệp tốt. Nó tăng khi doanh nghiệp tốt hơn kỳ vọng.",
     },
+    details: [
+      "Nếu giá hiện tại đã phản ánh kỳ vọng phục hồi mạnh, kết quả kinh doanh chỉ ổn định có thể chưa đủ tạo thay đổi trong cách thị trường nhìn nhận.",
+      "Nếu thị trường đang quá bi quan, một cải thiện nhỏ về lợi nhuận hoặc biên lợi nhuận cũng có thể làm kỳ vọng thay đổi.",
+      "Kỳ vọng ngành và chính sách nên được ghi chú riêng vì chúng có thể nằm ngoài kiểm soát của doanh nghiệp.",
+    ],
   },
   scenarios: {
     id: "scenarios",
@@ -266,8 +293,8 @@ export const valuationPageData: ValuationPageData = {
     description: "Catalyst và risk giúp kiểm tra vì sao vùng tham khảo có thể dịch chuyển.",
     catalystTitle: "Catalyst có thể nâng định giá",
     riskTitle: "Risk có thể làm giảm định giá",
-    catalysts: ["Tăng trưởng lợi nhuận", "Chu kỳ ngành hồi phục", "Cải thiện biên lợi nhuận", "Mở rộng thị trường", "M&A hoặc tái cấu trúc"],
-    risks: ["Cạnh tranh", "Nợ vay", "Biên lợi nhuận giảm", "Quản trị", "Kỳ vọng đã phản ánh quá cao"],
+    catalysts: ["Tăng trưởng lợi nhuận", "Chính sách", "Chu kỳ ngành", "Dự án mới", "M&A", "Cải thiện biên lợi nhuận", "Mở rộng thị trường"],
+    risks: ["Nợ vay", "Cạnh tranh", "Pháp lý", "Chu kỳ", "Quản trị", "Biên lợi nhuận giảm", "Vùng giá đã phản ánh kỳ vọng quá cao"],
   },
   marginOfSafety: {
     id: "margin-of-safety",
@@ -283,7 +310,7 @@ export const valuationPageData: ValuationPageData = {
     tutor: {
       title: "AI Tutor",
       content:
-        "Biên an toàn không phải tín hiệu mua. Nó chỉ cho biết giá thị trường đang cách vùng định giá tham khảo bao xa.",
+        "Biên an toàn không phải chỉ dẫn hành động. Nó chỉ cho biết giá thị trường đang cách vùng định giá tham khảo bao xa.",
     },
   },
   confidence: {
@@ -297,6 +324,11 @@ export const valuationPageData: ValuationPageData = {
       { method: "DCF", reliability: "Trung bình", reason: "Có ích để hiểu giả định, nhưng nhạy với tăng trưởng và chiết khấu.", tone: "warning" },
       { method: "P/B", reliability: "Thấp", reason: "Không phải phương pháp chính cho bán lẻ.", tone: "warning" },
       { method: "RNAV", reliability: "Thấp", reason: "Thiếu liên quan với mô hình bán lẻ của MWG.", tone: "neutral" },
+    ],
+    details: [
+      "Độ tin cậy cao hơn khi dữ liệu đầu vào ổn định, lợi nhuận có khả năng lặp lại và phương pháp phù hợp với mô hình kinh doanh.",
+      "Độ tin cậy thấp hơn khi kết quả phụ thuộc nhiều vào giả định dài hạn hoặc dữ liệu dự án chưa đủ.",
+      "Với doanh nghiệp chu kỳ, cần cẩn trọng hơn khi dùng lợi nhuận của một năm đang ở đỉnh hoặc đáy chu kỳ.",
     ],
   },
   rangeSummary: {
@@ -316,8 +348,13 @@ export const valuationPageData: ValuationPageData = {
     tutor: {
       title: "AI Tutor",
       content:
-        "Vùng giá tổng hợp không phải giá mục tiêu. Đây chỉ là khoảng tham khảo dựa trên các giả định hiện tại.",
+        "Vùng giá tổng hợp không phải một con số chắc chắn. Đây chỉ là khoảng tham khảo dựa trên các giả định hiện tại.",
     },
+    details: [
+      "Khoảng tổng hợp 37.000-46.000 được lấy từ nhiều phương pháp mẫu, không phải kết quả tính toán chính thức.",
+      "Nếu lợi nhuận chuẩn hóa thay đổi, toàn bộ vùng tham khảo có thể dịch chuyển.",
+      "Nếu độ tin cậy của một phương pháp thấp, không nên để phương pháp đó chi phối phần tổng hợp.",
+    ],
   },
   tutor: {
     id: "valuation-tutor",
@@ -362,7 +399,7 @@ export const valuationPageData: ValuationPageData = {
   disclaimer: {
     title: "Cảnh báo quan trọng",
     content:
-      "Phần Định giá không phải khuyến nghị mua bán. Mục tiêu của bước này là giúp bạn hiểu thị trường đang trả giá bao nhiêu cho doanh nghiệp, mức giá hiện tại đang phản ánh kỳ vọng gì và các phương pháp định giá cho ra vùng giá tham khảo nào. Một cổ phiếu nằm dưới vùng giá tham khảo không có nghĩa là nên mua ngay. Bạn vẫn cần kiểm tra rủi ro, minh bạch, xu hướng giá và checklist trước quyết định.",
+      "Phần Định giá không phải khuyến nghị giao dịch. Mục tiêu của bước này là giúp bạn hiểu thị trường đang trả giá bao nhiêu cho doanh nghiệp, mức giá hiện tại đang phản ánh kỳ vọng gì và các phương pháp định giá cho ra vùng giá tham khảo nào. Một cổ phiếu nằm dưới vùng giá tham khảo không có nghĩa là hệ thống đang đưa ra chỉ dẫn hành động. Bạn vẫn cần kiểm tra rủi ro, minh bạch, xu hướng giá và checklist trước quyết định cá nhân.",
   },
   nextActions: {
     title: "Bạn đã hiểu vùng định giá và các giả định chính chưa?",

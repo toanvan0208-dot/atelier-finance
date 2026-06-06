@@ -311,17 +311,76 @@ cd atelier-finance
 ```
 
 ### 8.2. Cài dependencies
+=======
+Atelier Finance là prototype giao diện học phân tích đầu tư theo từng bước, xây bằng Next.js App Router, React, TypeScript và Tailwind CSS. Ứng dụng tập trung vào việc giúp người mới đọc dữ liệu tài chính theo ngôn ngữ dễ hiểu, không biến giao diện thành spreadsheet phức tạp và không đưa ra khuyến nghị mua/bán/nắm giữ.
+
+## Mục Tiêu
+
+- Hướng dẫn người dùng đi qua một lộ trình phân tích có cấu trúc.
+- Tách dữ liệu mẫu khỏi component để dễ mở rộng từng module.
+- Giữ giao diện Neo-Brutalism Lite + Clean Minimal: viền navy, card ít bo góc, shadow nhẹ, accent vàng dùng tiết chế.
+- Trình bày định giá theo vùng giá tham khảo và kịch bản, không phải một con số chắc chắn.
+
+## Module Hiện Có
+
+- Vĩ mô (`src/features/macro`)
+- Ngành (`src/features/industry`)
+- Lọc cổ phiếu (`src/features/screening`)
+- Hiểu doanh nghiệp (`src/features/business`)
+- Phân tích báo cáo tài chính (`src/features/financials`)
+- Định giá doanh nghiệp (`src/features/valuation`)
+
+## Tech Stack
+
+- Next.js 16
+- React 19
+- TypeScript
+- Tailwind CSS
+- ESLint
+
+## Cấu Trúc Chính
+
+```text
+src/
+  app/
+    globals.css
+    layout.tsx
+    page.tsx
+  components/
+    layout/
+    ui/
+  config/
+    navigation.config.ts
+    shell.config.ts
+  features/
+    business/
+    financials/
+    industry/
+    macro/
+    screening/
+    valuation/
+```
+
+## Chạy Local
+
+Cài dependency:
+>>>>>>> 741482e (update code)
 
 ```bash
 npm install
 ```
 
+<<<<<<< HEAD
 ### 8.3. Chạy development server
+=======
+Chạy dev server:
+>>>>>>> 741482e (update code)
 
 ```bash
 npm run dev
 ```
 
+<<<<<<< HEAD
 Sau đó mở trình duyệt tại:
 
 ```txt
@@ -423,3 +482,40 @@ Dự án đang ở giai đoạn prototype giao diện và kiến trúc module. T
 Repository: `toanvan0208-dot/atelier-finance`
 
 Dự án phục vụ quá trình xây dựng hệ thống hỗ trợ đầu tư cho người có mức độ hiểu biết tài chính thấp.
+=======
+Mở:
+
+```text
+http://localhost:3000
+```
+
+## Scripts
+
+```bash
+npm run dev
+npm run lint
+npm run build
+npm run start
+```
+
+## Validation Gần Nhất
+
+Trong môi trường Codex hiện tại, `npm` không có trong PATH nên validation được chạy bằng Node runtime bundled:
+
+```bash
+node node_modules/eslint/bin/eslint.js .
+node node_modules/next/dist/bin/next build --webpack
+```
+
+Kết quả gần nhất:
+
+- Lint: pass
+- Build: pass
+
+## Ghi Chú Sản Phẩm
+
+Ứng dụng chỉ dùng dữ liệu mẫu ở giai đoạn này. Nội dung trong các module không phải khuyến nghị đầu tư, không phải khuyến nghị mua/bán/nắm giữ, và không cung cấp giá mục tiêu chắc chắn.
+
+## Bước Tiếp Theo
+
+Module tiếp theo nên triển khai là Phân tích kỹ thuật cơ bản / Price-Volume-Time, vì nằm sau Định giá trong lộ trình hệ thống.

@@ -7,7 +7,9 @@ import { BusinessPage } from "@/features/business";
 import { FinancialsPage } from "@/features/financials";
 import { IndustryPage } from "@/features/industry";
 import { MacroPage } from "@/features/macro";
+import { RiskPage } from "@/features/risk";
 import { ScreeningPage } from "@/features/screening";
+import { TechnicalPage } from "@/features/technical";
 import { ValuationPage } from "@/features/valuation";
 import { MainContent } from "./MainContent";
 import { MobileNavigation } from "./MobileNavigation";
@@ -57,6 +59,8 @@ export function AppShell() {
         {activeModule === "business" ? <BusinessPage /> : null}
         {activeModule === "financials" ? <FinancialsPage /> : null}
         {activeModule === "valuation" ? <ValuationPage /> : null}
+        {activeModule === "technical" ? <TechnicalPage /> : null}
+        {activeModule === "risk" ? <RiskPage /> : null}
       </MainContent>
       <RightAssistantPanel
         activeLabel={activeItem.label}

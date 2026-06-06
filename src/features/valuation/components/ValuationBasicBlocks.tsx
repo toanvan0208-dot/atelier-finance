@@ -8,6 +8,7 @@ import type {
   MethodSelectionData,
   NormalizedInputData,
 } from "../types";
+import { ChecklistItem } from "./ChecklistItem";
 import { DetailToggleCard } from "./DetailToggleCard";
 import { SimpleMetricGrid } from "./SimpleMetricGrid";
 import { TutorNote } from "./TutorNote";
@@ -48,15 +49,11 @@ export function ValuationPrecheckBlock({
     >
       <div className="space-y-3">
         {data.items.map((item) => (
-          <div
+          <ChecklistItem
             key={item.label}
-            className="flex items-start justify-between gap-3 rounded-[4px] border-[1.5px] border-border bg-surface-soft px-3 py-2"
-          >
-            <span className="text-sm leading-6 text-muted">{item.label}</span>
-            <Chip variant={item.checked ? "success" : "warning"}>
-              {item.checked ? "Đã có" : "Cần kiểm tra"}
-            </Chip>
-          </div>
+            checked={item.checked}
+            label={item.label}
+          />
         ))}
         <SimpleMetricGrid columns="one" items={data.output} />
         {data.tutor ? <TutorNote data={data.tutor} /> : null}

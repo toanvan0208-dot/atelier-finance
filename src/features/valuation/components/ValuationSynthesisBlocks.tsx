@@ -11,6 +11,7 @@ import type {
   ValuationTutorData,
 } from "../types";
 import { DetailToggleCard } from "./DetailToggleCard";
+import { MethodReliabilityCard } from "./MethodReliabilityCard";
 import { SimpleMetricGrid } from "./SimpleMetricGrid";
 import { SimpleRangeChart } from "./SimpleRangeChart";
 import { TutorNote } from "./TutorNote";
@@ -52,16 +53,7 @@ export function ValuationConfidenceBlock({
     >
       <div className="space-y-3">
         {data.methods.map((method) => (
-          <div
-            key={method.method}
-            className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3"
-          >
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className="text-sm font-bold text-ink">{method.method}</p>
-              <Chip variant={method.tone}>{method.reliability}</Chip>
-            </div>
-            <p className="mt-2 text-sm leading-6 text-muted">{method.reason}</p>
-          </div>
+          <MethodReliabilityCard key={method.method} method={method} />
         ))}
         <DetailToggleCard details={data.details} labels={detailLabels} />
       </div>
