@@ -53,6 +53,13 @@ export const shellConfig = {
       status: "Chưa bắt đầu",
       nextSuggestion: "Sau bước này, hãy đọc bối cảnh vĩ mô để biết thị trường đang thuận hay ngược gió.",
     },
+    learning: {
+      stepNumber: 1,
+      totalSteps: 13,
+      plainDescription: "Học đúng kiến thức đang thiếu trong quá trình phân tích, có quiz ngắn và gợi ý quay lại module liên quan.",
+      status: "Xuyên suốt",
+      nextSuggestion: "Chọn bài được AI gợi ý hôm nay, sau đó quay lại module phân tích để áp dụng ngay.",
+    },
     macro: {
       stepNumber: 2,
       totalSteps: 9,
@@ -108,6 +115,20 @@ export const shellConfig = {
       plainDescription: "Kiểm tra điều gì có thể sai trước khi ghi nhận kết luận cá nhân.",
       status: "Chưa bắt đầu",
       nextSuggestion: "Nếu còn điểm chưa rõ, quay lại checklist trước khi mô phỏng.",
+    },
+    simulation: {
+      stepNumber: 10,
+      totalSteps: 10,
+      plainDescription: "Ghi nhận thesis, tạo vị thế theo dõi giả lập và hậu kiểm bài học trước khi quay lại checklist.",
+      status: "Đang xây dựng",
+      nextSuggestion: "Theo dõi giả lập theo mốc xem lại, sau đó ghi nhật ký để học từ nguyên nhân đúng sai.",
+    },
+    watchlist: {
+      stepNumber: 11,
+      totalSteps: 11,
+      plainDescription: "Lưu ý tưởng cần kiểm tra, theo dõi tiến độ phân tích, dữ liệu còn thiếu và bước tiếp theo.",
+      status: "Đang xây dựng",
+      nextSuggestion: "Khi thesis đủ rõ, chuyển sang Mô phỏng; khi còn thiếu dữ liệu, quay lại module liên quan.",
     },
   },
 };

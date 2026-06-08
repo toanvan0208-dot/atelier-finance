@@ -1,98 +1,144 @@
-export type MacroMapNode = {
-  id: string;
-  title: string;
-  description: string;
-  position: "center" | "left" | "top" | "right";
+export type MacroTone = "support" | "pressure" | "neutral" | "watch" | "mixed";
+
+export type MacroDataMeta = {
+  source: string;
+  period: string;
+  updatedAt: string;
+  status: "mock" | "placeholder" | "stale" | "fresh";
 };
 
-export type MacroTopic = {
-  id: string;
-  title: string;
-  description: string;
-  active?: boolean;
+export type MacroAction = {
+  label: string;
+  targetModule: string;
+  variant?: "primary" | "secondary" | "ghost";
 };
 
-export type MacroMetric = {
+export type MacroEvidencePoint = {
   label: string;
   value: string;
+  tone: MacroTone;
 };
 
-export type MacroMetricCard = {
-  id: string;
+export type MacroSnapshotData = {
+  eyebrow: string;
   title: string;
-  icon: string;
-  value: string;
-  period?: string;
-  status?: string;
-  metrics: MacroMetric[];
-};
-
-export type MacroCardCopy = {
-  icon: string;
-  title: string;
-  chip?: string;
-};
-
-export type MacroSectionCopy = {
-  icon: string;
-  title: string;
-};
-
-export type MacroTabsCopy = {
-  ariaLabel: string;
-  global: MacroCardCopy & {
-    tabLabel: string;
-  };
-  vietnam: MacroCardCopy & {
-    tabLabel: string;
-  };
-  warning: MacroCardCopy & {
-    tabLabel: string;
-  };
-};
-
-export type MacroTableRow = {
-  factor: string;
+  description: string;
   currentState: string;
-  watchPoint: string;
+  stateTone: MacroTone;
+  supportPoints: MacroEvidencePoint[];
+  pressurePoints: MacroEvidencePoint[];
+  unconfirmedData: MacroEvidencePoint[];
+  nextQuestions: string[];
+  affectedSectors: string[];
+  actions: MacroAction[];
+  meta: MacroDataMeta;
 };
 
-export type MacroDashboardItem = {
+export type MacroTransmissionChain = {
   id: string;
-  icon: string;
   title: string;
-  description: string;
-  cadence: string;
-  active?: boolean;
+  macroVariable: string;
+  simpleMeaning: string;
+  impactChannel: string[];
+  relatedSectors: string[];
+  verificationData: string[];
+  linkedModules: string[];
+  tone: MacroTone;
+  meta: MacroDataMeta;
 };
 
-export type MacroSignal = {
+export type MacroInsightCardData = {
+  id: string;
+  title: string;
+  question: string;
+  status: string;
+  tone: MacroTone;
+  simpleMeaning: string;
+  transmission: string;
+  relatedSectors: string[];
+  verificationData: string[];
+  linkedModules: string[];
+  actions: MacroAction[];
+  meta: MacroDataMeta;
+};
+
+export type MacroSectorImpactItem = {
+  sector: string;
+  reason: string;
+  macroVariables: string[];
+  verificationData: string[];
+  risks: string[];
+  horizon: "Ngắn hạn" | "Dài hạn" | "Cả hai";
+  action: MacroAction;
+};
+
+export type MacroSectorImpactGroup = {
+  id: string;
+  title: string;
+  tone: MacroTone;
+  description: string;
+  items: MacroSectorImpactItem[];
+};
+
+export type MacroWarningSignal = {
+  id: string;
+  cadence: "Tháng" | "Quý" | "Khủng hoảng";
+  signal: string;
+  status:
+    | "Tín hiệu xanh"
+    | "Tín hiệu vàng"
+    | "Tín hiệu đỏ"
+    | "Chưa đủ dữ liệu";
+  tone: MacroTone;
+  evidence: string;
+  meaning: string;
+  relatedSectors: string[];
+  nextAction: string;
+  meta: MacroDataMeta;
+};
+
+export type MacroThesisOption = {
   id: string;
   label: string;
-  description: string;
+  value: string;
+  tutorNote: string;
 };
 
-export type MacroGuidanceCopy = {
-  insight: {
+export type MacroThesisQuestion = {
+  id: string;
+  label: string;
+  prompt: string;
+  options: MacroThesisOption[];
+};
+
+export type MacroThesisBuilderData = {
+  title: string;
+  description: string;
+  tutorRule: string;
+  questions: MacroThesisQuestion[];
+  saveActionLabel: string;
+  previewTitle: string;
+};
+
+export type MacroJourneyData = {
+  overview: {
     eyebrow: string;
+    icon: string;
     title: string;
     description: string;
+    centralQuestion: string;
   };
-  explanation: {
+  snapshot: MacroSnapshotData;
+  transmissionChains: MacroTransmissionChain[];
+  globalInsights: MacroInsightCardData[];
+  vietnamInsights: MacroInsightCardData[];
+  sectorImpactGroups: MacroSectorImpactGroup[];
+  warningSignals: MacroWarningSignal[];
+  thesisBuilder: MacroThesisBuilderData;
+  disclaimer: {
     title: string;
-    summary: string;
-    details: string[];
-  };
-  nextStep: {
-    title: string;
-    description: string;
-    actionLabel: string;
-  };
-  summary: {
-    title: string;
-    items: Array<{
-      label: string;
-      value: string;
-    }>;
+    content: string;
   };
 };
+
+export type MacroThesisDraft = Record<string, MacroThesisOption>;

@@ -11,5 +11,7 @@ export { MetricCard } from "./MetricCard";
 export { ModuleSummary } from "./ModuleSummary";
 export { NextStepCard } from "./NextStepCard";
 export { SectionHeader } from "./SectionHeader";
+export { StepAccordion } from "./StepAccordion";
+export type { StepAccordionItem } from "./StepAccordion";
 export { Tabs } from "./Tabs";
 export type { TabItem } from "./Tabs";

@@ -1,13 +1,11 @@
-import { EmptyState, LoadingState } from "@/components/ui";
+import { EmptyState, LoadingState, StepAccordion } from "@/components/ui";
 import { riskPageData } from "../data/risk.data";
 import {
   RiskDetailCard,
   RiskDisclaimer,
-  RiskFinalNote,
   RiskHeader,
   RiskNextActions,
   RiskOverview,
-  RiskProgressSidebar,
   RiskStatusLegend,
 } from "./RiskUi";
 
@@ -33,22 +31,37 @@ export function RiskPage() {
       <RiskHeader data={data.header} />
       <RiskOverview data={data.overview} />
 
-      <div className="grid gap-5 xl:grid-cols-[280px_minmax(0,1fr)]">
-        <RiskProgressSidebar data={data.journey} />
+      <StepAccordion
+        title={data.journey.title}
+        description={data.journey.description}
+        items={data.journey.steps.map((step, index) => {
+          const group = data.riskGroups[index];
 
-        <div className="space-y-5">
-          <RiskStatusLegend data={data.statusLegend} />
-          {data.riskGroups.map((group) => (
-            <RiskDetailCard
-              key={group.id}
-              data={group}
-              detailLabels={data.detailLabels}
-            />
-          ))}
-          <RiskFinalNote data={data.finalNote} />
-          <RiskDisclaimer data={data.disclaimer} />
-          <RiskNextActions data={data.nextActions} />
-        </div>
+          return {
+            key: group?.id ?? step.title,
+            order: step.order,
+            title: step.title,
+            status: step.status,
+            description: step.question,
+            meta: step.source,
+            content: (
+              <div className="space-y-5">
+                {index === 0 ? <RiskStatusLegend data={data.statusLegend} /> : null}
+                {group ? (
+                  <RiskDetailCard
+                    data={group}
+                    detailLabels={data.detailLabels}
+                  />
+                ) : null}
+              </div>
+            ),
+          };
+        })}
+      />
+
+      <div className="space-y-5">
+        <RiskDisclaimer data={data.disclaimer} />
+        <RiskNextActions data={data.nextActions} />
       </div>
     </div>
   );

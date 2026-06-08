@@ -6,19 +6,56 @@ import { shellConfig } from "@/config/shell.config";
 import { BusinessPage } from "@/features/business";
 import { FinancialsPage } from "@/features/financials";
 import { IndustryPage } from "@/features/industry";
+import { LearningPage } from "@/features/learning";
 import { MacroPage } from "@/features/macro";
 import { RiskPage } from "@/features/risk";
 import { ScreeningPage } from "@/features/screening";
+import { SimulationPage } from "@/features/simulation";
 import { TechnicalPage } from "@/features/technical";
 import { ValuationPage } from "@/features/valuation";
+import { WatchlistPage } from "@/features/watchlist";
 import { MainContent } from "./MainContent";
 import { MobileNavigation } from "./MobileNavigation";
 import { RightAssistantPanel } from "./RightAssistantPanel";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
 
+const modulesWithInternalProgress = new Set([
+  "macro",
+  "learning",
+  "business",
+  "financials",
+  "valuation",
+  "technical",
+  "risk",
+  "simulation",
+]);
+
 export function AppShell() {
-  const [activeModule, setActiveModule] = useState(shellConfig.defaultModuleKey);
+  const moduleKeys = useMemo(
+    () => new Set(navigationItems.map((item) => item.key)),
+    []
+  );
+  const [activeModule, setActiveModule] = useState(() => {
+    if (typeof window === "undefined") {
+      return shellConfig.defaultModuleKey;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const moduleFromUrl = params.get("module") ?? window.location.hash.replace("#", "");
+
+    return moduleFromUrl && moduleKeys.has(moduleFromUrl)
+      ? moduleFromUrl
+      : shellConfig.defaultModuleKey;
+  });
+
+  function handleNavigate(nextModule: string) {
+    setActiveModule(nextModule);
+
+    const url = new URL(window.location.href);
+    url.searchParams.set("module", nextModule);
+    window.history.replaceState(null, "", url);
+  }
 
   const activeItem = useMemo(
     () =>
@@ -43,7 +80,7 @@ export function AppShell() {
         description={shellConfig.journey.description}
         items={navigationItems}
         kicker={shellConfig.journey.kicker}
-        onNavigate={setActiveModule}
+        onNavigate={handleNavigate}
       />
       <MainContent
         activeLabel={activeItem.label}
@@ -51,9 +88,14 @@ export function AppShell() {
         kicker={shellConfig.mainContent.kicker}
         status={shellConfig.mainContent.status}
         title={shellConfig.mainContent.title}
-        journey={activeJourney}
+        journey={
+          modulesWithInternalProgress.has(activeModule) ? undefined : activeJourney
+        }
       >
-        {activeModule === "macro" ? <MacroPage /> : null}
+        {activeModule === "macro" ? (
+          <MacroPage onNavigate={handleNavigate} />
+        ) : null}
+        {activeModule === "learning" ? <LearningPage /> : null}
         {activeModule === "industry" ? <IndustryPage /> : null}
         {activeModule === "screening" ? <ScreeningPage /> : null}
         {activeModule === "business" ? <BusinessPage /> : null}
@@ -61,6 +103,8 @@ export function AppShell() {
         {activeModule === "valuation" ? <ValuationPage /> : null}
         {activeModule === "technical" ? <TechnicalPage /> : null}
         {activeModule === "risk" ? <RiskPage /> : null}
+        {activeModule === "simulation" ? <SimulationPage /> : null}
+        {activeModule === "watchlist" ? <WatchlistPage /> : null}
       </MainContent>
       <RightAssistantPanel
         activeLabel={activeItem.label}
@@ -70,7 +114,7 @@ export function AppShell() {
       <MobileNavigation
         items={navigationItems}
         activeKey={activeModule}
-        onNavigate={setActiveModule}
+        onNavigate={handleNavigate}
       />
     </div>
   );

@@ -17,7 +17,7 @@ export const screeningPageData: ScreeningPageData = {
     eyebrow: "Lọc cổ phiếu",
     title: "Tìm ứng viên đáng phân tích sâu hơn",
     description:
-      "Bộ lọc này giúp người mới phân loại cổ phiếu theo mức độ đáng theo dõi, không đưa ra khuyến nghị mua bán.",
+      "Bộ lọc này giúp người mới phân loại cổ phiếu theo mức độ đáng theo dõi để phân tích sâu hơn.",
     icon: "▽",
   },
   input: {
@@ -87,14 +87,6 @@ export const screeningPageData: ScreeningPageData = {
         description: "Dùng ngôn ngữ phổ thông thay vì chỉ số tài chính phức tạp.",
         icon: "?",
         status: "Dễ hiểu",
-      },
-      {
-        title: "Khuyến nghị mua bán",
-        value: "0",
-        period: "lệnh",
-        description: "Danh sách chỉ là đầu vào cho bước phân tích sâu hơn.",
-        icon: "!",
-        status: "Cảnh báo",
       },
     ],
   },
@@ -404,12 +396,12 @@ export const screeningPageData: ScreeningPageData = {
     title: "Cảnh báo bắt buộc",
     icon: "!",
     content:
-      "Danh sách này không phải khuyến nghị mua bán. Đây chỉ là danh sách cổ phiếu ứng viên để chuyển sang bước phân tích doanh nghiệp chuyên sâu. Một cổ phiếu vượt qua bộ lọc không có nghĩa là nên mua ngay. Người dùng vẫn cần phân tích sâu hơn về mô hình kinh doanh, báo cáo tài chính, định giá, rủi ro và điểm mua phù hợp.",
+      "Danh sách này chỉ là danh sách cổ phiếu ứng viên để chuyển sang bước phân tích doanh nghiệp chuyên sâu. Một cổ phiếu vượt qua bộ lọc vẫn cần được kiểm tra thêm về mô hình kinh doanh, báo cáo tài chính, định giá, rủi ro và bối cảnh thị trường.",
   },
   understanding: {
     title: "Bạn đã hiểu đúng chưa?",
     description:
-      "Phần này giúp người dùng tránh hiểu sai kết quả sàng lọc thành khuyến nghị mua bán.",
+      "Phần này giúp người dùng tránh hiểu sai kết quả sàng lọc thành kết luận hành động.",
     icon: "?",
     questionsTitle: "5 câu hỏi tự kiểm tra",
     questions: [

@@ -66,8 +66,6 @@ export type BusinessIdentityData = {
   icon: string;
   fields: FieldItem[];
   ai: AiExplanationData;
-  promptLabel: string;
-  placeholder: string;
 };
 
 export type BusinessTypeTag = {
@@ -227,28 +225,6 @@ export type BusinessRiskData = {
   detailLabels: DetailSectionData;
 };
 
-export type PersonalBusinessThesisData = {
-  title: string;
-  description: string;
-  icon: string;
-  prompts: string[];
-  placeholder: string;
-};
-
-export type ChecklistStatus = "Đã hiểu" | "Cần xem lại" | "Chưa rõ";
-
-export type BusinessChecklistItem = {
-  text: string;
-  status: ChecklistStatus;
-};
-
-export type BusinessChecklistData = {
-  title: string;
-  description: string;
-  icon: string;
-  items: BusinessChecklistItem[];
-};
-
 export type BusinessDisclaimerData = {
   title: string;
   icon: string;
@@ -308,8 +284,6 @@ export type BusinessPageData = {
   competitiveAdvantage: CompetitiveAdvantageData;
   scalability: ScalabilityData;
   risks: BusinessRiskData;
-  personalThesis: PersonalBusinessThesisData;
-  checklist: BusinessChecklistData;
   disclaimer: BusinessDisclaimerData;
   nextActions: BusinessNextActionsData;
 };

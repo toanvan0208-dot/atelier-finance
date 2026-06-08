@@ -1,4 +1,4 @@
-﻿import { Card, CardBody, Chip, MetricCard, SectionHeader } from "@/components/ui";
+import { Card, CardBody, Chip, SectionHeader } from "@/components/ui";
 import type { FinancialsQuickSummaryData } from "../types";
 
 type FinancialsQuickSummaryProps = {
@@ -10,18 +10,6 @@ export function FinancialsQuickSummary({ data }: FinancialsQuickSummaryProps) {
     <section>
       <SectionHeader description={data.description} icon={data.icon} title={data.title} />
       <div className="space-y-4">
-        <div className="grid gap-3 lg:grid-cols-3">
-          {data.metrics.map((metric) => (
-            <MetricCard
-              key={metric.title}
-              description={metric.description}
-              icon={metric.icon}
-              status={metric.status}
-              title={metric.title}
-              value={metric.value}
-            />
-          ))}
-        </div>
         <Card>
           <CardBody>
             <div className="grid gap-3 sm:grid-cols-2">

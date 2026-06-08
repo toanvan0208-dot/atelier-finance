@@ -16,6 +16,13 @@ export const navigationItems: NavigationItem[] = [
     href: "/self",
   },
   {
+    key: "learning",
+    label: "Học tập",
+    shortLabel: "Học",
+    icon: "◍",
+    href: "/learning",
+  },
+  {
     key: "macro",
     label: "Vĩ mô",
     shortLabel: "Vĩ mô",

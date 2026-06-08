@@ -24,7 +24,7 @@ export function MainContent({
   return (
     <main className="min-h-[calc(100dvh-56px)] overflow-y-auto px-5 pb-28 pt-9 md:px-10 md:pb-12">
       {children ? (
-        <div className="mx-auto w-full max-w-[980px]">
+        <div className="mx-auto w-full max-w-[1180px]">
           {journey ? <JourneyHeader activeLabel={activeLabel} data={journey} /> : null}
           {children}
         </div>

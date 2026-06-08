@@ -50,13 +50,6 @@ export const financialsPageData: FinancialsPageData = {
         icon: "D",
         status: "Cẩn trọng",
       },
-      {
-        title: "Khuyến nghị giao dịch",
-        value: "0",
-        description: "Module này không đưa ra mua, bán hoặc nắm giữ.",
-        icon: "!",
-        status: "Không có",
-      },
     ],
     items: [
       { question: "Doanh thu đang tăng, giảm hay ổn định?", answer: "Doanh thu mẫu biến động, cần đọc theo từng mảng.", status: "Biến động", tone: "warning" },
@@ -434,7 +427,7 @@ export const financialsPageData: FinancialsPageData = {
     title: "Cảnh báo bắt buộc",
     icon: "!",
     content:
-      "Phần Phân tích Báo cáo tài chính không phải khuyến nghị mua bán. Mục tiêu của bước này là giúp bạn hiểu sức khỏe tài chính, chất lượng lợi nhuận, dòng tiền, nợ vay và các điểm cần kiểm tra thêm. Một doanh nghiệp có BCTC tốt không có nghĩa là cổ phiếu đó nên mua ngay. Bạn vẫn cần định giá, kiểm tra rủi ro và xem xét điểm mua phù hợp.",
+      "Phần Phân tích Báo cáo tài chính giúp bạn hiểu sức khỏe tài chính, chất lượng lợi nhuận, dòng tiền, nợ vay và các điểm cần kiểm tra thêm. Một doanh nghiệp có BCTC tốt vẫn cần được định giá, kiểm tra rủi ro và đối chiếu với thesis.",
   },
   nextActions: {
     title: "Bạn đã sẵn sàng chuyển các dữ liệu tài chính sang bước định giá chưa?",

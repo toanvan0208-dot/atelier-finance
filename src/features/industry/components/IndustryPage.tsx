@@ -1,48 +1,76 @@
+import { EmptyState, LoadingState, StepAccordion } from "@/components/ui";
+import { industryPageData } from "../data/industry.data";
 import {
-  industryBeneficiariesData,
-  industryDeepDiveData,
-  industryHealthData,
-  industryImpactFactorsData,
-  industryOutlookData,
-  industryOverviewData,
-  representativeStocksData,
-} from "../data/industry.data";
-import { IndustryBeneficiaries } from "./IndustryBeneficiaries";
-import { IndustryDeepDive } from "./IndustryDeepDive";
-import { IndustryHealthScore } from "./IndustryHealthScore";
-import { IndustryImpactFactors } from "./IndustryImpactFactors";
-import { IndustryOutlook } from "./IndustryOutlook";
-import { IndustryOverview } from "./IndustryOverview";
-import { RepresentativeStocks } from "./RepresentativeStocks";
+  IndustryBlock,
+  IndustryDisclaimer,
+  IndustryHeader,
+  IndustryInsightPanel,
+  IndustryNextActions,
+  IndustryQuickOverview,
+  IndustryTutorNote,
+} from "./IndustryBlocks";
 
 export function IndustryPage() {
+  const data = industryPageData;
+
+  if (data.isLoading) {
+    return (
+      <LoadingState
+        description={data.loading.description}
+        title={data.loading.title}
+      />
+    );
+  }
+
+  if (!data.header.industryName) {
+    return (
+      <EmptyState
+        description={data.emptyState.description}
+        icon={data.emptyState.icon}
+        title={data.emptyState.title}
+      />
+    );
+  }
+
   return (
-    <div className="mx-auto w-full max-w-[720px] space-y-7">
-      <div>
-        <div className="mb-3 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.04em] text-accent">
-          <span className="grid h-6 w-6 place-items-center rounded-[3px] border-[1.5px] border-border bg-accent-soft text-[10px] font-bold text-accent">
-            {industryOverviewData.icon}
-          </span>
-          <span>{industryOverviewData.eyebrow}</span>
-        </div>
-        <h1 className="font-brand text-2xl font-bold text-ink">
-          {industryOverviewData.title}
-        </h1>
-        <p className="mt-2 max-w-[68ch] text-sm leading-7 text-muted">
-          {industryOverviewData.description}
-        </p>
-      </div>
+    <div className="mx-auto w-full max-w-[1180px] space-y-6">
+      <IndustryHeader data={data.header} />
+      <IndustryQuickOverview data={data.quickOverview} />
 
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_260px]">
-        <IndustryOverview data={industryOverviewData} />
-        <IndustryHealthScore data={industryHealthData} />
-      </div>
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
+        <main className="space-y-5">
+          <StepAccordion
+            title={data.journey.title}
+            description={data.journey.description}
+            items={data.journey.steps.map((step, index) => {
+              const block = data.blocks[index];
 
-      <IndustryImpactFactors data={industryImpactFactorsData} />
-      <IndustryOutlook data={industryOutlookData} />
-      <IndustryBeneficiaries data={industryBeneficiariesData} />
-      <RepresentativeStocks data={representativeStocksData} />
-      <IndustryDeepDive data={industryDeepDiveData} />
+              return {
+                key: block?.id ?? step.title,
+                order: block?.stepNumber ?? index + 1,
+                title: step.title,
+                status: step.status,
+                description: step.question,
+                meta: `${step.group} - ${step.linkedModule}`,
+                content: block ? <IndustryBlock data={block} /> : null,
+              };
+            })}
+          />
+
+          <IndustryTutorNote data={data.tutor} />
+          <IndustryDisclaimer
+            content={data.disclaimer.content}
+            title={data.disclaimer.title}
+          />
+          <IndustryNextActions
+            actions={data.nextActions.actions}
+            description={data.nextActions.description}
+            title={data.nextActions.title}
+          />
+        </main>
+
+        <IndustryInsightPanel data={data.insightPanel} />
+      </div>
     </div>
   );
 }

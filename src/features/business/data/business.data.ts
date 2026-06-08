@@ -20,7 +20,7 @@ export const businessPageData: BusinessPageData = {
     businessType: "Bán lẻ / tiêu dùng",
     assumedRiskProfile: "Thấp đến trung bình",
     previousModuleLink:
-      "MWG là cổ phiếu ứng viên cần phân tích sâu hơn từ module Lọc cổ phiếu, không phải khuyến nghị mua.",
+      "MWG là cổ phiếu ứng viên cần phân tích sâu hơn từ module Lọc cổ phiếu.",
     actions: [
       { label: "Quay lại lọc cổ phiếu", variant: "secondary" },
       { label: "Chuyển sang phân tích BCTC", variant: "primary" },
@@ -44,13 +44,6 @@ export const businessPageData: BusinessPageData = {
         description: "Năm câu hỏi đời thường trước khi đọc số tài chính.",
         icon: "?",
         status: "Bản đồ",
-      },
-      {
-        title: "Khuyến nghị mua bán",
-        value: "0",
-        description: "Module này chỉ giúp hiểu doanh nghiệp, không khuyến nghị giao dịch.",
-        icon: "!",
-        status: "Không có",
       },
     ],
     items: [
@@ -93,8 +86,6 @@ export const businessPageData: BusinessPageData = {
       { order: 11, title: "Lợi thế cạnh tranh", status: "Cần kiểm tra thêm" },
       { order: 12, title: "Khả năng mở rộng", status: "Cần kiểm tra thêm" },
       { order: 13, title: "Rủi ro mô hình kinh doanh", status: "Cần kiểm tra thêm" },
-      { order: 14, title: "Bản nhận định cá nhân", status: "Chưa làm" },
-      { order: 15, title: "Checklist hiểu doanh nghiệp", status: "Chưa làm" },
     ],
   },
   labels: {
@@ -128,8 +119,6 @@ export const businessPageData: BusinessPageData = {
       content:
         "Bạn cần hiểu doanh nghiệp này thật sự làm gì. Mã cổ phiếu chỉ là ký hiệu giao dịch, phía sau là một doanh nghiệp thật có cửa hàng, nhân viên, khách hàng và chi phí vận hành.",
     },
-    promptLabel: "Hãy viết lại trong 1-2 câu: doanh nghiệp này đang làm gì?",
-    placeholder: "Ví dụ: MWG là doanh nghiệp bán lẻ phục vụ người tiêu dùng cá nhân...",
   },
   businessType: {
     title: "Doanh nghiệp này nên được phân tích theo logic nào?",
@@ -371,41 +360,11 @@ export const businessPageData: BusinessPageData = {
       detailChipLabel: "Chi tiết",
     },
   },
-  personalThesis: {
-    title: "Bạn hiểu doanh nghiệp này như thế nào?",
-    description: "Viết lại bằng lời của bạn để kiểm tra mình có thật sự hiểu doanh nghiệp chưa.",
-    icon: "14",
-    prompts: [
-      "Doanh nghiệp này làm gì?",
-      "Doanh nghiệp kiếm tiền từ đâu?",
-      "Điểm mạnh lớn nhất là gì?",
-      "Rủi ro lớn nhất là gì?",
-      "Bạn còn chưa hiểu phần nào?",
-    ],
-    placeholder: "Viết bản nhận định ngắn của bạn ở đây...",
-  },
-  checklist: {
-    title: "Checklist hiểu doanh nghiệp",
-    description: "Nếu nhiều mục còn chưa rõ, nên dừng lại và đọc thêm trước khi sang BCTC.",
-    icon: "15",
-    items: [
-      { text: "Tôi có thể giải thích doanh nghiệp này làm gì trong 1-2 câu.", status: "Đã hiểu" },
-      { text: "Tôi hiểu công ty kiếm tiền từ đâu.", status: "Cần xem lại" },
-      { text: "Tôi biết khách hàng chính là ai.", status: "Đã hiểu" },
-      { text: "Tôi biết yếu tố nào làm doanh thu tăng.", status: "Cần xem lại" },
-      { text: "Tôi biết chi phí lớn nhất là gì.", status: "Cần xem lại" },
-      { text: "Tôi biết doanh nghiệp đứng ở đâu trong chuỗi giá trị.", status: "Cần xem lại" },
-      { text: "Tôi biết ai sở hữu và ai điều hành doanh nghiệp.", status: "Chưa rõ" },
-      { text: "Tôi hiểu lợi thế cạnh tranh chính.", status: "Cần xem lại" },
-      { text: "Tôi hiểu rủi ro mô hình kinh doanh.", status: "Cần xem lại" },
-      { text: "Tôi biết điểm nào cần kiểm tra tiếp trong báo cáo tài chính.", status: "Chưa rõ" },
-    ],
-  },
   disclaimer: {
     title: "Cảnh báo bắt buộc",
     icon: "!",
     content:
-      "Phần Hiểu doanh nghiệp không phải khuyến nghị mua bán. Mục tiêu của bước này là giúp bạn hiểu doanh nghiệp trước khi đọc báo cáo tài chính, định giá và kiểm tra rủi ro. Một doanh nghiệp dễ hiểu hoặc có lợi thế cạnh tranh không có nghĩa là cổ phiếu đó nên mua ngay.",
+      "Phần Hiểu doanh nghiệp chỉ giúp bạn hiểu doanh nghiệp trước khi đọc báo cáo tài chính, định giá và kiểm tra rủi ro. Một doanh nghiệp dễ hiểu hoặc có lợi thế cạnh tranh vẫn cần được kiểm chứng thêm bằng dữ liệu.",
   },
   nextActions: {
     title: "Bạn đã hiểu doanh nghiệp ở mức cơ bản chưa?",
