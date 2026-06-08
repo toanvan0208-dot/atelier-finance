@@ -1,4 +1,95 @@
-import type { IndustryBlockData, IndustryPageData } from "../types";
+import type { IndustryBlockData, IndustryOption, IndustryPageData } from "../types";
+
+export const industryOptions: IndustryOption[] = [
+  {
+    id: "steel",
+    name: "Thép và vật liệu xây dựng",
+    shortName: "Thép",
+    industryType: "Ngành chu kỳ / thâm dụng tài sản",
+    status: "Đang phân tích",
+    description: "Mẫu ngành chu kỳ để minh họa cách nối vĩ mô với BCTC.",
+    keyQuestions: ["Giá đầu ra có phục hồi không?", "Giá nguyên liệu đầu vào gây áp lực thế nào?", "Đầu tư công có chuyển thành sản lượng thật không?"],
+    quickAnswers: [
+      { question: "Ngành này kiếm tiền bằng cách nào?", answer: "Từ sản lượng thép bán ra và chênh lệch giữa giá bán với chi phí đầu vào.", status: "Cần kiểm chứng", tone: "warning" },
+      { question: "Ngành thuộc loại hình nào?", answer: "Ngành chu kỳ, thâm dụng tài sản, nhạy với bất động sản và đầu tư công.", status: "Giả thuyết", tone: "accent" },
+      { question: "Biến vĩ mô nào ảnh hưởng mạnh nhất?", answer: "Lãi suất, tín dụng, đầu tư công, giá hàng hóa và thương mại toàn cầu.", status: "Theo dõi", tone: "neutral" },
+      { question: "Ngành đang hưởng lợi, bất lợi hay trung lập?", answer: "Trung lập đến hưởng lợi có điều kiện, cần thêm dữ liệu sản lượng và biên lợi nhuận.", status: "Chưa chốt", tone: "warning" },
+      { question: "Dữ liệu quan trọng nhất cần theo dõi?", answer: "Sản lượng tiêu thụ, tồn kho, giá quặng sắt/than cốc và biên lợi nhuận gộp.", status: "Ưu tiên", tone: "accent" },
+      { question: "Có đủ cơ sở để chuyển sang lọc cổ phiếu chưa?", answer: "Có thể lọc thăm dò, nhưng cần gắn nhãn dữ liệu còn thiếu.", status: "Có điều kiện", tone: "success" },
+    ],
+    tutorNotes: [
+      "Bạn đang phân tích ngành thép, hãy kiểm tra cả giá thép đầu ra và giá nguyên liệu đầu vào.",
+      "Tin đầu tư công tích cực không có nghĩa mọi doanh nghiệp vật liệu xây dựng đều hưởng lợi ngay.",
+      "Bạn nên kiểm tra xem kỳ vọng ngành đã phản ánh vào giá cổ phiếu chưa trước khi chuyển sang bước sau.",
+    ],
+  },
+  {
+    id: "banking",
+    name: "Ngân hàng",
+    shortName: "Ngân hàng",
+    industryType: "Ngành tài chính / nhạy với lãi suất và tín dụng",
+    status: "Cần bổ sung dữ liệu",
+    description: "Ngành cần đọc tăng trưởng tín dụng, NIM, nợ xấu, dự phòng và chất lượng tài sản.",
+    keyQuestions: ["Tín dụng có tăng bền không?", "NIM đang mở rộng hay thu hẹp?", "Nợ xấu và dự phòng có bị đánh giá thấp không?"],
+    quickAnswers: [
+      { question: "Ngành này kiếm tiền bằng cách nào?", answer: "Từ chênh lệch lãi suất, phí dịch vụ và quản trị rủi ro tín dụng.", status: "Cần kiểm chứng", tone: "warning" },
+      { question: "Ngành thuộc loại hình nào?", answer: "Ngành tài chính, dùng đòn bẩy cao và rất nhạy với chu kỳ tín dụng.", status: "Giả thuyết", tone: "accent" },
+      { question: "Biến vĩ mô nào ảnh hưởng mạnh nhất?", answer: "Lãi suất, tăng trưởng tín dụng, thanh khoản hệ thống và sức khỏe bất động sản.", status: "Theo dõi", tone: "neutral" },
+      { question: "Ngành đang hưởng lợi, bất lợi hay trung lập?", answer: "Chưa đủ dữ liệu, cần kiểm tra NIM, nợ xấu và chi phí tín dụng.", status: "Chưa chốt", tone: "warning" },
+      { question: "Dữ liệu quan trọng nhất cần theo dõi?", answer: "Tăng trưởng tín dụng, CASA, NIM, nợ nhóm 2, nợ xấu và bao phủ nợ xấu.", status: "Ưu tiên", tone: "accent" },
+      { question: "Có đủ cơ sở để chuyển sang lọc cổ phiếu chưa?", answer: "Chỉ nên lọc thăm dò nếu đã có tiêu chí về chất lượng tài sản.", status: "Có điều kiện", tone: "success" },
+    ],
+    tutorNotes: [
+      "Bạn đang phân tích ngân hàng, hãy xem chất lượng tài sản trước khi chỉ nhìn tăng trưởng lợi nhuận.",
+      "NIM tăng chưa chắc tốt nếu đi kèm rủi ro nợ xấu hoặc chi phí vốn tăng.",
+      "Trước khi lọc cổ phiếu ngân hàng, hãy xác định tiêu chí về nợ xấu và dự phòng.",
+    ],
+  },
+  {
+    id: "retail",
+    name: "Bán lẻ",
+    shortName: "Bán lẻ",
+    industryType: "Ngành tiêu dùng / nhạy với sức mua",
+    status: "Cần bổ sung dữ liệu",
+    description: "Ngành cần đọc sức mua, biên gộp, tồn kho, mở rộng cửa hàng và hiệu quả trên mỗi điểm bán.",
+    keyQuestions: ["Sức mua có phục hồi thật không?", "Biên gộp có giữ được không?", "Mở rộng cửa hàng có tạo lợi nhuận hay chỉ tăng doanh thu?"],
+    quickAnswers: [
+      { question: "Ngành này kiếm tiền bằng cách nào?", answer: "Từ lưu lượng khách, giá trị đơn hàng, biên gộp và hiệu quả vận hành cửa hàng.", status: "Cần kiểm chứng", tone: "warning" },
+      { question: "Ngành thuộc loại hình nào?", answer: "Ngành tiêu dùng, nhạy với thu nhập, niềm tin người tiêu dùng và cạnh tranh giá.", status: "Giả thuyết", tone: "accent" },
+      { question: "Biến vĩ mô nào ảnh hưởng mạnh nhất?", answer: "Thu nhập hộ gia đình, lãi suất tiêu dùng, lạm phát và sức mua đô thị.", status: "Theo dõi", tone: "neutral" },
+      { question: "Ngành đang hưởng lợi, bất lợi hay trung lập?", answer: "Trung lập, cần xác nhận bằng doanh thu cùng cửa hàng và tồn kho.", status: "Chưa chốt", tone: "warning" },
+      { question: "Dữ liệu quan trọng nhất cần theo dõi?", answer: "Doanh thu cùng cửa hàng, biên gộp, vòng quay tồn kho và chi phí bán hàng.", status: "Ưu tiên", tone: "accent" },
+      { question: "Có đủ cơ sở để chuyển sang lọc cổ phiếu chưa?", answer: "Có thể lọc nếu phân biệt được tăng trưởng thật và tăng trưởng do mở rộng điểm bán.", status: "Có điều kiện", tone: "success" },
+    ],
+    tutorNotes: [
+      "Bạn đang phân tích bán lẻ, đừng chỉ nhìn doanh thu tăng nếu tồn kho và chi phí bán hàng cũng tăng mạnh.",
+      "Hãy tách tăng trưởng cùng cửa hàng khỏi tăng trưởng do mở rộng mạng lưới.",
+      "Sức mua phục hồi cần được xác nhận bằng biên lợi nhuận và dòng tiền.",
+    ],
+  },
+  {
+    id: "industrial-parks",
+    name: "Khu công nghiệp",
+    shortName: "KCN",
+    industryType: "Ngành tài sản / nhạy với FDI và pháp lý đất",
+    status: "Cần bổ sung dữ liệu",
+    description: "Ngành cần đọc FDI, diện tích sẵn sàng cho thuê, giá thuê, pháp lý đất và tiến độ hạ tầng.",
+    keyQuestions: ["FDI có chuyển thành nhu cầu thuê đất không?", "Doanh nghiệp còn quỹ đất sạch không?", "Giá thuê tăng có bền không?"],
+    quickAnswers: [
+      { question: "Ngành này kiếm tiền bằng cách nào?", answer: "Từ cho thuê đất, hạ tầng khu công nghiệp và dịch vụ đi kèm.", status: "Cần kiểm chứng", tone: "warning" },
+      { question: "Ngành thuộc loại hình nào?", answer: "Ngành tài sản, phụ thuộc quỹ đất, pháp lý, FDI và chu kỳ đầu tư sản xuất.", status: "Giả thuyết", tone: "accent" },
+      { question: "Biến vĩ mô nào ảnh hưởng mạnh nhất?", answer: "FDI, dịch chuyển chuỗi cung ứng, tỷ giá, hạ tầng và chính sách đất đai.", status: "Theo dõi", tone: "neutral" },
+      { question: "Ngành đang hưởng lợi, bất lợi hay trung lập?", answer: "Có thể hưởng lợi có điều kiện nếu quỹ đất sạch và pháp lý sẵn sàng.", status: "Chưa chốt", tone: "warning" },
+      { question: "Dữ liệu quan trọng nhất cần theo dõi?", answer: "Diện tích còn cho thuê, tỷ lệ lấp đầy, giá thuê, backlog và tiến độ pháp lý.", status: "Ưu tiên", tone: "accent" },
+      { question: "Có đủ cơ sở để chuyển sang lọc cổ phiếu chưa?", answer: "Có thể lọc nếu đã tách doanh nghiệp có quỹ đất thật khỏi câu chuyện FDI chung.", status: "Có điều kiện", tone: "success" },
+    ],
+    tutorNotes: [
+      "Bạn đang phân tích khu công nghiệp, hãy kiểm tra quỹ đất sạch và thời điểm ghi nhận doanh thu.",
+      "FDI tích cực không đồng nghĩa mọi doanh nghiệp khu công nghiệp đều hưởng lợi như nhau.",
+      "Trước khi lọc cổ phiếu, hãy kiểm tra pháp lý đất và tỷ lệ lấp đầy.",
+    ],
+  },
+];
 
 const steelMacroTable = {
   caption: "Bảng Vĩ mô đến Ngành",

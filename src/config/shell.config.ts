@@ -1,10 +1,10 @@
 export const shellConfig = {
   brandName: "Macro Thesis",
   title: "Hệ thống hỗ trợ Đầu tư",
-  defaultModuleKey: "macro",
+  defaultModuleKey: "overview",
   journey: {
-    kicker: "Lộ trình học",
-    description: "Đi từng bước để hiểu dữ liệu trước khi mô phỏng quyết định.",
+    kicker: "Lộ trình đầu tư",
+    description: "Đi từng bước để hiểu dữ liệu, kiểm tra rủi ro và mô phỏng có kỷ luật.",
   },
   mainContent: {
     kicker: "Nền móng giao diện",
@@ -46,10 +46,17 @@ export const shellConfig = {
     },
   ],
   moduleJourney: {
-    self: {
+    overview: {
+      stepNumber: 0,
+      totalSteps: 15,
+      plainDescription: "Theo dõi toàn bộ lộ trình phân tích, dữ liệu còn thiếu, học tập, watchlist, mô phỏng và checklist.",
+      status: "Mặc định",
+      nextSuggestion: "Bắt đầu từ Cấu hình lộ trình để hệ thống dẫn bạn đi đúng nhu cầu hôm nay.",
+    },
+    "route-config": {
       stepNumber: 1,
       totalSteps: 9,
-      plainDescription: "Xác định mục tiêu, khẩu vị rủi ro và cách bạn muốn học trước khi xem dữ liệu.",
+      plainDescription: "Chọn mục tiêu hôm nay, cách đi qua hệ thống, mức AI giải thích và điểm đang vướng.",
       status: "Chưa bắt đầu",
       nextSuggestion: "Sau bước này, hãy đọc bối cảnh vĩ mô để biết thị trường đang thuận hay ngược gió.",
     },

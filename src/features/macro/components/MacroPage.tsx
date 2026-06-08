@@ -6,7 +6,6 @@ import {
   MacroDisclaimer,
   MacroHeader,
   MacroInsightGrid,
-  MacroInsightPanel,
   MacroSectorImpactMap,
   MacroSnapshot,
   MacroThesisBuilder,
@@ -25,12 +24,11 @@ export function MacroPage({ onNavigate }: MacroPageProps) {
     <div className="mx-auto w-full max-w-[1180px] space-y-6">
       <MacroHeader overview={data.overview} />
 
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
-        <main className="space-y-5">
-          <StepAccordion
-            title="Lộ trình đọc bối cảnh vĩ mô"
-            description="Đi từ bức tranh hiện tại đến kênh truyền dẫn, ngành bị ảnh hưởng, tín hiệu cảnh báo và bản nhận định cá nhân."
-            items={[
+      <main className="space-y-5">
+        <StepAccordion
+          title="Lộ trình đọc bối cảnh vĩ mô"
+          description="Đi từ bức tranh hiện tại đến kênh truyền dẫn, ngành bị ảnh hưởng, tín hiệu cảnh báo và bản nhận định cá nhân."
+          items={[
               {
                 key: "snapshot",
                 order: 1,
@@ -124,17 +122,14 @@ export function MacroPage({ onNavigate }: MacroPageProps) {
                   />
                 ),
               },
-            ]}
-          />
+          ]}
+        />
 
-          <MacroDisclaimer
-            content={data.disclaimer.content}
-            title={data.disclaimer.title}
-          />
-        </main>
-
-        <MacroInsightPanel data={data} onNavigate={onNavigate} />
-      </div>
+        <MacroDisclaimer
+          content={data.disclaimer.content}
+          title={data.disclaimer.title}
+        />
+      </main>
     </div>
   );
 }

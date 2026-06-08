@@ -16,6 +16,7 @@ import type {
   IndustryHeaderData,
   IndustryInsightPanelData,
   IndustryJourneyData,
+  IndustryOption,
   IndustryQuickOverviewData,
   IndustryTableRow,
   IndustryTutorData,
@@ -120,6 +121,73 @@ function IndustrySectionCard({
       />
       <CardBody>{children}</CardBody>
     </Card>
+  );
+}
+
+export function IndustrySelector({
+  options,
+  selectedId,
+  onSelect,
+}: {
+  options: IndustryOption[];
+  selectedId: string;
+  onSelect: (id: string) => void;
+}) {
+  const selected = options.find((option) => option.id === selectedId) ?? options[0];
+
+  return (
+    <section className="rounded-[4px] border-[1.5px] border-border bg-surface px-5 py-5 shadow-soft">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <div>
+          <div className="mb-3 flex flex-wrap items-center gap-2">
+            <Chip variant="accent">Chọn ngành</Chip>
+            <Chip variant="neutral">{selected.status}</Chip>
+          </div>
+          <h2 className="text-xl font-bold leading-tight text-ink">Bạn muốn phân tích ngành nào?</h2>
+          <p className="mt-2 max-w-[720px] text-sm leading-6 text-muted">
+            Chọn một ngành để đổi bối cảnh phân tích. Dữ liệu hiện tại là mock, đủ để kiểm thử luồng trước khi nối backend.
+          </p>
+        </div>
+        <div className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3">
+          <p className="text-[11px] font-semibold text-subtle">Ngành đang chọn</p>
+          <p className="mt-1 text-sm font-bold text-ink">{selected.name}</p>
+          <p className="mt-1 text-xs leading-5 text-muted">{selected.industryType}</p>
+        </div>
+      </div>
+
+      <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        {options.map((option) => {
+          const isSelected = option.id === selectedId;
+
+          return (
+            <button
+              key={option.id}
+              className={[
+                "grid min-h-[144px] content-between rounded-[4px] border-[1.5px] px-4 py-4 text-left shadow-soft transition hover:-translate-y-0.5",
+                isSelected
+                  ? "border-border bg-ink text-white"
+                  : "border-border bg-surface-soft text-ink hover:bg-surface-hover",
+              ].join(" ")}
+              type="button"
+              onClick={() => onSelect(option.id)}
+              aria-pressed={isSelected}
+            >
+              <span>
+                <span className={isSelected ? "text-sm font-bold text-white" : "text-sm font-bold text-ink"}>
+                  {option.name}
+                </span>
+                <span className={isSelected ? "mt-1 block text-xs leading-5 text-white/75" : "mt-1 block text-xs leading-5 text-muted"}>
+                  {option.description}
+                </span>
+              </span>
+              <span className={isSelected ? "mt-3 text-[11px] font-bold text-accent" : "mt-3 text-[11px] font-bold text-subtle"}>
+                {option.keyQuestions[0]}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </section>
   );
 }
 
@@ -318,33 +386,6 @@ export function IndustryBlock({ data }: { data: IndustryBlockData }) {
           </div>
         </div>
 
-        {data.outputPrompts ? (
-          <details className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3">
-            <summary className="cursor-pointer text-xs font-bold text-ink">
-              Xem chi tiết
-            </summary>
-            <div className="mt-3 grid gap-2">
-              {data.outputPrompts.map((prompt) => (
-                <label key={prompt} className="grid gap-1">
-                  <span className="text-[11px] font-semibold text-subtle">{prompt}</span>
-                  <input
-                    className="h-9 rounded-[4px] border border-border bg-surface px-3 text-xs text-ink outline-none focus:bg-accent-soft/35"
-                    placeholder="Ghi nhận ngắn..."
-                  />
-                </label>
-              ))}
-            </div>
-          </details>
-        ) : (
-          <details className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3">
-            <summary className="cursor-pointer text-xs font-bold text-ink">
-              Xem chi tiết
-            </summary>
-            <p className="mt-2 text-xs leading-5 text-muted">
-              Nếu phần này chưa rõ, hãy quay lại module liên quan trước khi chuyển sang bước sau.
-            </p>
-          </details>
-        )}
       </div>
     </IndustrySectionCard>
   );

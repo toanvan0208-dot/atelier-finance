@@ -275,7 +275,7 @@ const riskGroups: RiskDetailGroup[] = [
       "Cảm xúc là bình thường. Điều cần làm là ghi nhận nó và quay lại dữ liệu trước khi kết luận.",
     whyCare:
       "FOMO, tin đồn hoặc thiên kiến xác nhận có thể khiến người dùng bỏ qua dữ liệu trái chiều.",
-    dataToReview: ["Price Volume Time", "Nhật ký đầu tư", "Checklist trước quyết định", "Lịch sử hành vi nếu có"],
+    dataToReview: ["Price Volume Time", "Nhật ký đầu tư", "Checklist", "Lịch sử hành vi nếu có"],
     watchSigns: ["FOMO vì giá tăng", "Chỉ tìm thông tin ủng hộ ý muốn", "Dùng một chỉ số duy nhất để kết luận"],
     checkFurther: ["Lý do đến từ dữ liệu, định giá, catalyst hay cảm xúc?", "Nếu thesis sai, điều kiện dừng lại là gì?"],
     sourceModules: ["Technical", "Journal"],
@@ -330,7 +330,7 @@ export const riskPageData: RiskPageData = {
       "Người dùng đã đi qua Hiểu doanh nghiệp, BCTC, Định giá và Technical trước khi rà soát rủi ro.",
     actions: [
       { label: "Quay lại Phân tích kỹ thuật", variant: "secondary" },
-      { label: "Chuyển sang Checklist trước quyết định", variant: "primary" },
+      { label: "Chuyển sang Checklist", variant: "primary" },
     ],
   },
   overview: {
@@ -460,7 +460,7 @@ export const riskPageData: RiskPageData = {
     actions: [
       { label: "Quay lại kiểm tra dữ liệu", variant: "secondary" },
       { label: "Lưu bản ghi nhận rủi ro", variant: "secondary" },
-      { label: "Chuyển sang Checklist trước quyết định", variant: "primary" },
+      { label: "Chuyển sang Checklist", variant: "primary" },
       { label: "Ghi chú điều cần kiểm tra thêm", variant: "ghost" },
     ],
   },

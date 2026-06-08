@@ -1,5 +1,8 @@
+"use client";
+
+import { useMemo, useState } from "react";
 import { EmptyState, LoadingState, StepAccordion } from "@/components/ui";
-import { industryPageData } from "../data/industry.data";
+import { industryOptions, industryPageData } from "../data/industry.data";
 import {
   IndustryBlock,
   IndustryDisclaimer,
@@ -7,11 +10,46 @@ import {
   IndustryInsightPanel,
   IndustryNextActions,
   IndustryQuickOverview,
-  IndustryTutorNote,
+  IndustrySelector,
 } from "./IndustryBlocks";
 
 export function IndustryPage() {
-  const data = industryPageData;
+  const [selectedIndustryId, setSelectedIndustryId] = useState(industryOptions[0].id);
+  const selectedIndustry = useMemo(
+    () =>
+      industryOptions.find((industry) => industry.id === selectedIndustryId) ??
+      industryOptions[0],
+    [selectedIndustryId]
+  );
+  const data = useMemo(
+    () => ({
+      ...industryPageData,
+      header: {
+        ...industryPageData.header,
+        industryName: selectedIndustry.name,
+        industryType: selectedIndustry.industryType,
+        status: selectedIndustry.status,
+      },
+      quickOverview: {
+        ...industryPageData.quickOverview,
+        metrics: industryPageData.quickOverview.metrics.map((metric, index) =>
+          index === 0
+            ? {
+                ...metric,
+                value: selectedIndustry.shortName,
+                description: selectedIndustry.description,
+              }
+            : metric
+        ),
+        answers: selectedIndustry.quickAnswers,
+      },
+      tutor: {
+        ...industryPageData.tutor,
+        notes: selectedIndustry.tutorNotes,
+      },
+    }),
+    [selectedIndustry]
+  );
 
   if (data.isLoading) {
     return (
@@ -34,6 +72,11 @@ export function IndustryPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1180px] space-y-6">
+      <IndustrySelector
+        options={industryOptions}
+        selectedId={selectedIndustryId}
+        onSelect={setSelectedIndustryId}
+      />
       <IndustryHeader data={data.header} />
       <IndustryQuickOverview data={data.quickOverview} />
 
@@ -57,7 +100,6 @@ export function IndustryPage() {
             })}
           />
 
-          <IndustryTutorNote data={data.tutor} />
           <IndustryDisclaimer
             content={data.disclaimer.content}
             title={data.disclaimer.title}

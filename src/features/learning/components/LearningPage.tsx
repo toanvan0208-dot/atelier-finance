@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import { SectionHeader } from "@/components/ui";
 import { learningPageData } from "../data/learning.data";
 import {
-  AILearningCoachPanel,
   ContextualLearningHint,
   ErrorBasedReviewSection,
   KnowledgeMap,
@@ -106,7 +105,6 @@ export function LearningPage() {
         </main>
 
         <aside className="space-y-4">
-          <AILearningCoachPanel data={data.coach} />
           <RecommendedLessonQueue lessons={recommendedLessons} />
         </aside>
       </div>

@@ -19,7 +19,6 @@ import {
   PersonalValuationThesis,
   ValuationConfidenceBlock,
   ValuationRangeSummaryBlock,
-  ValuationTutorBlock,
 } from "./ValuationSynthesisBlocks";
 import { ValuationDisclaimer } from "./ValuationDisclaimer";
 import { ValuationHeader } from "./ValuationHeader";
@@ -203,13 +202,6 @@ export function ValuationPage() {
                 detailLabels={data.detailLabels}
               />
             ),
-          },
-          {
-            key: "tutor",
-            order: steps[13].order,
-            title: steps[13].title,
-            status: steps[13].status,
-            content: <ValuationTutorBlock data={data.tutor} detailLabels={data.detailLabels} />,
           },
           {
             key: "personal-thesis",

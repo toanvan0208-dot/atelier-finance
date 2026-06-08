@@ -4,30 +4,42 @@ export type NavigationItem = {
   shortLabel: string;
   icon: string;
   href: string;
+  group?: "Tổng quan" | "Chuẩn bị" | "Phân tích" | "Thực hành & quyết định";
   disabled?: boolean;
 };
 
 export const navigationItems: NavigationItem[] = [
   {
-    key: "self",
-    label: "Hiểu bản thân",
-    shortLabel: "Tôi",
+    key: "overview",
+    label: "Tổng quan",
+    shortLabel: "Tổng",
+    icon: "◇",
+    href: "/overview",
+    group: "Tổng quan",
+  },
+  {
+    key: "route-config",
+    label: "Cấu hình lộ trình",
+    shortLabel: "Cấu hình",
     icon: "⌂",
-    href: "/self",
+    href: "/route-config",
+    group: "Chuẩn bị",
   },
   {
     key: "learning",
     label: "Học tập",
     shortLabel: "Học",
-    icon: "◍",
+    icon: "●",
     href: "/learning",
+    group: "Chuẩn bị",
   },
   {
     key: "macro",
     label: "Vĩ mô",
     shortLabel: "Vĩ mô",
-    icon: "◈",
+    icon: "◆",
     href: "/macro",
+    group: "Phân tích",
   },
   {
     key: "industry",
@@ -35,6 +47,7 @@ export const navigationItems: NavigationItem[] = [
     shortLabel: "Ngành",
     icon: "▤",
     href: "/industry",
+    group: "Phân tích",
   },
   {
     key: "screening",
@@ -42,6 +55,7 @@ export const navigationItems: NavigationItem[] = [
     shortLabel: "Lọc",
     icon: "▽",
     href: "/screening",
+    group: "Phân tích",
   },
   {
     key: "business",
@@ -49,6 +63,7 @@ export const navigationItems: NavigationItem[] = [
     shortLabel: "DN",
     icon: "▣",
     href: "/business",
+    group: "Phân tích",
   },
   {
     key: "financials",
@@ -56,6 +71,7 @@ export const navigationItems: NavigationItem[] = [
     shortLabel: "BCTC",
     icon: "▤",
     href: "/financials",
+    group: "Phân tích",
   },
   {
     key: "valuation",
@@ -63,13 +79,15 @@ export const navigationItems: NavigationItem[] = [
     shortLabel: "Giá",
     icon: "◇",
     href: "/valuation",
+    group: "Phân tích",
   },
   {
     key: "technical",
-    label: "Price-Volume-Time",
+    label: "Price Volume Time",
     shortLabel: "PVT",
     icon: "⌁",
     href: "/technical",
+    group: "Phân tích",
   },
   {
     key: "risk",
@@ -77,13 +95,7 @@ export const navigationItems: NavigationItem[] = [
     shortLabel: "RR",
     icon: "◉",
     href: "/risk",
-  },
-  {
-    key: "checklist",
-    label: "Checklist",
-    shortLabel: "CL",
-    icon: "☷",
-    href: "/checklist",
+    group: "Phân tích",
   },
   {
     key: "watchlist",
@@ -91,13 +103,23 @@ export const navigationItems: NavigationItem[] = [
     shortLabel: "WL",
     icon: "▧",
     href: "/watchlist",
+    group: "Thực hành & quyết định",
+  },
+  {
+    key: "checklist",
+    label: "Checklist",
+    shortLabel: "CL",
+    icon: "☷",
+    href: "/checklist",
+    group: "Thực hành & quyết định",
   },
   {
     key: "simulation",
     label: "Mô phỏng",
     shortLabel: "MP",
-    icon: "◌",
+    icon: "○",
     href: "/simulation",
+    group: "Thực hành & quyết định",
   },
   {
     key: "journal",
@@ -105,5 +127,6 @@ export const navigationItems: NavigationItem[] = [
     shortLabel: "NK",
     icon: "□",
     href: "/journal",
+    group: "Thực hành & quyết định",
   },
 ];

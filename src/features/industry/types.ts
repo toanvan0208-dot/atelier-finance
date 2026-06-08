@@ -10,6 +10,18 @@ export type IndustryAction = {
   disabled?: ButtonHTMLAttributes<HTMLButtonElement>["disabled"];
 };
 
+export type IndustryOption = {
+  id: string;
+  name: string;
+  shortName: string;
+  industryType: string;
+  status: IndustryStatusLabel;
+  description: string;
+  keyQuestions: string[];
+  quickAnswers: QuickAnswer[];
+  tutorNotes: string[];
+};
+
 export type FieldItem = {
   label: string;
   value: string;

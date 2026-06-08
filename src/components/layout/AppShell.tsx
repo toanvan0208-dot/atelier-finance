@@ -4,11 +4,14 @@ import { useMemo, useState } from "react";
 import { navigationItems } from "@/config/navigation.config";
 import { shellConfig } from "@/config/shell.config";
 import { BusinessPage } from "@/features/business";
+import { ChecklistPage } from "@/features/checklist";
 import { FinancialsPage } from "@/features/financials";
 import { IndustryPage } from "@/features/industry";
 import { LearningPage } from "@/features/learning";
 import { MacroPage } from "@/features/macro";
+import { OverviewPage } from "@/features/overview";
 import { RiskPage } from "@/features/risk";
+import { RouteConfigPage } from "@/features/route-config";
 import { ScreeningPage } from "@/features/screening";
 import { SimulationPage } from "@/features/simulation";
 import { TechnicalPage } from "@/features/technical";
@@ -29,6 +32,8 @@ const modulesWithInternalProgress = new Set([
   "technical",
   "risk",
   "simulation",
+  "overview",
+  "route-config",
 ]);
 
 export function AppShell() {
@@ -69,7 +74,7 @@ export function AppShell() {
     ];
 
   return (
-    <div className="grid min-h-dvh grid-cols-1 grid-rows-[56px_minmax(0,1fr)] bg-page md:grid-cols-[252px_minmax(0,1fr)_360px]">
+    <div className="grid min-h-dvh grid-cols-1 grid-rows-[56px_minmax(0,1fr)] bg-page md:grid-cols-[252px_minmax(0,1fr)_auto]">
       <Topbar
         actions={shellConfig.topbarActions}
         brandName={shellConfig.brandName}
@@ -92,6 +97,12 @@ export function AppShell() {
           modulesWithInternalProgress.has(activeModule) ? undefined : activeJourney
         }
       >
+        {activeModule === "overview" ? (
+          <OverviewPage onNavigate={handleNavigate} />
+        ) : null}
+        {activeModule === "route-config" ? (
+          <RouteConfigPage onNavigate={handleNavigate} />
+        ) : null}
         {activeModule === "macro" ? (
           <MacroPage onNavigate={handleNavigate} />
         ) : null}
@@ -105,11 +116,13 @@ export function AppShell() {
         {activeModule === "risk" ? <RiskPage /> : null}
         {activeModule === "simulation" ? <SimulationPage /> : null}
         {activeModule === "watchlist" ? <WatchlistPage /> : null}
+        {activeModule === "checklist" ? (
+          <ChecklistPage onNavigate={handleNavigate} />
+        ) : null}
       </MainContent>
       <RightAssistantPanel
-        activeLabel={activeItem.label}
-        messages={shellConfig.assistant.messages}
-        title={shellConfig.assistant.title}
+        activeModule={activeModule}
+        onNavigate={handleNavigate}
       />
       <MobileNavigation
         items={navigationItems}
