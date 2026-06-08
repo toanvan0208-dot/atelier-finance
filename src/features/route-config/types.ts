@@ -42,6 +42,7 @@ export type RouteConfigState = {
   journeyMode: JourneyModeId;
   aiExplanationLevel: AIExplanationLevelId;
   stuckPoints: string[];
+  customStuckPoint: string;
   assetInputMode: AssetInputMode;
   selectedTicker: string;
   selectedIndustry: string;

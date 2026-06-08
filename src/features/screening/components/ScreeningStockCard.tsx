@@ -1,34 +1,27 @@
-import { Card, CardBody, CardHeader, Chip } from "@/components/ui";
-import type { ScreeningStock, ScreeningStockCardLabels } from "../types";
+import { Button, Card, CardBody, CardHeader, Chip } from "@/components/ui";
+import type {
+  BeginnerFitLevel,
+  ScreeningStock,
+  ScreeningStockCardLabels,
+  ScreeningTone,
+} from "../types";
 
 type ScreeningStockCardProps = {
   labels: ScreeningStockCardLabels;
   stock: ScreeningStock;
-  tone: "success" | "warning" | "danger";
+  tone: ScreeningTone;
+  onExplain: (stock: ScreeningStock) => void;
 };
 
-function BulletList({ items }: { items: string[] }) {
-  return (
-    <ul className="space-y-1.5">
-      {items.map((item) => (
-        <li key={item} className="text-xs leading-5 text-muted">
-          {item}
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function FieldTitle({ children }: { children: string }) {
-  return (
-    <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.04em] text-subtle">
-      {children}
-    </p>
-  );
+function fitTone(fit: BeginnerFitLevel) {
+  if (fit === "Dễ hiểu") return "success";
+  if (fit === "Trung bình") return "warning";
+  return "danger";
 }
 
 export function ScreeningStockCard({
   labels,
+  onExplain,
   stock,
   tone,
 }: ScreeningStockCardProps) {
@@ -40,25 +33,41 @@ export function ScreeningStockCard({
         title={stock.ticker}
       />
       <CardBody className="space-y-4">
-        <p className="text-sm leading-6 text-muted">{stock.reason}</p>
-
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-3 md:grid-cols-2">
           <div>
-            <FieldTitle>{labels.strengths}</FieldTitle>
-            <BulletList items={stock.strengths} />
+            <p className="text-[11px] font-bold uppercase tracking-[0.04em] text-subtle">
+              {labels.reason}
+            </p>
+            <p className="mt-1 text-sm leading-6 text-muted">{stock.mainReason}</p>
           </div>
           <div>
-            <FieldTitle>{labels.checks}</FieldTitle>
-            <BulletList items={stock.checks} />
+            <p className="text-[11px] font-bold uppercase tracking-[0.04em] text-subtle">
+              {labels.needToCheck}
+            </p>
+            <p className="mt-1 text-sm leading-6 text-muted">{stock.needToCheck}</p>
           </div>
         </div>
 
-        <div className="rounded-[4px] border-[1.5px] border-border bg-surface-soft px-3 py-2">
-          <FieldTitle>{labels.risks}</FieldTitle>
-          <p className="mt-1 text-xs leading-5 text-muted">{stock.risks.join(", ")}</p>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-semibold text-subtle">
+            {labels.beginnerFit}
+          </span>
+          <Chip variant={fitTone(stock.beginnerFitLevel)}>
+            {stock.beginnerFitLevel}
+          </Chip>
         </div>
 
-        <Chip variant="neutral">{stock.beginnerFit}</Chip>
+        <div className="flex flex-wrap gap-2 border-t border-border-soft pt-4">
+          <Button size="sm" variant="primary" onClick={() => onExplain(stock)}>
+            {labels.explainAction}
+          </Button>
+          <Button size="sm" variant="secondary">
+            {labels.compareAction}
+          </Button>
+          <Button size="sm" variant="ghost">
+            {labels.nextAction}
+          </Button>
+        </div>
       </CardBody>
     </Card>
   );

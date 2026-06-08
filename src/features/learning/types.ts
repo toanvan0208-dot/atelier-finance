@@ -1,12 +1,11 @@
 export type LessonLevel = "Cơ bản" | "Trung bình" | "Nâng cao";
 export type LessonStatus = "Chưa học" | "Đang học" | "Đã học" | "Cần ôn lại" | "AI gợi ý";
-export type CategoryStatus = "Chưa bắt đầu" | "Đang học" | "Tạm ổn" | "Cần ôn lại";
-export type ModuleReadiness =
-  | "Chưa sẵn sàng"
+export type StageStatus = "Đang học" | "Tạm ổn" | "Cần ôn" | "Chưa bắt đầu";
+export type ModuleReadinessStatus =
+  | "Sẵn sàng dùng"
   | "Có thể dùng với hướng dẫn"
-  | "Có thể dùng cơ bản"
-  | "Cần ôn lại"
-  | "Đã hiểu khá tốt";
+  | "Cần học thêm trước"
+  | "Chưa nên dùng một mình";
 
 export type LearningQuiz = {
   question: string;
@@ -21,95 +20,74 @@ export type LearningMiniCase = {
 export type LearningLesson = {
   id: string;
   title: string;
-  category: string;
   duration: string;
   level: LessonLevel;
+  stageId: string;
   relatedModules: string[];
-  problemSolved: string;
   status: LessonStatus;
-  goal: string;
-  plainExplanation: string;
+  problemSolved: string;
+  whySuggested: string;
+  outcome: string;
+  concept: string;
+  simpleExplanation: string;
+  usedInModule: string;
   realExample: string;
-  dataToCheck: string[];
   commonMistake: string;
-  linkedModules: string[];
+  dataToCheck: string[];
   quiz: LearningQuiz;
   miniCase?: LearningMiniCase;
-  outcome: string;
 };
 
-export type LearningCategory = {
+export type LearningStage = {
   id: string;
   title: string;
-  goal: string;
-  relatedModule: string;
-  status: CategoryStatus;
-  learnedCount: number;
-  weakCount: number;
+  description: string;
+  relatedModules: string[];
+  progress: {
+    completed: number;
+    total: number;
+  };
+  status: StageStatus;
   lessonIds: string[];
 };
 
-export type LearningDashboardData = {
-  recommendedToday: string;
-  currentContext: string;
-  weakTopics: string[];
-  progress: Array<{ label: string; value: string; detail: string }>;
-  recentMistake: string;
-  moduleBeforeContinue: string;
+export type LearningMistake = {
+  id: string;
+  title: string;
+  signal: string;
+  danger: string;
+  miniCase: string;
+  relatedLessonIds: string[];
+  severity: "high" | "medium" | "low";
 };
 
-export type AILearningCoachData = {
-  learningFor: string;
+export type ModuleReadiness = {
+  moduleName: string;
+  status: ModuleReadinessStatus;
   reason: string;
-  preQuestion: string;
-  afterLesson: string;
-  actions: string[];
-};
-
-export type ErrorReviewItem = {
-  title: string;
-  example: string;
-  suggestedLessons: string[];
-};
-
-export type PracticeItem = {
-  type: "Quiz khái niệm" | "Quiz tình huống" | "Mini case";
-  title: string;
-  prompt: string;
-  goodAnswer: string;
-  feedback: string;
+  recommendedLessonId: string;
 };
 
 export type LearningProfile = {
   level: string;
   learnedTopics: string[];
   weakTopics: string[];
-  recommendedLessons: string[];
+  completedLessons: string;
   completedQuiz: string;
   completedMiniCase: string;
-  repeatedMistakes: string[];
-  relatedModules: string[];
-  nextLessons: string[];
-  readiness: Array<{ moduleName: string; status: ModuleReadiness; reason: string }>;
-  reviewQueue: string[];
   personalNote: string;
-};
-
-export type ContextualLearningHintData = {
-  title: string;
-  reason: string;
-  lessonTitle: string;
-  duration: string;
-  relatedModule: string;
+  readiness: ModuleReadiness[];
 };
 
 export type LearningPageData = {
-  dashboard: LearningDashboardData;
-  categories: LearningCategory[];
+  header: {
+    eyebrow: string;
+    title: string;
+    description: string;
+  };
+  todayLessonId: string;
+  stages: LearningStage[];
   lessons: LearningLesson[];
-  coach: AILearningCoachData;
-  contextualHints: ContextualLearningHintData[];
-  errorReviews: ErrorReviewItem[];
-  practice: PracticeItem[];
+  mistakes: LearningMistake[];
   profile: LearningProfile;
 };

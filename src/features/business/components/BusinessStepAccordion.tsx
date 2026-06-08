@@ -21,7 +21,7 @@ const statusTone: Record<StepStatus, "neutral" | "accent" | "success" | "warning
 
 export function BusinessStepAccordion({ data, items }: BusinessStepAccordionProps) {
   return (
-    <section className="space-y-3">
+    <section className="space-y-5">
       <div className="rounded-[4px] border-[1.5px] border-border bg-surface px-4 py-4 shadow-soft">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>

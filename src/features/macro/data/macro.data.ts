@@ -678,11 +678,11 @@ export const macroJourneyData: MacroJourneyData = {
     },
   ],
   thesisBuilder: {
-    title: "Viết nhận định vĩ mô của bạn",
+    title: "Trắc nghiệm hiểu biết vĩ mô",
     description:
-      "Output cuối module là bản nhận định cá nhân bằng lời của bạn, không phải một tín hiệu mua bán.",
+      "Trả lời các câu hỏi ngắn để AI Tutor ghi nhận bạn đang hiểu bối cảnh vĩ mô đến đâu.",
     tutorRule:
-      "AI Tutor sẽ chọn số câu cần hỏi dựa trên dữ liệu còn thiếu trong nhận định của bạn. Bản mock hiện dùng 8 câu cốt lõi.",
+      "AI Tutor sẽ chọn số câu cần hỏi dựa trên phần kiến thức còn thiếu. Bản mock hiện dùng 8 câu cốt lõi.",
     questions: [
       {
         id: "context",
@@ -916,8 +916,6 @@ export const macroJourneyData: MacroJourneyData = {
         ],
       },
     ],
-    saveActionLabel: "Lưu bản nhận định",
-    previewTitle: "Bản nhận định vĩ mô cá nhân",
   },
   disclaimer: {
     title: "Nhắc nhở trước khi đi tiếp",

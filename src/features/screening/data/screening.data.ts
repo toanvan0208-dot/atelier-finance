@@ -1,4 +1,229 @@
-import type { ScreeningPageData } from "../types";
+import type { ScreeningPageData, ScreeningStock } from "../types";
+
+const retailContext = {
+  tailwind:
+    "Sức mua nội địa có dấu hiệu phục hồi, lãi suất giảm hỗ trợ tiêu dùng và doanh nghiệp có thương hiệu rõ dễ được theo dõi hơn.",
+  risks:
+    "Cạnh tranh giá, chi phí vận hành, tồn kho và biên lợi nhuận suy giảm vẫn là các điểm cần kiểm tra trước khi đi sâu.",
+  confirmations:
+    "Doanh thu cùng cửa hàng, biên gộp, dòng tiền hoạt động, tồn kho, nợ vay và hiệu quả chuỗi mới.",
+};
+
+const funnelLayers = [
+  {
+    id: "industry",
+    title: "Bối cảnh ngành",
+    icon: "1",
+    question: "Ngành này đang có gió thuận hay gió ngược?",
+    explanation:
+      "Một doanh nghiệp tốt vẫn có thể gặp khó nếu ngành đang đi ngược chu kỳ.",
+    status: "Đạt" as const,
+    criteria: ["Gió thuận ngành", "Rủi ro chu kỳ", "Luận điểm cần kiểm tra"],
+    example:
+      "Bán lẻ có thể hưởng lợi nếu sức mua phục hồi, nhưng cần soi biên lợi nhuận và tồn kho.",
+    beginnerMistake:
+      "Chỉ thấy tên doanh nghiệp quen thuộc rồi bỏ qua bối cảnh ngành đang hỗ trợ hay cản trở.",
+  },
+  {
+    id: "business-model",
+    title: "Mô hình kinh doanh",
+    icon: "2",
+    question: "Công ty kiếm tiền bằng cách nào, người mới có hiểu được không?",
+    explanation:
+      "Nếu chưa hiểu công ty kiếm tiền thế nào thì chưa nên phân tích sâu.",
+    status: "Đạt" as const,
+    criteria: ["Sản phẩm dễ hiểu", "Khách hàng rõ", "Nguồn doanh thu chính"],
+    example:
+      "Chuỗi bán lẻ có cửa hàng, doanh thu, biên lợi nhuận và tồn kho tương đối dễ hình dung.",
+    beginnerMistake:
+      "Nhìn biểu đồ giá trước khi hiểu doanh nghiệp thực sự bán gì và kiếm tiền từ đâu.",
+  },
+  {
+    id: "financial-health",
+    title: "Sức khỏe tài chính",
+    icon: "3",
+    question: "Công ty có dấu hiệu nguy hiểm về nợ, dòng tiền, tồn kho hoặc lợi nhuận không?",
+    explanation:
+      "Lợi nhuận đẹp nhưng không chuyển thành tiền mặt có thể là rủi ro.",
+    status: "Cần kiểm tra" as const,
+    criteria: ["Dòng tiền hoạt động", "Tồn kho", "Nợ vay"],
+    example:
+      "Doanh nghiệp bán lẻ cần kiểm tra lợi nhuận có đi cùng tiền thật và tồn kho có tăng bất thường không.",
+    beginnerMistake:
+      "Chỉ nhìn lợi nhuận sau thuế mà không kiểm tra dòng tiền hoạt động.",
+  },
+  {
+    id: "valuation",
+    title: "Định giá và kỳ vọng",
+    icon: "4",
+    question: "Giá hiện tại đã phản ánh quá nhiều kỳ vọng chưa?",
+    explanation:
+      "Cổ phiếu tốt nhưng giá quá cao vẫn có thể là khoản đầu tư kém.",
+    status: "Cần kiểm tra" as const,
+    criteria: ["P/E tương đối", "Tăng trưởng lợi nhuận", "Kỳ vọng thị trường"],
+    example:
+      "Nếu thị trường đã trả giá cao cho phục hồi sức mua, cần kiểm tra biên an toàn kỹ hơn.",
+    beginnerMistake:
+      "Nghĩ doanh nghiệp tốt đồng nghĩa với giá nào cũng hợp lý.",
+  },
+  {
+    id: "liquidity-fit",
+    title: "Thanh khoản và độ phù hợp",
+    icon: "5",
+    question: "Người mới có dễ theo dõi và thoát vị thế khi sai không?",
+    explanation:
+      "Cổ phiếu thanh khoản thấp có thể khiến người mới bị kẹt khi thị trường xấu.",
+    status: "Đạt" as const,
+    criteria: ["Thanh khoản", "Biến động", "Độ dễ hiểu"],
+    example:
+      "Ưu tiên mã có giao dịch đủ tốt, thông tin dễ kiểm tra và câu chuyện không quá phức tạp.",
+    beginnerMistake:
+      "Chạy theo mã tăng mạnh nhưng khối lượng giao dịch mỏng và khó thoát khi sai.",
+  },
+];
+
+function stockFunnel(overrides: Partial<Record<string, string>> = {}) {
+  return funnelLayers.map((layer) => ({
+    layer: layer.title,
+    status: layer.status,
+    simpleExplanation:
+      overrides[layer.id] ??
+      (layer.id === "financial-health"
+        ? "Cần kiểm tra thêm để đảm bảo lợi nhuận đi cùng dòng tiền và rủi ro nợ không tăng."
+        : layer.explanation),
+    nextDataToCheck:
+      layer.id === "financial-health"
+        ? ["Dòng tiền hoạt động", "Tồn kho", "Biên gộp", "Nợ vay"]
+        : layer.criteria,
+    relatedModule:
+      layer.id === "industry"
+        ? "Phân tích ngành"
+        : layer.id === "financial-health"
+          ? "Báo cáo tài chính"
+          : layer.id === "valuation"
+            ? "Định giá"
+            : "Hiểu doanh nghiệp",
+  }));
+}
+
+const stocks: Record<string, ScreeningStock> = {
+  MWG: {
+    ticker: "MWG",
+    companyName: "CTCP Đầu tư Thế Giới Di Động",
+    classification: "Đáng mở hồ sơ phân tích",
+    reason:
+      "Mô hình dễ hiểu, hưởng lợi nếu sức mua phục hồi và thanh khoản tốt.",
+    mainReason:
+      "Mô hình dễ hiểu, hưởng lợi nếu sức mua phục hồi và thanh khoản tốt.",
+    needToCheck:
+      "Biên lợi nhuận, tồn kho và hiệu quả chuỗi mới.",
+    strengths: ["Quy mô dẫn đầu", "Thanh khoản tốt", "Mô hình dễ hiểu"],
+    checks: ["Biên lợi nhuận", "Tồn kho", "Hiệu quả chuỗi mới"],
+    risks: ["Chi phí vận hành", "Cạnh tranh giá"],
+    beginnerFit: "Dễ hiểu với người mới nếu bắt đầu từ ngành bán lẻ.",
+    beginnerFitLevel: "Dễ hiểu",
+    conclusion: "Đủ điều kiện mở hồ sơ phân tích sâu hơn.",
+    funnel: stockFunnel({
+      industry: "Bán lẻ có thể hưởng lợi nếu sức mua nội địa phục hồi.",
+      "business-model":
+        "Doanh nghiệp bán sản phẩm tiêu dùng qua chuỗi cửa hàng, tương đối dễ hiểu.",
+      "liquidity-fit":
+        "Thanh khoản tốt và thông tin doanh nghiệp tương đối dễ theo dõi.",
+    }),
+  },
+  PNJ: {
+    ticker: "PNJ",
+    companyName: "CTCP Vàng bạc Đá quý Phú Nhuận",
+    classification: "Đáng mở hồ sơ phân tích",
+    reason:
+      "Thương hiệu rõ, biên lợi nhuận tốt và câu chuyện tiêu dùng dễ theo dõi.",
+    mainReason:
+      "Thương hiệu rõ, biên lợi nhuận tốt và câu chuyện tiêu dùng dễ theo dõi.",
+    needToCheck:
+      "Sức mua hàng không thiết yếu, tồn kho và biến động giá nguyên liệu.",
+    strengths: ["Thương hiệu rõ", "Biên lợi nhuận tốt", "Quản trị dễ theo dõi"],
+    checks: ["Sức mua trang sức", "Tồn kho", "Giá nguyên liệu"],
+    risks: ["Chu kỳ tiêu dùng", "Biến động giá vàng"],
+    beginnerFit: "Tương đối dễ hiểu, nhưng vẫn cần kiểm tra chu kỳ tiêu dùng.",
+    beginnerFitLevel: "Dễ hiểu",
+    conclusion: "Có thể mở hồ sơ phân tích nếu người dùng hiểu rủi ro tiêu dùng cao cấp.",
+    funnel: stockFunnel({
+      "financial-health":
+        "Cần kiểm tra tồn kho và dòng tiền vì ngành trang sức có đặc thù nguyên liệu.",
+      valuation:
+        "Cần so sánh định giá với tốc độ tăng trưởng lợi nhuận thực tế.",
+    }),
+  },
+  FRT: {
+    ticker: "FRT",
+    companyName: "CTCP Bán lẻ Kỹ thuật số FPT",
+    classification: "Theo dõi thêm",
+    reason:
+      "Có câu chuyện mở rộng nhưng cần kiểm tra dòng tiền và hiệu quả chuỗi.",
+    mainReason:
+      "Có câu chuyện mở rộng nhưng cần kiểm tra dòng tiền và hiệu quả chuỗi.",
+    needToCheck:
+      "Dòng tiền, biên lợi nhuận và hiệu quả mở rộng điểm bán.",
+    strengths: ["Có động lực mở rộng", "Câu chuyện ngành rõ"],
+    checks: ["Dòng tiền", "Hiệu quả điểm bán", "Định giá"],
+    risks: ["Áp lực chi phí", "Tăng trưởng không như kỳ vọng"],
+    beginnerFit: "Có thể theo dõi, nhưng chưa nên kết luận nhanh.",
+    beginnerFitLevel: "Trung bình",
+    conclusion: "Nên theo dõi thêm trước khi mở hồ sơ phân tích sâu.",
+    funnel: stockFunnel({
+      "financial-health":
+        "Cần kiểm tra dòng tiền và biên lợi nhuận vì mở rộng chuỗi có thể tạo áp lực chi phí.",
+      valuation:
+        "Cần xem kỳ vọng tăng trưởng đã phản ánh vào giá đến mức nào.",
+    }),
+  },
+  FPT: {
+    ticker: "FPT",
+    companyName: "CTCP FPT",
+    classification: "Theo dõi thêm",
+    reason:
+      "Doanh nghiệp chất lượng, nhưng cần kiểm tra mức khớp với bối cảnh lọc bán lẻ.",
+    mainReason:
+      "Doanh nghiệp chất lượng, nhưng cần kiểm tra mức khớp với bối cảnh lọc bán lẻ.",
+    needToCheck:
+      "Luận điểm ngành đang dùng, định giá hiện tại và nguồn tăng trưởng chính.",
+    strengths: ["Tài chính ổn", "Vị thế rõ", "Mô hình tăng trưởng tốt"],
+    checks: ["Mức liên quan đến ngành lọc", "Định giá hiện tại"],
+    risks: ["Sai bối cảnh lọc", "Kỳ vọng thị trường cao"],
+    beginnerFit: "Phù hợp để theo dõi sau khi hiểu rõ ngành chính.",
+    beginnerFitLevel: "Trung bình",
+    conclusion: "Nên đưa sang bối cảnh công nghệ nếu muốn phân tích đúng hơn.",
+    funnel: stockFunnel({
+      industry:
+        "Doanh nghiệp tốt nhưng không trực tiếp nằm trong luận điểm bán lẻ đang chọn.",
+      "business-model":
+        "Mô hình công nghệ có nhiều mảng, người mới cần tách từng nguồn doanh thu.",
+    }),
+  },
+  HPG: {
+    ticker: "HPG",
+    companyName: "CTCP Tập đoàn Hòa Phát",
+    classification: "Chưa phù hợp với người mới",
+    reason:
+      "Không khớp bối cảnh bán lẻ và chịu ảnh hưởng chu kỳ hàng hóa mạnh.",
+    mainReason:
+      "Không khớp bối cảnh bán lẻ và chịu ảnh hưởng chu kỳ hàng hóa mạnh.",
+    needToCheck:
+      "Chu kỳ thép, giá nguyên liệu, nhu cầu xây dựng và tồn kho.",
+    strengths: ["Quy mô lớn", "Thanh khoản tốt"],
+    checks: ["Chu kỳ thép", "Biên lợi nhuận", "Nhu cầu xây dựng"],
+    risks: ["Chu kỳ hàng hóa", "Không phù hợp bối cảnh bán lẻ"],
+    beginnerFit: "Nên phân tích sau khi học module ngành thép.",
+    beginnerFitLevel: "Khó",
+    conclusion: "Chưa phù hợp với người mới trong bối cảnh lọc hiện tại.",
+    funnel: stockFunnel({
+      industry:
+        "Ngành thép có chu kỳ riêng, không khớp luận điểm phục hồi bán lẻ.",
+      "liquidity-fit":
+        "Thanh khoản tốt nhưng biến động chu kỳ có thể khó với người mới.",
+    }),
+  },
+};
 
 export const screeningPageData: ScreeningPageData = {
   isLoading: false,
@@ -10,431 +235,272 @@ export const screeningPageData: ScreeningPageData = {
   emptyState: {
     title: "Chưa có cổ phiếu phù hợp",
     description:
-      "Thử đổi ngành, mục tiêu đầu tư hoặc khẩu vị rủi ro để mở rộng danh sách ứng viên.",
-    icon: "∅",
+      "Thử đổi ngành, mục tiêu hoặc khẩu vị rủi ro để mở rộng danh sách ứng viên.",
+    icon: "0",
   },
   hero: {
     eyebrow: "Lọc cổ phiếu",
-    title: "Tìm ứng viên đáng phân tích sâu hơn",
+    title: "Lọc cổ phiếu ứng viên",
     description:
-      "Bộ lọc này giúp người mới phân loại cổ phiếu theo mức độ đáng theo dõi để phân tích sâu hơn.",
-    icon: "▽",
+      "Module này giúp bạn tìm những cổ phiếu đáng phân tích sâu hơn dựa trên bối cảnh ngành, mô hình kinh doanh, sức khỏe tài chính, định giá sơ bộ, thanh khoản và mức độ phù hợp với người mới.",
+    warningNote:
+      "Kết quả lọc chỉ là vòng gửi xe, không phải khuyến nghị mua bán.",
+    icon: "S",
   },
   input: {
-    title: "Chọn bối cảnh lọc",
+    title: "Câu lọc của tôi",
     description:
-      "Bắt đầu bằng ngành, khẩu vị rủi ro và mục tiêu đầu tư để hệ thống chọn tiêu chí dễ hiểu hơn.",
+      "Chọn đủ 3 yếu tố để hệ thống dựng một câu lọc dễ hiểu, thay vì bắt bạn nhớ lựa chọn ở nhiều tab.",
+    sentenceTemplate: {
+      prefix: "Tôi muốn tìm cổ phiếu thuộc",
+      industryFallback: "một ngành cụ thể",
+      riskFallback: "khẩu vị rủi ro phù hợp",
+      objectiveFallback: "mục tiêu đầu tư rõ ràng",
+    },
     industryLabel: "Ngành muốn lọc",
     riskLabel: "Khẩu vị rủi ro",
-    objectiveLabel: "Mục tiêu đầu tư",
-    thesisLabel: "Luận điểm ngành đang dùng để lọc",
+    objectiveLabel: "Mục tiêu",
     industries: [
       { value: "retail", label: "Bán lẻ" },
       { value: "banking", label: "Ngân hàng" },
-      { value: "steel", label: "Thép" },
-      { value: "technology", label: "Công nghệ" },
+      { value: "securities", label: "Chứng khoán" },
       { value: "real-estate", label: "Bất động sản" },
-      { value: "logistics", label: "Logistics" },
+      { value: "steel", label: "Thép" },
+      { value: "industrial-park", label: "Khu công nghiệp" },
+      { value: "oil-gas", label: "Dầu khí" },
+      { value: "power", label: "Điện" },
+      { value: "ports", label: "Cảng biển" },
+      { value: "technology", label: "Công nghệ" },
     ],
     riskLevels: [
-      { value: "low", label: "Thấp" },
-      { value: "medium", label: "Trung bình" },
-      { value: "high", label: "Cao" },
+      {
+        value: "low",
+        label: "Thấp",
+        description: "Ưu tiên dễ hiểu, thanh khoản tốt, rủi ro thấp hơn.",
+      },
+      {
+        value: "medium",
+        label: "Trung bình",
+        description: "Chấp nhận biến động để tìm cơ hội tốt hơn.",
+      },
+      {
+        value: "high",
+        label: "Cao",
+        description: "Chỉ phù hợp khi đã hiểu chu kỳ, định giá và rủi ro.",
+      },
     ],
     objectives: [
-      { value: "growth", label: "Tăng trưởng" },
-      { value: "defensive", label: "Phòng thủ" },
-      { value: "dividend", label: "Cổ tức" },
-      { value: "recovery", label: "Phục hồi" },
+      {
+        value: "learn",
+        label: "Học cách phân tích",
+        description: "Ưu tiên mã dễ hiểu để luyện quy trình phân tích.",
+      },
+      {
+        value: "watch",
+        label: "Theo dõi thêm",
+        description: "Tạo danh sách quan sát nhưng chưa ra quyết định.",
+      },
+      {
+        value: "medium-term",
+        label: "Đầu tư trung hạn",
+        description: "Tìm ứng viên có câu chuyện 6-18 tháng để kiểm tra.",
+      },
+      {
+        value: "cycle",
+        label: "Giao dịch theo chu kỳ",
+        description: "Chỉ dùng khi hiểu rõ biến động ngành và điểm sai.",
+      },
     ],
     defaultIndustry: "retail",
     defaultRisk: "low",
-    defaultObjective: "growth",
-    thesis:
-      "Sức mua phục hồi dần, doanh nghiệp có thương hiệu rõ và kiểm soát chi phí tốt sẽ được ưu tiên theo dõi.",
+    defaultObjective: "learn",
   },
   context: {
-    title: "Tóm tắt bối cảnh trước khi lọc",
-    icon: "AI",
-    summary:
-      "Bạn đang chọn ngành bán lẻ. Khẩu vị rủi ro của bạn là thấp. Ngành bán lẻ hiện đang được hỗ trợ bởi kỳ vọng phục hồi sức mua, nhưng vẫn có rủi ro từ chi phí vận hành và cạnh tranh. Vì vậy, hệ thống sẽ ưu tiên các doanh nghiệp bán lẻ có tài chính ổn định, thương hiệu rõ, thanh khoản tốt và mô hình dễ hiểu.",
+    title: "Luận điểm bối cảnh",
+    subtitle:
+      "Hệ thống không lọc ngẫu nhiên. Mỗi bộ lọc bắt đầu từ một giả định về ngành và rủi ro cần kiểm tra.",
+    icon: "C",
+    summariesByIndustry: {
+      retail: retailContext,
+      banking: {
+        tailwind: "Tăng trưởng tín dụng, NIM và chất lượng tài sản là điểm cần theo dõi.",
+        risks: "Nợ xấu, dự phòng, CASA suy giảm và áp lực chi phí vốn.",
+        confirmations: "Tăng trưởng tín dụng, NIM, nợ xấu, CASA và dự phòng.",
+      },
+      steel: {
+        tailwind: "Đầu tư công và chu kỳ phục hồi hàng hóa có thể hỗ trợ nhu cầu thép.",
+        risks: "Giá nguyên liệu, tồn kho, biên lợi nhuận và biến động chu kỳ.",
+        confirmations: "Giá thép, giá quặng, tồn kho, sản lượng bán và biên gộp.",
+      },
+      technology: {
+        tailwind: "Backlog, đơn hàng chuyển đổi số và biên lợi nhuận là các điểm hỗ trợ.",
+        risks: "Chi phí nhân sự, phụ thuộc khách hàng lớn và kỳ vọng định giá cao.",
+        confirmations: "Backlog, biên lợi nhuận, nhân sự, khách hàng và tăng trưởng đơn hàng.",
+      },
+      "real-estate": {
+        tailwind: "Pháp lý và khả năng hấp thụ dự án quyết định chất lượng phục hồi.",
+        risks: "Nợ vay, trái phiếu, dòng tiền dự án và tiến độ pháp lý.",
+        confirmations: "Pháp lý, hấp thụ, nợ vay, trái phiếu và dòng tiền dự án.",
+      },
+    },
   },
   beginner: {
-    eyebrow: "Lớp 1",
-    title: "Kết quả lọc nhanh cho người mới",
+    items: [
+      { label: "Đáng mở hồ sơ phân tích", value: "2 mã", tone: "success" },
+      { label: "Theo dõi thêm", value: "2 mã", tone: "warning" },
+      { label: "Chưa phù hợp với người mới", value: "1 mã", tone: "danger" },
+      { label: "Câu hỏi sàng lọc chính", value: "5 tầng", tone: "accent" },
+    ],
+  },
+  funnel: {
+    title: "Hệ thống lọc qua 5 cửa nào?",
     description:
-      "Màn hình này chỉ trả lời câu hỏi cổ phiếu có đáng chuyển sang bước phân tích doanh nghiệp hay không.",
-    mainQuestion: "Cổ phiếu này có đáng phân tích tiếp không?",
-    questionsTitle: "5 câu hỏi dễ hiểu",
-    questions: [
-      "Doanh nghiệp có khỏe không?",
-      "Doanh nghiệp có vị thế gì trong ngành không?",
-      "Doanh nghiệp có hưởng lợi từ ngành không?",
-      "Cổ phiếu có rủi ro rõ ràng nào không?",
-      "Cổ phiếu có phù hợp với người mới không?",
-    ],
-    metrics: [
-      {
-        title: "Nhóm ứng viên",
-        value: "3",
-        description: "Ưu tiên, cần kiểm tra thêm, hoặc tạm loại cho người mới.",
-        icon: "G",
-        status: "Phân loại",
-      },
-      {
-        title: "Câu hỏi sàng lọc",
-        value: "5",
-        description: "Dùng ngôn ngữ phổ thông thay vì chỉ số tài chính phức tạp.",
-        icon: "?",
-        status: "Dễ hiểu",
-      },
-    ],
+      "Trước khi xem mã cổ phiếu, hãy hiểu hệ thống đang loại nhiễu theo 5 tầng: bối cảnh ngành, mô hình kinh doanh, sức khỏe tài chính, định giá kỳ vọng và thanh khoản.",
+    layers: funnelLayers,
   },
   resultGroupLabels: {
     stockCountUnit: "mã",
   },
   stockCardLabels: {
-    strengths: "Điểm mạnh sơ bộ",
-    checks: "Cần kiểm tra thêm",
-    risks: "Rủi ro chính",
+    reason: "Lý do chính",
+    needToCheck: "Cần kiểm tra",
+    beginnerFit: "Mức dễ hiểu",
+    explainAction: "Xem vì sao được xếp nhóm",
+    compareAction: "So sánh mã này",
+    nextAction: "Mở hồ sơ phân tích",
   },
   resultGroups: [
     {
       key: "priority",
-      title: "Ưu tiên phân tích sâu",
+      title: "Đáng mở hồ sơ phân tích",
       description:
-        "Nhóm có nhiều tín hiệu sơ bộ phù hợp để chuyển sang phân tích doanh nghiệp.",
+        "Các mã này chưa chắc đáng mua, nhưng đủ điều kiện để phân tích sâu hơn.",
       icon: "1",
       tone: "success",
-      criteria: [
-        "Có tài chính sơ bộ ổn",
-        "Có vị thế rõ trong ngành",
-        "Hưởng lợi từ luận điểm ngành",
-        "Không có cảnh báo quản trị lớn",
-        "Có chất xúc tác đáng theo dõi",
-        "Định giá chưa quá vô lý",
-        "Thanh khoản đủ tốt",
-        "Mô hình kinh doanh tương đối dễ hiểu",
-      ],
-      stocks: [
-        {
-          ticker: "MWG",
-          companyName: "Công ty bán lẻ A",
-          classification: "Ưu tiên phân tích sâu",
-          reason:
-            "Có thương hiệu mạnh, mạng lưới lớn và hưởng lợi nếu sức mua phục hồi.",
-          strengths: ["Quy mô dẫn đầu", "Thanh khoản tốt", "Mô hình dễ hiểu"],
-          checks: ["Biên lợi nhuận", "Tốc độ phục hồi sức mua"],
-          risks: ["Chi phí vận hành", "Cạnh tranh giá"],
-          beginnerFit: "Phù hợp để học cách phân tích ngành bán lẻ.",
-        },
-        {
-          ticker: "PNJ",
-          companyName: "Công ty bán lẻ trang sức B",
-          classification: "Ưu tiên phân tích sâu",
-          reason:
-            "Thương hiệu rõ, câu chuyện tiêu dùng dễ theo dõi và rủi ro vận hành tương đối minh bạch.",
-          strengths: ["Thương hiệu rõ", "Biên lợi nhuận tốt", "Quản trị dễ theo dõi"],
-          checks: ["Sức mua hàng không thiết yếu", "Tồn kho"],
-          risks: ["Biến động giá nguyên liệu", "Chu kỳ tiêu dùng"],
-          beginnerFit: "Tương đối phù hợp với người mới.",
-        },
-      ],
+      criteria: ["Mô hình dễ hiểu", "Thanh khoản tốt", "Luận điểm ngành rõ"],
+      stocks: [stocks.MWG, stocks.PNJ],
     },
     {
       key: "review",
-      title: "Cần kiểm tra thêm",
+      title: "Theo dõi thêm",
       description:
-        "Nhóm có điểm hấp dẫn nhưng vẫn còn câu hỏi cần làm rõ trước khi đi sâu.",
+        "Có điểm hấp dẫn, nhưng còn thiếu xác nhận hoặc có rủi ro cần soi kỹ.",
       icon: "2",
       tone: "warning",
-      criteria: [
-        "Có một số điểm hấp dẫn",
-        "Dòng tiền hoặc định giá cần kiểm tra thêm",
-        "Catalyst chưa chắc chắn",
-        "Quản trị cần đọc kỹ hơn",
-        "Mô hình kinh doanh chưa thật dễ hiểu",
-      ],
-      stocks: [
-        {
-          ticker: "FRT",
-          companyName: "Công ty bán lẻ C",
-          classification: "Cần kiểm tra thêm",
-          reason:
-            "Có câu chuyện tăng trưởng nhưng người mới cần hiểu rõ hơn về dòng tiền và biên lợi nhuận.",
-          strengths: ["Có động lực mở rộng", "Câu chuyện ngành rõ"],
-          checks: ["Dòng tiền", "Hiệu quả mở rộng điểm bán", "Định giá"],
-          risks: ["Áp lực chi phí", "Tốc độ tăng trưởng không như kỳ vọng"],
-          beginnerFit: "Có thể theo dõi, nhưng chưa nên kết luận nhanh.",
-        },
-        {
-          ticker: "FPT",
-          companyName: "Công ty công nghệ D",
-          classification: "Cần kiểm tra thêm",
-          reason:
-            "Chất lượng doanh nghiệp tốt nhưng cần xem có thật sự khớp luận điểm ngành bán lẻ hay không.",
-          strengths: ["Tài chính ổn", "Vị thế rõ", "Mô hình tăng trưởng tốt"],
-          checks: ["Mức liên quan đến ngành đang lọc", "Định giá hiện tại"],
-          risks: ["Không phải cổ phiếu thuần bán lẻ", "Kỳ vọng thị trường cao"],
-          beginnerFit: "Phù hợp để theo dõi sau khi hiểu rõ ngành chính.",
-        },
-        {
-          ticker: "VCB",
-          companyName: "Ngân hàng E",
-          classification: "Cần kiểm tra thêm",
-          reason:
-            "Doanh nghiệp chất lượng nhưng không trực tiếp thuộc luận điểm bán lẻ mẫu.",
-          strengths: ["Vị thế mạnh", "Quản trị tốt"],
-          checks: ["Luận điểm ngành ngân hàng", "Định giá tương đối"],
-          risks: ["Sai bối cảnh lọc", "Chu kỳ tín dụng"],
-          beginnerFit: "Nên phân tích trong module ngành ngân hàng.",
-        },
-      ],
+      criteria: ["Cần kiểm tra dòng tiền", "Định giá cần soi thêm", "Bối cảnh chưa khớp hoàn toàn"],
+      stocks: [stocks.FRT, stocks.FPT],
     },
     {
       key: "excluded",
-      title: "Tạm loại khỏi danh sách cho người mới",
+      title: "Chưa phù hợp với người mới",
       description:
-        "Nhóm có rủi ro, độ khó hoặc mức không phù hợp khiến người mới nên phân tích sau.",
+        "Không nhất thiết là doanh nghiệp xấu, nhưng hiện quá khó hiểu, rủi ro cao hoặc câu chuyện chưa rõ.",
       icon: "3",
       tone: "danger",
-      criteria: [
-        "Tài chính yếu hoặc biến động mạnh",
-        "Có cảnh báo quản trị rõ",
-        "Thanh khoản thấp",
-        "Định giá quá cao so với triển vọng",
-        "Mô hình kinh doanh quá khó hiểu",
-        "Không phù hợp khẩu vị rủi ro của người dùng",
-      ],
-      stocks: [
-        {
-          ticker: "HPG",
-          companyName: "Công ty thép F",
-          classification: "Tạm loại cho người mới",
-          reason:
-            "Không khớp ngành bán lẻ mẫu và chịu ảnh hưởng chu kỳ hàng hóa mạnh.",
-          strengths: ["Quy mô lớn", "Thanh khoản tốt"],
-          checks: ["Chu kỳ thép", "Biên lợi nhuận", "Nhu cầu xây dựng"],
-          risks: ["Chu kỳ hàng hóa", "Không phù hợp bối cảnh bán lẻ"],
-          beginnerFit: "Nên phân tích sau khi học module ngành thép.",
-        },
-        {
-          ticker: "GMD",
-          companyName: "Công ty logistics G",
-          classification: "Tạm loại cho người mới",
-          reason:
-            "Mô hình logistics cần hiểu thêm về cảng, sản lượng và thương mại quốc tế.",
-          strengths: ["Có tài sản hạ tầng", "Hưởng lợi nếu thương mại phục hồi"],
-          checks: ["Sản lượng qua cảng", "Chu kỳ thương mại", "Định giá"],
-          risks: ["Mô hình khó hơn bán lẻ", "Phụ thuộc thương mại"],
-          beginnerFit: "Chưa phù hợp ở bối cảnh lọc bán lẻ.",
-        },
-        {
-          ticker: "PVD",
-          companyName: "Công ty dịch vụ dầu khí H",
-          classification: "Tạm loại cho người mới",
-          reason:
-            "Rủi ro chu kỳ và biến động giá hàng hóa cao hơn khẩu vị rủi ro thấp.",
-          strengths: ["Có catalyst nếu giá dầu thuận lợi"],
-          checks: ["Giá dầu", "Giá thuê giàn", "Chu kỳ đầu tư dầu khí"],
-          risks: ["Biến động mạnh", "Khó hiểu với người mới"],
-          beginnerFit: "Không phù hợp với khẩu vị rủi ro thấp.",
-        },
-      ],
+      criteria: ["Sai bối cảnh lọc", "Chu kỳ mạnh", "Khó với người mới"],
+      stocks: [stocks.HPG],
     },
   ],
-  funnelStepLabels: {
-    goal: "Mục tiêu",
-    resultStatus: "Trạng thái kết quả",
-  },
   deepDive: {
-    title: "Phân tích chi tiết phễu lọc",
+    title: "Hệ thống đã lọc như thế nào?",
     description:
-      "Lớp này chỉ mở khi người dùng muốn hiểu vì sao hệ thống phân loại cổ phiếu như vậy.",
-    icon: "F",
-    collapsedLabel: "Xem phân tích chi tiết",
-    expandedLabel: "Thu gọn phân tích chi tiết",
-    steps: [
-      {
-        step: "Bước 0",
-        title: "Tóm tắt bối cảnh trước khi lọc",
-        mainQuestion:
-          "Bối cảnh vĩ mô, ngành và khẩu vị rủi ro hiện tại đang yêu cầu loại cổ phiếu nào?",
-        goal: "Đảm bảo bộ lọc không tách rời khỏi ngành, vĩ mô và khẩu vị rủi ro.",
-        resultStatus: "Ưu tiên doanh nghiệp dễ hiểu, tài chính ổn và thanh khoản tốt.",
-        explanation:
-          "Với khẩu vị rủi ro thấp, hệ thống giảm ưu tiên các cổ phiếu quá chu kỳ hoặc khó giải thích.",
-      },
-      {
-        step: "Bước 1",
-        title: "Kiểm tra sức khỏe tài chính sơ bộ",
-        mainQuestion: "Doanh nghiệp có đủ khỏe để phân tích tiếp không?",
-        goal: "Loại bớt doanh nghiệp có nền tài chính quá yếu ở vòng đầu.",
-        resultStatus: "Đạt, cần kiểm tra thêm hoặc chưa phù hợp.",
-        explanation:
-          "Người mới nên bắt đầu với doanh nghiệp có doanh thu, lợi nhuận và dòng tiền dễ theo dõi.",
-      },
-      {
-        step: "Bước 2",
-        title: "Kiểm tra vị thế sơ bộ trong ngành",
-        mainQuestion: "Doanh nghiệp này có vị thế gì trong ngành?",
-        goal: "Xác định doanh nghiệp có lợi thế nhận diện, quy mô hoặc phân phối hay không.",
-        resultStatus: "Có vị thế rõ, có vị thế vừa phải hoặc vị thế chưa rõ.",
-        explanation:
-          "Vị thế ngành giúp người mới hiểu vì sao một doanh nghiệp có thể hưởng lợi tốt hơn đối thủ.",
-      },
-      {
-        step: "Bước 2.5",
-        title: "Kiểm tra mức độ hưởng lợi từ luận điểm ngành",
-        mainQuestion:
-          "Nếu luận điểm ngành đúng, doanh nghiệp này có thật sự hưởng lợi không?",
-        goal: "Tránh chọn cổ phiếu tốt nhưng không liên quan trực tiếp tới thesis đang dùng.",
-        resultStatus: "Hưởng lợi rõ hoặc cần kiểm chứng thêm.",
-        explanation:
-          "Một cổ phiếu chỉ nên vào danh sách ưu tiên nếu câu chuyện ngành có khả năng đi vào kết quả kinh doanh.",
-        outputs: [
-          "Hưởng lợi rõ từ luận điểm ngành",
-          "Có hưởng lợi nhưng cần kiểm chứng thêm",
-          "Hưởng lợi chưa rõ",
-          "Không phù hợp với luận điểm ngành",
-        ],
-      },
-      {
-        step: "Bước 3",
-        title: "Kiểm tra cảnh báo quản trị và minh bạch sơ bộ",
-        mainQuestion: "Có cảnh báo nào khiến người mới nên thận trọng không?",
-        goal: "Nhận diện rủi ro quản trị trước khi dành thời gian phân tích sâu.",
-        resultStatus: "Không thấy cảnh báo lớn hoặc cần đọc kỹ thêm.",
-        explanation:
-          "Người mới nên tránh các trường hợp thông tin khó kiểm chứng hoặc có cảnh báo minh bạch rõ.",
-      },
-      {
-        step: "Bước 4",
-        title: "Kiểm tra chất xúc tác sơ bộ",
-        mainQuestion:
-          "Có yếu tố nào có thể thúc đẩy thị trường chú ý đến cổ phiếu này không?",
-        goal: "Tìm lý do hợp lý để cổ phiếu đáng được theo dõi trong 6-12 tháng.",
-        resultStatus: "Có catalyst rõ, catalyst yếu hoặc chưa có catalyst.",
-        explanation:
-          "Catalyst không phải lý do mua, nhưng giúp xác định cổ phiếu có đáng đưa vào danh sách theo dõi không.",
-      },
-      {
-        step: "Bước 5",
-        title: "Kiểm tra định giá sơ bộ",
-        mainQuestion:
-          "Cổ phiếu này đang rẻ, hợp lý hay đắt so với chính nó và so với ngành?",
-        goal: "Kiểm tra nhanh bằng chỉ số tương đối, không làm định giá chuyên sâu.",
-        resultStatus: "Hợp lý, hơi cao hoặc cao so với triển vọng hiện tại.",
-        explanation:
-          "Ở bước này không dùng DCF, FCFF hay FCFE; chỉ xem P/E, P/B, EV/EBITDA nếu phù hợp.",
-        outputs: [
-          "Định giá tương đối hấp dẫn",
-          "Định giá tương đối hợp lý",
-          "Định giá hơi cao, cần kiểm tra thêm",
-          "Định giá cao so với triển vọng hiện tại",
-        ],
-      },
-      {
-        step: "Bước 6",
-        title: "Kiểm tra thanh khoản và khả năng giao dịch",
-        mainQuestion: "Nếu người dùng mua cổ phiếu này, sau này có dễ bán ra không?",
-        goal: "Giảm rủi ro kẹt thanh khoản cho người mới.",
-        resultStatus: "Thanh khoản tốt hoặc cần thận trọng.",
-        explanation:
-          "Thanh khoản thấp có thể khiến người dùng khó thoát vị thế khi thị trường xấu.",
-        outputs: [
-          "Thanh khoản tốt",
-          "Thanh khoản trung bình",
-          "Thanh khoản thấp, cần thận trọng",
-          "Không phù hợp với người mới do thanh khoản quá thấp",
-        ],
-      },
-      {
-        step: "Bước 7",
-        title: "Kiểm tra độ dễ hiểu của doanh nghiệp",
-        mainQuestion:
-          "Người mới có thể hiểu doanh nghiệp này kiếm tiền như thế nào không?",
-        goal: "Ưu tiên doanh nghiệp có mô hình kinh doanh dễ giải thích.",
-        resultStatus: "Dễ hiểu hoặc nên phân tích sau.",
-        explanation:
-          "Người mới học nhanh hơn khi bắt đầu từ doanh nghiệp có sản phẩm, khách hàng và dòng tiền dễ hình dung.",
-        outputs: [
-          "Dễ hiểu với người mới",
-          "Có thể hiểu nếu được giải thích",
-          "Khó hiểu, nên phân tích sau",
-          "Không phù hợp với người mới ở giai đoạn hiện tại",
-        ],
-      },
-    ],
+      "Mở từng tầng khi bạn muốn hiểu bản chất tiêu chí. Phần này không cần đọc hết trước khi xem kết quả.",
+    icon: "D",
+    steps: funnelLayers.map((layer) => ({
+      id: layer.id,
+      title: layer.title,
+      explanation: layer.explanation,
+      criteria: layer.criteria,
+      example: layer.example,
+      beginnerMistake: layer.beginnerMistake,
+    })),
   },
   comparison: {
-    title: "Bảng tổng hợp kết quả lọc",
+    title: "Bảng so sánh nhanh",
     description:
-      "Bảng này giúp so sánh nhanh một vài ứng viên trước khi chọn cổ phiếu để phân tích sâu.",
+      "Mặc định chỉ hiện các tiêu chí dễ hiểu. Bật chế độ nâng cao nếu muốn soi sâu hơn.",
     icon: "T",
-    caption: "Bảng tổng hợp kết quả lọc cổ phiếu mẫu",
-    columns: {
+    caption: "Bảng so sánh cổ phiếu ứng viên sau sàng lọc",
+    simpleRows: [
+      {
+        ticker: "MWG",
+        keptReason: stocks.MWG.mainReason,
+        keyStrength: "Quy mô dẫn đầu, mô hình dễ hiểu.",
+        needToCheck: stocks.MWG.needToCheck,
+        beginnerFit: stocks.MWG.beginnerFitLevel,
+        conclusion: "Mở hồ sơ phân tích",
+      },
+      {
+        ticker: "PNJ",
+        keptReason: stocks.PNJ.mainReason,
+        keyStrength: "Thương hiệu rõ, biên lợi nhuận tốt.",
+        needToCheck: stocks.PNJ.needToCheck,
+        beginnerFit: stocks.PNJ.beginnerFitLevel,
+        conclusion: "Mở hồ sơ nếu hiểu rủi ro tiêu dùng",
+      },
+      {
+        ticker: "FRT",
+        keptReason: stocks.FRT.mainReason,
+        keyStrength: "Có động lực mở rộng.",
+        needToCheck: stocks.FRT.needToCheck,
+        beginnerFit: stocks.FRT.beginnerFitLevel,
+        conclusion: "Theo dõi thêm",
+      },
+    ],
+    advancedColumns: {
       criterion: "Tiêu chí",
       stockA: "MWG",
       stockB: "FRT",
       stockC: "PNJ",
     },
-    rows: [
+    advancedRows: [
       { criterion: "Tài chính sơ bộ", stockA: "Ổn", stockB: "Cần kiểm tra", stockC: "Ổn" },
       { criterion: "Vị thế trong ngành", stockA: "Rõ", stockB: "Đang mở rộng", stockC: "Rõ" },
       { criterion: "Hưởng lợi từ thesis ngành", stockA: "Rõ", stockB: "Có thể", stockC: "Có thể" },
       { criterion: "Quản trị và minh bạch", stockA: "Cần đọc thêm", stockB: "Cần đọc thêm", stockC: "Tương đối rõ" },
-      { criterion: "Chất xúc tác", stockA: "Phục hồi sức mua", stockB: "Mở rộng chuỗi", stockC: "Tiêu dùng cao cấp" },
       { criterion: "Định giá sơ bộ", stockA: "Cần kiểm tra", stockB: "Cần kiểm tra", stockC: "Hợp lý hơn" },
       { criterion: "Thanh khoản", stockA: "Tốt", stockB: "Tốt", stockC: "Tốt" },
-      { criterion: "Độ dễ hiểu", stockA: "Dễ hiểu", stockB: "Cần giải thích", stockC: "Dễ hiểu" },
-      { criterion: "Phù hợp khẩu vị rủi ro", stockA: "Phù hợp", stockB: "Trung bình", stockC: "Phù hợp" },
-      { criterion: "Kết luận", stockA: "Ưu tiên", stockB: "Kiểm tra thêm", stockC: "Ưu tiên" },
+      { criterion: "Độ dễ hiểu", stockA: "Dễ hiểu", stockB: "Trung bình", stockC: "Dễ hiểu" },
     ],
   },
   disclaimer: {
-    title: "Cảnh báo bắt buộc",
+    title: "Lưu ý bắt buộc",
     icon: "!",
     content:
-      "Danh sách này chỉ là danh sách cổ phiếu ứng viên để chuyển sang bước phân tích doanh nghiệp chuyên sâu. Một cổ phiếu vượt qua bộ lọc vẫn cần được kiểm tra thêm về mô hình kinh doanh, báo cáo tài chính, định giá, rủi ro và bối cảnh thị trường.",
+      "Kết quả lọc chỉ phục vụ mục đích học tập và chọn ứng viên để phân tích tiếp. Đây không phải khuyến nghị mua bán. Người dùng cần tự kiểm tra lại doanh nghiệp, định giá, rủi ro và mức phù hợp với danh mục cá nhân trước khi ra quyết định.",
   },
   understanding: {
-    title: "Bạn đã hiểu đúng chưa?",
+    title: "Trước khi lưu mã này, bạn có hiểu vì sao nó được chọn không?",
     description:
-      "Phần này giúp người dùng tránh hiểu sai kết quả sàng lọc thành kết luận hành động.",
+      "Mini quiz này giúp tránh hiểu nhầm kết quả lọc thành kết luận hành động.",
     icon: "?",
-    questionsTitle: "5 câu hỏi tự kiểm tra",
     questions: [
-      "Vì sao cổ phiếu vượt qua bộ lọc chưa có nghĩa là nên mua?",
-      "Vì sao doanh nghiệp tốt nhưng định giá quá cao vẫn có thể rủi ro?",
-      "Vì sao thanh khoản thấp lại nguy hiểm với người mới?",
-      "Vì sao cổ phiếu phù hợp với ngành vẫn cần kiểm tra quản trị?",
-      "Nếu một cổ phiếu có catalyst tốt nhưng mô hình kinh doanh quá khó hiểu, bạn nên làm gì?",
-    ],
-    feedbackTitle: "Phản hồi mẫu",
-    feedbackLevels: [
       {
-        label: "Hiểu đúng",
-        description:
-          "Bạn hiểu rằng bộ lọc chỉ tạo danh sách ứng viên, còn quyết định đầu tư cần phân tích sâu hơn.",
+        question: "Mã này được chọn vì bối cảnh nào?",
+        options: ["Vì khớp một số giả định ngành và tiêu chí sơ bộ", "Vì giá chắc chắn sẽ tăng", "Vì hệ thống đã định giá đầy đủ"],
+        correctIndex: 0,
+        feedback: "Đúng. Bộ lọc chỉ chọn ứng viên dựa trên bối cảnh và tiêu chí sơ bộ.",
       },
       {
-        label: "Hiểu đúng một phần",
-        description:
-          "Bạn hiểu đúng một phần, nhưng cần chỉnh lại. Hệ thống không nói cổ phiếu A là cổ phiếu nên mua. Hệ thống chỉ cho biết cổ phiếu A là ứng viên phù hợp để phân tích sâu hơn, vì nó đạt nhiều tiêu chí sơ bộ như tài chính ổn, vị thế rõ, có khả năng hưởng lợi từ ngành, thanh khoản tốt và dễ hiểu với người mới.",
+        question: "Rủi ro lớn nhất cần kiểm tra tiếp là gì?",
+        options: ["Không cần kiểm tra thêm", "Dòng tiền, định giá và các giả định ngành", "Chỉ cần xem tên công ty quen thuộc"],
+        correctIndex: 1,
+        feedback: "Đúng. Cần kiểm tra dữ liệu tiếp theo trước khi ra quyết định.",
       },
       {
-        label: "Cần chỉnh lại",
-        description:
-          "Nếu bạn xem kết quả lọc như tín hiệu mua ngay, hãy quay lại phần cảnh báo và phân tích doanh nghiệp trước khi hành động.",
+        question: "Đây là cổ phiếu đáng phân tích tiếp hay là kết luận hành động ngay?",
+        options: ["Kết luận hành động ngay", "Lời nhắc ra quyết định ngay", "Ứng viên để phân tích sâu hơn"],
+        correctIndex: 2,
+        feedback:
+          "Đây chỉ là cổ phiếu ứng viên để phân tích sâu hơn.",
       },
     ],
   },
   nextActions: {
-    title: "Bạn muốn chuyển cổ phiếu nào sang bước phân tích doanh nghiệp chuyên sâu?",
+    title: "Bước tiếp theo",
     description:
-      "Chọn một cổ phiếu ứng viên rồi quyết định hành động tiếp theo trong hành trình học phân tích.",
-    icon: "→",
+      "Chọn một cổ phiếu ứng viên rồi đi sang bước phân tích phù hợp. Watchlist chỉ để theo dõi, chưa phải quyết định mua.",
+    icon: "N",
     selectedStockLabel: "Cổ phiếu đang chọn",
     stocks: [
       { value: "MWG", label: "MWG" },
@@ -442,9 +508,31 @@ export const screeningPageData: ScreeningPageData = {
       { value: "FRT", label: "FRT" },
     ],
     actions: [
-      { label: "Phân tích doanh nghiệp", variant: "primary" },
-      { label: "Thêm vào Watchlist", variant: "secondary" },
-      { label: "Ghi chú lý do theo dõi", variant: "ghost" },
+      {
+        label: "Mở hồ sơ doanh nghiệp",
+        description: "Hiểu công ty kiếm tiền bằng cách nào.",
+        variant: "primary",
+      },
+      {
+        label: "So sánh với mã cùng ngành",
+        description: "Đặt mã này cạnh các ứng viên tương tự.",
+        variant: "secondary",
+      },
+      {
+        label: "Thêm vào watchlist",
+        description: "Theo dõi mã này nhưng chưa ra quyết định mua.",
+        variant: "secondary",
+      },
+      {
+        label: "Xem báo cáo tài chính",
+        description: "Kiểm tra lợi nhuận có chuyển thành tiền không.",
+        variant: "ghost",
+      },
+      {
+        label: "Xem quản trị rủi ro",
+        description: "Xác định điều kiện sai của thesis.",
+        variant: "ghost",
+      },
     ],
   },
 };

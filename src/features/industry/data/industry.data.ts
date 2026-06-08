@@ -1,6 +1,6 @@
 import type { IndustryBlockData, IndustryOption, IndustryPageData } from "../types";
 
-export const industryOptions: IndustryOption[] = [
+const coreIndustryOptions: IndustryOption[] = [
   {
     id: "steel",
     name: "Thép và vật liệu xây dựng",
@@ -89,6 +89,151 @@ export const industryOptions: IndustryOption[] = [
       "Trước khi lọc cổ phiếu, hãy kiểm tra pháp lý đất và tỷ lệ lấp đầy.",
     ],
   },
+];
+
+function createSuggestedIndustry({
+  description,
+  id,
+  industryType,
+  keyQuestions,
+  name,
+  shortName,
+}: {
+  id: string;
+  name: string;
+  shortName: string;
+  industryType: string;
+  description: string;
+  keyQuestions: string[];
+}): IndustryOption {
+  return {
+    id,
+    name,
+    shortName,
+    industryType,
+    status: "Cần bổ sung dữ liệu",
+    description,
+    keyQuestions,
+    quickAnswers: [
+      {
+        question: "Ngành này kiếm tiền bằng cách nào?",
+        answer: description,
+        status: "Giả thuyết",
+        tone: "accent",
+      },
+      {
+        question: "Ngành thuộc loại hình nào?",
+        answer: industryType,
+        status: "Giả thuyết",
+        tone: "accent",
+      },
+      {
+        question: "Biến vĩ mô nào ảnh hưởng mạnh nhất?",
+        answer: keyQuestions[0],
+        status: "Theo dõi",
+        tone: "neutral",
+      },
+      {
+        question: "Ngành đang hưởng lợi, bất lợi hay trung lập?",
+        answer: "Chưa chốt. Cần đi qua 5 cụm phân tích và kiểm tra dữ liệu xác nhận.",
+        status: "Chưa đủ dữ liệu",
+        tone: "warning",
+      },
+      {
+        question: "Dữ liệu quan trọng nhất cần theo dõi?",
+        answer: keyQuestions.join(", "),
+        status: "Ưu tiên",
+        tone: "accent",
+      },
+      {
+        question: "Có đủ cơ sở để chuyển sang lọc cổ phiếu chưa?",
+        answer: "Chỉ nên lọc thăm dò sau khi đã xác định biến ngành đi vào BCTC doanh nghiệp nào.",
+        status: "Có điều kiện",
+        tone: "success",
+      },
+    ],
+    tutorNotes: [
+      `Bạn đang phân tích ${name}. Hãy bắt đầu bằng cách xác định ngành kiếm tiền từ biến vận hành nào.`,
+      "Không kết luận ngành tốt chỉ từ một tin tức vĩ mô hoặc một dữ liệu ngắn hạn.",
+      "Trước khi chuyển sang cổ phiếu, hãy kiểm tra dữ liệu ngành có đi vào doanh thu, biên lợi nhuận hoặc dòng tiền không.",
+    ],
+  };
+}
+
+export const industryOptions: IndustryOption[] = [
+  ...coreIndustryOptions,
+  createSuggestedIndustry({
+    id: "securities",
+    name: "Chứng khoán",
+    shortName: "Chứng khoán",
+    industryType: "Ngành tài chính / nhạy với thanh khoản và tâm lý thị trường",
+    description: "Kiếm tiền từ môi giới, cho vay ký quỹ, tự doanh, ngân hàng đầu tư và quản lý tài sản.",
+    keyQuestions: ["Thanh khoản thị trường có tăng bền không?", "Margin có mở rộng nhưng rủi ro kiểm soát được không?", "Tự doanh đang hỗ trợ hay làm biến động lợi nhuận?"],
+  }),
+  createSuggestedIndustry({
+    id: "residential-real-estate",
+    name: "Bất động sản dân dụng",
+    shortName: "BĐS dân dụng",
+    industryType: "Ngành tài sản / nhạy với tín dụng, pháp lý và sức mua nhà ở",
+    description: "Kiếm tiền từ phát triển dự án, bán hàng, bàn giao và quản trị quỹ đất.",
+    keyQuestions: ["Tín dụng và lãi suất có hỗ trợ sức mua không?", "Pháp lý dự án có đủ để ghi nhận doanh thu không?", "Hàng tồn kho là tài sản tốt hay rủi ro dòng tiền?"],
+  }),
+  createSuggestedIndustry({
+    id: "oil-gas-energy",
+    name: "Dầu khí và năng lượng",
+    shortName: "Dầu khí",
+    industryType: "Ngành hàng hóa / nhạy với giá dầu, đầu tư thượng nguồn và chính sách năng lượng",
+    description: "Kiếm tiền theo từng khâu: thăm dò, khai thác, vận chuyển, phân phối, dịch vụ và điện năng.",
+    keyQuestions: ["Giá dầu/khí đang hỗ trợ khâu nào?", "Backlog dự án có chuyển thành doanh thu không?", "Chi phí vốn và chính sách năng lượng tác động ra sao?"],
+  }),
+  createSuggestedIndustry({
+    id: "power-utilities",
+    name: "Điện và tiện ích",
+    shortName: "Điện",
+    industryType: "Ngành phòng thủ có điều tiết / nhạy với sản lượng, giá bán và chính sách",
+    description: "Kiếm tiền từ sản lượng điện, giá hợp đồng, cơ cấu nguồn và hiệu suất vận hành.",
+    keyQuestions: ["Sản lượng huy động có tăng không?", "Giá bán/hợp đồng có cải thiện không?", "Nợ vay và chi phí đầu vào có ăn vào biên lợi nhuận không?"],
+  }),
+  createSuggestedIndustry({
+    id: "ports-logistics",
+    name: "Cảng biển và logistics",
+    shortName: "Logistics",
+    industryType: "Ngành hạ tầng thương mại / nhạy với lưu lượng hàng hóa và công suất",
+    description: "Kiếm tiền từ sản lượng container, giá dịch vụ, kho bãi, vận tải và hiệu suất khai thác tài sản.",
+    keyQuestions: ["Lưu lượng hàng hóa có tăng thật không?", "Công suất còn dư địa hay đã nghẽn?", "Giá cước và cạnh tranh khu vực tác động thế nào?"],
+  }),
+  createSuggestedIndustry({
+    id: "seafood-textile-wood",
+    name: "Thủy sản/dệt may/gỗ",
+    shortName: "Xuất khẩu",
+    industryType: "Ngành xuất khẩu / nhạy với đơn hàng, tỷ giá và sức mua toàn cầu",
+    description: "Kiếm tiền từ đơn hàng xuất khẩu, biên gia công, nguyên liệu, tỷ giá và năng lực giao hàng.",
+    keyQuestions: ["Đơn hàng phục hồi thật hay chỉ bù hàng tồn?", "Tỷ giá và chi phí nguyên liệu hỗ trợ hay gây áp lực?", "Khách hàng lớn có quay lại đặt hàng không?"],
+  }),
+  createSuggestedIndustry({
+    id: "chemicals-fertilizers",
+    name: "Hóa chất và phân bón",
+    shortName: "Hóa chất",
+    industryType: "Ngành hàng hóa / nhạy với giá đầu vào, mùa vụ và cung cầu khu vực",
+    description: "Kiếm tiền từ chênh lệch giá bán với nguyên liệu, sản lượng tiêu thụ và chu kỳ mùa vụ.",
+    keyQuestions: ["Giá bán có tăng nhanh hơn chi phí đầu vào không?", "Mùa vụ có hỗ trợ sản lượng không?", "Cung mới khu vực có làm giảm biên lợi nhuận không?"],
+  }),
+  createSuggestedIndustry({
+    id: "aviation-tourism",
+    name: "Hàng không và du lịch",
+    shortName: "Du lịch",
+    industryType: "Ngành dịch vụ chu kỳ / nhạy với sức mua, giá nhiên liệu và lưu lượng khách",
+    description: "Kiếm tiền từ lượng khách, giá vé/phòng, hệ số sử dụng, dịch vụ phụ trợ và kiểm soát chi phí.",
+    keyQuestions: ["Lượng khách tăng có đi kèm giá bán tốt không?", "Nhiên liệu và tỷ giá có gây áp lực chi phí không?", "Công suất khai thác có phục hồi bền không?"],
+  }),
+  createSuggestedIndustry({
+    id: "technology",
+    name: "Công nghệ",
+    shortName: "Công nghệ",
+    industryType: "Ngành tăng trưởng / nhạy với đơn hàng, nhân sự và chu kỳ đầu tư số",
+    description: "Kiếm tiền từ hợp đồng phần mềm, dịch vụ IT, chuyển đổi số, thuê ngoài và sản phẩm nền tảng.",
+    keyQuestions: ["Backlog và đơn hàng mới có tăng không?", "Biên lợi nhuận có giữ được khi mở rộng nhân sự không?", "Khách hàng có cắt giảm ngân sách công nghệ không?"],
+  }),
 ];
 
 const steelMacroTable = {

@@ -1,113 +1,124 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { SectionHeader } from "@/components/ui";
 import { learningPageData } from "../data/learning.data";
 import {
-  ContextualLearningHint,
-  ErrorBasedReviewSection,
-  KnowledgeMap,
-  LearningDashboard,
-  LearningLessonCard,
-  LearningPathSidebar,
-  LearningProfileSummary,
-  LessonDetailView,
-  PracticeSection,
-  RecommendedLessonQueue,
+  ActiveLessonPanel,
+  AIRecommendationDrawer,
+  CurrentLearningPositionCard,
+  LearningHeader,
+  LearningTabs,
+  MistakeReviewView,
+  OnePracticeBlock,
+  ProfileView,
+  RelatedLessonsCompact,
+  RoadmapView,
+  TodayCoachCard,
 } from "./LearningBlocks";
 
 export function LearningPage() {
   const data = learningPageData;
-  const [activeCategoryId, setActiveCategoryId] = useState(data.categories[0].id);
-  const [activeLessonId, setActiveLessonId] = useState(
-    data.lessons.find((lesson) => lesson.status === "AI gợi ý")?.id ?? data.lessons[0].id
-  );
+  const [activeTab, setActiveTab] = useState("today");
+  const [activeStageId, setActiveStageId] = useState(data.stages[0].id);
+  const [activeLessonId, setActiveLessonId] = useState(data.todayLessonId);
+  const [isRecommendationOpen, setIsRecommendationOpen] = useState(false);
 
-  const activeCategory = useMemo(
-    () =>
-      data.categories.find((category) => category.id === activeCategoryId) ??
-      data.categories[0],
-    [activeCategoryId, data.categories]
-  );
-
-  const visibleLessons = useMemo(() => {
-    const categoryLessonIds = new Set(activeCategory.lessonIds);
-    return data.lessons.filter((lesson) => categoryLessonIds.has(lesson.id));
-  }, [activeCategory.lessonIds, data.lessons]);
-
-  const selectedLesson = useMemo(
+  const activeLesson = useMemo(
     () =>
       data.lessons.find((lesson) => lesson.id === activeLessonId) ??
-      visibleLessons[0] ??
+      data.lessons.find((lesson) => lesson.id === data.todayLessonId) ??
       data.lessons[0],
-    [activeLessonId, data.lessons, visibleLessons]
+    [activeLessonId, data.lessons, data.todayLessonId]
   );
 
-  const recommendedLessons = data.lessons.filter((lesson) => lesson.status === "AI gợi ý").slice(0, 5);
+  const todayLesson = useMemo(
+    () =>
+      data.lessons.find((lesson) => lesson.id === data.todayLessonId) ??
+      data.lessons[0],
+    [data.lessons, data.todayLessonId]
+  );
 
-  function handleSelectCategory(categoryId: string) {
-    const nextCategory = data.categories.find((category) => category.id === categoryId);
-    setActiveCategoryId(categoryId);
+  const recommendedLessons = useMemo(
+    () =>
+      data.lessons
+        .filter((lesson) => lesson.status === "AI gợi ý" && lesson.id !== activeLesson.id)
+        .slice(0, 6),
+    [activeLesson.id, data.lessons]
+  );
 
-    if (nextCategory?.lessonIds[0]) {
-      setActiveLessonId(nextCategory.lessonIds[0]);
+  function handleViewRoadmap() {
+    setActiveStageId(todayLesson.stageId);
+    setActiveTab("roadmap");
+  }
+
+  function handleSelectLesson(lessonId: string) {
+    const nextLesson = data.lessons.find((lesson) => lesson.id === lessonId);
+    setActiveLessonId(lessonId);
+    if (nextLesson) {
+      setActiveStageId(nextLesson.stageId);
     }
+    setActiveTab("today");
   }
 
   return (
-    <div className="mx-auto w-full max-w-[1280px] space-y-5">
-      <LearningDashboard data={data.dashboard} />
+    <div className="mx-auto w-full max-w-[1180px] space-y-6">
+      <LearningHeader
+        description={data.header.description}
+        eyebrow={data.header.eyebrow}
+        title={data.header.title}
+      />
 
-      <div className="grid gap-5 xl:grid-cols-[260px_minmax(0,1fr)_320px]">
-        <aside>
-          <LearningPathSidebar
-            activeCategory={activeCategoryId}
-            categories={data.categories}
-            onSelect={handleSelectCategory}
+      <LearningTabs activeTab={activeTab} onChange={setActiveTab} />
+
+      {activeTab === "today" ? (
+        <div className="space-y-5">
+          <TodayCoachCard lesson={todayLesson} onStartLesson={handleSelectLesson} />
+          <CurrentLearningPositionCard
+            lesson={todayLesson}
+            stages={data.stages}
+            onViewRoadmap={handleViewRoadmap}
           />
-        </aside>
-
-        <main className="min-w-0 space-y-5">
-          <SectionHeader
-            title={activeCategory.title}
-            description={`${activeCategory.goal} Module liên quan: ${activeCategory.relatedModule}.`}
+          <ActiveLessonPanel lesson={activeLesson} />
+          <RelatedLessonsCompact
+            lessons={recommendedLessons}
+            onOpenDrawer={() => setIsRecommendationOpen(true)}
+            onSelectLesson={handleSelectLesson}
           />
+          <OnePracticeBlock lesson={activeLesson} />
+        </div>
+      ) : null}
 
-          <div className="grid gap-3 md:grid-cols-2">
-            {visibleLessons.map((lesson) => (
-              <LearningLessonCard
-                key={lesson.id}
-                lesson={lesson}
-                isSelected={lesson.id === selectedLesson.id}
-                onOpen={setActiveLessonId}
-              />
-            ))}
-          </div>
+      {activeTab === "roadmap" ? (
+        <RoadmapView
+          activeStageId={activeStageId}
+          lessons={data.lessons}
+          stages={data.stages}
+          onSelectLesson={handleSelectLesson}
+        />
+      ) : null}
 
-          <LessonDetailView lesson={selectedLesson} />
+      {activeTab === "mistakes" ? (
+        <MistakeReviewView
+          lessons={data.lessons}
+          mistakes={data.mistakes}
+          onSelectLesson={handleSelectLesson}
+        />
+      ) : null}
 
-          <section className="space-y-3">
-            <SectionHeader
-              title="Gợi ý học đúng lúc"
-              description="Các hint này có thể nhúng trong Vĩ mô, BCTC hoặc Mô phỏng khi người dùng thiếu kiến thức."
-            />
-            <div className="grid gap-3 lg:grid-cols-3">
-              {data.contextualHints.map((hint) => (
-                <ContextualLearningHint key={`${hint.relatedModule}-${hint.lessonTitle}`} data={hint} />
-              ))}
-            </div>
-          </section>
+      {activeTab === "profile" ? (
+        <ProfileView
+          lessons={data.lessons}
+          profile={data.profile}
+          stages={data.stages}
+        />
+      ) : null}
 
-          <ErrorBasedReviewSection items={data.errorReviews} />
-          <PracticeSection items={data.practice} />
-          <KnowledgeMap categories={data.categories} onSelect={handleSelectCategory} />
-          <LearningProfileSummary profile={data.profile} />
-        </main>
-
-        <aside className="space-y-4">
-          <RecommendedLessonQueue lessons={recommendedLessons} />
-        </aside>
-      </div>
+      <AIRecommendationDrawer
+        lessons={recommendedLessons}
+        open={isRecommendationOpen}
+        onClose={() => setIsRecommendationOpen(false)}
+        onSelectLesson={handleSelectLesson}
+      />
     </div>
   );
 }

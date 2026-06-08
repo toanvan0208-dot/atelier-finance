@@ -1,20 +1,25 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { EmptyState, LoadingState, StepAccordion } from "@/components/ui";
+import { EmptyState, LoadingState } from "@/components/ui";
 import { industryOptions, industryPageData } from "../data/industry.data";
 import {
-  IndustryBlock,
+  IndustryConclusionBuilder,
+  IndustryDataBoard,
   IndustryDisclaimer,
-  IndustryHeader,
-  IndustryInsightPanel,
-  IndustryNextActions,
-  IndustryQuickOverview,
+  IndustryJourneyBuilder,
+  IndustryQuickSnapshot,
   IndustrySelector,
+  IndustryStepDetailModal,
+  IndustryThesisHeader,
+  IndustryThesisMap,
+  IndustryToStockBridge,
 } from "./IndustryBlocks";
 
 export function IndustryPage() {
   const [selectedIndustryId, setSelectedIndustryId] = useState(industryOptions[0].id);
+  const [activeStepId, setActiveStepId] = useState(industryPageData.blocks[0]?.id ?? "");
+  const [openStepId, setOpenStepId] = useState<string | null>(null);
   const selectedIndustry = useMemo(
     () =>
       industryOptions.find((industry) => industry.id === selectedIndustryId) ??
@@ -50,6 +55,16 @@ export function IndustryPage() {
     }),
     [selectedIndustry]
   );
+  const activeStep =
+    data.blocks.find((block) => block.id === activeStepId) ?? data.blocks[0];
+  const openStep = openStepId
+    ? data.blocks.find((block) => block.id === openStepId) ?? null
+    : null;
+
+  const handleSelectStep = (stepId: string) => {
+    setActiveStepId(stepId);
+    setOpenStepId(stepId);
+  };
 
   if (data.isLoading) {
     return (
@@ -77,42 +92,33 @@ export function IndustryPage() {
         selectedId={selectedIndustryId}
         onSelect={setSelectedIndustryId}
       />
-      <IndustryHeader data={data.header} />
-      <IndustryQuickOverview data={data.quickOverview} />
+      <IndustryThesisHeader selectedIndustry={selectedIndustry} />
+      <IndustryQuickSnapshot selectedIndustry={selectedIndustry} />
+      <IndustryThesisMap />
 
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
-        <main className="space-y-5">
-          <StepAccordion
-            title={data.journey.title}
-            description={data.journey.description}
-            items={data.journey.steps.map((step, index) => {
-              const block = data.blocks[index];
+      <main className="space-y-5">
+        <IndustryJourneyBuilder
+          activeStepId={activeStep?.id ?? ""}
+          blocks={data.blocks}
+          onSelectStep={handleSelectStep}
+        />
 
-              return {
-                key: block?.id ?? step.title,
-                order: block?.stepNumber ?? index + 1,
-                title: step.title,
-                status: step.status,
-                description: step.question,
-                meta: `${step.group} - ${step.linkedModule}`,
-                content: block ? <IndustryBlock data={block} /> : null,
-              };
-            })}
-          />
+        <IndustryDataBoard selectedIndustry={selectedIndustry} />
+        <IndustryConclusionBuilder selectedIndustry={selectedIndustry} />
+        <IndustryToStockBridge />
 
-          <IndustryDisclaimer
-            content={data.disclaimer.content}
-            title={data.disclaimer.title}
-          />
-          <IndustryNextActions
-            actions={data.nextActions.actions}
-            description={data.nextActions.description}
-            title={data.nextActions.title}
-          />
-        </main>
+        <IndustryDisclaimer
+          content={data.disclaimer.content}
+          title={data.disclaimer.title}
+        />
+      </main>
 
-        <IndustryInsightPanel data={data.insightPanel} />
-      </div>
+      {openStep ? (
+        <IndustryStepDetailModal
+          block={openStep}
+          onClose={() => setOpenStepId(null)}
+        />
+      ) : null}
     </div>
   );
 }

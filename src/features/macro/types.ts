@@ -116,8 +116,6 @@ export type MacroThesisBuilderData = {
   description: string;
   tutorRule: string;
   questions: MacroThesisQuestion[];
-  saveActionLabel: string;
-  previewTitle: string;
 };
 
 export type MacroJourneyData = {

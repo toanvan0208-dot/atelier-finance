@@ -50,6 +50,7 @@ const initialConfig: RouteConfigState = {
   journeyMode: "step_by_step",
   aiExplanationLevel: "basic_with_examples",
   stuckPoints: [],
+  customStuckPoint: "",
   assetInputMode: "none",
   selectedTicker: "",
   selectedIndustry: "",
@@ -90,7 +91,10 @@ function buildPersonalizedRoute(config: RouteConfigState): PersonalizedRoute {
     secondaryGoalLabel: getOptionLabel(routeGoalOptions, config.secondaryGoal),
     journeyModeLabel: getOptionLabel(journeyModeOptions, config.journeyMode),
     aiLevelLabel: getOptionLabel(aiExplanationOptions, config.aiExplanationLevel),
-    stuckPointLabels: selectedStuckPoints.map((point) => point.label),
+    stuckPointLabels: [
+      ...selectedStuckPoints.map((point) => point.label),
+      config.customStuckPoint.trim(),
+    ].filter(Boolean),
     assetLabel,
     recommendedPath: pathByGoal[config.primaryGoal],
     recommendedLessons:
@@ -272,10 +276,14 @@ function AIExplanationLevelCards({
 
 function StuckPointSelector({
   selected,
+  customValue,
   onToggle,
+  onCustomChange,
 }: {
   selected: string[];
+  customValue: string;
   onToggle: (id: string) => void;
+  onCustomChange: (value: string) => void;
 }) {
   return (
     <section>
@@ -305,6 +313,18 @@ function StuckPointSelector({
           );
         })}
       </div>
+      <label className="mt-3 grid gap-2 rounded-[4px] border-[1.5px] border-border bg-surface px-4 py-4 shadow-soft">
+        <span className="text-xs font-bold text-ink">Tôi đang vướng phần khác</span>
+        <textarea
+          className="min-h-[96px] resize-y rounded-[3px] border border-border bg-surface-soft px-3 py-2 text-sm leading-6 text-ink outline-none focus:bg-accent-soft/35"
+          placeholder="Nhập điều bạn đang bị rối, ví dụ: Tôi không biết nên bắt đầu từ mã cổ phiếu hay từ ngành trước..."
+          value={customValue}
+          onChange={(event) => onCustomChange(event.target.value)}
+        />
+        <span className="text-[11px] leading-5 text-muted">
+          Bạn có thể viết bằng ngôn ngữ của mình. Hệ thống sẽ đưa nội dung này vào lộ trình cá nhân hóa.
+        </span>
+      </label>
     </section>
   );
 }
@@ -463,6 +483,22 @@ function PersonalizedRouteResult({
           <RecommendedPathStepper steps={route.recommendedPath} />
         </section>
 
+        {route.stuckPointLabels.length > 0 ? (
+          <section>
+            <SectionHeader title="Điểm đang vướng" />
+            <div className="grid gap-2 md:grid-cols-2">
+              {route.stuckPointLabels.map((point) => (
+                <p
+                  key={point}
+                  className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-2 text-xs font-semibold leading-5 text-muted"
+                >
+                  {point}
+                </p>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
         <section>
           <SectionHeader title="Bài học nên học trước" />
           <RecommendedLessonList lessons={route.recommendedLessons} />
@@ -544,7 +580,12 @@ export function RouteConfigPage({ onNavigate }: RouteConfigPageProps) {
         />
       ) : null}
       {currentStep === 4 ? (
-        <StuckPointSelector selected={config.stuckPoints} onToggle={toggleStuckPoint} />
+        <StuckPointSelector
+          selected={config.stuckPoints}
+          customValue={config.customStuckPoint}
+          onToggle={toggleStuckPoint}
+          onCustomChange={(value) => setConfig((current) => ({ ...current, customStuckPoint: value }))}
+        />
       ) : null}
       {currentStep === 5 ? <TickerIndustryInput config={config} setConfig={setConfig} /> : null}
 

@@ -157,7 +157,6 @@ export function MacroHeader({
 
 export function MacroSnapshot({
   data,
-  onNavigate,
 }: {
   data: MacroSnapshotData;
   onNavigate?: MacroNavigate;
@@ -244,16 +243,6 @@ export function MacroSnapshot({
           </p>
           <ChipList items={data.affectedSectors} />
         </div>
-      </div>
-
-      <div className="flex flex-wrap gap-2">
-        {data.actions.map((action) => (
-          <MacroActionButton
-            key={action.label}
-            action={action}
-            onNavigate={onNavigate}
-          />
-        ))}
       </div>
 
       <MetaLine meta={data.meta} />
@@ -529,7 +518,6 @@ export function MacroInsightPanel({
 
 export function MacroThesisBuilder({
   data,
-  onNavigate,
 }: {
   data: MacroThesisBuilderData;
   onNavigate?: MacroNavigate;
@@ -552,6 +540,12 @@ export function MacroThesisBuilder({
   const currentQuestion = data.questions[currentIndex];
   const currentAnswer = currentQuestion ? draft[currentQuestion.id] : undefined;
   const isComplete = answeredQuestions.length === data.questions.length;
+  const understandingLevel =
+    answeredQuestions.length === 0
+      ? "Chưa có dữ liệu"
+      : isComplete
+        ? "Đã hoàn thành bộ trắc nghiệm"
+        : "Đang ghi nhận mức hiểu biết";
 
   function handleSelect(questionId: string, optionId: string) {
     const question = data.questions.find((item) => item.id === questionId);
@@ -573,7 +567,7 @@ export function MacroThesisBuilder({
   }
 
   return (
-    <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
+    <div className="grid gap-4">
       <div className="rounded-[4px] border-[1.5px] border-border bg-surface px-4 py-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
@@ -662,69 +656,31 @@ export function MacroThesisBuilder({
             </div>
           </div>
         ) : null}
-      </div>
 
-      <div className="rounded-[4px] border-[1.5px] border-border bg-surface px-4 py-4 shadow-soft xl:sticky xl:top-4 xl:self-start">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <h3 className="text-base font-bold text-ink">{data.previewTitle}</h3>
-            <p className="mt-1 text-xs leading-5 text-muted">
-              Bản này được tạo từ các đáp án trắc nghiệm bạn đã chọn.
-            </p>
-          </div>
-          <Chip variant={answeredQuestions.length ? "accent" : "neutral"}>
-            {answeredQuestions.length}/{data.questions.length}
-          </Chip>
-        </div>
-
-        <div className="mt-4 grid gap-3">
-          {answeredQuestions.length ? (
-            answeredQuestions.map((answer, index) => (
-              <div
-                key={answer.id}
-                className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-2"
-              >
-                <button
-                  className="text-left text-[11px] font-bold text-subtle hover:text-ink"
-                  type="button"
-                  onClick={() => setCurrentIndex(index)}
-                >
-                  {answer.label}: {answer.prompt}
-                </button>
-                <p className="mt-1 text-xs leading-5 text-ink">
-                  {answer.answer.value}
-                </p>
-                <p className="mt-1 text-[11px] leading-4 text-muted">
-                  {answer.answer.tutorNote}
-                </p>
-              </div>
-            ))
-          ) : (
-            <div className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3 text-xs leading-5 text-muted">
-              Hãy chọn đáp án cho câu đầu tiên. AI Tutor sẽ mở câu tiếp theo sau mỗi lựa chọn.
+        <div className="mt-4 rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-[0.03em] text-subtle">
+                AI Tutor ghi nhận
+              </p>
+              <p className="mt-1 text-sm font-bold text-ink">{understandingLevel}</p>
+              <p className="mt-1 text-xs leading-5 text-muted">
+                Sau mỗi câu trả lời, hệ thống lưu lựa chọn và phản hồi để ước lượng
+                bạn đang hiểu bối cảnh vĩ mô đến đâu. Kết quả này dùng cho gợi ý học
+                tập và câu hỏi tiếp theo, không tạo bản nhận định cá nhân.
+              </p>
             </div>
-          )}
-        </div>
-
-        {isComplete ? (
-          <div className="mt-4 rounded-[4px] border border-border-soft bg-accent-soft/60 px-3 py-3 text-xs leading-5 text-ink">
-            Bạn đã hoàn thành bộ câu hỏi vĩ mô. Đây là bản nhận định để mang
-            sang Module Ngành kiểm chứng, không phải tín hiệu mua bán.
+            <Chip variant={answeredQuestions.length ? "accent" : "neutral"}>
+              {answeredQuestions.length}/{data.questions.length}
+            </Chip>
           </div>
-        ) : null}
 
-        <div className="mt-4 flex flex-wrap gap-2">
-          <Button disabled={!isComplete} size="sm" variant="secondary">
-            {data.saveActionLabel}
-          </Button>
-          <Button
-            disabled={!isComplete}
-            size="sm"
-            variant="primary"
-            onClick={() => onNavigate?.("industry")}
-          >
-            Chuyển sang Module Ngành
-          </Button>
+          {isComplete ? (
+            <div className="mt-3 rounded-[4px] border border-border-soft bg-accent-soft/60 px-3 py-3 text-xs leading-5 text-ink">
+              Bạn đã hoàn thành bộ trắc nghiệm vĩ mô. AI Tutor đã ghi nhận hồ sơ
+              hiểu biết của bạn để dùng cho các module tiếp theo.
+            </div>
+          ) : null}
         </div>
       </div>
     </div>

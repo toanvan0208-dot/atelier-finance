@@ -14,9 +14,9 @@ export function ScreeningNextActions({ data }: ScreeningNextActionsProps) {
   return (
     <Card>
       <CardHeader description={data.description} icon={data.icon} title={data.title} />
-      <CardBody className="space-y-4">
+      <CardBody className="space-y-5">
         <div>
-          <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.04em] text-subtle">
+          <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.04em] text-subtle">
             {data.selectedStockLabel}
           </p>
           <div className="flex flex-wrap gap-2">
@@ -33,15 +33,24 @@ export function ScreeningNextActions({ data }: ScreeningNextActionsProps) {
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {data.actions.map((action) => (
-            <Button key={action.label} variant={action.variant}>
-              {action.label}
-            </Button>
+            <button
+              key={action.label}
+              className="rounded-[4px] border-[1.5px] border-border bg-surface px-3 py-3 text-left shadow-hard-sm transition hover:-translate-y-0.5 hover:bg-surface-hover"
+              type="button"
+            >
+              <span className="block text-sm font-bold text-ink">{action.label}</span>
+              <span className="mt-1 block text-xs leading-5 text-muted">
+                {action.description}
+              </span>
+            </button>
           ))}
         </div>
 
-        {selectedStock ? <Chip variant="neutral">{selectedStock}</Chip> : null}
+        {selectedStock ? (
+          <Chip variant="neutral">Đang định hướng bước tiếp theo cho {selectedStock}</Chip>
+        ) : null}
       </CardBody>
     </Card>
   );

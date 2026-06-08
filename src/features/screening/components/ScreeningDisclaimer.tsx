@@ -7,10 +7,10 @@ type ScreeningDisclaimerProps = {
 
 export function ScreeningDisclaimer({ data }: ScreeningDisclaimerProps) {
   return (
-    <Card className="bg-warning/20">
-      <CardHeader icon={data.icon} title={data.title} />
-      <CardBody>
-        <p className="text-sm leading-7 text-muted">{data.content}</p>
+    <Card className="bg-warning/10">
+      <CardHeader className="py-3" icon={data.icon} title={data.title} />
+      <CardBody className="py-4">
+        <p className="text-xs leading-6 text-muted">{data.content}</p>
       </CardBody>
     </Card>
   );
