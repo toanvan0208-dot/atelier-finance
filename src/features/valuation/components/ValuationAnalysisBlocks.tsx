@@ -10,7 +10,6 @@ import type {
 import { DetailToggleCard } from "./DetailToggleCard";
 import { ScenarioCard } from "./ScenarioCard";
 import { SimpleMetricGrid } from "./SimpleMetricGrid";
-import { TutorNote } from "./TutorNote";
 import { ValuationMethodCard } from "./ValuationMethodCard";
 import { ValuationSectionCard } from "./ValuationSectionCard";
 
@@ -87,7 +86,6 @@ export function HistoricalComparisonBlock({
           rows={data.rows}
         />
         <SimpleMetricGrid columns="one" items={data.output} />
-        {data.tutor ? <TutorNote data={data.tutor} /> : null}
         <DetailToggleCard details={data.details} labels={detailLabels} />
       </div>
     </ValuationSectionCard>
@@ -107,7 +105,6 @@ export function MarketExpectationBlock({
     >
       <div className="space-y-4">
         <SimpleMetricGrid columns="three" items={data.expectations} />
-        {data.tutor ? <TutorNote data={data.tutor} /> : null}
         <DetailToggleCard details={data.details} labels={detailLabels} />
       </div>
     </ValuationSectionCard>
@@ -130,7 +127,6 @@ export function ScenarioValuationBlock({
             <ScenarioCard key={scenario.title} data={scenario} />
           ))}
         </div>
-        {data.tutor ? <TutorNote data={data.tutor} /> : null}
         <DetailToggleCard details={data.details} labels={detailLabels} />
       </div>
     </ValuationSectionCard>

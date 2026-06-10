@@ -34,6 +34,7 @@ const modulesWithInternalProgress = new Set([
   "simulation",
   "overview",
   "route-config",
+  "screening",
 ]);
 
 export function AppShell() {

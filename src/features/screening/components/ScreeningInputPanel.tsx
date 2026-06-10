@@ -6,6 +6,7 @@ import type { ScreeningInputData, ScreeningOption } from "../types";
 
 type ScreeningInputPanelProps = {
   data: ScreeningInputData;
+  onIndustryChange?: (industry: string) => void;
 };
 
 function getSelectedLabel(items: ScreeningOption[], value: string, fallback: string) {
@@ -59,10 +60,18 @@ function ChoiceGroup({
   );
 }
 
-export function ScreeningInputPanel({ data }: ScreeningInputPanelProps) {
+export function ScreeningInputPanel({
+  data,
+  onIndustryChange,
+}: ScreeningInputPanelProps) {
   const [selectedIndustry, setSelectedIndustry] = useState(data.defaultIndustry);
   const [selectedRisk, setSelectedRisk] = useState(data.defaultRisk);
   const [selectedObjective, setSelectedObjective] = useState(data.defaultObjective);
+
+  function handleIndustryChange(value: string) {
+    setSelectedIndustry(value);
+    onIndustryChange?.(value);
+  }
 
   const sentence = useMemo(() => {
     const industry = getSelectedLabel(
@@ -90,6 +99,7 @@ export function ScreeningInputPanel({ data }: ScreeningInputPanelProps) {
       <CardBody className="space-y-5">
         <div className="rounded-[4px] border-[1.5px] border-border bg-accent-soft px-4 py-4">
           <p className="text-base font-bold leading-7 text-ink">{sentence}</p>
+          <p className="mt-2 text-xs leading-5 text-muted">{data.example}</p>
         </div>
 
         <div className="grid gap-4 lg:grid-cols-[1.1fr_1fr_1fr]">
@@ -97,7 +107,7 @@ export function ScreeningInputPanel({ data }: ScreeningInputPanelProps) {
             activeValue={selectedIndustry}
             items={data.industries}
             label={data.industryLabel}
-            onChange={setSelectedIndustry}
+            onChange={handleIndustryChange}
           />
           <ChoiceGroup
             activeValue={selectedRisk}
@@ -112,6 +122,12 @@ export function ScreeningInputPanel({ data }: ScreeningInputPanelProps) {
             onChange={setSelectedObjective}
           />
         </div>
+
+        {selectedRisk === "high" ? (
+          <p className="rounded-[4px] border border-warning bg-warning/15 px-3 py-2 text-xs font-semibold leading-5 text-ink">
+            {data.highRiskWarning}
+          </p>
+        ) : null}
 
         <div className="flex flex-wrap gap-2 border-t border-border-soft pt-4">
           <Button size="sm" variant="secondary">

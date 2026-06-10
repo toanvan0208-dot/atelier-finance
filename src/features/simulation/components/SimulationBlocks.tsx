@@ -22,7 +22,6 @@ import { DetailToggleCard } from "./DetailToggleCard";
 import { ReflectionBox } from "./ReflectionBox";
 import { SimulationSectionCard } from "./SimulationSectionCard";
 import { ToneChip } from "./ToneChip";
-import { TutorNote } from "./TutorNote";
 
 type BlockProps<T> = {
   data: T;
@@ -109,7 +108,6 @@ export function SimulationPrecheckBlock({
             </Button>
           ))}
         </div>
-        <TutorNote data={data.tutor} />
         <SectionFooter data={data} labels={detailLabels} />
       </div>
     </SimulationSectionCard>
@@ -148,7 +146,6 @@ export function SimulationModeBlock({ data, detailLabels }: BlockProps<ModeSecti
             </div>
           ))}
         </div>
-        <TutorNote data={data.tutor} />
         <SectionFooter data={data} labels={detailLabels} />
       </div>
     </SimulationSectionCard>
@@ -173,7 +170,6 @@ export function SimulationThesisBlock({
           </p>
         ) : null}
         <ReflectionBox placeholder={data.placeholder} />
-        <TutorNote data={data.tutor} />
         <SectionFooter data={data} labels={detailLabels} />
       </div>
     </SimulationSectionCard>
@@ -195,7 +191,6 @@ export function SimulationPositionBlock({
         <p className="rounded-[4px] border border-border bg-accent-soft px-3 py-3 text-xs leading-5 text-muted">
           {data.reminder}
         </p>
-        <TutorNote data={data.tutor} />
         <SectionFooter data={data} labels={detailLabels} />
       </div>
     </SimulationSectionCard>
@@ -214,7 +209,6 @@ export function SimulationPortfolioBlock({
     >
       <div className="space-y-4">
         <FieldGrid items={data.questions} />
-        <TutorNote data={data.tutor} />
         <SectionFooter data={data} labels={detailLabels} />
       </div>
     </SimulationSectionCard>
@@ -233,7 +227,6 @@ export function SimulationMilestoneBlock({
     >
       <div className="space-y-4">
         <FieldGrid items={data.milestones} />
-        <TutorNote data={data.tutor} />
         <SectionFooter data={data} labels={detailLabels} />
       </div>
     </SimulationSectionCard>
@@ -269,7 +262,6 @@ export function SimulationPerformanceBlock({
           rows={data.benchmarks}
         />
         <FieldGrid items={data.causes} />
-        <TutorNote data={data.tutor} />
         <SectionFooter data={data} labels={detailLabels} />
       </div>
     </SimulationSectionCard>
@@ -294,7 +286,6 @@ export function SimulationAbnormalMoveBlock({
         />
         <TextList items={data.hypotheses} />
         <FieldGrid items={data.checks} />
-        <TutorNote data={data.tutor} />
         <SectionFooter data={data} labels={detailLabels} />
       </div>
     </SimulationSectionCard>
@@ -330,7 +321,6 @@ export function SimulationScenarioBlock({
             </div>
           ))}
         </div>
-        <TutorNote data={data.tutor} />
         <SectionFooter data={data} labels={detailLabels} />
       </div>
     </SimulationSectionCard>
@@ -360,7 +350,6 @@ export function SimulationCaseStudyBlock({
             </Chip>
           ))}
         </div>
-        <TutorNote data={data.tutor} />
         <SectionFooter data={data} labels={detailLabels} />
       </div>
     </SimulationSectionCard>
@@ -398,7 +387,6 @@ export function SimulationJournalBlock({
             },
           ]}
         />
-        <TutorNote data={data.tutor} />
         <SectionFooter data={data} labels={detailLabels} />
       </div>
     </SimulationSectionCard>
@@ -420,7 +408,6 @@ export function SimulationNavigationBlock({
         <p className="rounded-[4px] border border-border bg-accent-soft px-3 py-3 text-xs leading-5 text-muted">
           {data.reminder}
         </p>
-        <TutorNote data={data.tutor} />
         <SectionFooter data={data} labels={detailLabels} />
       </div>
     </SimulationSectionCard>
@@ -440,7 +427,6 @@ export function SimulationOutputSummaryBlock({
       <div className="space-y-4">
         <TextList items={data.fields} />
         <FieldGrid items={data.readiness} />
-        <TutorNote data={data.tutor} />
         <SectionFooter data={data} labels={detailLabels} />
       </div>
     </SimulationSectionCard>

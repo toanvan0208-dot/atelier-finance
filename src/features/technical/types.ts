@@ -66,7 +66,17 @@ export type PVTReadingPathData = {
 export type TechnicalProgressStep = {
   order: number;
   title: string;
+  question: string;
+  summary: string;
   status: TechnicalProgressStatus;
+  tone?: TechnicalTone;
+  sections: Array<{
+    title: string;
+    items: string[];
+  }>;
+  beginnerExplanation?: string;
+  example?: string[];
+  reminder?: string;
 };
 
 export type TechnicalProgressData = {

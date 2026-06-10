@@ -188,7 +188,7 @@ function InvestorProfileSummaryCard({ onNavigate }: OverviewPageProps) {
       <CardBody className="space-y-4">
         <p className="text-sm leading-7 text-muted">
           Cấu hình lộ trình giúp hệ thống biết hôm nay bạn muốn học, phân tích, mô phỏng hay kiểm tra lại quyết định.
-          Từ đó AI Tutor có thể giải thích đúng mức và nhắc đúng phần bạn đang vướng.
+          Từ đó panel trợ giảng có thể giải thích đúng mức và nhắc đúng phần bạn đang vướng.
         </p>
         <div className="grid gap-2">
           {rows.map(([label, value]) => (

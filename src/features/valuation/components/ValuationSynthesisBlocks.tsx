@@ -14,7 +14,6 @@ import { DetailToggleCard } from "./DetailToggleCard";
 import { MethodReliabilityCard } from "./MethodReliabilityCard";
 import { SimpleMetricGrid } from "./SimpleMetricGrid";
 import { SimpleRangeChart } from "./SimpleRangeChart";
-import { TutorNote } from "./TutorNote";
 import { ValuationSectionCard } from "./ValuationSectionCard";
 
 type SharedBlockProps<T> = {
@@ -34,7 +33,6 @@ export function MarginOfSafetyBlock({
     >
       <div className="space-y-4">
         <SimpleMetricGrid columns="two" items={data.items} />
-        {data.tutor ? <TutorNote data={data.tutor} /> : null}
         <DetailToggleCard details={data.details} labels={detailLabels} />
       </div>
     </ValuationSectionCard>
@@ -73,7 +71,6 @@ export function ValuationRangeSummaryBlock({
     >
       <div className="space-y-4">
         <SimpleRangeChart data={data} />
-        {data.tutor ? <TutorNote data={data.tutor} /> : null}
         <DetailToggleCard details={data.details} labels={detailLabels} />
       </div>
     </ValuationSectionCard>

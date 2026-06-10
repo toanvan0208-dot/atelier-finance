@@ -11,7 +11,6 @@ import type {
 import { ChecklistItem } from "./ChecklistItem";
 import { DetailToggleCard } from "./DetailToggleCard";
 import { SimpleMetricGrid } from "./SimpleMetricGrid";
-import { TutorNote } from "./TutorNote";
 import { ValuationSectionCard } from "./ValuationSectionCard";
 
 type SharedBlockProps<T> = {
@@ -56,7 +55,6 @@ export function ValuationPrecheckBlock({
           />
         ))}
         <SimpleMetricGrid columns="one" items={data.output} />
-        {data.tutor ? <TutorNote data={data.tutor} /> : null}
         <DetailToggleCard details={data.details} labels={detailLabels} />
       </div>
     </ValuationSectionCard>
@@ -76,7 +74,6 @@ export function NormalizedInputBlock({
       <div className="space-y-4">
         <SimpleMetricGrid columns="three" items={data.checks} />
         <SimpleMetricGrid columns="three" items={data.output} />
-        {data.tutor ? <TutorNote data={data.tutor} /> : null}
         <DetailToggleCard details={data.details} labels={detailLabels} />
       </div>
     </ValuationSectionCard>
@@ -96,7 +93,6 @@ export function BusinessTypeValuationBlock({
     >
       <div className="space-y-4">
         <SimpleMetricGrid columns="three" items={data.types} />
-        {data.tutor ? <TutorNote data={data.tutor} /> : null}
         <DetailToggleCard details={data.details} labels={detailLabels} />
       </div>
     </ValuationSectionCard>
@@ -116,7 +112,6 @@ export function MarketPricingBlock({
     >
       <div className="space-y-4">
         <SimpleMetricGrid columns="three" items={data.metrics} />
-        {data.tutor ? <TutorNote data={data.tutor} /> : null}
         <DetailToggleCard details={data.details} labels={detailLabels} />
       </div>
     </ValuationSectionCard>

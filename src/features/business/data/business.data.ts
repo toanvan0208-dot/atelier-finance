@@ -4,377 +4,391 @@ export const businessPageData: BusinessPageData = {
   isLoading: false,
   loading: {
     title: "Đang chuẩn bị hồ sơ doanh nghiệp",
-    description: "Hệ thống đang gom dữ liệu mẫu để người mới hiểu doanh nghiệp trước khi đọc BCTC.",
+    description:
+      "Hệ thống đang gom dữ liệu mẫu để người mới hiểu doanh nghiệp trước khi đọc BCTC.",
   },
   emptyState: {
     title: "Chưa có doanh nghiệp để phân tích",
-    description: "Hãy chọn một cổ phiếu ứng viên từ module Lọc cổ phiếu trước khi đi tiếp.",
-    icon: "∅",
+    description:
+      "Hãy chọn một cổ phiếu ứng viên từ module Lọc cổ phiếu trước khi đi tiếp.",
+    icon: "0",
   },
   header: {
-    moduleName: "Hiểu Doanh Nghiệp",
+    moduleName: "Hiểu doanh nghiệp",
     ticker: "MWG",
     companyName: "Công ty Cổ phần Đầu tư Thế Giới Di Động",
     industry: "Bán lẻ",
     status: "Đang phân tích",
     businessType: "Bán lẻ / tiêu dùng",
-    assumedRiskProfile: "Thấp đến trung bình",
-    previousModuleLink:
-      "MWG là cổ phiếu ứng viên cần phân tích sâu hơn từ module Lọc cổ phiếu.",
+    beginnerFit: "Dễ hiểu với người mới",
+    candidateStatus: "Ứng viên sau vòng sơ lọc",
+    description:
+      "MWG là cổ phiếu ứng viên từ module Lọc cổ phiếu. Trước khi đọc BCTC, hãy hiểu doanh nghiệp này kiếm tiền bằng cách nào và cần kiểm tra điều gì bằng dữ liệu.",
     actions: [
-      { label: "Quay lại lọc cổ phiếu", variant: "secondary" },
-      { label: "Chuyển sang phân tích BCTC", variant: "primary" },
+      {
+        label: "Quay lại lọc cổ phiếu",
+        description: "So sánh lại với mã ứng viên khác.",
+        variant: "secondary",
+      },
+      {
+        label: "Chuyển sang phân tích BCTC",
+        description: "Chỉ mở khi đã hoàn thành câu hỏi bắt buộc.",
+        variant: "primary",
+      },
     ],
   },
   quickSummary: {
     title: "Bản đồ nhanh về doanh nghiệp",
-    description: "Năm câu trả lời ngắn để hiểu doanh nghiệp ở mức cơ bản.",
+    description: "5 câu trả lời ngắn giúp bạn nắm doanh nghiệp ở mức cơ bản.",
     icon: "M",
-    metrics: [
-      {
-        title: "Cổ phiếu đang học",
-        value: "MWG",
-        description: "Mã chỉ là ký hiệu giao dịch, phía sau là doanh nghiệp thật.",
-        icon: "S",
-        status: "Ứng viên",
-      },
-      {
-        title: "Mức hiểu cơ bản",
-        value: "5",
-        description: "Năm câu hỏi đời thường trước khi đọc số tài chính.",
-        icon: "?",
-        status: "Bản đồ",
-      },
-    ],
     items: [
       {
         question: "Doanh nghiệp này làm gì?",
-        answer: "Vận hành chuỗi bán lẻ sản phẩm công nghệ, điện máy và một số mảng tiêu dùng.",
+        answer:
+          "Vận hành chuỗi bán lẻ sản phẩm công nghệ, điện máy và một số mảng tiêu dùng.",
       },
       {
         question: "Doanh nghiệp kiếm tiền từ đâu?",
-        answer: "Từ bán hàng trực tiếp tại cửa hàng, online và các dịch vụ đi kèm.",
+        answer:
+          "Từ bán hàng trực tiếp tại cửa hàng, online và các dịch vụ đi kèm.",
       },
       {
         question: "Khách hàng chính là ai?",
-        answer: "Người tiêu dùng cá nhân có nhu cầu mua điện thoại, điện máy và hàng tiêu dùng.",
+        answer:
+          "Người tiêu dùng cá nhân có nhu cầu mua điện thoại, điện máy và hàng tiêu dùng.",
       },
       {
         question: "Lợi thế sơ bộ là gì?",
-        answer: "Thương hiệu quen thuộc, mạng lưới cửa hàng lớn và năng lực vận hành bán lẻ.",
+        answer:
+          "Thương hiệu quen thuộc, mạng lưới cửa hàng lớn và năng lực vận hành bán lẻ.",
       },
       {
         question: "Rủi ro lớn nhất là gì?",
-        answer: "Sức mua yếu, cạnh tranh giá và chi phí vận hành cửa hàng.",
+        answer:
+          "Sức mua yếu, cạnh tranh giá, tồn kho và chi phí vận hành cửa hàng.",
+      },
+    ],
+    oneSentenceSummary:
+      "MWG là doanh nghiệp bán lẻ phụ thuộc vào sức mua nội địa, biên lợi nhuận, quản trị tồn kho và hiệu quả vận hành chuỗi.",
+  },
+  conclusion: {
+    title: "Kết luận hiểu doanh nghiệp",
+    description: "Tóm tắt những gì đã hiểu trước khi đi vào BCTC.",
+    items: [
+      {
+        title: "Bản chất doanh nghiệp",
+        content:
+          "MWG là doanh nghiệp bán lẻ công nghệ và tiêu dùng, phụ thuộc vào sức mua nội địa, hiệu quả cửa hàng, biên lợi nhuận và quản trị tồn kho.",
+      },
+      {
+        title: "Điều đang có vẻ là lợi thế",
+        content:
+          "Thương hiệu quen thuộc, mạng lưới lớn, năng lực vận hành và dữ liệu khách hàng.",
+      },
+      {
+        title: "Điều cần kiểm chứng",
+        content:
+          "Mạng lưới lớn có còn tạo lợi nhuận tốt không, tồn kho có tăng bất thường không, biên lợi nhuận có bị cạnh tranh giá làm mỏng không, và chuỗi mới có tạo tiền thật không.",
+      },
+      {
+        title: "Kết luận tạm thời",
+        content:
+          "Dễ hiểu ở mức mô hình kinh doanh, nhưng chưa thể kết luận chất lượng doanh nghiệp nếu chưa kiểm tra BCTC, dòng tiền, biên lợi nhuận và nợ vay.",
       },
     ],
   },
-  progress: {
-    title: "Tiến độ hiểu doanh nghiệp",
-    description: "Đi từng bước để không nhảy thẳng vào chỉ số tài chính.",
-    steps: [
-      { order: 1, title: "Nhận diện doanh nghiệp", status: "Đã hoàn thành" },
-      { order: 2, title: "Phân loại loại hình doanh nghiệp", status: "Đang làm" },
-      { order: 3, title: "Sản phẩm, dịch vụ và khách hàng", status: "Đang làm" },
-      { order: 4, title: "Doanh nghiệp kiếm tiền từ đâu", status: "Cần kiểm tra thêm" },
-      { order: 5, title: "Yếu tố tạo doanh thu và chi phí chính", status: "Cần kiểm tra thêm" },
-      { order: 6, title: "Chuỗi giá trị và quyền lực thương lượng", status: "Cần kiểm tra thêm" },
-      { order: 7, title: "Mảng kinh doanh và hệ sinh thái", status: "Cần kiểm tra thêm" },
-      { order: 8, title: "Cổ đông, lãnh đạo và quản trị", status: "Cần kiểm tra thêm" },
-      { order: 9, title: "Phân bổ vốn", status: "Cần kiểm tra thêm" },
-      { order: 10, title: "Liên kết với luận điểm ngành", status: "Đang làm" },
-      { order: 11, title: "Lợi thế cạnh tranh", status: "Cần kiểm tra thêm" },
-      { order: 12, title: "Khả năng mở rộng", status: "Cần kiểm tra thêm" },
-      { order: 13, title: "Rủi ro mô hình kinh doanh", status: "Cần kiểm tra thêm" },
-    ],
-  },
-  labels: {
-    aiTitle: "AI giải thích ngắn",
-    userInputDefault: "Ghi chú của bạn",
-    evidenceLabel: "Bằng chứng cần kiểm tra",
-    assessmentLabel: "Đánh giá sơ bộ",
-    warningLabel: "Cảnh báo",
-  },
-  contentHeader: {
-    eyebrow: "Nội dung chính",
-    title: "Đi từ doanh nghiệp thật trước khi đi vào con số",
+  groups: [
+    {
+      id: "identity",
+      label: "Nhận diện nhanh",
+      question: "Tôi đang phân tích doanh nghiệp nào?",
+      intro:
+        "Trước khi đọc số tài chính, hãy biết mình đang nhìn vào loại doanh nghiệp nào. Một công ty bán lẻ, ngân hàng, bất động sản hay công ty chu kỳ cần cách đọc hoàn toàn khác nhau.",
+      blocks: [
+        {
+          title: "Thông tin nhận diện",
+          content: "Quan sát sơ bộ về doanh nghiệp đang phân tích.",
+          fields: [
+            { label: "Tên doanh nghiệp", value: "Công ty Cổ phần Đầu tư Thế Giới Di Động" },
+            { label: "Mã cổ phiếu", value: "MWG" },
+            { label: "Ngành chính", value: "Bán lẻ / tiêu dùng" },
+            { label: "Sản phẩm/dịch vụ chính", value: "Điện thoại, laptop, điện máy, phụ kiện và hàng tiêu dùng" },
+            { label: "Thị trường hoạt động", value: "Việt Nam, tập trung vào khách hàng cá nhân và hộ gia đình" },
+            { label: "Mức độ dễ hiểu", value: "Dễ hiểu ở mô hình, cần kiểm chứng bằng dữ liệu" },
+          ],
+        },
+        {
+          title: "Logic phân tích",
+          content:
+            "Theo dõi sức mua, biên lợi nhuận, tồn kho, hiệu quả vận hành cửa hàng và khả năng tạo tiền từ từng chuỗi.",
+          tone: "accent",
+        },
+      ],
+      output:
+        "Loại doanh nghiệp: Bán lẻ / tiêu dùng. Mức dễ hiểu: Dễ hiểu ở mô hình, cần kiểm chứng bằng dữ liệu.",
+    },
+    {
+      id: "money-machine",
+      label: "Máy tạo tiền",
+      question:
+        "Công ty bán gì, bán cho ai, thu tiền từ đâu và chi phí lớn nhất là gì?",
+      intro:
+        "Cụm này gom sản phẩm, khách hàng, nguồn doanh thu, chi phí chính và khả năng mở rộng vào một câu chuyện tạo tiền thống nhất.",
+      blocks: [
+        {
+          title: "Công ty bán gì?",
+          content: "Điện thoại, laptop, điện máy, phụ kiện và hàng tiêu dùng.",
+        },
+        {
+          title: "Bán cho ai?",
+          content: "Người tiêu dùng cá nhân và hộ gia đình tại Việt Nam.",
+        },
+        {
+          title: "Tiền đến từ đâu?",
+          content: "Doanh thu từ chuỗi cửa hàng, kênh online và dịch vụ đi kèm.",
+        },
+        {
+          title: "Chi phí lớn nhất là gì?",
+          content:
+            "Giá vốn hàng bán, nhân công, thuê mặt bằng, marketing, logistics và chi phí tài chính.",
+        },
+        {
+          title: "Mở rộng bằng cách nào?",
+          content:
+            "Mở thêm điểm bán, tăng hiệu quả cửa hàng, mở chuỗi mới, tăng tỷ trọng bán online hoặc tối ưu hàng tồn kho.",
+        },
+      ],
+      output:
+        "Máy tạo tiền chính của MWG nằm ở doanh thu cửa hàng, biên lợi nhuận, tồn kho và hiệu quả vận hành chuỗi.",
+    },
+    {
+      id: "industry-position",
+      label: "Vị thế trong ngành",
+      question:
+        "Doanh nghiệp có lợi thế gì, hay chỉ đang ăn theo gió thuận của ngành?",
+      intro:
+        "Cụm này nối chuỗi giá trị, quyền lực thương lượng, lợi thế cạnh tranh và luận điểm ngành.",
+      blocks: [
+        {
+          title: "Doanh nghiệp đứng ở đâu trong chuỗi giá trị?",
+          content: "Nhà cung cấp -> Doanh nghiệp -> Nhà phân phối / cửa hàng -> Khách hàng cuối",
+          tone: "accent",
+        },
+        {
+          title: "Ai có quyền lực hơn?",
+          content:
+            "Khách hàng có quyền lựa chọn cao; nhà cung cấp có ảnh hưởng vì sản phẩm công nghệ phụ thuộc thương hiệu lớn; doanh nghiệp có lợi thế nhờ mạng lưới, vận hành và nhận diện thương hiệu; đối thủ cạnh tranh cao về giá và khuyến mãi.",
+        },
+        {
+          title: "Lợi thế cạnh tranh sơ bộ",
+          content: "Quan sát sơ bộ, cần kiểm chứng bằng dữ liệu vận hành.",
+          bullets: [
+            "Thương hiệu",
+            "Quy mô",
+            "Mạng lưới phân phối",
+            "Dữ liệu khách hàng",
+            "Năng lực vận hành",
+            "Hệ sinh thái bán lẻ",
+          ],
+        },
+        {
+          title: "Liên kết với luận điểm ngành",
+          content:
+            "Nếu sức mua phục hồi, doanh nghiệp bán lẻ có thương hiệu và vận hành tốt có thể hưởng lợi. Nhưng cần kiểm tra biên lợi nhuận và tồn kho để tránh nhầm tăng trưởng doanh thu với tăng trưởng chất lượng.",
+        },
+      ],
+      output:
+        "MWG có lợi thế sơ bộ về quy mô, thương hiệu và vận hành, nhưng lợi thế này cần kiểm chứng bằng biên lợi nhuận, vòng quay tồn kho và hiệu quả chuỗi.",
+    },
+    {
+      id: "governance-capital",
+      label: "Quản trị và dùng vốn",
+      question: "Ai điều hành doanh nghiệp và họ dùng tiền như thế nào?",
+      intro:
+        "Cụm này gom cổ đông, lãnh đạo, giao dịch liên quan, phân bổ vốn và hệ sinh thái nếu có công ty con hoặc chuỗi mới.",
+      blocks: [
+        {
+          title: "Ai sở hữu và ai điều hành?",
+          content: "Các điểm này cần lấy từ báo cáo quản trị, báo cáo thường niên và công bố chính thức.",
+          fields: [
+            { label: "Cổ đông lớn", value: "Cần kiểm tra thêm" },
+            { label: "Tỷ lệ sở hữu", value: "Cần kiểm chứng bằng dữ liệu công bố" },
+            { label: "Chủ tịch", value: "Cần kiểm tra trong tài liệu chính thức" },
+            { label: "CEO", value: "Cần kiểm tra trong tài liệu chính thức" },
+            { label: "Giao dịch bên liên quan", value: "Cần đọc kỹ trong báo cáo quản trị" },
+            { label: "Thay đổi lãnh đạo bất thường", value: "Chưa đủ dữ kiện" },
+          ],
+        },
+        {
+          title: "Ban lãnh đạo dùng tiền như thế nào?",
+          content: "Cần theo dõi mở rộng cửa hàng, M&A, trả cổ tức, trả nợ, mua cổ phiếu quỹ và đầu tư ngoài ngành.",
+        },
+        {
+          title: "Đánh giá phân bổ vốn",
+          content:
+            "Trung lập, cần theo dõi thêm hiệu quả mở rộng và dòng tiền.",
+          tone: "warning",
+        },
+      ],
+      output:
+        "Cần kiểm tra ban lãnh đạo dùng tiền để mở rộng có tạo dòng tiền thật hay chỉ làm tăng quy mô nhưng kéo giảm biên lợi nhuận.",
+    },
+    {
+      id: "risks",
+      label: "Rủi ro cần kiểm tra",
+      question: "Điều gì có thể làm câu chuyện doanh nghiệp bị sai?",
+      intro:
+        "Cụm này tách rõ rủi ro quan sát sơ bộ và dữ liệu cần mang sang BCTC hoặc báo cáo thường niên.",
+      blocks: [
+        {
+          title: "Sức mua yếu",
+          content:
+            "Mức độ: Rủi ro trung bình. Người tiêu dùng trì hoãn mua hàng không thiết yếu.",
+          fields: [{ label: "Dữ liệu cần kiểm tra", value: "Doanh thu cùng cửa hàng, tồn kho, biên lợi nhuận" }],
+          tone: "warning",
+        },
+        {
+          title: "Cạnh tranh giá",
+          content:
+            "Mức độ: Rủi ro trung bình. Bán lẻ dễ chịu áp lực giá và khuyến mãi.",
+          fields: [{ label: "Dữ liệu cần kiểm tra", value: "Biên gộp, chi phí bán hàng, lợi nhuận sau thuế" }],
+          tone: "warning",
+        },
+        {
+          title: "Nợ vay cao",
+          content:
+            "Mức độ: Cần kiểm tra thêm. Cần kiểm tra nợ vay, chi phí lãi vay và dòng tiền trong module BCTC.",
+          fields: [{ label: "Dữ liệu cần kiểm tra", value: "Nợ vay, lãi vay, CFO, khả năng trả nợ" }],
+          tone: "neutral",
+        },
+        {
+          title: "Mở rộng quá nhanh",
+          content:
+            "Mức độ: Cần kiểm tra thêm. Mạng lưới mới có thể tăng quy mô nhưng kéo giảm hiệu quả nếu chưa tạo tiền.",
+          fields: [{ label: "Dữ liệu cần kiểm tra", value: "CAPEX, chi phí bán hàng, doanh thu/cửa hàng, dòng tiền" }],
+          tone: "neutral",
+        },
+      ],
+      output:
+        "Các rủi ro lớn cần mang sang BCTC là: tồn kho, biên lợi nhuận, dòng tiền hoạt động, nợ vay, chi phí bán hàng và hiệu quả mở rộng.",
+    },
+  ],
+  bctcBridge: {
+    title: "Sang BCTC cần kiểm tra gì?",
     description:
-      "Các block bên dưới được viết dưới dạng câu hỏi đời thường để người mới không bị ngợp bởi thuật ngữ.",
-    icon: "B",
-  },
-  identity: {
-    title: "Doanh nghiệp này là ai?",
-    description: "Bắt đầu từ những thông tin đời thường trước khi nhìn vào báo cáo tài chính.",
-    icon: "1",
-    fields: [
-      { label: "Tên doanh nghiệp", value: "Công ty Cổ phần Đầu tư Thế Giới Di Động" },
-      { label: "Mã cổ phiếu", value: "MWG" },
-      { label: "Ngành chính", value: "Bán lẻ" },
-      { label: "Sản phẩm/dịch vụ chính", value: "Điện thoại, điện máy, hàng tiêu dùng và dịch vụ bán lẻ" },
-      { label: "Thị trường hoạt động", value: "Việt Nam, tập trung vào khách hàng cá nhân" },
-      { label: "Quy mô sơ bộ", value: "Chuỗi bán lẻ có độ phủ lớn, cần kiểm tra số liệu trong báo cáo thường niên" },
-    ],
-    ai: {
-      title: "Trước khi đọc báo cáo tài chính",
-      content:
-        "Bạn cần hiểu doanh nghiệp này thật sự làm gì. Mã cổ phiếu chỉ là ký hiệu giao dịch, phía sau là một doanh nghiệp thật có cửa hàng, nhân viên, khách hàng và chi phí vận hành.",
-    },
-  },
-  businessType: {
-    title: "Doanh nghiệp này nên được phân tích theo logic nào?",
-    description: "Mỗi loại hình doanh nghiệp cần câu hỏi phân tích khác nhau.",
-    icon: "2",
-    tags: [
-      { value: "consumer", label: "Tiêu dùng/thương hiệu", description: "Tập trung vào thương hiệu, sức mua, biên lợi nhuận và tần suất mua lại.", isActive: true },
-      { value: "retail", label: "Bán lẻ", description: "Quan trọng là lưu lượng khách, doanh thu trên cửa hàng, hàng tồn kho và chi phí mặt bằng.", isActive: true },
-      { value: "bank", label: "Ngân hàng/tài chính", description: "Cần phân tích tín dụng, nợ xấu, biên lãi và chất lượng tài sản." },
-      { value: "real-estate", label: "Bất động sản", description: "Cần nhìn quỹ đất, pháp lý, đòn bẩy tài chính và chu kỳ bàn giao." },
-      { value: "commodity", label: "Chu kỳ/hàng hóa", description: "Phụ thuộc mạnh vào giá hàng hóa, cung cầu và chu kỳ lợi nhuận." },
-      { value: "technology", label: "Công nghệ", description: "Xem năng lực tăng trưởng, nhân sự, hợp đồng và khả năng mở rộng." },
-      { value: "export", label: "Xuất khẩu", description: "Chịu ảnh hưởng bởi đơn hàng, tỷ giá, thị trường quốc tế và chi phí vận chuyển." },
-      { value: "logistics", label: "Logistics", description: "Quan trọng là sản lượng, tài sản hạ tầng, hợp đồng và thương mại quốc tế." },
-      { value: "holding", label: "Holding/đa ngành", description: "Cần tách từng mảng và tránh kết luận từ số tổng." },
-      { value: "utility", label: "Tiện ích/phòng thủ", description: "Tập trung vào nhu cầu ổn định, chính sách giá và dòng tiền." },
-    ],
-  },
-  productCustomer: {
-    title: "Công ty bán gì và bán cho ai?",
-    description: "Hiểu sản phẩm và khách hàng giúp bạn không nhìn cổ phiếu như một mã giao dịch vô hồn.",
-    icon: "3",
-    productsTitle: "Sản phẩm / dịch vụ",
-    customersTitle: "Khách hàng / thị trường",
-    products: [
-      { label: "Sản phẩm chính", value: "Điện thoại, laptop, điện máy, phụ kiện và hàng tiêu dùng" },
-      { label: "Dịch vụ đi kèm", value: "Bảo hành, giao hàng, tư vấn và trải nghiệm mua tại cửa hàng" },
-      { label: "Mua lặp lại", value: "Có, nhưng tần suất khác nhau theo từng nhóm sản phẩm" },
-    ],
-    customers: [
-      { label: "Khách hàng chính", value: "Người tiêu dùng cá nhân và hộ gia đình" },
-      { label: "Thị trường chính", value: "Việt Nam" },
-      { label: "Phụ thuộc khách hàng lớn", value: "Không phải dạng phụ thuộc một khách hàng lớn, nhưng phụ thuộc sức mua chung" },
-    ],
-  },
-  revenueSource: {
-    title: "Tiền của doanh nghiệp đến từ đâu?",
-    description: "Tách doanh thu và lợi nhuận giúp tránh nhầm mảng lớn nhất với mảng tốt nhất.",
-    icon: "4",
-    revenueTitle: "Cơ cấu doanh thu mẫu",
-    profitTitle: "Cơ cấu lợi nhuận mẫu",
-    fields: [
-      { label: "Mảng doanh thu chính", value: "Bán lẻ sản phẩm công nghệ và điện máy" },
-      { label: "Mảng lợi nhuận chính", value: "Cần kiểm tra thêm trong báo cáo thường niên và BCTC" },
-      { label: "Doanh thu lặp lại", value: "Không hoàn toàn lặp lại như thuê bao, nhưng có nhu cầu thay thế và mua bổ sung" },
-      { label: "Lợi nhuận cốt lõi", value: "Cần xác nhận từ kết quả từng mảng kinh doanh" },
-    ],
-    revenueMix: [
-      { name: "Công nghệ", value: 48, note: "Mẫu minh họa, không phải số liệu thật" },
-      { name: "Điện máy", value: 34, note: "Mẫu minh họa, không phải số liệu thật" },
-      { name: "Tiêu dùng khác", value: 18, note: "Mẫu minh họa, không phải số liệu thật" },
-    ],
-    profitMix: [],
-    insufficientDataMessage:
-      "Chưa đủ dữ liệu, cần kiểm tra thêm trong báo cáo thường niên hoặc BCTC.",
-  },
-  drivers: {
-    title: "Điều gì làm doanh thu tăng và chi phí tăng?",
-    description: "Dùng câu hỏi đời thường trước, thuật ngữ chuyên môn để sau.",
-    icon: "5",
-    revenueTitle: "Doanh thu tăng nhờ đâu?",
-    costTitle: "Chi phí lớn nhất là gì?",
-    revenueDrivers: ["Tăng giá bán", "Tăng sản lượng", "Mở thêm cửa hàng", "Mở thị trường mới", "M&A", "Tăng khách hàng"],
-    costDrivers: ["Nguyên liệu", "Nhân công", "Marketing", "Lãi vay", "Thuê mặt bằng", "Nhiên liệu", "CAPEX"],
-    note:
-      "Trong phân tích doanh nghiệp, yếu tố làm doanh thu tăng gọi là Revenue Driver, yếu tố chi phí chính gọi là Cost Driver.",
-  },
-  valueChain: {
-    title: "Doanh nghiệp đứng ở đâu trong ngành?",
-    description: "Nhìn chuỗi giá trị để biết ai tạo giá trị, ai có quyền lực và ai chịu áp lực.",
-    icon: "6",
-    chain: ["Nhà cung cấp", "Doanh nghiệp", "Nhà phân phối", "Khách hàng cuối"],
-    activeNode: "Doanh nghiệp",
-    powerTitle: "Ai có quyền lực hơn?",
-    powerItems: [
-      { label: "Khách hàng", value: "Có quyền lựa chọn cao vì nhiều nơi bán cùng loại sản phẩm" },
-      { label: "Nhà cung cấp", value: "Có ảnh hưởng vì sản phẩm công nghệ phụ thuộc thương hiệu lớn" },
-      { label: "Doanh nghiệp", value: "Có lợi thế nhờ mạng lưới và trải nghiệm bán lẻ" },
-      { label: "Đối thủ", value: "Cạnh tranh cao, đặc biệt về giá và khuyến mãi" },
-    ],
-    conclusion: "Quyền tăng giá ở mức trung bình; doanh nghiệp phụ thuộc sức mua và chính sách nhà cung cấp.",
-    details: [
-      "Cần kiểm tra tỷ trọng hàng tồn kho, điều khoản thanh toán và tốc độ quay vòng hàng.",
-      "Cần so sánh biên lợi nhuận với đối thủ để biết doanh nghiệp có thật sự có quyền lực giá hay không.",
-    ],
-    detailLabels: {
-      detailButtonLabel: "Xem chi tiết",
-      collapseButtonLabel: "Thu gọn chi tiết",
-      detailChipLabel: "Chi tiết",
-    },
-  },
-  ecosystem: {
-    title: "Doanh nghiệp này có đơn giản hay nhiều lớp?",
-    description: "Một doanh nghiệp nhiều mảng cần được tách lớp trước khi kết luận.",
-    icon: "7",
-    fields: [
-      { label: "Mảng kinh doanh chính", value: "Bán lẻ công nghệ, điện máy và một số mảng tiêu dùng" },
-      { label: "Công ty con quan trọng", value: "Cần kiểm tra thêm trong báo cáo thường niên" },
-      { label: "Công ty liên kết", value: "Chưa đủ dữ liệu mẫu" },
-      { label: "Hệ sinh thái liên quan", value: "Chuỗi cửa hàng, kênh online, hậu cần, dữ liệu khách hàng và dịch vụ sau bán" },
-      { label: "Mảng tạo lợi nhuận chính", value: "Cần xác nhận bằng BCTC theo mảng" },
-      { label: "Mảng tiêu tốn vốn", value: "Các mảng mở rộng chuỗi thường cần theo dõi vốn đầu tư và thời gian hoàn vốn" },
-    ],
-    warningTitle: "Cảnh báo đọc số tổng",
-    warning:
-      "Doanh nghiệp này có nhiều mảng kinh doanh. Không nên kết luận chỉ từ tổng doanh thu hoặc tổng lợi nhuận.",
-    details: [
-      "Khi đọc báo cáo thường niên, nên tách từng chuỗi bán lẻ và xem mảng nào đang kéo lợi nhuận lên hoặc xuống.",
-      "Nếu một mảng tăng trưởng nhanh nhưng còn lỗ, cần hiểu đó là đầu tư có kiểm soát hay rủi ro kéo dài.",
-    ],
-    detailLabels: {
-      detailButtonLabel: "Xem chi tiết",
-      collapseButtonLabel: "Thu gọn chi tiết",
-      detailChipLabel: "Chi tiết",
-    },
-  },
-  governance: {
-    title: "Ai sở hữu và ai điều hành doanh nghiệp?",
-    description: "Người mới cần biết ai ra quyết định và cách họ dùng tiền của doanh nghiệp.",
-    icon: "8",
-    tableCaption: "Bảng thông tin sở hữu, lãnh đạo và quản trị mẫu",
-    columns: {
-      label: "Nội dung cần biết",
-      value: "Trạng thái / ghi chú",
-    },
-    fields: [
-      { label: "Cổ đông lớn", value: "Cần kiểm tra thêm từ báo cáo quản trị và sở hữu cập nhật" },
-      { label: "Tỷ lệ sở hữu", value: "Chưa dùng dữ liệu thật ở bước prototype" },
-      { label: "Chủ tịch", value: "Cần kiểm tra trong tài liệu công bố chính thức" },
-      { label: "CEO", value: "Cần kiểm tra trong tài liệu công bố chính thức" },
-      { label: "Ban lãnh đạo chính", value: "Cần xem danh sách điều hành, kinh nghiệm và thay đổi gần đây" },
-      { label: "Cổ đông chiến lược", value: "Chưa đủ dữ liệu mẫu" },
-      { label: "Giao dịch bên liên quan", value: "Cần đọc kỹ trong báo cáo quản trị" },
-      { label: "Thay đổi lãnh đạo bất thường", value: "Chưa kết luận ở dữ liệu mẫu" },
-    ],
-    warningTitle: "Lưu ý quản trị",
-    warning:
-      "Cổ đông lớn không đồng nghĩa với doanh nghiệp tốt. Cần xem cách họ điều hành, phân bổ vốn và minh bạch thông tin.",
-    details: [
-      "Nên kiểm tra lịch sử cam kết với cổ đông nhỏ, giao dịch nội bộ và cách công ty giải thích các quyết định lớn.",
-      "Nếu có thay đổi lãnh đạo hoặc chiến lược bất thường, cần đọc kỹ trước khi đi sang định giá.",
-    ],
-    detailLabels: {
-      detailButtonLabel: "Xem chi tiết",
-      collapseButtonLabel: "Thu gọn chi tiết",
-      detailChipLabel: "Chi tiết",
-    },
-  },
-  capitalAllocation: {
-    title: "Ban lãnh đạo dùng tiền như thế nào?",
-    description: "Cách dùng tiền nói nhiều về chất lượng quản trị và khả năng tăng trưởng dài hạn.",
-    icon: "9",
+      "Sau khi hiểu doanh nghiệp, bước tiếp theo không phải kết luận tốt/xấu mà là kiểm chứng câu chuyện bằng số liệu.",
+    ctaLabel: "Chuyển sang phân tích BCTC",
+    disabledCtaLabel: "Hoàn thành câu hỏi bắt buộc để sang BCTC",
     items: [
-      { label: "Mở rộng sản xuất/cửa hàng", value: "Có thể là động lực tăng trưởng nhưng cần xem hiệu quả từng điểm bán" },
-      { label: "M&A", value: "Cần kiểm tra nếu có thương vụ lớn" },
-      { label: "Trả cổ tức", value: "Cần đối chiếu dòng tiền và nhu cầu tái đầu tư" },
-      { label: "Trả nợ", value: "Tốt nếu giúp giảm áp lực tài chính" },
-      { label: "Mua cổ phiếu quỹ", value: "Cần xem giá mua và mục đích" },
-      { label: "Đầu tư ngoài ngành", value: "Cần thận trọng nếu vượt quá năng lực cốt lõi" },
+      {
+        question: "Doanh thu theo mảng có khớp với câu chuyện bán lẻ không?",
+        module: "BCTC",
+        dataToCheck: ["Doanh thu theo mảng", "Tăng trưởng doanh thu", "Doanh thu cửa hàng"],
+      },
+      {
+        question: "Biên lợi nhuận có bị cạnh tranh giá làm giảm không?",
+        module: "BCTC",
+        dataToCheck: ["Biên gộp", "Biên EBIT", "Chi phí bán hàng"],
+      },
+      {
+        question: "Tồn kho có tăng bất thường không?",
+        module: "BCTC",
+        dataToCheck: ["Hàng tồn kho", "Vòng quay tồn kho", "Dự phòng giảm giá tồn kho"],
+      },
+      {
+        question: "Dòng tiền hoạt động có đi cùng lợi nhuận không?",
+        module: "BCTC",
+        dataToCheck: ["CFO", "Lợi nhuận sau thuế", "Vốn lưu động"],
+      },
+      {
+        question: "Nợ vay và chi phí lãi vay có tạo áp lực không?",
+        module: "BCTC",
+        dataToCheck: ["Nợ vay", "Chi phí lãi vay", "Khả năng trả nợ"],
+      },
+      {
+        question: "Chi phí bán hàng và quản lý có tăng nhanh hơn doanh thu không?",
+        module: "BCTC",
+        dataToCheck: ["Chi phí bán hàng", "Chi phí quản lý", "Tỷ lệ chi phí/doanh thu"],
+      },
+      {
+        question: "Mở rộng chuỗi mới có tạo tiền thật hay chỉ làm tăng quy mô?",
+        module: "BCTC",
+        dataToCheck: ["CAPEX", "CFO", "Doanh thu/cửa hàng", "Lợi nhuận theo mảng"],
+      },
     ],
-    assessmentLabel: "Đánh giá phân bổ vốn",
-    assessment: "Trung lập, cần theo dõi thêm hiệu quả mở rộng và dòng tiền.",
-    tone: "warning",
   },
-  industryThesis: {
-    title: "Nếu ngành tốt lên, doanh nghiệp này hưởng lợi thế nào?",
-    description: "Liên kết lại với module Ngành để xem thesis có đi vào doanh nghiệp cụ thể không.",
-    icon: "10",
-    fields: [
-      { label: "Luận điểm ngành từ module trước", value: "Sức mua phục hồi dần hỗ trợ nhóm bán lẻ có thương hiệu và vận hành tốt" },
-      { label: "Hưởng lợi trực tiếp hay gián tiếp", value: "Trực tiếp nếu doanh số cửa hàng và online phục hồi" },
-      { label: "Yếu tố hỗ trợ chính", value: "Thương hiệu, độ phủ cửa hàng, khả năng quản lý tồn kho" },
-      { label: "Yếu tố cản trở chính", value: "Cạnh tranh giá, chi phí vận hành, sức mua yếu kéo dài" },
+  miniCheck: {
+    title: "Bạn đã hiểu doanh nghiệp ở mức cơ bản chưa?",
+    description:
+      "Chỉ nên đi tiếp khi bạn có thể giải thích doanh nghiệp bằng lời của mình.",
+    successMessage: "Bạn đã đủ điều kiện chuyển sang phân tích BCTC.",
+    failureMessage:
+      "Bạn chưa nên chuyển sang BCTC. Hãy xem lại phần máy tạo tiền, rủi ro và cầu nối sang BCTC.",
+    questions: [
+      {
+        question: "Doanh nghiệp này kiếm tiền chủ yếu từ đâu?",
+        options: [
+          "Từ bán hàng và dịch vụ bán lẻ",
+          "Từ đầu tư tài chính là chính",
+          "Chưa xác định được",
+          "Từ chênh lệch định giá tài sản là chính",
+        ],
+        correctIndex: 0,
+      },
+      {
+        question: "Rủi ro lớn cần kiểm tra tiếp là gì?",
+        options: [
+          "Biên lợi nhuận, tồn kho, dòng tiền và sức mua",
+          "Chỉ cần xem giá cổ phiếu tăng hay giảm",
+          "Chỉ cần xem tên công ty quen thuộc",
+          "Chỉ cần xem doanh thu có tăng không",
+        ],
+        correctIndex: 0,
+      },
+      {
+        question: "Sang BCTC cần kiểm tra gì đầu tiên?",
+        options: [
+          "Doanh thu, biên lợi nhuận, tồn kho, CFO và nợ vay",
+          "Chỉ xem lợi nhuận sau thuế",
+          "Chỉ xem P/E",
+          "Chỉ xem số lượng cửa hàng",
+        ],
+        correctIndex: 0,
+      },
     ],
   },
-  competitiveAdvantage: {
-    title: "Vì sao khách hàng chọn doanh nghiệp này thay vì đối thủ?",
-    description: "Lợi thế cạnh tranh cần đi kèm bằng chứng, không chỉ là cảm giác thương hiệu quen.",
-    icon: "11",
-    items: [
-      { name: "Thương hiệu", evidence: "Cần kiểm tra nhận diện thương hiệu, lượng khách và độ phủ cửa hàng", tone: "success" },
-      { name: "Quy mô", evidence: "Mạng lưới lớn có thể giúp mua hàng, vận hành và nhận diện tốt hơn", tone: "success" },
-      { name: "Chi phí thấp", evidence: "Cần kiểm tra biên lợi nhuận và chi phí bán hàng", tone: "warning" },
-      { name: "Mạng lưới phân phối", evidence: "Độ phủ cửa hàng và kênh online là điểm cần theo dõi", tone: "success" },
-      { name: "Khách hàng trung thành", evidence: "Cần kiểm tra tần suất mua lại và dịch vụ hậu mãi", tone: "warning" },
-      { name: "Công nghệ/dữ liệu", evidence: "Cần xem doanh nghiệp dùng dữ liệu để tối ưu tồn kho và bán hàng ra sao", tone: "neutral" },
-      { name: "Giấy phép", evidence: "Không phải lợi thế chính trong dữ liệu mẫu, nhưng cần kiểm tra với ngành có điều kiện.", tone: "neutral" },
-      { name: "Vị trí tài sản", evidence: "Vị trí cửa hàng và độ phủ khu vực có thể ảnh hưởng lưu lượng khách.", tone: "warning" },
-      { name: "Hệ sinh thái", evidence: "Cần kiểm tra mức liên kết giữa các chuỗi, dịch vụ, dữ liệu khách hàng và kênh online.", tone: "neutral" },
+  nextActions: {
+    title: "Hành động tiếp theo",
+    description:
+      "Các hành động chỉ phục vụ việc học và kiểm chứng dữ liệu ở bước sau.",
+    icon: "N",
+    actions: [
+      {
+        label: "Chuyển sang phân tích BCTC",
+        description: "Kiểm tra doanh thu, biên lợi nhuận, tồn kho, dòng tiền và nợ vay.",
+        variant: "primary",
+      },
+      {
+        label: "Thêm vào Watchlist",
+        description: "Theo dõi mã này nhưng chưa ra quyết định mua.",
+        variant: "secondary",
+      },
+      {
+        label: "Ghi chú điều cần kiểm tra thêm",
+        description: "Lưu lại các câu hỏi cần xác minh ở bước sau.",
+        variant: "ghost",
+      },
+      {
+        label: "Quay lại Lọc cổ phiếu",
+        description: "So sánh với mã ứng viên khác.",
+        variant: "secondary",
+      },
     ],
-    details: [
-      "Bằng chứng tốt thường đến từ biên lợi nhuận ổn định, thị phần, doanh thu trên cửa hàng và khả năng giữ giá bán.",
-      "Nếu lợi thế không tạo ra doanh thu, lợi nhuận hoặc dòng tiền tốt hơn đối thủ, cần xem lại giả định.",
-    ],
-    detailLabels: {
-      detailButtonLabel: "Xem chi tiết",
-      collapseButtonLabel: "Thu gọn chi tiết",
-      detailChipLabel: "Chi tiết",
-    },
-  },
-  scalability: {
-    title: "Doanh nghiệp còn lớn lên được không?",
-    description: "Một doanh nghiệp tốt vẫn cần dư địa tăng trưởng hợp lý.",
-    icon: "12",
-    fields: [
-      { label: "Dư địa thị trường", value: "Còn phụ thuộc sức mua và độ bão hòa từng chuỗi" },
-      { label: "Mở thêm cửa hàng/thị trường", value: "Có thể, nhưng cần xem hiệu quả điểm bán mới" },
-      { label: "Tăng trưởng cần nhiều vốn hay ít vốn", value: "Bán lẻ thường cần vốn cho mặt bằng, hàng tồn kho và vận hành" },
-      { label: "Mô hình có dễ nhân rộng không?", value: "Tương đối dễ nhân rộng nếu vận hành và nhu cầu còn tốt" },
-    ],
-    assessmentLabel: "Phân loại dư địa",
-    assessment: "Trung bình, cần kiểm tra theo từng mảng.",
-    tone: "warning",
-  },
-  risks: {
-    title: "Điều gì có thể làm doanh nghiệp gặp vấn đề?",
-    description: "Rủi ro mô hình kinh doanh giúp người mới biết cần đọc sâu phần nào trong BCTC.",
-    icon: "13",
-    items: [
-      { title: "Phụ thuộc một sản phẩm", description: "Nếu một nhóm hàng chiếm tỷ trọng quá lớn, doanh nghiệp dễ bị ảnh hưởng khi nhu cầu đổi chiều.", level: "Cần kiểm tra thêm", tone: "neutral" },
-      { title: "Phụ thuộc khách hàng lớn", description: "Bán lẻ thường ít phụ thuộc một khách hàng lớn, nhưng phụ thuộc sức mua chung.", level: "Rủi ro thấp", tone: "success" },
-      { title: "Phụ thuộc giá hàng hóa", description: "Một số nhóm hàng có thể chịu ảnh hưởng giá nhập và chiết khấu từ nhà cung cấp.", level: "Cần kiểm tra thêm", tone: "neutral" },
-      { title: "Phụ thuộc tỷ giá/lãi suất", description: "Hàng nhập khẩu, chi phí tài chính và sức mua có thể bị ảnh hưởng khi tỷ giá hoặc lãi suất biến động.", level: "Rủi ro trung bình", tone: "warning" },
-      { title: "Phụ thuộc chính sách", description: "Chính sách thuế, nhập khẩu hoặc tiêu dùng có thể ảnh hưởng một số nhóm sản phẩm.", level: "Cần kiểm tra thêm", tone: "neutral" },
-      { title: "Cạnh tranh gay gắt", description: "Bán lẻ dễ chịu áp lực giá và khuyến mãi.", level: "Rủi ro trung bình", tone: "warning" },
-      { title: "Nợ vay cao", description: "Cần kiểm tra nợ vay, chi phí lãi vay và dòng tiền trong module BCTC.", level: "Cần kiểm tra thêm", tone: "neutral" },
-      { title: "Sức mua yếu", description: "Người tiêu dùng trì hoãn mua hàng không thiết yếu.", level: "Rủi ro trung bình", tone: "warning" },
-      { title: "Chi phí mặt bằng", description: "Mạng lưới cửa hàng lớn có thể tạo áp lực chi phí.", level: "Cần kiểm tra thêm", tone: "neutral" },
-      { title: "Mảng tăng trưởng đang lỗ", description: "Nếu mở rộng quá nhanh, lợi nhuận có thể bị kéo xuống.", level: "Cần kiểm tra thêm", tone: "warning" },
-      { title: "Mô hình nhiều mảng", description: "Cần tách từng mảng để tránh hiểu sai chất lượng lợi nhuận.", level: "Cần kiểm tra thêm", tone: "neutral" },
-    ],
-    details: [
-      "Cần kiểm tra hàng tồn kho, nợ vay, chi phí bán hàng và hiệu quả từng mảng.",
-      "Nếu rủi ro đến từ mô hình kinh doanh, định giá rẻ chưa chắc đã đủ an toàn.",
-    ],
-    detailLabels: {
-      detailButtonLabel: "Xem chi tiết",
-      collapseButtonLabel: "Thu gọn chi tiết",
-      detailChipLabel: "Chi tiết",
-    },
   },
   disclaimer: {
     title: "Cảnh báo bắt buộc",
     icon: "!",
     content:
-      "Phần Hiểu doanh nghiệp chỉ giúp bạn hiểu doanh nghiệp trước khi đọc báo cáo tài chính, định giá và kiểm tra rủi ro. Một doanh nghiệp dễ hiểu hoặc có lợi thế cạnh tranh vẫn cần được kiểm chứng thêm bằng dữ liệu.",
-  },
-  nextActions: {
-    title: "Bạn đã hiểu doanh nghiệp ở mức cơ bản chưa?",
-    description: "Chỉ nên đi tiếp khi bạn có thể giải thích doanh nghiệp bằng lời của mình.",
-    icon: "→",
-    actions: [
-      { label: "Chuyển sang phân tích BCTC", variant: "primary" },
-      { label: "Thêm vào Watchlist", variant: "secondary" },
-      { label: "Ghi chú điều cần kiểm tra thêm", variant: "ghost" },
-      { label: "Quay lại Lọc cổ phiếu", variant: "secondary" },
-    ],
+      "Phần Hiểu doanh nghiệp chỉ giúp bạn hiểu doanh nghiệp trước khi đọc báo cáo tài chính, định giá và kiểm tra rủi ro. Một doanh nghiệp dễ hiểu hoặc có lợi thế cạnh tranh vẫn cần được kiểm chứng bằng dữ liệu.",
   },
 };

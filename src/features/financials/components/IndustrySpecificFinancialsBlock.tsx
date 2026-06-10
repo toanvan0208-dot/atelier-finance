@@ -4,7 +4,6 @@ import { Chip, Tabs } from "@/components/ui";
 import type { IndustrySpecificFinancialsData } from "../types";
 import { DetailToggleCard } from "./DetailToggleCard";
 import { FinancialsSectionCard } from "./FinancialsSectionCard";
-import { TutorNote } from "./TutorNote";
 
 type IndustrySpecificFinancialsBlockProps = {
   data: IndustrySpecificFinancialsData;
@@ -30,7 +29,6 @@ export function IndustrySpecificFinancialsBlock({ data }: IndustrySpecificFinanc
       <div className="space-y-4">
         <Tabs ariaLabel={data.title} defaultValue="retail" items={tabs} />
         <DetailToggleCard details={data.details} labels={data.detailLabels} />
-        {data.tutor ? <TutorNote data={data.tutor} /> : null}
       </div>
     </FinancialsSectionCard>
   );

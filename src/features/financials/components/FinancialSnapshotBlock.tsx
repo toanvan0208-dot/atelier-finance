@@ -5,7 +5,6 @@ import { FinancialsSectionCard } from "./FinancialsSectionCard";
 import { SimpleBarChart } from "./SimpleBarChart";
 import { SimpleLineChart } from "./SimpleLineChart";
 import { SimpleMetricGrid } from "./SimpleMetricGrid";
-import { TutorNote } from "./TutorNote";
 
 type FinancialSnapshotBlockProps = {
   data: FinancialSnapshotData;
@@ -22,7 +21,6 @@ export function FinancialSnapshotBlock({ data }: FinancialSnapshotBlockProps) {
         </div>
         <SimpleMetricGrid columns="two" items={data.metrics} />
         <DetailToggleCard details={data.details} labels={data.detailLabels} />
-        {data.tutor ? <TutorNote data={data.tutor} /> : null}
       </div>
     </FinancialsSectionCard>
   );

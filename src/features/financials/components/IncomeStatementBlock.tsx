@@ -1,8 +1,7 @@
-﻿import { Chip, DataTable } from "@/components/ui";
+import { Chip, DataTable } from "@/components/ui";
 import type { DataTableColumn } from "@/components/ui";
 import type { IncomeStatementData, StatementRow } from "../types";
 import { FinancialsSectionCard } from "./FinancialsSectionCard";
-import { TutorNote } from "./TutorNote";
 
 type IncomeStatementBlockProps = {
   data: IncomeStatementData;
@@ -30,7 +29,6 @@ export function IncomeStatementBlock({ data }: IncomeStatementBlockProps) {
         <p className="rounded-[4px] border-[1.5px] border-border bg-surface-soft px-3 py-2 text-sm leading-6 text-muted">
           {data.checkQuestion}
         </p>
-        {data.tutor ? <TutorNote data={data.tutor} /> : null}
       </div>
     </FinancialsSectionCard>
   );

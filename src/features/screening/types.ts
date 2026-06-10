@@ -1,3 +1,5 @@
+export type ScreeningMode = "context" | "ticker";
+
 export type ScreeningOption = {
   value: string;
   label: string;
@@ -8,6 +10,7 @@ export type ScreeningTone = "success" | "warning" | "danger";
 
 export type ScreeningFunnelStatus =
   | "Đạt"
+  | "Đạt sơ bộ"
   | "Cần kiểm tra"
   | "Cảnh báo"
   | "Không đủ dữ liệu";
@@ -27,6 +30,7 @@ export type ScreeningFunnelLayer = {
 export type StockFunnelReview = {
   layer: string;
   status: ScreeningFunnelStatus;
+  dataPoints: string[];
   simpleExplanation: string;
   nextDataToCheck: string[];
   relatedModule: string;
@@ -39,7 +43,9 @@ export type BeginnerFitLevel = "Dễ hiểu" | "Trung bình" | "Khó";
 export type ScreeningStock = {
   ticker: string;
   companyName: string;
+  sector: string;
   classification: string;
+  groupKey: ScreeningStockGroupKey;
   reason: string;
   mainReason: string;
   needToCheck: string;
@@ -70,6 +76,8 @@ export type ScreeningStockCardLabels = {
   reason: string;
   needToCheck: string;
   beginnerFit: string;
+  status: string;
+  note: string;
   explainAction: string;
   compareAction: string;
   nextAction: string;
@@ -84,6 +92,8 @@ export type ScreeningInputData = {
     riskFallback: string;
     objectiveFallback: string;
   };
+  example: string;
+  highRiskWarning: string;
   industryLabel: string;
   riskLabel: string;
   objectiveLabel: string;
@@ -105,6 +115,7 @@ export type ScreeningContextData = {
       tailwind: string;
       risks: string;
       confirmations: string;
+      priority: string;
     }
   >;
 };
@@ -120,10 +131,13 @@ export type BeginnerScreeningData = {
 export type ScreeningDeepDiveStep = {
   id: string;
   title: string;
-  explanation: string;
-  criteria: string[];
-  example: string;
-  beginnerMistake: string;
+  question: string;
+  dataPoints: string[];
+  simpleReading: string;
+  currentResult: string;
+  impact: string;
+  nextStep: string;
+  scoring: string;
 };
 
 export type ScreeningDeepDiveData = {
@@ -136,17 +150,18 @@ export type ScreeningDeepDiveData = {
 export type ScreeningComparisonSimpleRow = {
   ticker: string;
   keptReason: string;
-  keyStrength: string;
   needToCheck: string;
   beginnerFit: BeginnerFitLevel;
-  conclusion: string;
+  nextStep: string;
 };
 
 export type ScreeningComparisonAdvancedRow = {
-  criterion: string;
-  stockA: string;
-  stockB: string;
-  stockC: string;
+  ticker: string;
+  financial: string;
+  valuation: string;
+  liquidity: string;
+  catalyst: string;
+  riskFit: string;
 };
 
 export type ScreeningComparisonData = {
@@ -155,12 +170,6 @@ export type ScreeningComparisonData = {
   icon: string;
   caption: string;
   simpleRows: ScreeningComparisonSimpleRow[];
-  advancedColumns: {
-    criterion: string;
-    stockA: string;
-    stockB: string;
-    stockC: string;
-  };
   advancedRows: ScreeningComparisonAdvancedRow[];
 };
 
@@ -184,10 +193,10 @@ export type UnderstandingCheckData = {
 
 export type ScreeningNextActionsData = {
   title: string;
-  description: string;
+  contextDescription: string;
+  tickerDescription: string;
   icon: string;
   selectedStockLabel: string;
-  stocks: ScreeningOption[];
   actions: Array<{
     label: string;
     description: string;
@@ -206,28 +215,54 @@ export type ScreeningLoadingData = {
   description: string;
 };
 
+export type ScreeningModeOption = {
+  value: ScreeningMode;
+  title: string;
+  description: string;
+};
+
+export type ScreeningTickerInputData = {
+  title: string;
+  description: string;
+  label: string;
+  placeholder: string;
+  buttonLabel: string;
+  helper: string;
+  emptyError: string;
+  missingError: string;
+  lengthError: string;
+};
+
+export type ScreeningFunnelSummaryData = {
+  contextTitle: string;
+  tickerTitle: string;
+  contextText: string;
+  tickerText: string;
+};
+
 export type ScreeningPageData = {
   isLoading: boolean;
   loading: ScreeningLoadingData;
   emptyState: ScreeningEmptyStateData;
+  modeOptions: ScreeningModeOption[];
+  tickerInput: ScreeningTickerInputData;
   hero: {
     eyebrow: string;
     title: string;
     description: string;
     warningNote: string;
+    progressLabel: string;
+    progressValue: number;
+    statusLabel: string;
     icon: string;
   };
   input: ScreeningInputData;
   context: ScreeningContextData;
-  beginner: BeginnerScreeningData;
-  funnel: {
-    title: string;
-    description: string;
-    layers: ScreeningFunnelLayer[];
-  };
-  resultGroupLabels: ScreeningResultGroupLabels;
+  funnelSummary: ScreeningFunnelSummaryData;
   stockCardLabels: ScreeningStockCardLabels;
+  resultGroupLabels: ScreeningResultGroupLabels;
   resultGroups: ScreeningStockGroup[];
+  stocksByTicker: Record<string, ScreeningStock>;
   deepDive: ScreeningDeepDiveData;
   comparison: ScreeningComparisonData;
   disclaimer: ScreeningDisclaimerData;

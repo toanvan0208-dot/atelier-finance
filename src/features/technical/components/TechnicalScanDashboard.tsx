@@ -24,6 +24,7 @@ type TechnicalScanDashboardProps = {
 };
 
 type IndicatorKey = "ma20" | "ma50" | "ma200" | "rsi";
+type DashboardLayerKey = IndicatorKey | "news";
 
 const indicatorStyles: Record<IndicatorKey, { label: string; stroke: string; dash?: string }> = {
   ma20: { label: "MA20", stroke: "#00A676", dash: "3 4" },
@@ -122,9 +123,11 @@ function buildPath(
 function PriceVolumeScanChart({
   activeIndicators,
   data,
+  newsEvents,
 }: {
   activeIndicators: Record<string, boolean>;
   data: PriceVolumeStoryData;
+  newsEvents: NewsEventData;
 }) {
   const width = 360;
   const priceHeight = 116;
@@ -154,6 +157,9 @@ function PriceVolumeScanChart({
               </span>
             ) : null
           )}
+          {activeIndicators.news ? (
+            <span className="inline-flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-danger" />Tin tức</span>
+          ) : null}
         </div>
       </div>
       <svg
@@ -185,6 +191,43 @@ function PriceVolumeScanChart({
           );
         })}
         <path d={pricePath} fill="none" stroke="currentColor" strokeWidth="3" className="text-accent" />
+        {activeIndicators.news ? newsEvents.rows.slice(0, 5).map((event, index) => {
+          const pointIndex = Math.min(data.points.length - 1, index * 2 + 1);
+          const point = data.points[pointIndex];
+          const x = (pointIndex / Math.max(1, data.points.length - 1)) * width;
+          const y = priceHeight - ((point.price - priceDomain.min) / Math.max(1, priceDomain.max - priceDomain.min)) * priceHeight;
+          const isHighRelevance = event.relevance === "Cao";
+
+          return (
+            <g key={`${event.date}-${event.title}`}>
+              <line
+                x1={x}
+                x2={x}
+                y1={Math.max(6, y + 7)}
+                y2={priceHeight + volumeHeight + 12}
+                stroke={isHighRelevance ? "#D94F45" : "#B88900"}
+                strokeDasharray="3 5"
+                strokeWidth="1.5"
+                opacity="0.6"
+              />
+              <circle
+                cx={x}
+                cy={Math.max(8, y - 10)}
+                r={isHighRelevance ? 6 : 5}
+                fill={isHighRelevance ? "#D94F45" : "#B88900"}
+                stroke="#FFFFFF"
+                strokeWidth="2"
+              />
+              <text
+                x={Math.min(width - 48, x + 8)}
+                y={Math.max(10, y - 14)}
+                className="fill-muted text-[9px] font-bold"
+              >
+                {event.date}
+              </text>
+            </g>
+          );
+        }) : null}
         {activeIndicators.rsi ? (
           <path
             d={buildPath(data.points, width, 28, (point) => point.rsi, { min: 30, max: 70 })}
@@ -282,7 +325,10 @@ export function TechnicalScanDashboard({
 }: TechnicalScanDashboardProps) {
   const [selectedTimeframe, setSelectedTimeframe] = useState(timeframe.defaultValue);
   const [activeIndicators, setActiveIndicators] = useState<Record<string, boolean>>(() =>
-    Object.fromEntries(priceVolume.toggles.map((toggle) => [toggle.key, toggle.enabled]))
+    ({
+      ...Object.fromEntries(priceVolume.toggles.map((toggle) => [toggle.key, toggle.enabled])),
+      news: true,
+    })
   );
   const latest = getLatestReading(priceVolume);
   const support = getMetric(pricePosition.metrics, "hỗ trợ")?.value ?? "--";
@@ -291,7 +337,7 @@ export function TechnicalScanDashboard({
   const primaryNews =
     newsEvents.rows.find((event) => event.relevance === "Cao") ?? newsEvents.rows[0];
 
-  function toggleIndicator(key: string) {
+  function toggleIndicator(key: DashboardLayerKey) {
     setActiveIndicators((current) => ({ ...current, [key]: !current[key] }));
   }
 
@@ -331,11 +377,18 @@ export function TechnicalScanDashboard({
                 key={toggle.key}
                 size="sm"
                 variant={activeIndicators[toggle.key] ? "primary" : "secondary"}
-                onClick={() => toggleIndicator(toggle.key)}
+                onClick={() => toggleIndicator(toggle.key as DashboardLayerKey)}
               >
                 {toggle.label}
               </Button>
             ))}
+            <Button
+              size="sm"
+              variant={activeIndicators.news ? "primary" : "secondary"}
+              onClick={() => toggleIndicator("news")}
+            >
+              Tin tức
+            </Button>
           </div>
         </div>
       </div>
@@ -356,7 +409,7 @@ export function TechnicalScanDashboard({
         </div>
 
         <div className="space-y-3">
-          <PriceVolumeScanChart activeIndicators={activeIndicators} data={priceVolume} />
+          <PriceVolumeScanChart activeIndicators={activeIndicators} data={priceVolume} newsEvents={newsEvents} />
           <TimeAlignment trends={trendMap.trends} />
           <div className="grid grid-cols-2 gap-3">
             <SignalTile

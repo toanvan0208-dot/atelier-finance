@@ -474,10 +474,8 @@ export function MacroDisclaimer({
 
 export function MacroInsightPanel({
   data,
-  onNavigate,
 }: {
   data: MacroJourneyData;
-  onNavigate?: MacroNavigate;
 }) {
   const topSectors = data.sectorImpactGroups.flatMap((group) =>
     group.items.slice(0, 1).map((item) => item.sector)
@@ -485,27 +483,6 @@ export function MacroInsightPanel({
 
   return (
     <aside className="space-y-4 xl:sticky xl:top-4 xl:self-start">
-      <Card>
-        <CardHeader
-          chip={<Chip variant="accent">AI Tutor</Chip>}
-          title="Người hướng dẫn vĩ mô"
-        />
-        <CardBody className="space-y-3">
-          <p className="text-sm leading-6 text-muted">
-            Dữ liệu vĩ mô chỉ tạo bối cảnh. Bước hợp lý tiếp theo là kiểm tra
-            ngành, BCTC, định giá và rủi ro trước khi viết thesis cá nhân.
-          </p>
-          <div className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3 text-xs leading-5 text-muted">
-            Không kết luận ngành tốt chỉ vì một biến vĩ mô thuận lợi. Hãy xem
-            tác động đó đã đi vào doanh thu, biên lợi nhuận, dòng tiền và định
-            giá chưa.
-          </div>
-          <Button size="sm" variant="primary" onClick={() => onNavigate?.("industry")}>
-            Sang Module Ngành
-          </Button>
-        </CardBody>
-      </Card>
-
       <Card>
         <CardHeader title="Ngành nên kiểm chứng tiếp" />
         <CardBody>
@@ -575,7 +552,7 @@ export function MacroThesisBuilder({
             <p className="mt-1 text-sm leading-6 text-muted">{data.description}</p>
           </div>
           <Chip variant="accent">
-            {data.questions.length} câu do AI Tutor chọn
+            {data.questions.length} câu kiểm tra nhanh
           </Chip>
         </div>
 
@@ -624,7 +601,7 @@ export function MacroThesisBuilder({
             {currentAnswer ? (
               <div className="mt-4 rounded-[4px] border border-border-soft bg-surface px-3 py-3">
                 <p className="text-[11px] font-bold uppercase tracking-[0.03em] text-subtle">
-                  AI Tutor phản hồi
+                  Phản hồi học tập
                 </p>
                 <p className="mt-1 text-xs leading-5 text-muted">
                   {currentAnswer.tutorNote}
@@ -661,7 +638,7 @@ export function MacroThesisBuilder({
           <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <p className="text-[11px] font-bold uppercase tracking-[0.03em] text-subtle">
-                AI Tutor ghi nhận
+                Hệ thống ghi nhận
               </p>
               <p className="mt-1 text-sm font-bold text-ink">{understandingLevel}</p>
               <p className="mt-1 text-xs leading-5 text-muted">
@@ -677,7 +654,7 @@ export function MacroThesisBuilder({
 
           {isComplete ? (
             <div className="mt-3 rounded-[4px] border border-border-soft bg-accent-soft/60 px-3 py-3 text-xs leading-5 text-ink">
-              Bạn đã hoàn thành bộ trắc nghiệm vĩ mô. AI Tutor đã ghi nhận hồ sơ
+              Bạn đã hoàn thành bộ trắc nghiệm vĩ mô. Hệ thống đã ghi nhận hồ sơ
               hiểu biết của bạn để dùng cho các module tiếp theo.
             </div>
           ) : null}

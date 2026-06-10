@@ -55,7 +55,15 @@ export function ScreeningStockCard({
           <Chip variant={fitTone(stock.beginnerFitLevel)}>
             {stock.beginnerFitLevel}
           </Chip>
+          <span className="text-xs font-semibold text-subtle">
+            {labels.status}
+          </span>
+          <Chip variant="neutral">Ứng viên sau vòng sơ lọc</Chip>
         </div>
+
+        <p className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-2 text-xs leading-5 text-muted">
+          {labels.note}
+        </p>
 
         <div className="flex flex-wrap gap-2 border-t border-border-soft pt-4">
           <Button size="sm" variant="primary" onClick={() => onExplain(stock)}>

@@ -11,6 +11,7 @@ import {
   MacroThesisBuilder,
   MacroTransmissionMap,
 } from "./MacroBlocks";
+import { MacroOverviewDashboard } from "./MacroOverviewDashboard";
 import { MacroWarningDashboard } from "./MacroWarningDashboard";
 
 type MacroPageProps = {
@@ -25,6 +26,8 @@ export function MacroPage({ onNavigate }: MacroPageProps) {
       <MacroHeader overview={data.overview} />
 
       <main className="space-y-5">
+        <MacroOverviewDashboard data={data} onNavigate={onNavigate} />
+
         <StepAccordion
           title="Lộ trình đọc bối cảnh vĩ mô"
           description="Đi từ bức tranh hiện tại đến kênh truyền dẫn, ngành bị ảnh hưởng, tín hiệu cảnh báo và bản nhận định cá nhân."

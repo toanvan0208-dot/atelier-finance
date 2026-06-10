@@ -4,12 +4,14 @@ export const valuationPageData: ValuationPageData = {
   isLoading: false,
   loading: {
     title: "Đang chuẩn bị dữ liệu định giá",
-    content: "Hệ thống đang gom dữ liệu mẫu để minh họa cách đọc vùng giá tham khảo.",
+    content:
+      "Hệ thống đang gom dữ liệu mẫu để minh họa cách đọc vùng giá tham khảo.",
   },
   emptyState: {
     title: "Chưa có doanh nghiệp để định giá",
-    description: "Hãy chuyển từ module Phân tích BCTC sau khi đã đọc dữ liệu sơ bộ.",
-    icon: "∅",
+    description:
+      "Hãy chuyển từ module Phân tích BCTC sau khi đã đọc dữ liệu sơ bộ.",
+    icon: "0",
   },
   detailLabels: {
     detailButtonLabel: "Xem chi tiết",
@@ -17,7 +19,7 @@ export const valuationPageData: ValuationPageData = {
     detailChipLabel: "Nâng cao",
   },
   header: {
-    moduleName: "Định Giá Doanh Nghiệp",
+    moduleName: "Định giá doanh nghiệp",
     ticker: "MWG",
     companyName: "Công ty Cổ phần Đầu tư Thế Giới Di Động",
     industry: "Bán lẻ",
@@ -27,13 +29,13 @@ export const valuationPageData: ValuationPageData = {
       "Người dùng đã đọc BCTC sơ bộ và chuyển sang định giá để hiểu vùng giá tham khảo, không phải tìm một con số chắc chắn.",
     actions: [
       { label: "Quay lại Phân tích BCTC", variant: "secondary" },
-      { label: "Chuyển sang Kiểm tra rủi ro", variant: "primary" },
+      { label: "Chuyển sang Quản trị rủi ro", variant: "primary" },
     ],
   },
   quickSummary: {
     title: "Bản đồ định giá nhanh",
     description:
-      "Tóm tắt vùng giá tham khảo và mức độ tin cậy. Phần này không phải khuyến nghị giao dịch.",
+      "Tóm tắt vùng giá tham khảo và mức độ tin cậy. Phần này không phải chỉ dẫn giao dịch.",
     icon: "V",
     metrics: [
       {
@@ -46,14 +48,14 @@ export const valuationPageData: ValuationPageData = {
       {
         title: "Vùng tham khảo",
         value: "37.000-46.000",
-        description: "Tổng hợp từ nhiều phương pháp mẫu.",
+        description: "Tổng hợp sau khi đọc các phương pháp định giá.",
         icon: "R",
         status: "Khoảng",
       },
       {
         title: "Độ tin cậy",
         value: "Trung bình",
-        description: "Cần kiểm tra lại giả định lợi nhuận và biên lợi nhuận.",
+        description: "Cần kiểm tra lại lợi nhuận chuẩn hóa và biên lợi nhuận.",
         icon: "C",
         status: "Cần đọc thêm",
       },
@@ -62,354 +64,159 @@ export const valuationPageData: ValuationPageData = {
       { label: "Kịch bản xấu", value: "37.000", tone: "warning" },
       { label: "Kịch bản cơ sở", value: "42.000", tone: "accent" },
       { label: "Kịch bản tốt", value: "52.000", tone: "success" },
-      { label: "Trạng thái", value: "Gần vùng giá tham khảo", tone: "neutral" },
+      { label: "Trạng thái", value: "Nằm trong vùng tham khảo", tone: "neutral" },
     ],
   },
-  progress: {
-    title: "Lộ trình định giá",
-    description: "15 bước để đi từ dữ liệu đầu vào đến bản nhận định định giá cá nhân.",
-    steps: [
-      { order: 1, title: "Kiểm tra điều kiện trước khi định giá", status: "Đã hoàn thành" },
-      { order: 2, title: "Chuẩn hóa dữ liệu đầu vào", status: "Đang làm" },
-      { order: 3, title: "Xác định loại hình doanh nghiệp", status: "Đã hoàn thành" },
-      { order: 4, title: "Thị trường đang định giá doanh nghiệp thế nào?", status: "Đang làm" },
-      { order: 5, title: "Chọn phương pháp định giá phù hợp", status: "Đang làm" },
-      { order: 6, title: "Thực hiện định giá", status: "Đang làm" },
-      { order: 7, title: "So sánh với quá khứ và ngành", status: "Cần kiểm tra thêm" },
-      { order: 8, title: "Kỳ vọng thị trường đang phản ánh điều gì?", status: "Cần kiểm tra thêm" },
-      { order: 9, title: "Kịch bản định giá", status: "Đang làm" },
-      { order: 10, title: "Catalyst và Risk", status: "Cần kiểm tra thêm" },
-      { order: 11, title: "Biên an toàn", status: "Cần kiểm tra thêm" },
-      { order: 12, title: "Độ tin cậy của kết quả", status: "Cần kiểm tra thêm" },
-      { order: 13, title: "Tổng hợp vùng giá tham khảo", status: "Đang làm" },
-      { order: 14, title: "AI Tutor", status: "Đang làm" },
-      { order: 15, title: "Bản nhận định định giá cá nhân", status: "Chưa làm" },
-    ],
-  },
-  precheck: {
-    id: "precheck",
-    icon: "1",
-    title: "Bạn đã đủ dữ liệu để định giá chưa?",
-    description: "Nếu chưa hiểu doanh nghiệp và BCTC, vùng giá tham khảo sẽ rất dễ gây hiểu nhầm.",
-    items: [
-      { label: "Bạn đã hiểu doanh nghiệp kiếm tiền từ đâu chưa?", checked: true },
-      { label: "Bạn đã hiểu ngành chưa?", checked: true },
-      { label: "Bạn đã hiểu BCTC chưa?", checked: true },
-      { label: "Bạn đã kiểm tra lợi nhuận bất thường chưa?", checked: false },
-      { label: "Bạn đã hiểu rủi ro chính chưa?", checked: false },
-    ],
-    output: [
-      { label: "Kết luận", value: "Cần kiểm tra thêm trước khi định giá", tone: "warning" },
-    ],
-    tutor: {
-      title: "AI Tutor",
-      content:
-        "Định giá khi chưa hiểu doanh nghiệp giống như định giá một ngôi nhà khi chưa biết nó ở đâu và tình trạng thế nào.",
+  groups: [
+    {
+      id: "inputs",
+      label: "Điều kiện và dữ liệu đầu vào",
+      question: "Tôi đã có dữ liệu đủ sạch để định giá chưa?",
+      summary:
+        "Định giá không bắt đầu từ công thức, mà bắt đầu từ dữ liệu đầu vào có sạch hay không.",
+      inputRows: [
+        { data: "Đã hiểu doanh nghiệp", status: "Có", note: "Đã đi qua module Hiểu doanh nghiệp" },
+        { data: "Đã hiểu ngành", status: "Có", note: "Bối cảnh bán lẻ đã được đọc sơ bộ" },
+        { data: "Đã hiểu BCTC", status: "Cần kiểm tra", note: "Cần nối lại với module BCTC" },
+        { data: "Lợi nhuận chuẩn hóa", status: "Cần kiểm tra", note: "Loại khoản bất thường" },
+        { data: "Doanh thu", status: "Có", note: "Dùng cho tăng trưởng" },
+        { data: "EBITDA", status: "Có / thiếu", note: "Dùng cho EV/EBITDA" },
+        { data: "CFO", status: "Cần kiểm tra", note: "Kiểm tra chất lượng lợi nhuận" },
+        { data: "Nợ vay ròng", status: "Cần kiểm tra", note: "Dùng cho EV" },
+        { data: "Số cổ phiếu", status: "Có", note: "Dùng tính EPS" },
+        { data: "Tăng trưởng kỳ vọng", status: "Cần giả định", note: "Ảnh hưởng mạnh đến vùng giá" },
+      ],
+      output:
+        "Chưa nên đọc kết quả định giá như kết luận chắc chắn nếu lợi nhuận chuẩn hóa, CFO và nợ vay ròng chưa được kiểm chứng.",
     },
-  },
-  normalizedInput: {
-    id: "normalized-input",
-    icon: "2",
-    title: "Số liệu đầu vào có cần điều chỉnh không?",
-    description: "Định giá nên dựa trên lợi nhuận có khả năng lặp lại.",
-    checks: [
-      { label: "Lợi nhuận bất thường", value: "Cần kiểm tra", tone: "warning" },
-      { label: "Bán tài sản", value: "Không ưu tiên trong mẫu", tone: "neutral" },
-      { label: "Hoàn nhập dự phòng", value: "Cần đọc thuyết minh", tone: "warning" },
-      { label: "Ảnh hưởng chu kỳ", value: "Có", tone: "warning" },
-      { label: "COVID", value: "Ảnh hưởng lịch sử", tone: "neutral" },
-      { label: "Tỷ giá", value: "Theo dõi", tone: "neutral" },
-      { label: "Giá hàng hóa", value: "Tác động gián tiếp", tone: "neutral" },
-    ],
-    output: [
-      { label: "Lợi nhuận báo cáo", value: "3.400 tỷ mẫu" },
-      { label: "Khoản cần điều chỉnh", value: "Chi phí tái cấu trúc và lợi nhuận bất thường", tone: "warning" },
-      { label: "Lợi nhuận chuẩn hóa", value: "3.100-3.500 tỷ mẫu", tone: "accent" },
-    ],
-    tutor: {
-      title: "AI Tutor",
-      content:
-        "Định giá nên dựa trên lợi nhuận có khả năng lặp lại, không chỉ nhìn một năm lợi nhuận tăng đột biến vì khoản bất thường. Hãy hỏi phần lợi nhuận nào có thể lặp lại.",
+    {
+      id: "logic",
+      label: "Chọn logic định giá",
+      question: "Doanh nghiệp này nên định giá bằng phương pháp nào?",
+      summary:
+        "Cụm này gộp xác định loại hình doanh nghiệp và chọn phương pháp định giá phù hợp.",
+      methodRows: [
+        { businessType: "Ngân hàng", mainMethod: "P/B + ROE", reason: "Tài sản tài chính là trọng tâm" },
+        { businessType: "Bất động sản", mainMethod: "RNAV + P/B", reason: "Giá trị nằm ở dự án/quỹ đất" },
+        { businessType: "Bán lẻ", mainMethod: "P/E + EV/EBITDA + DCF đơn giản", reason: "Phụ thuộc doanh thu, biên lợi nhuận, dòng tiền" },
+        { businessType: "Công nghệ", mainMethod: "P/E + DCF", reason: "Phụ thuộc tăng trưởng dài hạn" },
+        { businessType: "Holding", mainMethod: "SOTP", reason: "Cần tách từng tài sản" },
+        { businessType: "Chu kỳ", mainMethod: "P/E chuẩn hóa", reason: "Tránh dùng lợi nhuận đỉnh/đáy chu kỳ" },
+      ],
+      output:
+        "Với MWG, phương pháp chính là P/E, EV/EBITDA và DCF đơn giản; P/B và P/S chỉ dùng tham khảo; RNAV, DDM nâng cao và SOTP không nên là trọng tâm.",
     },
-    details: [
-      "Nếu lợi nhuận tăng do bán tài sản, hoàn nhập dự phòng hoặc khoản một lần, vùng giá tham khảo cần được đọc thận trọng hơn.",
-      "Nếu biên lợi nhuận chịu ảnh hưởng chu kỳ, nên xem dữ liệu nhiều năm thay vì một kỳ riêng lẻ.",
-      "Nếu dữ liệu chưa đủ, phần định giá chỉ nên được xem là bài tập giả định.",
-    ],
-  },
-  businessType: {
-    id: "business-type",
-    icon: "3",
-    title: "Doanh nghiệp này nên được định giá theo logic nào?",
-    description: "Mỗi loại doanh nghiệp nên dùng bộ công cụ định giá khác nhau.",
-    selectedType: "Bán lẻ",
-    types: [
-      { label: "Ngân hàng", value: "P/B + ROE" },
-      { label: "Bất động sản", value: "RNAV + P/B" },
-      { label: "Sản xuất", value: "P/E + EV/EBITDA" },
-      { label: "Bán lẻ", value: "P/E + EV/EBITDA + DCF đơn giản", tone: "accent" },
-      { label: "Công nghệ", value: "P/E + DCF" },
-      { label: "Hàng hóa chu kỳ", value: "P/E chuẩn hóa" },
-      { label: "Tiện ích", value: "DDM + EV/EBITDA" },
-      { label: "Holding", value: "SOTP" },
-    ],
-    tutor: {
-      title: "AI Tutor",
-      content: "MWG là ví dụ bán lẻ, nên cần đọc tăng trưởng doanh thu, biên lợi nhuận và vòng quay vốn lưu động.",
+    {
+      id: "market-expectation",
+      label: "Giá hiện tại và kỳ vọng",
+      question: "Giá hiện tại đang phản ánh kỳ vọng gì?",
+      summary:
+        "Gộp định giá hiện tại, so sánh với lịch sử/ngành và kỳ vọng thị trường đang phản ánh.",
+      metricRows: [
+        { metric: "P/E", current: "15,8x", comparison: "5 năm: 17,5x", reading: "Thấp hơn lịch sử" },
+        { metric: "P/B", current: "2,3x", comparison: "Lịch sử: 2,6x", reading: "Gần trung bình" },
+        { metric: "EV/EBITDA", current: "8,6x", comparison: "Ngành: 9,0x", reading: "Cần kiểm tra thêm" },
+      ],
+      output:
+        "Giá hiện tại đang phản ánh kỳ vọng phục hồi vừa phải, chưa quá rẻ cũng chưa quá đắt nếu chỉ nhìn P/E.",
     },
-  },
-  marketPricing: {
-    id: "market-pricing",
-    icon: "4",
-    title: "Nhà đầu tư đang trả tiền cho điều gì?",
-    description: "Nhìn vài chỉ số chính để hiểu thị trường đang bi quan, trung lập hay lạc quan.",
-    metrics: [
-      { label: "P/E hiện tại", value: "15,8x", tone: "accent" },
-      { label: "P/B hiện tại", value: "2,3x" },
-      { label: "EV/EBITDA", value: "8,6x" },
-      { label: "Market Cap", value: "61.000 tỷ" },
-      { label: "Enterprise Value", value: "68.000 tỷ" },
-    ],
-    output: { label: "Đọc nhanh", value: "Thị trường đang trung lập", tone: "neutral" },
-    tutor: {
-      title: "AI Tutor",
-      content:
-        "P/E cao không có nghĩa cổ phiếu chắc chắn đắt. Có thể thị trường đang kỳ vọng lợi nhuận phục hồi mạnh.",
+    {
+      id: "workbench",
+      label: "Tạo vùng giá tham khảo",
+      question: "Các phương pháp khác nhau cho ra vùng giá nào?",
+      summary:
+        "Valuation Workbench gom thực hiện định giá, kịch bản định giá và tổng hợp vùng giá tham khảo. Biên an toàn chưa nằm ở đây.",
+      workbenchMethods: [
+        {
+          method: "P/E",
+          inputs: ["Lợi nhuận chuẩn hóa: 3.100-3.500 tỷ", "Số cổ phiếu: dữ liệu mẫu", "P/E hợp lý: 14x-16x"],
+          formula: "EPS chuẩn hóa x P/E hợp lý",
+          assumptions: "Lợi nhuận phục hồi vừa phải, không dùng khoản bất thường",
+          range: "38.000-45.000",
+          reliability: "Trung bình",
+          failureMode: "Sai khi lợi nhuận bị bóp méo bởi khoản bất thường hoặc đang ở đỉnh/đáy chu kỳ.",
+        },
+        {
+          method: "EV/EBITDA",
+          inputs: ["EBITDA chuẩn hóa", "Nợ vay ròng", "EV/EBITDA ngành"],
+          formula: "EV hợp lý - nợ vay ròng",
+          assumptions: "Cần đọc nợ, thuê tài sản và vốn lưu động",
+          range: "37.000-44.000",
+          reliability: "Trung bình",
+          failureMode: "Dễ sai nếu nợ thuê và vốn lưu động biến động mạnh.",
+        },
+        {
+          method: "DCF đơn giản",
+          inputs: ["CFO", "Tăng trưởng", "WACC", "Biên lợi nhuận"],
+          formula: "Chiết khấu dòng tiền tương lai",
+          assumptions: "Nhạy với tăng trưởng dài hạn và tỷ lệ chiết khấu",
+          range: "40.000-48.000",
+          reliability: "Trung bình",
+          failureMode: "Sai mạnh nếu giả định tăng trưởng dài hạn quá lạc quan.",
+        },
+      ],
+      scenarioRows: [
+        { scenario: "Xấu", assumption: "Biên lợi nhuận phục hồi chậm, cạnh tranh cao", range: "37.000", tone: "warning" },
+        { scenario: "Cơ sở", assumption: "Lợi nhuận phục hồi vừa phải", range: "42.000", tone: "accent" },
+        { scenario: "Tốt", assumption: "Biên lợi nhuận cải thiện rõ", range: "52.000", tone: "success" },
+      ],
+      output:
+        "Vùng giá tham khảo tổng hợp: 37.000-46.000. Đây không phải giá mục tiêu và không phải chỉ dẫn giao dịch.",
     },
-    details: [
-      "P/E, P/B và EV/EBITDA chỉ là cách thị trường đang trả giá cho lợi nhuận, vốn chủ và dòng lợi nhuận vận hành.",
-      "Market Cap và Enterprise Value nên được đọc cùng nợ vay, tiền mặt và chất lượng lợi nhuận.",
-      "Một chỉ số cao hoặc thấp cần được đặt cạnh tăng trưởng, rủi ro và chu kỳ ngành.",
-    ],
-  },
-  methodSelection: {
-    id: "method-selection",
-    icon: "5",
-    title: "Phương pháp nào phù hợp với doanh nghiệp này?",
-    description: "Bảng này giúp chọn công cụ định giá trước khi nhìn vùng giá.",
-    rows: [
-      { businessType: "Ngân hàng", preferredMethod: "P/B + ROE", note: "Tài sản tài chính là trọng tâm." },
-      { businessType: "Bất động sản", preferredMethod: "RNAV + P/B", note: "Cần dữ liệu dự án." },
-      { businessType: "Công nghệ", preferredMethod: "P/E + DCF", note: "Phụ thuộc tăng trưởng dài hạn." },
-      { businessType: "Holding", preferredMethod: "SOTP", note: "Tách từng tài sản lớn." },
-      { businessType: "Doanh nghiệp tăng trưởng", preferredMethod: "P/S + DCF", note: "Khi lợi nhuận chưa ổn định." },
-      { businessType: "Doanh nghiệp chu kỳ", preferredMethod: "P/E chuẩn hóa", note: "Tránh dùng lợi nhuận đỉnh chu kỳ." },
-      { businessType: "Bán lẻ", preferredMethod: "P/E + EV/EBITDA + DCF đơn giản", note: "Phù hợp với MWG mẫu." },
-    ],
-    output: [
-      { label: "Phù hợp", value: "P/E, EV/EBITDA, DCF đơn giản", tone: "accent" },
-      { label: "Tham khảo", value: "P/B, P/S", tone: "neutral" },
-      { label: "Không ưu tiên", value: "RNAV, DDM nâng cao", tone: "warning" },
-    ],
-  },
-  valuationMethods: {
-    id: "valuation-methods",
-    icon: "6",
-    title: "Các phương pháp định giá cho ra vùng giá nào?",
-    description: "Không tính toán thật ở bước này, chỉ dùng dữ liệu mẫu để học cách đọc khoảng giá.",
-    methods: [
-      { id: "pe", name: "P/E", purpose: "Đọc giá so với lợi nhuận", whenToUse: "Lợi nhuận tương đối ổn định", failureMode: "Sai khi lợi nhuận bị bóp méo", range: "38.000-45.000", reliability: "Trung bình", tone: "accent" },
-      { id: "pb", name: "P/B", purpose: "Đọc giá so với vốn chủ", whenToUse: "Tham khảo thêm với bán lẻ", failureMode: "Không phản ánh tốt tài sản vô hình", range: "35.000-42.000", reliability: "Thấp", tone: "warning" },
-      { id: "ps", name: "P/S", purpose: "Đọc giá so với doanh thu", whenToUse: "Khi lợi nhuận tạm thời biến động", failureMode: "Bỏ qua biên lợi nhuận", range: "36.000-43.000", reliability: "Thấp", tone: "warning" },
-      { id: "ev-ebitda", name: "EV/EBITDA", purpose: "So giá trị doanh nghiệp với dòng lợi nhuận vận hành", whenToUse: "So sánh với ngành bán lẻ", failureMode: "Dễ sai nếu nợ thuê và vốn lưu động biến động", range: "37.000-44.000", reliability: "Trung bình", tone: "accent" },
-      { id: "dcf", name: "DCF", purpose: "Dựa trên dòng tiền tương lai", whenToUse: "Khi giả định tăng trưởng rõ", failureMode: "Rất nhạy với tăng trưởng và chiết khấu", range: "40.000-48.000", reliability: "Trung bình", tone: "accent" },
-      { id: "rnav", name: "RNAV", purpose: "Đọc giá trị tài sản ròng", whenToUse: "Bất động sản", failureMode: "Không phù hợp làm trọng tâm cho MWG", range: "Không ưu tiên", reliability: "Thấp", tone: "neutral" },
-      { id: "sotp", name: "SOTP", purpose: "Cộng từng mảng kinh doanh", whenToUse: "Khi mảng đủ tách biệt", failureMode: "Thiếu dữ liệu từng mảng", range: "Tham khảo", reliability: "Thấp", tone: "neutral" },
-      { id: "ddm", name: "DDM nâng cao", purpose: "Dựa trên cổ tức", whenToUse: "Doanh nghiệp cổ tức ổn định", failureMode: "Không phù hợp khi tái đầu tư lớn", range: "Không ưu tiên", reliability: "Thấp", tone: "neutral" },
-    ],
-    details: [
-      "P/E và EV/EBITDA dễ đọc hơn với doanh nghiệp bán lẻ có lợi nhuận và EBITDA tương đối quan sát được.",
-      "DCF giúp hiểu độ nhạy của giả định tăng trưởng, biên lợi nhuận và chiết khấu, nhưng không nên xem là đáp án duy nhất.",
-      "RNAV, SOTP và DDM được giữ lại để người dùng hiểu vì sao không phải phương pháp nào cũng phù hợp với mọi doanh nghiệp.",
-    ],
-  },
-  historicalComparison: {
-    id: "historical-comparison",
-    icon: "7",
-    title: "Mức định giá hiện tại có thực sự đặc biệt không?",
-    description: "Một chỉ số chỉ có ý nghĩa khi đặt cạnh lịch sử, ngành và triển vọng lợi nhuận.",
-    rows: [
-      { metric: "P/E hiện tại", current: "15,8x", benchmark: "5 năm: 17,5x", reading: "Thấp hơn lịch sử" },
-      { metric: "P/B hiện tại", current: "2,3x", benchmark: "Lịch sử: 2,6x", reading: "Gần trung bình" },
-      { metric: "P/E ngành", current: "15,8x", benchmark: "Ngành: 16,2x", reading: "Gần trung bình" },
-      { metric: "EV/EBITDA", current: "8,6x", benchmark: "Ngành: 9,0x", reading: "Cần kiểm tra thêm" },
-    ],
-    output: [
-      { label: "Đọc nhanh", value: "Gần trung bình, chưa đủ để kết luận riêng lẻ", tone: "neutral" },
-    ],
-    tutor: {
-      title: "AI Tutor",
-      content:
-        "P/E chỉ có ý nghĩa khi được đặt cạnh lịch sử của chính doanh nghiệp, ngành và triển vọng lợi nhuận.",
+    {
+      id: "reliability-traps",
+      label: "Độ tin cậy và bẫy định giá",
+      question: "Vùng giá này đáng tin đến đâu và có thể sai vì điều gì?",
+      summary:
+        "Cụm này đặt sau khi đã có vùng giá. Biên an toàn được đọc tại đây bằng cách so vùng giá với giá thị trường.",
+      reliabilityRows: [
+        { method: "P/E", reliability: "Trung bình", reason: "Phù hợp nếu lợi nhuận chuẩn hóa rõ" },
+        { method: "EV/EBITDA", reliability: "Trung bình", reason: "Cần đọc nợ, thuê tài sản, vốn lưu động" },
+        { method: "DCF", reliability: "Trung bình", reason: "Nhạy với tăng trưởng dài hạn và WACC" },
+        { method: "P/B", reliability: "Thấp", reason: "Không phải phương pháp chính cho bán lẻ" },
+        { method: "RNAV", reliability: "Thấp", reason: "Không phù hợp với MWG" },
+      ],
+      catalysts: [
+        "Lợi nhuận phục hồi tốt hơn kỳ vọng",
+        "Biên lợi nhuận cải thiện",
+        "Sức mua bán lẻ phục hồi",
+        "Chuỗi mới bớt lỗ hoặc tạo lợi nhuận",
+        "Dòng tiền hoạt động cải thiện",
+      ],
+      risks: [
+        "Biên lợi nhuận tiếp tục giảm",
+        "Tồn kho tăng",
+        "Sức mua yếu",
+        "Cạnh tranh giá cao",
+        "Dòng tiền yếu",
+        "Nợ vay hoặc chi phí tài chính tăng",
+      ],
+      traps: [
+        { trap: "Value trap", meaning: "Rẻ nhưng không có catalyst" },
+        { trap: "Cyclicality trap", meaning: "P/E thấp vì lợi nhuận đang ở đỉnh chu kỳ" },
+        { trap: "Leverage trap", meaning: "Định giá rẻ nhưng nợ cao làm equity rủi ro" },
+        { trap: "Governance trap", meaning: "Doanh nghiệp rẻ vì thị trường không tin quản trị" },
+        { trap: "Liquidity trap", meaning: "Rẻ nhưng thanh khoản yếu, khó rerate" },
+        { trap: "Earnings quality trap", meaning: "Lợi nhuận đẹp nhưng dòng tiền yếu" },
+      ],
+      output:
+        "Giá thị trường 42.000 đang nằm trong vùng tham khảo 37.000-46.000, vì vậy biên an toàn chưa rõ và cần kiểm tra thêm chất lượng lợi nhuận.",
     },
-    details: [
-      "So sánh với quá khứ giúp biết mức hiện tại có khác thường so với chính doanh nghiệp không.",
-      "So sánh với ngành giúp tránh đọc một doanh nghiệp tách khỏi bối cảnh cạnh tranh.",
-      "Nếu triển vọng lợi nhuận thay đổi mạnh, mức trung bình quá khứ có thể không còn là mốc tham khảo tốt.",
-    ],
-  },
-  marketExpectation: {
-    id: "market-expectation",
-    icon: "8",
-    title: "Giá hiện tại đang kỳ vọng điều gì?",
-    description: "Cổ phiếu thường phản ứng khi kết quả thực tế tốt hơn hoặc xấu hơn kỳ vọng.",
-    expectations: [
-      { label: "Tăng trưởng", value: "Phục hồi vừa phải" },
-      { label: "Lợi nhuận", value: "Biên lợi nhuận cải thiện dần", tone: "accent" },
-      { label: "Ngành", value: "Bán lẻ hồi phục nhưng cạnh tranh cao" },
-      { label: "Chính sách", value: "Không phải động lực chính" },
-      { label: "Biên lợi nhuận", value: "Kỳ vọng cải thiện", tone: "warning" },
-    ],
-    output: { label: "Đọc nhanh", value: "Thị trường đang hợp lý", tone: "neutral" },
-    tutor: {
-      title: "AI Tutor",
-      content: "Một cổ phiếu không tăng chỉ vì doanh nghiệp tốt. Nó tăng khi doanh nghiệp tốt hơn kỳ vọng.",
-    },
-    details: [
-      "Nếu giá hiện tại đã phản ánh kỳ vọng phục hồi mạnh, kết quả kinh doanh chỉ ổn định có thể chưa đủ tạo thay đổi trong cách thị trường nhìn nhận.",
-      "Nếu thị trường đang quá bi quan, một cải thiện nhỏ về lợi nhuận hoặc biên lợi nhuận cũng có thể làm kỳ vọng thay đổi.",
-      "Kỳ vọng ngành và chính sách nên được ghi chú riêng vì chúng có thể nằm ngoài kiểm soát của doanh nghiệp.",
-    ],
-  },
-  scenarios: {
-    id: "scenarios",
-    icon: "9",
-    title: "Nếu giả định khác nhau, vùng giá thay đổi thế nào?",
-    description: "Định giá là kịch bản và xác suất, không phải một con số chắc chắn.",
-    scenarios: [
-      { title: "Kịch bản xấu", price: "37.000", assumption: "Biên lợi nhuận phục hồi chậm, cạnh tranh cao.", tone: "warning" },
-      { title: "Kịch bản cơ sở", price: "42.000", assumption: "Lợi nhuận phục hồi vừa phải, định giá gần trung bình.", tone: "accent" },
-      { title: "Kịch bản tốt", price: "52.000", assumption: "Biên lợi nhuận cải thiện rõ và tăng trưởng tốt hơn kỳ vọng.", tone: "success" },
-    ],
-    tutor: {
-      title: "AI Tutor",
-      content: "Định giá luôn là xác suất, không phải sự chắc chắn.",
-    },
-  },
-  catalystRisk: {
-    id: "catalyst-risk",
-    icon: "10",
-    title: "Điều gì có thể khiến thị trường thay đổi cách định giá doanh nghiệp?",
-    description: "Catalyst và risk giúp kiểm tra vì sao vùng tham khảo có thể dịch chuyển.",
-    catalystTitle: "Catalyst có thể nâng định giá",
-    riskTitle: "Risk có thể làm giảm định giá",
-    catalysts: ["Tăng trưởng lợi nhuận", "Chính sách", "Chu kỳ ngành", "Dự án mới", "M&A", "Cải thiện biên lợi nhuận", "Mở rộng thị trường"],
-    risks: ["Nợ vay", "Cạnh tranh", "Pháp lý", "Chu kỳ", "Quản trị", "Biên lợi nhuận giảm", "Vùng giá đã phản ánh kỳ vọng quá cao"],
-  },
-  marginOfSafety: {
-    id: "margin-of-safety",
-    icon: "11",
-    title: "Giá hiện tại cách vùng giá tham khảo bao xa?",
-    description: "Biên an toàn chỉ mô tả khoảng cách, không phải tín hiệu giao dịch.",
-    items: [
-      { label: "Giá thị trường", value: "42.000" },
-      { label: "Vùng giá tham khảo", value: "37.000-46.000", tone: "accent" },
-      { label: "Khoảng chênh lệch", value: "Nằm trong vùng tham khảo", tone: "neutral" },
-      { label: "Trạng thái", value: "Gần vùng giá tham khảo", tone: "neutral" },
-    ],
-    tutor: {
-      title: "AI Tutor",
-      content:
-        "Biên an toàn không phải chỉ dẫn hành động. Nó chỉ cho biết giá thị trường đang cách vùng định giá tham khảo bao xa.",
-    },
-  },
-  confidence: {
-    id: "confidence",
-    icon: "12",
-    title: "Kết quả định giá này đáng tin đến mức nào?",
-    description: "Độ tin cậy phụ thuộc loại doanh nghiệp, dữ liệu và độ nhạy của giả định.",
-    methods: [
-      { method: "P/E", reliability: "Trung bình", reason: "Phù hợp khi lợi nhuận chuẩn hóa đủ rõ.", tone: "accent" },
-      { method: "EV/EBITDA", reliability: "Trung bình", reason: "Hữu ích khi so ngành, nhưng cần đọc nợ thuê và vốn lưu động.", tone: "accent" },
-      { method: "DCF", reliability: "Trung bình", reason: "Có ích để hiểu giả định, nhưng nhạy với tăng trưởng và chiết khấu.", tone: "warning" },
-      { method: "P/B", reliability: "Thấp", reason: "Không phải phương pháp chính cho bán lẻ.", tone: "warning" },
-      { method: "RNAV", reliability: "Thấp", reason: "Thiếu liên quan với mô hình bán lẻ của MWG.", tone: "neutral" },
-    ],
-    details: [
-      "Độ tin cậy cao hơn khi dữ liệu đầu vào ổn định, lợi nhuận có khả năng lặp lại và phương pháp phù hợp với mô hình kinh doanh.",
-      "Độ tin cậy thấp hơn khi kết quả phụ thuộc nhiều vào giả định dài hạn hoặc dữ liệu dự án chưa đủ.",
-      "Với doanh nghiệp chu kỳ, cần cẩn trọng hơn khi dùng lợi nhuận của một năm đang ở đỉnh hoặc đáy chu kỳ.",
-    ],
-  },
-  rangeSummary: {
-    id: "range-summary",
-    icon: "13",
-    title: "Các phương pháp đang gợi ý vùng giá nào?",
-    description: "Không hiển thị một giá duy nhất. Vùng tổng hợp chỉ là khoảng tham khảo.",
-    minDomain: 34,
-    maxDomain: 53,
-    ranges: [
-      { method: "P/E", min: 38, max: 45, label: "38.000-45.000", tone: "accent" },
-      { method: "P/B", min: 35, max: 42, label: "35.000-42.000", tone: "warning" },
-      { method: "DCF", min: 40, max: 48, label: "40.000-48.000", tone: "success" },
-      { method: "EV/EBITDA", min: 37, max: 44, label: "37.000-44.000", tone: "accent" },
-      { method: "Tổng hợp", min: 37, max: 46, label: "37.000-46.000", tone: "neutral" },
-    ],
-    tutor: {
-      title: "AI Tutor",
-      content:
-        "Vùng giá tổng hợp không phải một con số chắc chắn. Đây chỉ là khoảng tham khảo dựa trên các giả định hiện tại.",
-    },
-    details: [
-      "Khoảng tổng hợp 37.000-46.000 được lấy từ nhiều phương pháp mẫu, không phải kết quả tính toán chính thức.",
-      "Nếu lợi nhuận chuẩn hóa thay đổi, toàn bộ vùng tham khảo có thể dịch chuyển.",
-      "Nếu độ tin cậy của một phương pháp thấp, không nên để phương pháp đó chi phối phần tổng hợp.",
-    ],
-  },
-  tutor: {
-    id: "valuation-tutor",
-    icon: "14",
-    title: "AI Tutor giải thích kết quả định giá",
-    description: "Giải thích ngắn để người mới hiểu vì sao không dùng một con số duy nhất.",
-    explanations: [
-      { label: "Vì sao chọn phương pháp", value: "MWG là bán lẻ nên P/E, EV/EBITDA và DCF đơn giản dễ đọc hơn." },
-      { label: "Vì sao phương pháp khác kém phù hợp", value: "RNAV và DDM không phải trọng tâm với mô hình đang tái đầu tư." },
-      { label: "Vì sao kết quả có thể sai", value: "Giả định biên lợi nhuận, tăng trưởng và vốn lưu động có thể thay đổi." },
-      { label: "Cần kiểm tra lại", value: "Lợi nhuận chuẩn hóa, cạnh tranh ngành và chất lượng dòng tiền.", tone: "warning" },
-    ],
-    questions: [
-      "Bạn có hiểu vì sao không dùng một con số duy nhất không?",
-      "Bạn có hiểu giả định nào ảnh hưởng mạnh nhất đến kết quả không?",
-      "Bạn có muốn xem lại dữ liệu đầu vào không?",
-    ],
-  },
-  personalThesis: {
-    id: "personal-thesis",
-    icon: "15",
-    title: "Bạn nhận định thế nào về vùng định giá này?",
-    description: "Viết lại bằng ngôn ngữ của bạn để chuẩn bị sang bước kiểm tra rủi ro và checklist.",
-    prompts: [
-      "Doanh nghiệp:",
-      "Phương pháp phù hợp:",
-      "Phương pháp không phù hợp:",
-      "Giả định quan trọng nhất:",
-      "Vùng giá tham khảo:",
-      "Kịch bản xấu:",
-      "Kịch bản cơ sở:",
-      "Kịch bản tốt:",
-      "Catalyst chính:",
-      "Rủi ro chính:",
-      "Mức độ tin cậy:",
-      "Điều tôi chưa chắc chắn:",
-      "Tôi có đủ cơ sở để chuyển sang Checklist đầu tư chưa?",
-    ],
-    placeholder:
-      "Ví dụ: Với MWG, tôi xem vùng giá tham khảo 37.000-46.000 là dữ liệu học tập. Tôi cần kiểm tra thêm lợi nhuận chuẩn hóa, biên lợi nhuận và cạnh tranh trước khi kết luận cá nhân.",
-  },
+  ],
   disclaimer: {
     title: "Cảnh báo quan trọng",
     content:
-      "Phần Định giá không phải khuyến nghị giao dịch. Mục tiêu của bước này là giúp bạn hiểu thị trường đang trả giá bao nhiêu cho doanh nghiệp, mức giá hiện tại đang phản ánh kỳ vọng gì và các phương pháp định giá cho ra vùng giá tham khảo nào. Một cổ phiếu nằm dưới vùng giá tham khảo không có nghĩa là hệ thống đang đưa ra chỉ dẫn hành động. Bạn vẫn cần kiểm tra rủi ro, minh bạch, xu hướng giá và checklist trước quyết định cá nhân.",
+      "Phần Định giá không phải tư vấn đầu tư hay chỉ dẫn giao dịch. Mục tiêu của bước này là giúp bạn hiểu thị trường đang trả giá bao nhiêu cho doanh nghiệp, mức giá hiện tại đang phản ánh kỳ vọng gì và các phương pháp định giá cho ra vùng giá tham khảo nào.",
   },
   nextActions: {
     title: "Bạn đã hiểu vùng định giá và các giả định chính chưa?",
-    description: "Các nút dưới đây chỉ là điều hướng giao diện, chưa có chức năng thật ở bước này.",
+    description:
+      "Các nút dưới đây chỉ là điều hướng giao diện, chưa có chức năng thật ở bước này.",
     actions: [
-      { label: "Chuyển sang Phân tích kỹ thuật cơ bản", variant: "primary" },
-      { label: "Chuyển sang Kiểm tra rủi ro", variant: "secondary" },
-      { label: "Quay lại Phân tích BCTC", variant: "secondary" },
-      { label: "Thêm vào Watchlist", variant: "ghost" },
-      { label: "Ghi chú điều cần kiểm tra thêm", variant: "ghost" },
+      { label: "Chuyển sang Quản trị rủi ro", variant: "primary" },
+      { label: "Thêm vào Watchlist", variant: "secondary" },
+      { label: "Ghi chú giả định định giá", variant: "ghost" },
+      { label: "Quay lại BCTC", variant: "secondary" },
     ],
   },
 };

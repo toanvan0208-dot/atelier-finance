@@ -16,7 +16,6 @@ import type {
   RiskOverviewData,
   RiskStatus,
   RiskStatusLegendData,
-  TutorNoteData,
 } from "../types";
 
 type RiskSectionCardProps = {
@@ -50,15 +49,6 @@ export function RiskSectionCard({
       />
       <CardBody>{children}</CardBody>
     </Card>
-  );
-}
-
-export function TutorNote({ data }: { data: TutorNoteData }) {
-  return (
-    <div className="rounded-[4px] border-[1.5px] border-border bg-accent-soft/70 px-4 py-3 shadow-soft">
-      <Chip size="sm" variant="accent">{data.title}</Chip>
-      <p className="mt-2 text-sm leading-6 text-muted">{data.content}</p>
-    </div>
   );
 }
 
@@ -330,7 +320,6 @@ export function RiskDetailCard({
           <p className="mt-2 text-sm leading-6 text-muted">{data.statusReason}</p>
           <Button size="sm" variant="secondary">{data.sourceActionLabel}</Button>
         </div>
-        {data.tutor ? <TutorNote data={data.tutor} /> : null}
         {data.reflectionPrompt ? (
           <p className="rounded-[4px] border border-border-soft bg-accent-soft/70 px-3 py-2 text-sm leading-6 text-muted">
             {data.reflectionPrompt}

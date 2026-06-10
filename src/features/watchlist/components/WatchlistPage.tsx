@@ -93,7 +93,6 @@ export function WatchlistPage() {
           isOpen={isDetailOpen}
           onClose={() => setIsDetailOpen(false)}
           simulationTracking={data.simulationTracking}
-          tutorNotes={data.tutorNotes}
         />
       ) : null}
     </div>

@@ -4,7 +4,13 @@ export type AssessmentTone = "success" | "warning" | "danger" | "neutral" | "acc
 
 export type BusinessAction = {
   label: string;
+  description?: string;
   variant: "primary" | "secondary" | "ghost";
+};
+
+export type FieldItem = {
+  label: string;
+  value: string;
 };
 
 export type BusinessHeaderData = {
@@ -14,8 +20,9 @@ export type BusinessHeaderData = {
   industry: string;
   status: BusinessStatus;
   businessType: string;
-  assumedRiskProfile: string;
-  previousModuleLink: string;
+  beginnerFit: string;
+  candidateStatus: string;
+  description: string;
   actions: BusinessAction[];
 };
 
@@ -28,14 +35,98 @@ export type BusinessQuickSummaryData = {
   title: string;
   description: string;
   icon: string;
-  metrics: Array<{
-    title: string;
-    value: string;
-    description: string;
-    icon: string;
-    status: string;
-  }>;
   items: BusinessQuickSummaryItem[];
+  oneSentenceSummary: string;
+};
+
+export type BusinessConclusionData = {
+  title: string;
+  description: string;
+  items: Array<{
+    title: string;
+    content: string;
+  }>;
+};
+
+export type BusinessAnalysisBlock = {
+  title: string;
+  content: string;
+  tone?: AssessmentTone;
+  fields?: FieldItem[];
+  bullets?: string[];
+};
+
+export type BusinessAnalysisGroup = {
+  id: string;
+  label: string;
+  question: string;
+  intro: string;
+  blocks: BusinessAnalysisBlock[];
+  output: string;
+};
+
+export type BusinessBctcBridgeItem = {
+  question: string;
+  module: string;
+  dataToCheck: string[];
+};
+
+export type BusinessBctcBridgeData = {
+  title: string;
+  description: string;
+  ctaLabel: string;
+  disabledCtaLabel: string;
+  items: BusinessBctcBridgeItem[];
+};
+
+export type BusinessMiniCheckData = {
+  title: string;
+  description: string;
+  successMessage: string;
+  failureMessage: string;
+  questions: Array<{
+    question: string;
+    options: string[];
+    correctIndex: number;
+  }>;
+};
+
+export type BusinessDisclaimerData = {
+  title: string;
+  icon: string;
+  content: string;
+};
+
+export type BusinessNextActionsData = {
+  title: string;
+  description: string;
+  icon: string;
+  actions: BusinessAction[];
+};
+
+export type BusinessEmptyStateData = {
+  title: string;
+  description: string;
+  icon: string;
+};
+
+export type BusinessLoadingData = {
+  title: string;
+  description: string;
+};
+
+export type BusinessPageData = {
+  isLoading: boolean;
+  loading: BusinessLoadingData;
+  emptyState: BusinessEmptyStateData;
+  header: BusinessHeaderData;
+  quickSummary: BusinessQuickSummaryData;
+  conclusion: BusinessConclusionData;
+  groups: BusinessAnalysisGroup[];
+  bctcBridge: BusinessBctcBridgeData;
+  miniCheck: BusinessMiniCheckData;
+  disclaimer: BusinessDisclaimerData;
+  nextActions: BusinessNextActionsData;
 };
 
 export type BusinessProgressStep = {
@@ -53,11 +144,6 @@ export type BusinessProgressData = {
 export type AiExplanationData = {
   title: string;
   content: string;
-};
-
-export type FieldItem = {
-  label: string;
-  value: string;
 };
 
 export type BusinessIdentityData = {
@@ -156,10 +242,7 @@ export type GovernanceData = {
   description: string;
   icon: string;
   tableCaption: string;
-  columns: {
-    label: string;
-    value: string;
-  };
+  columns: { label: string; value: string };
   fields: FieldItem[];
   warningTitle: string;
   warning: string;
@@ -225,65 +308,10 @@ export type BusinessRiskData = {
   detailLabels: DetailSectionData;
 };
 
-export type BusinessDisclaimerData = {
-  title: string;
-  icon: string;
-  content: string;
-};
-
-export type BusinessNextActionsData = {
-  title: string;
-  description: string;
-  icon: string;
-  actions: BusinessAction[];
-};
-
-export type BusinessEmptyStateData = {
-  title: string;
-  description: string;
-  icon: string;
-};
-
-export type BusinessLoadingData = {
-  title: string;
-  description: string;
-};
-
 export type BusinessSectionLabels = {
   aiTitle: string;
   userInputDefault: string;
   evidenceLabel: string;
   assessmentLabel: string;
   warningLabel: string;
-};
-
-export type BusinessPageData = {
-  isLoading: boolean;
-  loading: BusinessLoadingData;
-  emptyState: BusinessEmptyStateData;
-  header: BusinessHeaderData;
-  quickSummary: BusinessQuickSummaryData;
-  progress: BusinessProgressData;
-  labels: BusinessSectionLabels;
-  contentHeader: {
-    eyebrow: string;
-    title: string;
-    description: string;
-    icon: string;
-  };
-  identity: BusinessIdentityData;
-  businessType: BusinessTypeData;
-  productCustomer: ProductCustomerData;
-  revenueSource: RevenueSourceData;
-  drivers: DriverData;
-  valueChain: ValueChainData;
-  ecosystem: EcosystemData;
-  governance: GovernanceData;
-  capitalAllocation: CapitalAllocationData;
-  industryThesis: IndustryThesisLinkData;
-  competitiveAdvantage: CompetitiveAdvantageData;
-  scalability: ScalabilityData;
-  risks: BusinessRiskData;
-  disclaimer: BusinessDisclaimerData;
-  nextActions: BusinessNextActionsData;
 };

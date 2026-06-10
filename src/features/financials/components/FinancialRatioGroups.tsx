@@ -5,7 +5,6 @@ import type { FinancialRatioGroupsData } from "../types";
 import { DetailToggleCard } from "./DetailToggleCard";
 import { FinancialsSectionCard } from "./FinancialsSectionCard";
 import { RatioStatusCard } from "./RatioStatusCard";
-import { TutorNote } from "./TutorNote";
 
 type FinancialRatioGroupsProps = {
   data: FinancialRatioGroupsData;
@@ -34,7 +33,6 @@ export function FinancialRatioGroups({ data }: FinancialRatioGroupsProps) {
       <div className="space-y-4">
         <Tabs ariaLabel={data.title} items={tabs} />
         <DetailToggleCard details={data.details} labels={data.detailLabels} />
-        {data.tutor ? <TutorNote data={data.tutor} /> : null}
       </div>
     </FinancialsSectionCard>
   );

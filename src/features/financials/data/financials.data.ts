@@ -90,7 +90,7 @@ export const financialsPageData: FinancialsPageData = {
     lineChartTitle: "Doanh thu và lợi nhuận mẫu",
     barChartTitle: "Tài sản, nợ và vốn chủ mẫu",
     tutor: {
-      title: "AI Tutor",
+      title: "Giải thích dễ hiểu",
       content: "Đây là phần nhìn nhanh để bạn biết doanh nghiệp đang lớn lên, nhỏ đi hay biến động mạnh. Chưa nên kết luận chỉ từ phần này.",
     },
     lineSeries: [
@@ -134,7 +134,7 @@ export const financialsPageData: FinancialsPageData = {
     ],
     flow: ["Doanh thu", "− Giá vốn", "= Lợi nhuận gộp", "− Chi phí", "= Lợi nhuận sau thuế"],
     tutor: {
-      title: "AI Tutor",
+      title: "Giải thích dễ hiểu",
       content: "Báo cáo kết quả kinh doanh cho biết doanh nghiệp tạo ra doanh thu và lợi nhuận như thế nào trong một kỳ.",
     },
   },
@@ -149,7 +149,7 @@ export const financialsPageData: FinancialsPageData = {
       { title: "Vốn chủ sở hữu", items: [{ label: "Vốn chủ sở hữu", value: "Nguồn vốn của cổ đông" }, { label: "Lợi nhuận giữ lại", value: "Nguồn tái đầu tư nếu có" }] },
     ],
     tutor: {
-      title: "AI Tutor",
+      title: "Giải thích dễ hiểu",
       content: "Bảng cân đối kế toán giống như ảnh chụp tài sản và nguồn vốn của doanh nghiệp tại một thời điểm.",
     },
   },
@@ -163,7 +163,7 @@ export const financialsPageData: FinancialsPageData = {
       { label: "Tiền từ tài chính", value: "Vay nợ, trả nợ, phát hành hoặc trả cổ tức" },
     ],
     tutor: {
-      title: "AI Tutor",
+      title: "Giải thích dễ hiểu",
       content: "Lợi nhuận là con số kế toán, còn dòng tiền cho biết tiền thật có đang về doanh nghiệp hay không.",
     },
   },
@@ -184,7 +184,7 @@ export const financialsPageData: FinancialsPageData = {
       { name: "Dòng tiền kinh doanh", tone: "accent", points: [{ label: "2021", value: 5.2 }, { label: "2022", value: 2.5 }, { label: "2023", value: -0.8 }, { label: "2024", value: 3.1 }, { label: "2025", value: 2.7 }] },
     ],
     tutor: {
-      title: "AI Tutor",
+      title: "Giải thích dễ hiểu",
       content: "Một doanh nghiệp có thể báo lãi nhưng chưa chắc đã thu được tiền. Nếu lợi nhuận tăng nhưng dòng tiền kinh doanh âm nhiều năm, cần kiểm tra khoản phải thu, hàng tồn kho hoặc chất lượng lợi nhuận.",
     },
   },
@@ -204,7 +204,7 @@ export const financialsPageData: FinancialsPageData = {
       { label: "Khoản bất thường", value: "Chưa đủ dữ liệu mẫu" },
     ],
     tutor: {
-      title: "AI Tutor",
+      title: "Giải thích dễ hiểu",
       content: "Lợi nhuận tốt là lợi nhuận có thể lặp lại từ hoạt động kinh doanh chính. Nếu lợi nhuận đến nhiều từ bán tài sản, hoàn nhập dự phòng hoặc khoản bất thường, cần thận trọng hơn.",
     },
   },
@@ -234,7 +234,7 @@ export const financialsPageData: FinancialsPageData = {
     details: ["Hai doanh nghiệp có cùng số nợ nhưng rủi ro khác nhau nếu kỳ hạn trả nợ khác nhau.", "Cần đọc thuyết minh nợ vay, lãi suất và tài sản đảm bảo."],
     detailLabels,
     tutor: {
-      title: "AI Tutor",
+      title: "Giải thích dễ hiểu",
       content: "Hai doanh nghiệp có cùng số nợ nhưng rủi ro có thể rất khác nhau. Nợ đáo hạn trong 6 tháng sẽ áp lực hơn nợ đáo hạn sau 5 năm.",
     },
   },
@@ -255,7 +255,7 @@ export const financialsPageData: FinancialsPageData = {
       { label: "Chu kỳ chuyển đổi tiền mặt", value: "Chưa đủ dữ liệu mẫu" },
     ],
     tutor: {
-      title: "AI Tutor",
+      title: "Giải thích dễ hiểu",
       content: "Doanh nghiệp có thể bán được hàng nhưng chưa thu được tiền. Nếu tiền bị kẹt quá lâu ở hàng tồn kho hoặc khoản phải thu, dòng tiền sẽ yếu đi.",
     },
   },
@@ -276,7 +276,7 @@ export const financialsPageData: FinancialsPageData = {
       { label: "Đầu tư ngoài ngành", value: "Cần thận trọng nếu vượt năng lực cốt lõi" },
     ],
     tutor: {
-      title: "AI Tutor",
+      title: "Giải thích dễ hiểu",
       content: "Cần xem tiền được dùng để mở rộng năng lực kinh doanh, trả nợ, trả cổ tức hay đầu tư ngoài ngành.",
     },
   },
@@ -313,7 +313,7 @@ export const financialsPageData: FinancialsPageData = {
     ],
     detailLabels,
     tutor: {
-      title: "AI Tutor",
+      title: "Giải thích dễ hiểu",
       content: "Chỉ số tài chính không tự nói tốt hay xấu. Cần xem xu hướng, so với ngành và liên hệ với mô hình kinh doanh.",
     },
   },
@@ -336,7 +336,7 @@ export const financialsPageData: FinancialsPageData = {
     ],
     detailLabels,
     tutor: {
-      title: "AI Tutor",
+      title: "Giải thích dễ hiểu",
       content: "Không nên dùng cùng một bộ chỉ số cho mọi doanh nghiệp. Ngân hàng, bất động sản, sản xuất và công nghệ có cách đọc báo cáo tài chính khác nhau.",
     },
   },
@@ -389,7 +389,7 @@ export const financialsPageData: FinancialsPageData = {
     ],
     detailLabels,
     tutor: {
-      title: "AI Tutor",
+      title: "Giải thích dễ hiểu",
       content: "Bạn đọc báo cáo tài chính không phải để nhớ số liệu, mà để hiểu số liệu nào sẽ ảnh hưởng đến định giá doanh nghiệp.",
     },
   },

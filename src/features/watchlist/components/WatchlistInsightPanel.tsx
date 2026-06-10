@@ -16,7 +16,6 @@ type WatchlistInsightPanelProps = {
   isOpen: boolean;
   onClose: () => void;
   simulationTracking: SimulationTrackingData;
-  tutorNotes: string[];
 };
 
 function getSimulationItem(data: SimulationTrackingData, ticker: string) {
@@ -28,7 +27,6 @@ export function WatchlistInsightPanel({
   isOpen,
   onClose,
   simulationTracking,
-  tutorNotes,
 }: WatchlistInsightPanelProps) {
   const simulationItem = getSimulationItem(simulationTracking, data.ticker);
 
@@ -215,26 +213,6 @@ export function WatchlistInsightPanel({
                     {data.alerts.map((alert) => (
                       <WatchlistSoftAlert key={alert.title} data={alert} />
                     ))}
-                  </div>
-                ),
-              },
-              {
-                value: "tutor",
-                label: "AI Tutor",
-                content: (
-                  <div className="space-y-3">
-                    {tutorNotes.map((note) => (
-                      <p
-                        key={note}
-                        className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-2 text-xs leading-5 text-muted"
-                      >
-                        {note}
-                      </p>
-                    ))}
-                    <div className="rounded-[4px] border border-border bg-accent-soft px-3 py-3 text-xs leading-5 text-muted">
-                      Watchlist chỉ điều phối ý tưởng. Không dùng danh sách này
-                      như danh sách khuyến nghị hành động.
-                    </div>
                   </div>
                 ),
               },

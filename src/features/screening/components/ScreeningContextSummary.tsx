@@ -4,25 +4,37 @@ import type { ScreeningContextData } from "../types";
 type ScreeningContextSummaryProps = {
   data: ScreeningContextData;
   activeIndustry?: string;
+  ticker?: string | null;
+  tickerSector?: string;
 };
 
 const contextItems = [
   { key: "tailwind", title: "Gió thuận" },
   { key: "risks", title: "Rủi ro" },
   { key: "confirmations", title: "Cần xác nhận" },
+  { key: "priority", title: "Hệ thống sẽ ưu tiên gì" },
 ] as const;
 
 export function ScreeningContextSummary({
   activeIndustry = "retail",
   data,
+  ticker,
+  tickerSector,
 }: ScreeningContextSummaryProps) {
   const summary = data.summariesByIndustry[activeIndustry] ?? data.summariesByIndustry.retail;
+  const description = ticker
+    ? `${ticker} thuộc ngành ${tickerSector}. Vì vậy hệ thống kiểm tra mã này trong bối cảnh ngành, chất lượng vận hành, các điểm cần xác nhận và thanh khoản giao dịch.`
+    : data.subtitle;
 
   return (
     <Card className="bg-accent-soft">
-      <CardHeader description={data.subtitle} icon={data.icon} title={data.title} />
+      <CardHeader
+        description={description}
+        icon={data.icon}
+        title={ticker ? "Luận điểm bối cảnh của mã này" : data.title}
+      />
       <CardBody>
-        <div className="grid gap-3 md:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           {contextItems.map((item) => (
             <div
               key={item.key}

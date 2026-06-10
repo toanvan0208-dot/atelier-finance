@@ -136,29 +136,37 @@ function RouteConfigStepper({ currentStep, onStepClick }: { currentStep: number;
   return (
     <Card>
       <CardBody>
-        <div className="grid gap-2 md:grid-cols-5">
+        <div className="flex gap-2 overflow-x-auto pb-1" role="tablist">
           {stepLabels.map((label, index) => {
             const step = index + 1;
             const isActive = step === currentStep;
             const isDone = step < currentStep;
 
             return (
-              <button
-                key={label}
-                className={cn(
-                  "rounded-[4px] border px-3 py-3 text-left transition",
-                  isActive
-                    ? "border-border bg-ink text-white shadow-hard-sm"
-                    : isDone
-                      ? "border-accent-green bg-accent-green/10 text-ink"
-                      : "border-border-soft bg-surface-soft text-muted hover:border-border hover:bg-surface-hover"
-                )}
-                type="button"
-                onClick={() => onStepClick(step)}
-              >
-                <span className="block text-[11px] font-bold">Bước {step}/5</span>
-                <span className="mt-1 block text-xs font-semibold">{label}</span>
-              </button>
+              <div key={label} className="flex min-w-[172px] flex-1 items-center gap-2">
+                <button
+                  className={cn(
+                    "min-h-[56px] w-full rounded-[4px] border px-3 py-3 text-left transition",
+                    isActive
+                      ? "border-border bg-ink text-white shadow-hard-sm"
+                      : isDone
+                        ? "border-accent-green bg-accent-green/10 text-ink"
+                        : "border-border-soft bg-surface-soft text-muted hover:border-border hover:bg-surface-hover"
+                  )}
+                  type="button"
+                  onClick={() => onStepClick(step)}
+                  role="tab"
+                  aria-selected={isActive}
+                >
+                  <span className="block text-[11px] font-bold">Bước {step}/5</span>
+                  <span className="mt-1 block text-xs font-semibold">{label}</span>
+                </button>
+                {step < stepLabels.length ? (
+                  <span className="hidden shrink-0 text-lg font-bold text-subtle md:inline" aria-hidden="true">
+                    →
+                  </span>
+                ) : null}
+              </div>
             );
           })}
         </div>
@@ -166,7 +174,6 @@ function RouteConfigStepper({ currentStep, onStepClick }: { currentStep: number;
     </Card>
   );
 }
-
 function OptionCard<T extends string>({
   option,
   selected,
@@ -264,7 +271,7 @@ function AIExplanationLevelCards({
 }) {
   return (
     <section>
-      <SectionHeader title="Bạn muốn AI giải thích ở mức nào?" description="Mức này sẽ dùng cho AI Tutor ở panel bên phải trong các module." />
+      <SectionHeader title="Bạn muốn trợ giảng giải thích ở mức nào?" description="Mức này sẽ dùng cho panel bên phải trong các module." />
       <div className="grid gap-3 lg:grid-cols-2">
         {aiExplanationOptions.map((option) => (
           <OptionCard key={option.id} option={option} selected={value === option.id} onSelect={onChange} />
@@ -510,7 +517,7 @@ function PersonalizedRouteResult({
         </section>
 
         <section className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-4">
-          <p className="text-sm font-bold text-ink">AI Tutor sẽ hỗ trợ bạn như thế nào?</p>
+          <p className="text-sm font-bold text-ink">Panel trợ giảng sẽ hỗ trợ bạn như thế nào?</p>
           <p className="mt-2 text-sm leading-6 text-muted">
             AI sẽ giải thích theo mức bạn chọn, gợi ý bài học khi bạn gặp phần khó, nhắc khi thiếu thesis,
             nhắc khi kết luận vội và dẫn bạn quay lại module còn thiếu.
@@ -532,17 +539,21 @@ function StepNavigation({
   currentStep,
   onNext,
   onBack,
+  onCreateRoute,
 }: {
   currentStep: number;
   onNext: () => void;
   onBack: () => void;
+  onCreateRoute: () => void;
 }) {
   return (
     <div className="flex flex-wrap justify-between gap-2">
       <Button disabled={currentStep === 1} variant="secondary" onClick={onBack}>
         Quay lại
       </Button>
-      <Button onClick={onNext}>{currentStep === 5 ? "Tạo lộ trình" : "Tiếp tục"}</Button>
+      <Button onClick={currentStep === 5 ? onCreateRoute : onNext}>
+        {currentStep === 5 ? "Tạo lộ trình" : "Tiếp tục"}
+      </Button>
     </div>
   );
 }
@@ -550,10 +561,16 @@ function StepNavigation({
 export function RouteConfigPage({ onNavigate }: RouteConfigPageProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [config, setConfig] = useState<RouteConfigState>(initialConfig);
+  const [hasGeneratedRoute, setHasGeneratedRoute] = useState(false);
   const route = useMemo(() => buildPersonalizedRoute(config), [config]);
 
+  const updateConfig = (updater: (current: RouteConfigState) => RouteConfigState) => {
+    setHasGeneratedRoute(false);
+    setConfig(updater);
+  };
+
   function toggleStuckPoint(id: string) {
-    setConfig((current) => ({
+    updateConfig((current) => ({
       ...current,
       stuckPoints: current.stuckPoints.includes(id)
         ? current.stuckPoints.filter((item) => item !== id)
@@ -566,17 +583,17 @@ export function RouteConfigPage({ onNavigate }: RouteConfigPageProps) {
       <RouteConfigHeader currentStep={currentStep} />
       <RouteConfigStepper currentStep={currentStep} onStepClick={setCurrentStep} />
 
-      {currentStep === 1 ? <GoalSelectionCards config={config} setConfig={setConfig} /> : null}
+      {currentStep === 1 ? <GoalSelectionCards config={config} setConfig={updateConfig} /> : null}
       {currentStep === 2 ? (
         <JourneyModeCards
           value={config.journeyMode}
-          onChange={(id) => setConfig((current) => ({ ...current, journeyMode: id }))}
+          onChange={(id) => updateConfig((current) => ({ ...current, journeyMode: id }))}
         />
       ) : null}
       {currentStep === 3 ? (
         <AIExplanationLevelCards
           value={config.aiExplanationLevel}
-          onChange={(id) => setConfig((current) => ({ ...current, aiExplanationLevel: id }))}
+          onChange={(id) => updateConfig((current) => ({ ...current, aiExplanationLevel: id }))}
         />
       ) : null}
       {currentStep === 4 ? (
@@ -584,22 +601,28 @@ export function RouteConfigPage({ onNavigate }: RouteConfigPageProps) {
           selected={config.stuckPoints}
           customValue={config.customStuckPoint}
           onToggle={toggleStuckPoint}
-          onCustomChange={(value) => setConfig((current) => ({ ...current, customStuckPoint: value }))}
+          onCustomChange={(value) => updateConfig((current) => ({ ...current, customStuckPoint: value }))}
         />
       ) : null}
-      {currentStep === 5 ? <TickerIndustryInput config={config} setConfig={setConfig} /> : null}
+      {currentStep === 5 ? <TickerIndustryInput config={config} setConfig={updateConfig} /> : null}
 
       <StepNavigation
         currentStep={currentStep}
         onBack={() => setCurrentStep((step) => Math.max(1, step - 1))}
         onNext={() => setCurrentStep((step) => Math.min(5, step + 1))}
+        onCreateRoute={() => setHasGeneratedRoute(true)}
       />
 
-      <PersonalizedRouteResult
-        route={route}
-        onNavigate={onNavigate}
-        onReset={() => setCurrentStep(1)}
-      />
+      {hasGeneratedRoute ? (
+        <PersonalizedRouteResult
+          route={route}
+          onNavigate={onNavigate}
+          onReset={() => {
+            setHasGeneratedRoute(false);
+            setCurrentStep(1);
+          }}
+        />
+      ) : null}
     </div>
   );
 }

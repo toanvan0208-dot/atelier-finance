@@ -1,5 +1,60 @@
 export type MacroTone = "support" | "pressure" | "neutral" | "watch" | "mixed";
 
+export type MacroDashboardMode = "guided" | "detailed";
+
+export type MacroMetricStatus = MacroTone;
+
+export type MacroMetric = {
+  id: string;
+  label: string;
+  value: string;
+  unit?: string;
+  period: string;
+  change?: string;
+  status: MacroMetricStatus;
+  explanation: string;
+  source?: string;
+  updatedAt?: string;
+  isMock?: boolean;
+  sparkline?: number[];
+  detail?: {
+    definition: string;
+    currentReading: string;
+    whyItMatters: string;
+    transmission: string[];
+    affectedSectors: string[];
+    nextChecks: string[];
+  };
+};
+
+export type MacroSectorTile = {
+  id: string;
+  name: string;
+  status: MacroMetricStatus;
+  horizon?: "Ngắn hạn" | "Trung hạn" | "Dài hạn" | "Cả hai";
+  shortReason: string;
+  detail: {
+    whyAffected: string;
+    keyChecks: string[];
+    nextModule: string[];
+    warning: string;
+  };
+};
+
+export type MacroRegime = {
+  label: string;
+  score: number;
+  status: MacroMetricStatus;
+  summary: string;
+  warning: string;
+};
+
+export type MacroOverviewDashboardData = {
+  regime: MacroRegime;
+  metrics: MacroMetric[];
+  sectorTiles: MacroSectorTile[];
+};
+
 export type MacroDataMeta = {
   source: string;
   period: string;
@@ -126,6 +181,7 @@ export type MacroJourneyData = {
     description: string;
     centralQuestion: string;
   };
+  dashboard: MacroOverviewDashboardData;
   snapshot: MacroSnapshotData;
   transmissionChains: MacroTransmissionChain[];
   globalInsights: MacroInsightCardData[];

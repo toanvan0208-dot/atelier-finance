@@ -1,27 +1,28 @@
-import { EmptyState, LoadingState, SectionHeader } from "@/components/ui";
+"use client";
+
+import { useMemo, useState } from "react";
+import { EmptyState, LoadingState } from "@/components/ui";
 import { businessPageData } from "../data/business.data";
+import { BusinessAnalysisGroups } from "./BusinessAnalysisGroups";
+import { BusinessBctcBridge } from "./BusinessBctcBridge";
+import { BusinessConclusion } from "./BusinessConclusion";
 import { BusinessDisclaimer } from "./BusinessDisclaimer";
-import { BusinessEcosystemBlock } from "./BusinessEcosystemBlock";
 import { BusinessHeader } from "./BusinessHeader";
-import { BusinessIdentityBlock } from "./BusinessIdentityBlock";
+import { BusinessMiniCheck } from "./BusinessMiniCheck";
 import { BusinessNextActions } from "./BusinessNextActions";
 import { BusinessQuickSummary } from "./BusinessQuickSummary";
-import { BusinessRiskBlock } from "./BusinessRiskBlock";
-import { BusinessStepAccordion } from "./BusinessStepAccordion";
-import { BusinessTypeTags } from "./BusinessTypeTags";
-import { CapitalAllocationBlock } from "./CapitalAllocationBlock";
-import { CompetitiveAdvantageBlock } from "./CompetitiveAdvantageBlock";
-import { DriverBlock } from "./DriverBlock";
-import { GovernanceBlock } from "./GovernanceBlock";
-import { IndustryThesisLinkBlock } from "./IndustryThesisLinkBlock";
-import { ProductCustomerBlock } from "./ProductCustomerBlock";
-import { RevenueSourceBlock } from "./RevenueSourceBlock";
-import { ScalabilityBlock } from "./ScalabilityBlock";
-import { ValueChainPositionBlock } from "./ValueChainPositionBlock";
 
 export function BusinessPage() {
   const data = businessPageData;
-  const steps = data.progress.steps;
+  const [answers, setAnswers] = useState<Record<number, number>>({});
+
+  const canGoToFinancials = useMemo(
+    () =>
+      data.miniCheck.questions.every(
+        (question, index) => answers[index] === question.correctIndex
+      ),
+    [answers, data.miniCheck.questions]
+  );
 
   if (data.isLoading) {
     return (
@@ -42,80 +43,37 @@ export function BusinessPage() {
     );
   }
 
+  function handleAnswer(questionIndex: number, optionIndex: number) {
+    setAnswers((current) => ({
+      ...current,
+      [questionIndex]: optionIndex,
+    }));
+  }
+
   return (
-    <div className="mx-auto w-full max-w-[980px] space-y-6">
-      <BusinessHeader data={data.header} />
+    <div className="mx-auto w-full max-w-[1040px] space-y-7">
+      <BusinessHeader
+        canGoToFinancials={canGoToFinancials}
+        data={data.header}
+      />
       <BusinessQuickSummary data={data.quickSummary} />
-
-      <SectionHeader
-        description={data.contentHeader.description}
-        eyebrow={data.contentHeader.eyebrow}
-        icon={data.contentHeader.icon}
-        title={data.contentHeader.title}
+      <BusinessAnalysisGroups groups={data.groups} />
+      <BusinessConclusion data={data.conclusion} />
+      <BusinessBctcBridge
+        canGoToFinancials={canGoToFinancials}
+        data={data.bctcBridge}
       />
-
-      <BusinessStepAccordion
-        data={data.progress}
-        items={[
-          {
-            step: steps[0],
-            content: <BusinessIdentityBlock data={data.identity} labels={data.labels} />,
-          },
-          {
-            step: steps[1],
-            content: <BusinessTypeTags data={data.businessType} />,
-          },
-          {
-            step: steps[2],
-            content: <ProductCustomerBlock data={data.productCustomer} />,
-          },
-          {
-            step: steps[3],
-            content: <RevenueSourceBlock data={data.revenueSource} />,
-          },
-          {
-            step: steps[4],
-            content: <DriverBlock data={data.drivers} />,
-          },
-          {
-            step: steps[5],
-            content: <ValueChainPositionBlock data={data.valueChain} />,
-          },
-          {
-            step: steps[6],
-            content: <BusinessEcosystemBlock data={data.ecosystem} />,
-          },
-          {
-            step: steps[7],
-            content: <GovernanceBlock data={data.governance} />,
-          },
-          {
-            step: steps[8],
-            content: <CapitalAllocationBlock data={data.capitalAllocation} />,
-          },
-          {
-            step: steps[9],
-            content: <IndustryThesisLinkBlock data={data.industryThesis} />,
-          },
-          {
-            step: steps[10],
-            content: <CompetitiveAdvantageBlock data={data.competitiveAdvantage} />,
-          },
-          {
-            step: steps[11],
-            content: <ScalabilityBlock data={data.scalability} />,
-          },
-          {
-            step: steps[12],
-            content: <BusinessRiskBlock data={data.risks} />,
-          },
-        ]}
+      <BusinessMiniCheck
+        answers={answers}
+        data={data.miniCheck}
+        isComplete={canGoToFinancials}
+        onAnswer={handleAnswer}
       />
-
-      <div className="space-y-5">
-        <BusinessDisclaimer data={data.disclaimer} />
-        <BusinessNextActions data={data.nextActions} />
-      </div>
+      <BusinessNextActions
+        canGoToFinancials={canGoToFinancials}
+        data={data.nextActions}
+      />
+      <BusinessDisclaimer data={data.disclaimer} />
     </div>
   );
 }

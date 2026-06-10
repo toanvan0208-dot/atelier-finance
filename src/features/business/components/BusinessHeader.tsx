@@ -3,9 +3,13 @@ import type { BusinessHeaderData } from "../types";
 
 type BusinessHeaderProps = {
   data: BusinessHeaderData;
+  canGoToFinancials?: boolean;
 };
 
-export function BusinessHeader({ data }: BusinessHeaderProps) {
+export function BusinessHeader({
+  canGoToFinancials = false,
+  data,
+}: BusinessHeaderProps) {
   return (
     <Card>
       <CardBody>
@@ -19,20 +23,32 @@ export function BusinessHeader({ data }: BusinessHeaderProps) {
             <h1 className="mt-3 font-brand text-2xl font-semibold text-ink">
               {data.ticker} · {data.companyName}
             </h1>
-            <p className="mt-2 max-w-[68ch] text-sm leading-6 text-muted">
-              {data.previousModuleLink}
+            <p className="mt-2 max-w-[72ch] text-sm leading-6 text-muted">
+              {data.description}
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
               <Chip variant="neutral">{data.businessType}</Chip>
-              <Chip variant="neutral">{data.assumedRiskProfile}</Chip>
+              <Chip variant="neutral">Mức dễ hiểu: {data.beginnerFit}</Chip>
+              <Chip variant="neutral">{data.candidateStatus}</Chip>
             </div>
           </div>
           <div className="flex flex-wrap gap-2 lg:justify-end">
-            {data.actions.map((action) => (
-              <Button key={action.label} variant={action.variant}>
-                {action.label}
-              </Button>
-            ))}
+            {data.actions.map((action) => {
+              const isFinancialsAction = action.label.includes("BCTC");
+              const disabled = isFinancialsAction && !canGoToFinancials;
+
+              return (
+                <Button
+                  key={action.label}
+                  disabled={disabled}
+                  variant={disabled ? "secondary" : action.variant}
+                >
+                  {disabled
+                    ? "Hoàn thành câu hỏi bắt buộc để sang BCTC"
+                    : action.label}
+                </Button>
+              );
+            })}
           </div>
         </div>
       </CardBody>

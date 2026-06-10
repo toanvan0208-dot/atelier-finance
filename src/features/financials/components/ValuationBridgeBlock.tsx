@@ -3,7 +3,6 @@ import type { DataTableColumn } from "@/components/ui";
 import type { ValuationBridgeData, ValuationBridgeItem } from "../types";
 import { DetailToggleCard } from "./DetailToggleCard";
 import { FinancialsSectionCard } from "./FinancialsSectionCard";
-import { TutorNote } from "./TutorNote";
 
 type ValuationBridgeBlockProps = {
   data: ValuationBridgeData;
@@ -33,7 +32,6 @@ export function ValuationBridgeBlock({ data }: ValuationBridgeBlockProps) {
           rows={data.rows}
         />
         <DetailToggleCard details={data.details} labels={data.detailLabels} />
-        {data.tutor ? <TutorNote data={data.tutor} /> : null}
       </div>
     </FinancialsSectionCard>
   );

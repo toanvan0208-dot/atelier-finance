@@ -1,8 +1,7 @@
-﻿import { Chip } from "@/components/ui";
+import { Chip } from "@/components/ui";
 import type { WorkingCapitalData } from "../types";
 import { FinancialsSectionCard } from "./FinancialsSectionCard";
 import { SimpleMetricGrid } from "./SimpleMetricGrid";
-import { TutorNote } from "./TutorNote";
 
 type WorkingCapitalBlockProps = {
   data: WorkingCapitalData;
@@ -22,7 +21,6 @@ export function WorkingCapitalBlock({ data }: WorkingCapitalBlockProps) {
           ))}
         </div>
         <SimpleMetricGrid columns="three" items={data.fields} />
-        {data.tutor ? <TutorNote data={data.tutor} /> : null}
       </div>
     </FinancialsSectionCard>
   );

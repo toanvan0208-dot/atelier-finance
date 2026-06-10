@@ -837,7 +837,7 @@ export const industryPageData: IndustryPageData = {
     ],
   },
   tutor: {
-    title: "AI Tutor trong module ngành",
+    title: "Giải thích dễ hiểu trong module ngành",
     notes: [
       "Bạn đang phân tích ngành thép, hãy kiểm tra cả giá thép đầu ra và giá nguyên liệu đầu vào.",
       "Tin đầu tư công tích cực không có nghĩa mọi doanh nghiệp vật liệu xây dựng đều hưởng lợi ngay.",

@@ -48,10 +48,6 @@ export function IndustryPage() {
         ),
         answers: selectedIndustry.quickAnswers,
       },
-      tutor: {
-        ...industryPageData.tutor,
-        notes: selectedIndustry.tutorNotes,
-      },
     }),
     [selectedIndustry]
   );

@@ -487,13 +487,13 @@ export function IndustryQuickSnapshot({
 
 export function IndustryThesisMap() {
   return (
-    <Card className="parent-surface-card">
+    <Card className="parent-surface-card border-border-soft">
       <CardHeader
         description="Một ngành chỉ đáng phân tích tiếp khi câu chuyện vĩ mô đi được đến dữ liệu doanh nghiệp."
         icon="TM"
         title="Bản đồ luận điểm ngành"
       />
-      <CardBody>
+      <CardBody className="bg-surface-soft/45">
         <div className="grid gap-3 lg:grid-cols-5">
           {thesisNodes.map((node, index) => (
             <div
@@ -523,13 +523,13 @@ export function IndustryJourneyBuilder({
   onSelectStep: (stepId: string) => void;
 }) {
   return (
-    <Card className="parent-surface-card">
+    <Card className="parent-surface-card border-border-soft">
       <CardHeader
         description="Mở từng cụm để xem các bước bên trong. Danh sách này dùng để định vị và chọn bước đang làm, không phải một checklist dài cần đọc hết một lượt."
         icon="17"
         title="Lộ trình 5 cụm phân tích"
       />
-      <CardBody>
+      <CardBody className="bg-surface-soft/45">
         <div className="space-y-3">
           {industryClusters.map((cluster, index) => {
             const clusterBlocks = blocks.filter(
@@ -543,8 +543,10 @@ export function IndustryJourneyBuilder({
               <details
                 key={cluster.id}
                 className={[
-                  "rounded-[4px] border-[1.5px] bg-surface-soft px-4 py-4",
-                  hasActive ? "border-border shadow-hard-sm" : "border-border-soft",
+                  "rounded-[4px] px-4 py-4 transition",
+                  hasActive
+                    ? "border-[1.5px] border-border bg-surface shadow-hard-sm"
+                    : "border border-transparent bg-transparent hover:bg-surface/55",
                 ].join(" ")}
                 open={index === 0 || hasActive}
               >
@@ -561,12 +563,12 @@ export function IndustryJourneyBuilder({
                       {hasActive ? "Đang làm" : "Chưa mở"}
                     </Chip>
                   </div>
-                  <p className="mt-3 rounded-[4px] border border-border-soft bg-surface px-3 py-2 text-xs leading-5 text-muted">
+                  <p className="mt-3 text-xs font-semibold leading-5 text-subtle">
                     Output: {cluster.output}
                   </p>
                 </summary>
 
-                <div className="mt-4 grid gap-2">
+                <div className="mt-4 grid gap-1.5 border-t border-border-soft pt-3">
                   {clusterBlocks.map((block) => {
                     const isActive = block.id === activeStepId;
 
@@ -576,10 +578,10 @@ export function IndustryJourneyBuilder({
                         type="button"
                         onClick={() => onSelectStep(block.id)}
                         className={[
-                          "rounded-[4px] border px-3 py-3 text-left transition",
+                          "rounded-[4px] px-3 py-3 text-left transition",
                           isActive
-                            ? "border-border bg-ink text-white shadow-hard-sm"
-                            : "border-border-soft bg-surface hover:border-border hover:bg-surface-hover",
+                            ? "border border-border bg-ink text-white shadow-hard-sm"
+                            : "border border-transparent bg-transparent hover:bg-surface hover:shadow-soft",
                         ].join(" ")}
                       >
                         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
@@ -705,7 +707,7 @@ export function IndustryDataBoard({
   selectedIndustry: IndustryOption;
 }) {
   return (
-    <Card className="parent-surface-card">
+    <Card className="parent-surface-card border-border-soft">
       <CardHeader
         description={`Bộ dữ liệu này thay đổi theo ngành đang chọn: ${selectedIndustry.name}.`}
         icon="DB"
@@ -745,7 +747,7 @@ export function IndustryConclusionBuilder({
   const reasons = selectedIndustry.keyQuestions.slice(0, 3);
 
   return (
-    <Card className="parent-surface-card">
+    <Card className="parent-surface-card border-border-soft">
       <CardHeader
         description="Chốt trạng thái ngành bằng điều kiện rõ ràng, không biến kết luận ngành thành khuyến nghị mua bán."
         icon="KL"
@@ -818,7 +820,7 @@ export function IndustryToStockBridge() {
   ];
 
   return (
-    <Card className="parent-surface-card">
+    <Card className="parent-surface-card border-border-soft">
       <CardHeader
         description="Cầu nối này giúp người dùng không nhảy từ ngành tốt sang mua cổ phiếu quá nhanh."
         icon="ST"

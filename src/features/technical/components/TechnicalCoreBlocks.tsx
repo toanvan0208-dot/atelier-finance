@@ -29,7 +29,6 @@ import { SimpleMetricGrid } from "./SimpleMetricGrid";
 import { SimplePriceVolumeChart } from "./SimplePriceVolumeChart";
 import { SimpleVolumeBars } from "./SimpleVolumeBars";
 import { TechnicalSectionCard } from "./TechnicalSectionCard";
-import { TutorNote } from "./TutorNote";
 
 type SharedBlockProps<T> = {
   data: T;
@@ -214,7 +213,6 @@ export function TimeframeSelectorBlock({
           ))}
         </div>
         <SimpleMetricGrid columns="three" items={data.options} />
-        {data.tutor ? <TutorNote data={data.tutor} /> : null}
         <DetailToggleCard details={data.details} labels={detailLabels} />
       </div>
     </TechnicalSectionCard>
@@ -231,7 +229,6 @@ export function TrendMapBlock({ data, detailLabels }: SharedBlockProps<TrendMapD
       <div className="space-y-4">
         <TrendVisual items={data.trends} />
         <SimpleMetricGrid columns="three" items={data.trends} />
-        {data.tutor ? <TutorNote data={data.tutor} /> : null}
         <DetailToggleCard details={data.details} labels={detailLabels} />
       </div>
     </TechnicalSectionCard>
@@ -275,7 +272,6 @@ export function PriceVolumeStoryBlock({
             ),
           }))}
         />
-        {data.tutor ? <TutorNote data={data.tutor} /> : null}
         <DetailToggleCard details={data.details} labels={detailLabels} />
       </div>
     </TechnicalSectionCard>
@@ -307,7 +303,6 @@ export function RelativeStrengthBlock({
           getRowKey={(row) => row.name}
           rows={data.rows}
         />
-        {data.tutor ? <TutorNote data={data.tutor} /> : null}
         <DetailToggleCard details={data.details} labels={detailLabels} />
       </div>
     </TechnicalSectionCard>
@@ -325,7 +320,6 @@ export function VolatilityBlock({ data, detailLabels }: SharedBlockProps<Volatil
       <div className="space-y-4">
         <VolatilityRangeVisual items={data.metrics} />
         <SimpleMetricGrid columns="three" items={data.metrics} />
-        {data.tutor ? <TutorNote data={data.tutor} /> : null}
         <DetailToggleCard details={data.details} labels={detailLabels} />
       </div>
     </TechnicalSectionCard>
@@ -345,7 +339,6 @@ export function PricePositionBlock({
       <div className="space-y-4">
         <PricePositionVisual items={data.metrics} />
         <SimpleMetricGrid columns="three" items={data.metrics} />
-        {data.tutor ? <TutorNote data={data.tutor} /> : null}
         <DetailToggleCard details={data.details} labels={detailLabels} />
       </div>
     </TechnicalSectionCard>
@@ -374,7 +367,6 @@ export function NewsEventBlock({ data, detailLabels }: SharedBlockProps<NewsEven
           getRowKey={(row) => `${row.date}-${row.title}`}
           rows={data.rows}
         />
-        {data.tutor ? <TutorNote data={data.tutor} /> : null}
         <DetailToggleCard details={data.details} labels={detailLabels} />
       </div>
     </TechnicalSectionCard>
@@ -419,7 +411,6 @@ export function MarketPsychologyBlock({
           score={data.score}
           states={data.states}
         />
-        {data.tutor ? <TutorNote data={data.tutor} /> : null}
         <DetailToggleCard details={data.details} labels={detailLabels} />
       </div>
     </TechnicalSectionCard>
@@ -448,7 +439,6 @@ export function FomoBehaviorCheck({
           ))}
         </div>
         <SimpleMetricGrid columns="one" items={[data.output]} />
-        {data.tutor ? <TutorNote data={data.tutor} /> : null}
         <DetailToggleCard details={data.details} labels={detailLabels} />
       </div>
     </TechnicalSectionCard>

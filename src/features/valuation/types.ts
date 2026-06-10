@@ -7,6 +7,8 @@ export type ProgressStatus =
   | "Đã hoàn thành"
   | "Cần kiểm tra thêm";
 
+export type Reliability = "Cao" | "Trung bình" | "Thấp";
+
 export type FieldItem = {
   label: string;
   value: string;
@@ -113,7 +115,7 @@ export type ValuationMethod = {
   whenToUse: string;
   failureMode: string;
   range: string;
-  reliability: "Cao" | "Trung bình" | "Thấp";
+  reliability: Reliability;
   tone: Tone;
 };
 
@@ -161,7 +163,7 @@ export type MarginOfSafetyData = ValuationSectionData & {
 export type ConfidenceData = ValuationSectionData & {
   methods: Array<{
     method: string;
-    reliability: "Cao" | "Trung bình" | "Thấp";
+    reliability: Reliability;
     reason: string;
     tone: Tone;
   }>;
@@ -189,6 +191,65 @@ export type PersonalThesisData = ValuationSectionData & {
   placeholder: string;
 };
 
+export type ValuationInputRow = {
+  data: string;
+  status: string;
+  note: string;
+};
+
+export type ValuationMethodLogicRow = {
+  businessType: string;
+  mainMethod: string;
+  reason: string;
+};
+
+export type ValuationMetricRow = {
+  metric: string;
+  current: string;
+  comparison: string;
+  reading: string;
+};
+
+export type ValuationWorkbenchMethod = {
+  method: string;
+  inputs: string[];
+  formula: string;
+  assumptions: string;
+  range: string;
+  reliability: Reliability;
+  failureMode: string;
+};
+
+export type ValuationScenarioRow = {
+  scenario: string;
+  assumption: string;
+  range: string;
+  tone: Tone;
+};
+
+export type ValuationTrapRow = {
+  trap: string;
+  meaning: string;
+};
+
+export type ValuationGroup = {
+  id: string;
+  label: string;
+  question: string;
+  summary: string;
+  inputRows?: ValuationInputRow[];
+  methodRows?: ValuationMethodLogicRow[];
+  metricRows?: ValuationMetricRow[];
+  workbenchMethods?: ValuationWorkbenchMethod[];
+  scenarioRows?: ValuationScenarioRow[];
+  reliabilityRows?: Array<{ method: string; reliability: Reliability; reason: string }>;
+  catalysts?: string[];
+  risks?: string[];
+  traps?: ValuationTrapRow[];
+  prompts?: string[];
+  output: string;
+};
+
 export type ValuationDisclaimerData = {
   title: string;
   content: string;
@@ -211,22 +272,23 @@ export type ValuationPageData = {
   detailLabels: DetailLabels;
   header: ValuationHeaderData;
   quickSummary: ValuationQuickSummaryData;
-  progress: ValuationProgressData;
-  precheck: ChecklistData;
-  normalizedInput: NormalizedInputData;
-  businessType: BusinessTypeData;
-  marketPricing: MarketPricingData;
-  methodSelection: MethodSelectionData;
-  valuationMethods: ValuationMethodsData;
-  historicalComparison: HistoricalComparisonData;
-  marketExpectation: MarketExpectationData;
-  scenarios: ScenarioValuationData;
-  catalystRisk: CatalystRiskData;
-  marginOfSafety: MarginOfSafetyData;
-  confidence: ConfidenceData;
-  rangeSummary: RangeSummaryData;
-  tutor: ValuationTutorData;
-  personalThesis: PersonalThesisData;
+  groups: ValuationGroup[];
   disclaimer: ValuationDisclaimerData;
   nextActions: ValuationNextActionsData;
+  progress?: ValuationProgressData;
+  precheck?: ChecklistData;
+  normalizedInput?: NormalizedInputData;
+  businessType?: BusinessTypeData;
+  marketPricing?: MarketPricingData;
+  methodSelection?: MethodSelectionData;
+  valuationMethods?: ValuationMethodsData;
+  historicalComparison?: HistoricalComparisonData;
+  marketExpectation?: MarketExpectationData;
+  scenarios?: ScenarioValuationData;
+  catalystRisk?: CatalystRiskData;
+  marginOfSafety?: MarginOfSafetyData;
+  confidence?: ConfidenceData;
+  rangeSummary?: RangeSummaryData;
+  tutor?: ValuationTutorData;
+  personalThesis?: PersonalThesisData;
 };

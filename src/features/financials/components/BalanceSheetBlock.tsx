@@ -2,7 +2,6 @@ import { Chip } from "@/components/ui";
 import type { BalanceSheetData } from "../types";
 import { FinancialsSectionCard } from "./FinancialsSectionCard";
 import { SimpleMetricGrid } from "./SimpleMetricGrid";
-import { TutorNote } from "./TutorNote";
 
 type BalanceSheetBlockProps = {
   data: BalanceSheetData;
@@ -23,7 +22,6 @@ export function BalanceSheetBlock({ data }: BalanceSheetBlockProps) {
             </div>
           ))}
         </div>
-        {data.tutor ? <TutorNote data={data.tutor} /> : null}
       </div>
     </FinancialsSectionCard>
   );

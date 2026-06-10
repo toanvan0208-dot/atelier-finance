@@ -27,6 +27,14 @@ export function BusinessQuickSummary({ data }: BusinessQuickSummaryProps) {
                 </div>
               ))}
             </div>
+            <div className="mt-4 rounded-[4px] border-[1.5px] border-border bg-accent-soft px-4 py-3">
+              <p className="text-[11px] font-bold uppercase tracking-[0.04em] text-subtle">
+                Tóm tắt một câu
+              </p>
+              <p className="mt-1 text-sm font-bold leading-6 text-ink">
+                {data.oneSentenceSummary}
+              </p>
+            </div>
           </CardBody>
         </Card>
       </div>

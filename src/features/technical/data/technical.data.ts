@@ -82,21 +82,134 @@ export const technicalPageData: TechnicalPageData = {
     ],
   },
   progress: {
-    title: "Tiến độ Price Volume Time",
-    description: "12 bước quan sát từ khung thời gian đến bản nhận định cá nhân.",
+    title: "Lộ trình đọc Price Volume Time",
+    description: "5 thẻ quan sát chính. Mỗi thẻ mở popup chi tiết để người mới đọc theo từng lớp: Price, Volume, Time, Market Context và Event.",
     steps: [
-      { order: 1, title: "Xác định khung thời gian quan sát", status: "Đã hoàn thành" },
-      { order: 2, title: "Quan sát xu hướng tổng thể", status: "Đang làm" },
-      { order: 3, title: "Quan sát giá và khối lượng", status: "Đang làm" },
-      { order: 4, title: "Đánh giá sức mạnh tương đối", status: "Đang làm" },
-      { order: 5, title: "Đánh giá độ biến động", status: "Cần kiểm tra thêm" },
-      { order: 6, title: "Xác định vị trí giá hiện tại", status: "Đang làm" },
-      { order: 7, title: "Liên kết với tin tức và sự kiện", status: "Cần kiểm tra thêm" },
-      { order: 8, title: "Giải thích nguyên nhân biến động", status: "Cần kiểm tra thêm" },
-      { order: 9, title: "Đánh giá tâm lý thị trường", status: "Đang làm" },
-      { order: 10, title: "Kiểm tra FOMO và hành vi cá nhân", status: "Cần kiểm tra thêm" },
-      { order: 11, title: "Đối chiếu với doanh nghiệp, BCTC và định giá", status: "Cần kiểm tra thêm" },
-      { order: 12, title: "Tạo bản nhận định hành vi thị trường", status: "Chưa làm" },
+      {
+        order: 1,
+        title: "Price",
+        question: "Giá đang ở trạng thái nào?",
+        summary: "Giá cho biết thị trường đang đồng ý hay không đồng ý với câu chuyện đầu tư.",
+        status: "Đang làm",
+        tone: "accent",
+        sections: [
+          {
+            title: "Bạn cần nhìn",
+            items: [
+              "Giá đang trong xu hướng tăng, xu hướng giảm, hay đi ngang tích lũy.",
+              "Giá đang gần hỗ trợ, kháng cự, đỉnh cũ, đáy cũ, hay đang ở vùng đuổi giá.",
+              "Giá tăng có tạo đỉnh cao hơn, đáy cao hơn không.",
+              "Giá giảm có phá cấu trúc không, hay chỉ là điều chỉnh bình thường.",
+            ],
+          },
+        ],
+        beginnerExplanation:
+          "Giá cho biết thị trường đang đồng ý hay không đồng ý với câu chuyện đầu tư.",
+      },
+      {
+        order: 2,
+        title: "Volume",
+        question: "Thanh khoản có xác nhận giá không?",
+        summary: "Volume là lớp xác nhận rất quan trọng trong thị trường Việt Nam.",
+        status: "Đang làm",
+        tone: "success",
+        sections: [
+          {
+            title: "Cần chú ý",
+            items: [
+              "Giá tăng nhưng volume thấp, có thể là tăng thiếu sức.",
+              "Giá tăng kèm volume tăng dần, có thể là dòng tiền thật đang vào.",
+              "Giá giảm mạnh kèm volume lớn, có thể là phân phối, giải chấp, hoặc dòng tiền lớn thoát.",
+              "Volume đột biến nhưng giá không tăng tương ứng, phải nghi ngờ có lực bán hấp thụ.",
+              "Thanh khoản lớn chưa chắc tốt, vì có thể là thanh khoản thật hoặc thanh khoản ảo.",
+            ],
+          },
+          {
+            title: "Liên kết dữ liệu",
+            items: [
+              "Phần này liên kết chặt với free float, độ sâu sổ lệnh, wash trade, dòng tiền retail, tự doanh, nước ngoài, margin và giải chấp.",
+            ],
+          },
+        ],
+      },
+      {
+        order: 3,
+        title: "Time",
+        question: "Khung thời gian đang nói gì?",
+        summary: "Không nên chỉ nhìn chart ngày; cần đọc nhiều khung để tách xu hướng thật khỏi nhiễu ngắn hạn.",
+        status: "Cần kiểm tra thêm",
+        tone: "warning",
+        sections: [
+          {
+            title: "Nên có ít nhất 3 khung",
+            items: [
+              "Tuần, để biết xu hướng lớn.",
+              "Ngày, để biết nhịp vận động hiện tại.",
+              "Trong phiên, để phát hiện bất thường, nhưng không nên dùng để ra quyết định đầu tư dài hạn.",
+            ],
+          },
+        ],
+        example: [
+          "Chart tuần vẫn xấu, chart ngày hồi mạnh, thì có thể chỉ là hồi kỹ thuật.",
+          "Chart tuần tích lũy đẹp, chart ngày break nền kèm volume tốt, tín hiệu đáng tin hơn.",
+          "Chart ngày tăng nóng, chart trong phiên kéo trần liên tục, người mới rất dễ FOMO.",
+        ],
+        reminder: "Time giúp phân biệt xu hướng thật với nhiễu ngắn hạn.",
+      },
+      {
+        order: 4,
+        title: "Market Context",
+        question: "Thị trường chung có ủng hộ không?",
+        summary: "Một cổ phiếu đẹp nhưng thị trường chung xấu thì xác suất thành công giảm.",
+        status: "Cần kiểm tra thêm",
+        tone: "neutral",
+        sections: [
+          {
+            title: "Cần xem",
+            items: [
+              "VN-Index đang tăng, giảm hay đi ngang.",
+              "Ngành của cổ phiếu đó có mạnh hơn thị trường không.",
+              "Cổ phiếu có mạnh hơn ngành không.",
+              "Dòng tiền đang tập trung vào nhóm nào: ngân hàng, chứng khoán, bất động sản, đầu tư công, xuất khẩu, bán lẻ, công nghệ.",
+            ],
+          },
+        ],
+        example: [
+          "Nếu VN-Index yếu, ngành chứng khoán yếu, nhưng một cổ phiếu chứng khoán tăng mạnh bất thường, cần hỏi đó là sức mạnh thật hay chỉ là dòng tiền ngắn hạn kéo riêng mã.",
+        ],
+      },
+      {
+        order: 5,
+        title: "Event",
+        question: "Giá đang chạy trước sự kiện gì?",
+        summary: "Phân tích kỹ thuật nên có thêm lớp News/Event timeline để tránh hiểu sai tín hiệu nến.",
+        status: "Cần kiểm tra thêm",
+        tone: "accent",
+        sections: [
+          {
+            title: "Giá có thể chạy trước",
+            items: [
+              "Kết quả kinh doanh.",
+              "Đại hội cổ đông.",
+              "Chia cổ tức.",
+              "Phát hành thêm.",
+              "ETF review.",
+              "Nâng hạng thị trường.",
+              "Tin đồn M&A.",
+              "Nới room ngoại.",
+              "Tin chính sách ngành.",
+            ],
+          },
+          {
+            title: "Vì sao cần News/Event timeline",
+            items: [
+              "Nếu chỉ nhìn nến mà không biết sự kiện, người dùng rất dễ hiểu sai.",
+              "Giá tăng mạnh trước KQKD có thể là thị trường đang mua kỳ vọng.",
+              "Nếu KQKD ra đúng như kỳ vọng mà giá giảm, đó có thể là sell the news.",
+            ],
+          },
+        ],
+      },
     ],
   },
   timeframe: {
@@ -114,7 +227,7 @@ export const technicalPageData: TechnicalPageData = {
       { label: "5 năm", value: "Đọc bối cảnh dài hạn.", tone: "neutral" },
     ],
     tutor: {
-      title: "AI Tutor",
+      title: "Giải thích dễ hiểu",
       content:
         "Một tháng thường nhiều nhiễu, sáu tháng giúp nhìn xu hướng gần, một năm phù hợp để quan sát trung hạn, còn ba đến năm năm phù hợp để nhìn chu kỳ dài hơn.",
     },
@@ -130,7 +243,7 @@ export const technicalPageData: TechnicalPageData = {
       { label: "Xu hướng ngắn hạn", value: "Điều chỉnh", tone: "warning" },
     ],
     tutor: {
-      title: "AI Tutor",
+      title: "Giải thích dễ hiểu",
       content:
         "Xu hướng ngắn hạn và dài hạn có thể khác nhau. Một cổ phiếu vẫn có thể đang tăng dài hạn dù đang điều chỉnh trong vài tuần gần đây.",
     },
@@ -173,7 +286,7 @@ export const technicalPageData: TechnicalPageData = {
     ],
     reading: { label: "Đọc nhanh", value: "Giá đang phản ứng mạnh tại vùng hiện tại, cần đối chiếu thêm tin tức và định giá.", tone: "warning" },
     tutor: {
-      title: "AI Tutor",
+      title: "Giải thích dễ hiểu",
       content:
         "Mỗi sự kết hợp giữa giá và khối lượng phản ánh hành vi khác nhau của dòng tiền. Đây chỉ là cách quan sát điều đang diễn ra.",
     },
@@ -195,7 +308,7 @@ export const technicalPageData: TechnicalPageData = {
     ],
     output: { label: "Đọc nhanh", value: "Mạnh hơn thị trường trong dữ liệu mẫu.", tone: "success" },
     tutor: {
-      title: "AI Tutor",
+      title: "Giải thích dễ hiểu",
       content:
         "Nếu thị trường giảm mạnh nhưng cổ phiếu giảm ít hơn, cổ phiếu có thể đang thể hiện sức mạnh tương đối tốt hơn thị trường. Điều này vẫn cần đối chiếu với doanh nghiệp, BCTC và định giá.",
     },
@@ -212,7 +325,7 @@ export const technicalPageData: TechnicalPageData = {
     ],
     output: { label: "Mức độ biến động", value: "Trung bình", tone: "neutral" },
     tutor: {
-      title: "AI Tutor",
+      title: "Giải thích dễ hiểu",
       content:
         "Biến động cao không đồng nghĩa với xấu. Nhưng biến động cao thường đi kèm rủi ro tâm lý lớn hơn.",
     },
@@ -230,7 +343,7 @@ export const technicalPageData: TechnicalPageData = {
       { label: "Đáy gần nhất", value: "35.000", tone: "neutral" },
     ],
     tutor: {
-      title: "AI Tutor",
+      title: "Giải thích dễ hiểu",
       content:
         "Đây là các vùng giá mà thị trường từng phản ứng mạnh. Chúng chỉ giúp bạn hiểu bối cảnh hiện tại.",
     },
@@ -248,7 +361,7 @@ export const technicalPageData: TechnicalPageData = {
       { date: "2026-05", title: "Cạnh tranh giá trong ngành tăng", type: "Tin rủi ro", relevance: "Cao" },
     ],
     tutor: {
-      title: "AI Tutor",
+      title: "Giải thích dễ hiểu",
       content:
         "Tin tức giúp giải thích biến động giá nhưng không tự động tạo ra giá trị doanh nghiệp. Cần đọc cùng BCTC, định giá và rủi ro.",
     },
@@ -290,7 +403,7 @@ export const technicalPageData: TechnicalPageData = {
     currentState: "Thận trọng nghiêng về lạc quan",
     score: 62,
     tutor: {
-      title: "AI Tutor",
+      title: "Giải thích dễ hiểu",
       content:
         "Giá không chỉ phản ánh doanh nghiệp. Giá còn phản ánh cảm xúc đám đông và kỳ vọng thay đổi theo thời gian.",
     },
@@ -310,7 +423,7 @@ export const technicalPageData: TechnicalPageData = {
     ],
     output: { label: "Phản hồi", value: "Có một vài dấu hiệu cần tự kiểm tra. Nên quay lại định giá, BCTC và rủi ro nếu còn chưa rõ.", tone: "warning" },
     tutor: {
-      title: "AI Tutor",
+      title: "Giải thích dễ hiểu",
       content:
         "FOMO là cảm xúc rất bình thường. Việc quan trọng là nhận ra nó và quay lại kiểm tra dữ liệu trước khi ghi nhận kết luận cá nhân.",
     },

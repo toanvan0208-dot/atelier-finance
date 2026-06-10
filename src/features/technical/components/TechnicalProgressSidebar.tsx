@@ -30,7 +30,9 @@ export function TechnicalProgressSidebar({ data }: TechnicalProgressSidebarProps
                 </span>
                 <div className="min-w-0">
                   <p className="text-xs font-bold leading-5 text-ink">{step.title}</p>
-                  <Chip size="sm" variant={statusTone[step.status]}>{step.status}</Chip>
+                  <Chip size="sm" variant={statusTone[step.status]}>
+                    {step.status}
+                  </Chip>
                 </div>
               </div>
             </div>

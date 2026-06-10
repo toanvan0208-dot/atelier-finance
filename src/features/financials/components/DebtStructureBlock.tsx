@@ -1,9 +1,8 @@
-﻿import { Chip } from "@/components/ui";
+import { Chip } from "@/components/ui";
 import type { DebtStructureData } from "../types";
 import { DetailToggleCard } from "./DetailToggleCard";
 import { FinancialsSectionCard } from "./FinancialsSectionCard";
 import { SimpleMetricGrid } from "./SimpleMetricGrid";
-import { TutorNote } from "./TutorNote";
 
 type DebtStructureBlockProps = {
   data: DebtStructureData;
@@ -27,7 +26,6 @@ export function DebtStructureBlock({ data }: DebtStructureBlockProps) {
           </div>
         </div>
         <DetailToggleCard details={data.details} labels={data.detailLabels} />
-        {data.tutor ? <TutorNote data={data.tutor} /> : null}
       </div>
     </FinancialsSectionCard>
   );
