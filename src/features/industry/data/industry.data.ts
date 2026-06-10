@@ -847,7 +847,7 @@ export const industryPageData: IndustryPageData = {
   disclaimer: {
     title: "Lưu ý cuối module",
     content:
-      "Phần Phân tích ngành chỉ giúp bạn hiểu ngành kiếm tiền bằng cách nào, chịu tác động từ vĩ mô ra sao, dữ liệu ngành đi vào BCTC/định giá/rủi ro ở đâu và liệu có đủ cơ sở để chuyển sang lọc cổ phiếu hoặc phân tích doanh nghiệp cụ thể hay chưa. Ngành thuận lợi không có nghĩa mọi cổ phiếu trong ngành đều phù hợp để hành động.",
+      "Phân tích ngành chỉ giúp trả lời ngành kiếm tiền bằng cách nào, đang thuận lợi hay bất lợi, và dữ liệu nào cần kiểm chứng. Nó chưa đủ để kết luận cổ phiếu đáng mua. Trước khi chọn cổ phiếu, cần kiểm tra doanh nghiệp, BCTC, định giá và rủi ro.",
   },
   nextActions: {
     title: "Bạn đã đủ hiểu ngành để chuyển sang bước tiếp theo chưa?",

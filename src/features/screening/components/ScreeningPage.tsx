@@ -79,6 +79,8 @@ export function ScreeningPage() {
   const deepDiveRef = useRef<HTMLElement | null>(null);
 
   const selectedStock = selectedTicker ? data.stocksByTicker[selectedTicker] : null;
+  const shouldShowTickerDependentSections =
+    screeningMode === "context" || Boolean(selectedStock);
   const contextIndustry =
     screeningMode === "ticker"
       ? sectorToIndustryKey(selectedStock?.sector)
@@ -138,12 +140,14 @@ export function ScreeningPage() {
         />
       )}
 
-      <ScreeningContextSummary
-        activeIndustry={contextIndustry}
-        data={data.context}
-        ticker={selectedTicker}
-        tickerSector={selectedStock?.sector}
-      />
+      {shouldShowTickerDependentSections ? (
+        <ScreeningContextSummary
+          activeIndustry={contextIndustry}
+          data={data.context}
+          ticker={selectedTicker}
+          tickerSector={selectedStock?.sector}
+        />
+      ) : null}
 
       <ScreeningFunnelSummary data={data.funnelSummary} mode={screeningMode} />
 
@@ -156,12 +160,14 @@ export function ScreeningPage() {
         />
       ) : null}
 
-      <ScreeningComparisonTable
-        data={data.comparison}
-        mode={screeningMode}
-        selectedStock={selectedStock}
-        stocksByTicker={data.stocksByTicker}
-      />
+      {shouldShowTickerDependentSections ? (
+        <ScreeningComparisonTable
+          data={data.comparison}
+          mode={screeningMode}
+          selectedStock={selectedStock}
+          stocksByTicker={data.stocksByTicker}
+        />
+      ) : null}
 
       <section ref={deepDiveRef}>
         <ScreeningDeepDive data={data.deepDive} />

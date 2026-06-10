@@ -406,6 +406,50 @@ function currentClusterForStep(stepNumber: number) {
   );
 }
 
+function clusterBlocksForRange(blocks: IndustryBlockData[], range: number[]) {
+  return blocks.filter(
+    (block) => block.stepNumber >= range[0] && block.stepNumber <= range[1]
+  );
+}
+
+function clusterResultBullets(cluster: (typeof industryClusters)[number], blocks: IndustryBlockData[]) {
+  const prompts = blocks.flatMap((block) => block.outputPrompts ?? []);
+
+  if (prompts.length > 0) {
+    return prompts.slice(0, 4);
+  }
+
+  return [
+    cluster.output,
+    "Biết dữ liệu nào cần theo dõi tiếp.",
+    "Biết module nào cần dùng để kiểm chứng.",
+  ];
+}
+
+function clusterStatusLabel({
+  activeClusterIndex,
+  index,
+  isSelected,
+}: {
+  activeClusterIndex: number;
+  index: number;
+  isSelected: boolean;
+}) {
+  if (isSelected) {
+    return "Đang chọn";
+  }
+
+  if (index < activeClusterIndex) {
+    return "Đã xong";
+  }
+
+  if (index === activeClusterIndex) {
+    return "Đang làm";
+  }
+
+  return "Chưa mở";
+}
+
 export function IndustryThesisHeader({
   selectedIndustry,
 }: {
@@ -522,98 +566,235 @@ export function IndustryJourneyBuilder({
   activeStepId: string;
   onSelectStep: (stepId: string) => void;
 }) {
+  const activeBlock = blocks.find((block) => block.id === activeStepId) ?? blocks[0];
+  const activeCluster =
+    currentClusterForStep(activeBlock?.stepNumber ?? industryClusters[0].range[0]) ??
+    industryClusters[0];
+  const activeClusterIndex = Math.max(
+    industryClusters.findIndex((cluster) => cluster.id === activeCluster.id),
+    0
+  );
+  const [selectedClusterId, setSelectedClusterId] = useState(activeCluster.id);
+  const [showGuide, setShowGuide] = useState(false);
+  const selectedCluster =
+    industryClusters.find((cluster) => cluster.id === selectedClusterId) ??
+    activeCluster;
+  const selectedClusterIndex = Math.max(
+    industryClusters.findIndex((cluster) => cluster.id === selectedCluster.id),
+    0
+  );
+  const selectedBlocks = clusterBlocksForRange(blocks, selectedCluster.range);
+  const resultBullets = clusterResultBullets(selectedCluster, selectedBlocks);
+  const nextCluster = industryClusters[selectedClusterIndex + 1];
+
   return (
     <Card className="parent-surface-card border-border-soft">
-      <CardHeader
-        description="Mở từng cụm để xem các bước bên trong. Danh sách này dùng để định vị và chọn bước đang làm, không phải một checklist dài cần đọc hết một lượt."
-        icon="17"
-        title="Lộ trình 5 cụm phân tích"
-      />
-      <CardBody className="bg-surface-soft/45">
-        <div className="space-y-3">
-          {industryClusters.map((cluster, index) => {
-            const clusterBlocks = blocks.filter(
-              (block) =>
-                block.stepNumber >= cluster.range[0] &&
-                block.stepNumber <= cluster.range[1]
-            );
-            const hasActive = clusterBlocks.some((block) => block.id === activeStepId);
+      <CardBody className="space-y-6 bg-surface-soft/45">
+        <div className="flex flex-col gap-4 border-b border-border-soft pb-5 lg:flex-row lg:items-start lg:justify-between">
+          <div className="max-w-[760px]">
+            <div className="mb-2 flex flex-wrap items-center gap-2">
+              <Chip variant="accent">Lộ trình</Chip>
+              <Chip variant="neutral">Đang ở: {activeCluster.title}</Chip>
+            </div>
+            <h2 className="text-xl font-bold leading-tight text-ink">
+              Lộ trình 5 cụm phân tích ngành
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-muted">
+              Đi từ nhận diện ngành, hiểu cách ngành tạo tiền, nối với vĩ mô, đọc dữ liệu, đến kết luận ngành trước khi chọn cổ phiếu.
+            </p>
+            <p className="mt-2 text-xs font-semibold text-subtle">
+              Cụm {activeClusterIndex + 1}/5 đang làm
+            </p>
+          </div>
+          <Button size="sm" variant="secondary" onClick={() => setShowGuide(true)}>
+            Cách đọc lộ trình
+          </Button>
+        </div>
 
-            return (
-              <details
-                key={cluster.id}
-                className={[
-                  "rounded-[4px] px-4 py-4 transition",
-                  hasActive
-                    ? "border-[1.5px] border-border bg-surface shadow-hard-sm"
-                    : "border border-transparent bg-transparent hover:bg-surface/55",
-                ].join(" ")}
-                open={index === 0 || hasActive}
-              >
-                <summary className="cursor-pointer list-none">
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                    <div>
-                      <p className="font-mono text-[11px] font-bold text-subtle">
-                        Cụm {index + 1} - {clusterBlocks.length} bước
-                      </p>
-                      <h3 className="mt-1 text-base font-bold text-ink">{cluster.title}</h3>
-                      <p className="mt-1 text-sm leading-6 text-muted">{cluster.question}</p>
-                    </div>
-                    <Chip size="sm" variant={hasActive ? "accent" : "neutral"}>
-                      {hasActive ? "Đang làm" : "Chưa mở"}
-                    </Chip>
-                  </div>
-                  <p className="mt-3 text-xs font-semibold leading-5 text-subtle">
-                    Output: {cluster.output}
-                  </p>
-                </summary>
+        <div className="overflow-x-auto pb-2">
+          <div className="grid min-w-[980px] grid-cols-5 items-stretch gap-3">
+            {industryClusters.map((cluster, index) => {
+              const clusterBlocks = clusterBlocksForRange(blocks, cluster.range);
+              const isSelected = cluster.id === selectedCluster.id;
+              const status = clusterStatusLabel({
+                activeClusterIndex,
+                index,
+                isSelected,
+              });
 
-                <div className="mt-4 grid gap-1.5 border-t border-border-soft pt-3">
-                  {clusterBlocks.map((block) => {
-                    const isActive = block.id === activeStepId;
-
-                    return (
-                      <button
-                        key={block.id}
-                        type="button"
-                        onClick={() => onSelectStep(block.id)}
+              return (
+                <div key={cluster.id} className="relative">
+                  {index < industryClusters.length - 1 ? (
+                    <span className="absolute left-[calc(100%-2px)] top-6 hidden h-px w-5 bg-border-soft lg:block" />
+                  ) : null}
+                  <button
+                    type="button"
+                    aria-pressed={isSelected}
+                    onClick={() => setSelectedClusterId(cluster.id)}
+                    className={[
+                      "h-full w-full rounded-[4px] px-3 py-3 text-left transition",
+                      isSelected
+                        ? "border-[1.5px] border-border bg-surface shadow-soft"
+                        : "border border-border-soft bg-surface/65 hover:bg-surface",
+                    ].join(" ")}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <span
                         className={[
-                          "rounded-[4px] px-3 py-3 text-left transition",
-                          isActive
-                            ? "border border-border bg-ink text-white shadow-hard-sm"
-                            : "border border-transparent bg-transparent hover:bg-surface hover:shadow-soft",
+                          "grid h-7 w-7 shrink-0 place-items-center rounded-full border text-xs font-bold",
+                          isSelected
+                            ? "border-border bg-ink text-white"
+                            : "border-border-soft bg-surface-soft text-ink",
                         ].join(" ")}
                       >
-                        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                          <div>
-                            <p className={isActive ? "font-mono text-[11px] font-bold text-accent" : "font-mono text-[11px] font-bold text-subtle"}>
-                              Bước {block.stepNumber}
-                            </p>
-                            <p className={isActive ? "mt-1 text-sm font-bold text-white" : "mt-1 text-sm font-bold text-ink"}>
-                              {block.title}
-                            </p>
-                            <p className={isActive ? "mt-1 text-xs leading-5 text-white/75" : "mt-1 text-xs leading-5 text-muted"}>
-                              {block.centralQuestion}
-                            </p>
-                          </div>
-                          <Chip size="sm" variant={isActive ? "accent" : "neutral"}>
-                            {isActive ? "Đang chọn" : "Mở bước này"}
-                          </Chip>
-                        </div>
-                        <p className={isActive ? "mt-2 text-xs leading-5 text-white/75" : "mt-2 text-xs leading-5 text-muted"}>
-                          Output: {stepOutput(block)}
-                        </p>
-                        <p className={isActive ? "mt-2 text-[11px] font-semibold text-white/70" : "mt-2 text-[11px] font-semibold text-subtle"}>
-                          Module liên quan: {block.moduleLinks.join(", ")}
-                        </p>
-                      </button>
-                    );
-                  })}
+                        {index + 1}
+                      </span>
+                      <Chip size="sm" variant={isSelected ? "accent" : "neutral"}>
+                        {status}
+                      </Chip>
+                    </div>
+                    <p className="mt-3 text-sm font-bold leading-5 text-ink">{cluster.title}</p>
+                    <p className="mt-1 text-[11px] font-semibold text-subtle">
+                      {clusterBlocks.length} bước
+                    </p>
+                    <p className="mt-2 line-clamp-2 text-xs leading-5 text-muted">
+                      Output: {cluster.output}
+                    </p>
+                  </button>
                 </div>
-              </details>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
+
+        <section className="rounded-[4px] border border-border-soft bg-surface px-4 py-4 shadow-soft">
+          <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <Chip variant="accent">Cụm {selectedClusterIndex + 1}</Chip>
+                <Chip variant="neutral">{selectedBlocks.length} bước</Chip>
+                {nextCluster ? <Chip variant="neutral">Tiếp theo: {nextCluster.title}</Chip> : null}
+              </div>
+              <h3 className="mt-3 text-lg font-bold leading-tight text-ink">
+                {selectedCluster.title}
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-muted">
+                <span className="font-bold text-ink">Câu hỏi lớn: </span>
+                {selectedCluster.question}
+              </p>
+              <p className="mt-2 text-sm leading-6 text-muted">
+                <span className="font-bold text-ink">Mục tiêu: </span>
+                Xác định đúng vai trò của cụm này trước khi đi sang dữ liệu chi tiết hoặc chọn cổ phiếu.
+              </p>
+            </div>
+
+            <div className="rounded-[4px] border border-accent bg-accent-soft px-3 py-3">
+              <p className="text-xs font-bold text-ink">
+                Sau cụm này, bạn cần trả lời được:
+              </p>
+              <div className="mt-3 space-y-2">
+                {resultBullets.map((item) => (
+                  <p key={item} className="text-xs leading-5 text-muted">
+                    {item}
+                  </p>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-5 grid gap-3 md:grid-cols-2">
+            {selectedBlocks.map((block) => {
+              const isActive = block.id === activeStepId;
+
+              return (
+                <article
+                  key={block.id}
+                  className={[
+                    "rounded-[4px] px-3 py-3 transition",
+                    isActive
+                      ? "border-[1.5px] border-border bg-surface-soft shadow-hard-sm"
+                      : "border border-border-soft bg-surface",
+                  ].join(" ")}
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="font-mono text-[11px] font-bold text-subtle">
+                        Bước {block.stepNumber}
+                      </p>
+                      <h4 className="mt-1 text-sm font-bold leading-5 text-ink">{block.title}</h4>
+                    </div>
+                    <Chip size="sm" variant={isActive ? "accent" : "neutral"}>
+                      {isActive ? "Đang làm" : "Chưa mở"}
+                    </Chip>
+                  </div>
+                  <p className="mt-3 text-xs leading-5 text-muted">
+                    <span className="font-bold text-ink">Câu hỏi: </span>
+                    {block.centralQuestion}
+                  </p>
+                  <p className="mt-2 text-xs leading-5 text-muted">
+                    <span className="font-bold text-ink">Output: </span>
+                    {stepOutput(block)}
+                  </p>
+                  <p className="mt-2 text-[11px] font-semibold text-subtle">
+                    Module liên quan: {block.moduleLinks.join(", ")}
+                  </p>
+                  <div className="mt-3">
+                    <Button size="sm" variant={isActive ? "primary" : "secondary"} onClick={() => onSelectStep(block.id)}>
+                      {isActive ? "Xem chi tiết" : "Làm bước này"}
+                    </Button>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+
+        {showGuide ? (
+          <div
+            aria-modal="true"
+            className="fixed inset-0 z-50 flex items-end justify-center bg-ink/55 px-3 py-3 sm:items-center sm:px-5"
+            role="dialog"
+            onClick={() => setShowGuide(false)}
+          >
+            <div
+              className="max-h-[92dvh] w-full max-w-[760px] overflow-hidden rounded-[6px] border-[1.5px] border-border bg-surface shadow-hard"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div className="flex items-start justify-between gap-4 border-b border-border-soft bg-surface-soft px-4 py-4 sm:px-5">
+                <div>
+                  <Chip variant="accent">Hướng dẫn</Chip>
+                  <h3 className="mt-2 text-lg font-bold text-ink">Cách đọc lộ trình ngành</h3>
+                </div>
+                <Button size="sm" variant="ghost" onClick={() => setShowGuide(false)}>
+                  Đóng
+                </Button>
+              </div>
+              <div className="max-h-[calc(92dvh-104px)] overflow-y-auto px-4 py-4 sm:px-5">
+                <div className="grid gap-3 md:grid-cols-2">
+                  {[
+                    "Lộ trình giúp bạn hiểu ngành trước khi chọn cổ phiếu, không phải checklist cần đọc hết một lượt.",
+                    "Mỗi cụm trả lời một câu hỏi lớn và tạo một output đủ ngắn để kiểm chứng tiếp.",
+                    "Ngành tốt chưa chắc cổ phiếu tốt vì doanh nghiệp, BCTC, Định giá và rủi ro có thể khác nhau.",
+                    "Sau module Ngành, cần nối sang BCTC, Định giá và Rủi ro trước khi kết luận.",
+                  ].map((item) => (
+                    <p
+                      key={item}
+                      className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3 text-xs leading-5 text-muted"
+                    >
+                      {item}
+                    </p>
+                  ))}
+                </div>
+                <div className="mt-4 rounded-[4px] border border-accent bg-accent-soft px-3 py-3">
+                  <p className="text-xs font-bold text-ink">Cách dùng nhanh</p>
+                  <p className="mt-1 text-xs leading-5 text-muted">
+                    Chọn một cụm ở stepper, đọc câu hỏi lớn, làm từng bước con, mở chi tiết khi cần giải thích sâu, rồi dùng output cuối cụm để quyết định có chuyển sang cụm tiếp theo chưa.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : null}
       </CardBody>
     </Card>
   );
@@ -744,61 +925,172 @@ export function IndustryConclusionBuilder({
 }: {
   selectedIndustry: IndustryOption;
 }) {
-  const reasons = selectedIndustry.keyQuestions.slice(0, 3);
+  const [openGuide, setOpenGuide] = useState<"conclusion" | "thesis" | null>(null);
+  const reasons = selectedIndustry.keyQuestions.slice(0, 3).map((question, index) => ({
+    title: index === 0 ? "Biến dẫn dắt chính" : index === 1 ? "Dữ liệu cần xác nhận" : "Điều kiện chuyển tiếp",
+    description: question,
+  }));
+  const risks = [
+    {
+      title: "Biên lợi nhuận không xác nhận",
+      description: "Giá đầu vào tăng nhanh hơn giá bán hoặc sản lượng không cải thiện.",
+    },
+    {
+      title: "Câu chuyện chưa vào BCTC",
+      description: "Doanh thu, tồn kho hoặc dòng tiền chưa phản ánh kỳ vọng ngành.",
+    },
+    {
+      title: "Kỳ vọng đã đi trước",
+      description: "Định giá hoặc giá cổ phiếu đã phản ánh quá nhiều tin tốt.",
+    },
+  ];
+  const referenceStatuses = ["Bất lợi", "Trung lập", "Chuyển pha", "Chưa đủ dữ liệu"];
 
   return (
     <Card className="parent-surface-card border-border-soft">
       <CardHeader
-        description="Chốt trạng thái ngành bằng điều kiện rõ ràng, không biến kết luận ngành thành khuyến nghị mua bán."
+        description="Chốt trạng thái ngành theo điều kiện rõ ràng trước khi chuyển sang doanh nghiệp, BCTC, định giá và rủi ro."
         icon="KL"
         title="Kết luận ngành có điều kiện"
       />
-      <CardBody>
-        <div className="grid gap-4 xl:grid-cols-[1fr_1fr]">
-          <div className="space-y-3">
-            <div>
-              <p className="mb-2 text-xs font-bold text-ink">Trạng thái có thể chọn</p>
-              <div className="flex flex-wrap gap-2">
-                {["Hưởng lợi", "Bất lợi", "Trung lập", "Chuyển pha", "Chưa đủ dữ liệu"].map((status) => (
-                  <Chip key={status} variant={status === "Chưa đủ dữ liệu" ? "warning" : "neutral"}>
-                    {status}
-                  </Chip>
-                ))}
-              </div>
+      <CardBody className="space-y-5">
+        <section className="rounded-[4px] border border-accent bg-accent-soft px-4 py-4">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div className="max-w-[760px]">
+              <p className="text-xs font-bold text-ink">Trạng thái ngành hiện tại</p>
+              <h3 className="mt-2 text-2xl font-bold leading-tight text-ink">
+                Hưởng lợi có điều kiện
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-muted">
+                Ngành có tín hiệu hỗ trợ, nhưng cần xác nhận bằng sản lượng, biên lợi nhuận và dòng tiền.
+              </p>
+              <p className="mt-2 text-[11px] font-semibold text-subtle">
+                Đây là kết luận ngành có điều kiện, không phải khuyến nghị mua bán.
+              </p>
             </div>
-            <div>
-              <p className="mb-2 text-xs font-bold text-ink">3 lý do chính</p>
-              <TextList items={reasons} />
-            </div>
-            <div>
-              <p className="mb-2 text-xs font-bold text-ink">Điều kiện làm thesis sai</p>
-              <TextList
-                items={[
-                  "Dữ liệu dẫn dắt không đi vào sản lượng hoặc biên lợi nhuận.",
-                  "Cung mới, tồn kho hoặc cạnh tranh làm lợi thế ngành bị pha loãng.",
-                  "BCTC doanh nghiệp không xác nhận câu chuyện ngành.",
-                ]}
-              />
+            <div className="flex flex-wrap gap-2 lg:max-w-[320px] lg:justify-end">
+              <Chip variant="accent">Gợi ý hiện tại</Chip>
+              {referenceStatuses.map((status) => (
+                <Chip key={status} size="sm" variant="neutral">
+                  {status}
+                </Chip>
+              ))}
             </div>
           </div>
-          <div>
-            <p className="mb-2 text-xs font-bold text-ink">Hành động tiếp theo</p>
-            <div className="grid gap-2 sm:grid-cols-2">
-              {["Lọc cổ phiếu", "Hiểu doanh nghiệp", "BCTC", "Định giá", "Watchlist"].map((action) => (
+        </section>
+
+        <div className="grid gap-4 lg:grid-cols-2">
+          <section className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-sm font-bold text-ink">Vì sao có kết luận này?</p>
+                <p className="mt-1 text-xs leading-5 text-muted">Ba lý do cần được kiểm chứng bằng dữ liệu ngành và BCTC.</p>
+              </div>
+              <Button size="sm" variant="ghost" onClick={() => setOpenGuide("conclusion")}>
+                Cách hiểu
+              </Button>
+            </div>
+            <div className="mt-4 space-y-3">
+              {reasons.map((reason) => (
+                <div key={reason.title} className="rounded-[4px] bg-surface px-3 py-3">
+                  <p className="text-xs font-bold text-ink">{reason.title}</p>
+                  <p className="mt-1 text-xs leading-5 text-muted">{reason.description}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-4">
+            <p className="text-sm font-bold text-ink">Điều gì có thể làm kết luận sai?</p>
+            <p className="mt-1 text-xs leading-5 text-muted">Nếu các điều kiện này xuất hiện, cần hạ mức tin cậy của thesis.</p>
+            <div className="mt-4 space-y-3">
+              {risks.map((risk) => (
+                <div key={risk.title} className="rounded-[4px] bg-surface px-3 py-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-xs font-bold text-ink">{risk.title}</p>
+                    <Chip size="sm" variant="warning">Theo dõi</Chip>
+                  </div>
+                  <p className="mt-1 text-xs leading-5 text-muted">{risk.description}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
+
+        <section className="rounded-[4px] border border-border-soft bg-surface px-4 py-4">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+            <div className="max-w-[820px]">
+              <p className="text-sm font-bold text-ink">Thesis ngành hiện tại</p>
+              <p className="mt-2 text-sm leading-6 text-muted">
+                {selectedIndustry.name} đang ở trạng thái hưởng lợi có điều kiện. Luận điểm chỉ mạnh hơn nếu dữ liệu ngành, biên lợi nhuận và dòng tiền doanh nghiệp xác nhận phục hồi. Nếu chi phí đầu vào tăng nhanh hoặc nhu cầu yếu, thesis cần được hạ mức tin cậy.
+              </p>
+            </div>
+            <Button size="sm" variant="secondary" onClick={() => setOpenGuide("thesis")}>
+              Xem cách viết thesis
+            </Button>
+          </div>
+        </section>
+
+        <section className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-4">
+          <p className="text-sm font-bold text-ink">Bước ưu tiên tiếp theo</p>
+          <p className="mt-1 text-xs leading-5 text-muted">
+            Ưu tiên: lọc cổ phiếu trong ngành, nhưng chỉ sau khi đã hiểu ngành kiếm tiền bằng cách nào và rủi ro chính là gì.
+          </p>
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <Button size="sm" variant="primary">Lọc cổ phiếu</Button>
+            <div className="flex flex-wrap gap-2">
+              {["Hiểu doanh nghiệp", "BCTC", "Định giá", "Watchlist"].map((action) => (
                 <Button key={action} size="sm" variant="secondary">
                   {action}
                 </Button>
               ))}
             </div>
-            <div className="mt-4 rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3">
-              <p className="text-xs font-bold text-ink">{selectedIndustry.name}</p>
-              <p className="mt-1 text-xs leading-5 text-muted">
-                Kết luận nên ghi theo dạng: ngành đang ở trạng thái nào, dựa trên dữ liệu nào, và điều kiện nào sẽ làm bạn đổi ý.
-              </p>
+          </div>
+        </section>
+      </CardBody>
+
+      {openGuide ? (
+        <div
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-ink/55 px-3 py-3 sm:items-center sm:px-5"
+          role="dialog"
+          onClick={() => setOpenGuide(null)}
+        >
+          <div
+            className="max-h-[92dvh] w-full max-w-[720px] overflow-hidden rounded-[6px] border-[1.5px] border-border bg-surface shadow-hard"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-4 border-b border-border-soft bg-surface-soft px-4 py-4 sm:px-5">
+              <div>
+                <Chip variant="accent">Hướng dẫn</Chip>
+                <h3 className="mt-2 text-lg font-bold text-ink">
+                  {openGuide === "conclusion" ? "Cách hiểu kết luận ngành" : "Cách viết thesis ngành"}
+                </h3>
+              </div>
+              <Button size="sm" variant="ghost" onClick={() => setOpenGuide(null)}>
+                Đóng
+              </Button>
+            </div>
+            <div className="max-h-[calc(92dvh-104px)] overflow-y-auto px-4 py-4 sm:px-5">
+              <TextList
+                items={
+                  openGuide === "conclusion"
+                    ? [
+                        "Trạng thái ngành là nhận định có điều kiện, không phải tín hiệu hành động với cổ phiếu.",
+                        "Kết luận cần đi kèm lý do, dữ liệu xác nhận và rủi ro có thể làm thesis sai.",
+                        "Hạ mức tin cậy khi dữ liệu ngành không đi vào sản lượng, biên lợi nhuận hoặc BCTC.",
+                      ]
+                    : [
+                        "Thesis ngành tốt cần có trạng thái, lý do, điều kiện xác nhận và điều kiện sai.",
+                        "Thesis sai thường chỉ kể câu chuyện hấp dẫn nhưng không chỉ ra dữ liệu kiểm chứng.",
+                        "Trước khi chọn cổ phiếu, cần nối thesis sang doanh nghiệp, BCTC, định giá và rủi ro.",
+                      ]
+                }
+              />
             </div>
           </div>
         </div>
-      </CardBody>
+      ) : null}
     </Card>
   );
 }
@@ -807,41 +1099,81 @@ export function IndustryToStockBridge() {
   const groups = [
     {
       title: "Đáng phân tích tiếp",
-      items: ["Có lợi thế rõ trong ngành", "BCTC xác nhận bằng biên lợi nhuận hoặc dòng tiền", "Rủi ro chính có thể theo dõi được"],
+      description: "Ngành có câu chuyện hợp lý và dữ liệu ban đầu đủ để chuyển sang tìm doanh nghiệp cụ thể.",
+      items: ["Có lợi thế rõ trong ngành", "BCTC có thể xác nhận bằng biên lợi nhuận hoặc dòng tiền", "Rủi ro chính có thể theo dõi được"],
+      action: "Phân tích tiếp",
+      highlighted: true,
     },
     {
       title: "Cần theo dõi thêm",
-      items: ["Câu chuyện ngành đúng nhưng dữ liệu doanh nghiệp còn thiếu", "Định giá đã phản ánh quá nhiều kỳ vọng", "Có một biến rủi ro chưa rõ"],
+      description: "Câu chuyện ngành có thể đúng, nhưng dữ liệu xác nhận còn thiếu hoặc kỳ vọng đã phản ánh nhiều.",
+      items: ["Dữ liệu ngành chưa đủ rõ", "Định giá đã phản ánh nhiều kỳ vọng", "Còn biến số rủi ro chưa rõ"],
+      action: "Theo dõi thêm",
+      highlighted: false,
     },
     {
       title: "Chưa phù hợp với người mới",
-      items: ["Mô hình quá phức tạp", "Phụ thuộc chính sách khó dự báo", "BCTC khó kiểm chứng hoặc biến động quá mạnh"],
+      description: "Ngành có quá nhiều biến số khó kiểm chứng, dễ khiến người mới hiểu sai rủi ro.",
+      items: ["Mô hình ngành quá phức tạp", "Phụ thuộc chính sách khó dự báo", "BCTC khó kiểm chứng hoặc biến động quá mạnh"],
+      action: "Tạm bỏ qua",
+      highlighted: false,
     },
   ];
 
   return (
     <Card className="parent-surface-card border-border-soft">
       <CardHeader
-        description="Cầu nối này giúp người dùng không nhảy từ ngành tốt sang mua cổ phiếu quá nhanh."
+        description="Dùng kết luận ngành để chọn hướng phân tích tiếp, theo dõi thêm hoặc tạm bỏ qua."
         icon="ST"
         title="Từ ngành sang cổ phiếu"
       />
-      <CardBody>
-        <div className="mb-4 rounded-[4px] border border-border bg-accent-soft px-3 py-3">
+      <CardBody className="space-y-4">
+        <div className="rounded-[4px] border border-accent bg-accent-soft px-4 py-3">
           <p className="text-sm font-bold text-ink">Ngành tốt chưa chắc cổ phiếu tốt.</p>
           <p className="mt-1 text-xs leading-5 text-muted">
-            Bước tiếp theo là lọc ra doanh nghiệp có vị thế, BCTC và định giá phù hợp để phân tích sâu hơn.
+            Dựa trên kết luận ngành hiện tại, hãy xác định nên phân tích tiếp, theo dõi thêm hay tạm bỏ qua.
+          </p>
+          <p className="mt-2 text-[11px] font-semibold text-subtle">
+            Không chuyển từ câu chuyện ngành tốt sang cổ phiếu đáng mua nếu chưa kiểm chứng bằng doanh nghiệp, BCTC, định giá và rủi ro.
           </p>
         </div>
-        <div className="grid gap-3 md:grid-cols-3">
+
+        <div className="flex flex-wrap items-center gap-2">
+          <Chip variant="accent">Gợi ý hiện tại: Đáng phân tích tiếp</Chip>
+          <Chip variant="neutral">Quyết định có điều kiện</Chip>
+        </div>
+
+        <div className="grid gap-3 lg:grid-cols-3">
           {groups.map((group) => (
-            <div
+            <section
               key={group.title}
-              className="rounded-[4px] border-[1.5px] border-border bg-surface-soft px-3 py-3"
+              className={[
+                "rounded-[4px] px-4 py-4 transition",
+                group.highlighted
+                  ? "border-[1.5px] border-border bg-surface shadow-hard-sm"
+                  : "border border-border-soft bg-surface-soft",
+              ].join(" ")}
             >
-              <p className="text-sm font-bold text-ink">{group.title}</p>
-              <TextList items={group.items} />
-            </div>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-sm font-bold text-ink">{group.title}</p>
+                  <p className="mt-2 text-xs leading-5 text-muted">{group.description}</p>
+                </div>
+                {group.highlighted ? <Chip size="sm" variant="accent">Gợi ý</Chip> : null}
+              </div>
+              <div className="mt-4 space-y-2">
+                {group.items.map((item) => (
+                  <p key={item} className="text-xs leading-5 text-muted">
+                    {item}
+                  </p>
+                ))}
+              </div>
+              <div className="mt-4">
+                <Button size="sm" variant={group.highlighted ? "primary" : "secondary"}>
+                  {group.action}
+                </Button>
+              </div>
+            </section>
           ))}
         </div>
       </CardBody>
@@ -1035,12 +1367,14 @@ export function IndustryDisclaimer({
   content: string;
 }) {
   return (
-    <Card className="bg-surface-soft">
-      <CardHeader icon="!" title={title} />
-      <CardBody>
+    <section className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-3">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
+        <Chip size="sm" variant="neutral">
+          {title}
+        </Chip>
         <p className="text-xs leading-5 text-muted">{content}</p>
-      </CardBody>
-    </Card>
+      </div>
+    </section>
   );
 }
 
