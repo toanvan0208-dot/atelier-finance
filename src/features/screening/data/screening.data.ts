@@ -366,7 +366,7 @@ const stocksByTicker: Record<string, ScreeningStock> = {
     mainReason:
       "Lợi nhuận nhạy với thanh khoản thị trường và chu kỳ môi giới, dễ biến động mạnh.",
     needToCheck: "Thanh khoản thị trường, margin, tự doanh và chu kỳ ngành.",
-    strengths: ["Thương hiệu lớn", "Thanh khoản cổ phiếu tốt"],
+    strengths: ["Thương hiệu lớn", "Thanh khoản cổ phiếu ổn định"],
     checks: ["Tự doanh", "Margin", "Thanh khoản thị trường"],
     risks: ["Chu kỳ thị trường", "Biến động lợi nhuận"],
     beginnerFitLevel: "Khó",
@@ -429,7 +429,7 @@ export const screeningPageData: ScreeningPageData = {
     eyebrow: "Bạn đang ở bước 4/9",
     title: "Lọc cổ phiếu ứng viên",
     description:
-      "Tạo danh sách cổ phiếu đáng phân tích tiếp, không phải kết luận mua bán.",
+      "Tạo danh sách cổ phiếu đáng phân tích tiếp, không phải kết luận giao dịch.",
     warningNote:
       "Kết quả lọc chỉ là vòng gửi xe. Báo cáo tài chính, định giá và thanh khoản chuyên sâu sẽ được kiểm tra ở các module sau.",
     progressLabel: "Tiến độ module",

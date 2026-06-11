@@ -1,16 +1,21 @@
+import { AnalysisNotePopover } from "@/components/common/AnalysisNotePopover";
 import { Button, Chip } from "@/components/ui";
-import type { TechnicalHeaderData } from "../types";
+import type { PersonalPVTObservationData, TechnicalHeaderData } from "../types";
 
 type TechnicalHeaderProps = {
   data: TechnicalHeaderData;
   canContinueToRisk?: boolean;
+  notePrompts?: PersonalPVTObservationData["prompts"];
+  sampleNote?: PersonalPVTObservationData["sample"];
   riskDisabledReason?: string;
 };
 
 export function TechnicalHeader({
   canContinueToRisk = false,
   data,
+  notePrompts,
   riskDisabledReason,
+  sampleNote,
 }: TechnicalHeaderProps) {
   return (
     <section className="rounded-[4px] border-[1.5px] border-border bg-surface px-5 py-5 shadow-soft">
@@ -44,6 +49,15 @@ export function TechnicalHeader({
         </div>
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
+        <AnalysisNotePopover
+          contextTitle={`${data.ticker} - ${data.moduleName}`}
+          moduleId="technical"
+          moduleName="PVT"
+          noteType="personal"
+          promptHints={notePrompts}
+          sampleNote={sampleNote}
+          stockSymbol={data.ticker}
+        />
         {data.actions.map((action) => {
           const isRiskAction = action.label.includes("Rủi ro");
           const disabled = isRiskAction && !canContinueToRisk;

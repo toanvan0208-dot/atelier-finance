@@ -1,5 +1,6 @@
 "use client";
 
+import { AnalysisNotePopover } from "@/components/common/AnalysisNotePopover";
 import { Button, Card, CardBody, CardHeader, Chip } from "@/components/ui";
 import type { StockIdea } from "../types";
 import { ModuleStatusBadge, StatusBadge } from "./WatchlistPrimitives";
@@ -9,7 +10,7 @@ type StockIdeaCardProps = {
   onOpenDetails?: (ticker: string) => void;
 };
 
-const compactModuleNames = ["Vĩ mô", "Ngành", "Doanh nghiệp", "BCTC", "Định giá", "PVT", "Rủi ro", "Checklist"];
+const compactModuleNames = ["Vĩ mô", "Ngành", "Doanh nghiệp", "BCTC", "Định giá", "Rủi ro", "PVT", "Checklist"];
 
 function getModuleStatus(data: StockIdea, compactName: string) {
   const aliases: Record<string, string[]> = {
@@ -107,6 +108,28 @@ export function StockIdeaCard({ data, onOpenDetails }: StockIdeaCardProps) {
             Sự kiện gần nhất: <strong className="text-ink">{data.events[0].label}</strong> · {data.events[0].date}
           </div>
         ) : null}
+
+        <section className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-bold text-ink">Ghi chú gần nhất</p>
+              <p className="mt-1 text-xs leading-5 text-muted">
+                {data.latestNote || "Chưa có ghi chú gần nhất cho mã này."}
+              </p>
+              <p className="mt-1 text-[11px] font-semibold text-subtle">
+                Module: Watchlist · Cập nhật: {data.addedDate}
+              </p>
+            </div>
+            <AnalysisNotePopover
+              contextTitle={`Ghi chú phân tích về ${data.ticker}`}
+              moduleId={`watchlist-${data.ticker}`}
+              moduleName="Watchlist"
+              noteType="personal"
+              stockSymbol={data.ticker}
+              triggerLabel="Xem ghi chú"
+            />
+          </div>
+        </section>
 
         <div className="grid gap-2 rounded-[4px] border border-border-soft bg-surface-soft px-3 py-2 text-xs text-muted sm:grid-cols-3">
           <span>Giá: <strong className="text-ink">{data.currentPrice}</strong></span>

@@ -12,8 +12,6 @@ import type {
 type BusinessUnderstandingDashboardProps = {
   data: BusinessDashboardData;
   canGoToFinancials: boolean;
-  answeredCount: number;
-  totalQuestions: number;
 };
 
 type DetailState =
@@ -35,10 +33,8 @@ function readinessTone(status: BusinessDashboardData["readiness"][number]["statu
 }
 
 export function BusinessUnderstandingDashboard({
-  answeredCount,
   canGoToFinancials,
   data,
-  totalQuestions,
 }: BusinessUnderstandingDashboardProps) {
   const [detail, setDetail] = useState<DetailState>(null);
   const doneReadiness = data.readiness.filter((item) => item.status === "done").length;
@@ -128,7 +124,7 @@ export function BusinessUnderstandingDashboard({
         </Card>
 
         <Card className="border-border-soft">
-          <CardHeader icon="B" title="Đã đủ điều kiện sang BCTC chưa?" description={`${doneReadiness}/${readinessTotal} điều kiện đã rõ · Mini check ${answeredCount}/${totalQuestions}`} />
+          <CardHeader icon="B" title="Đã đủ điều kiện sang BCTC chưa?" description={`${doneReadiness}/${readinessTotal} điều kiện đã rõ.`} />
           <CardBody className="space-y-3">
             {data.readiness.map((item) => (
               <div key={item.id} className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-2">
@@ -140,9 +136,8 @@ export function BusinessUnderstandingDashboard({
               </div>
             ))}
             <Button size="sm" variant={canGoToFinancials ? "primary" : "secondary"} disabled={!canGoToFinancials}>
-              {canGoToFinancials ? "Chuyển sang BCTC" : "Hoàn thành kiểm tra nhanh"}
+              {canGoToFinancials ? "Chuyển sang BCTC" : "Bổ sung điều kiện còn thiếu"}
             </Button>
-            {!canGoToFinancials ? <p className="text-xs leading-5 text-muted">BCTC đang khóa vì mini check chưa hoàn tất đúng.</p> : null}
           </CardBody>
         </Card>
       </div>

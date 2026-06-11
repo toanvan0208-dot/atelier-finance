@@ -208,7 +208,8 @@ export type SimulationStatus =
   | "Có thể mô phỏng với cảnh báo"
   | "Sẵn sàng tạo mô phỏng"
   | "Đang theo dõi thesis"
-  | "Cần cập nhật mô phỏng"
+  | "Cần cập nhật sau dữ liệu mới"
+  | "Đến hạn hậu kiểm"
   | "Đã hậu kiểm";
 
 export type SimulationPhaseId =
@@ -385,4 +386,149 @@ export type SimulationExperienceData = {
   scenario: ScenarioModeData;
   history: HistoricalCaseData;
   disclaimer: SimulationDisclaimerData;
+  paperTrading: PaperTradingData;
 };
+
+export type SimulatedOrderSide = "buy" | "sell";
+
+export type SimulatedOrderStatus = "draft" | "submitted" | "filled" | "cancelled";
+
+export type SimulatedPositionStatus =
+  | "normal"
+  | "near_stop_loss"
+  | "near_target"
+  | "profit"
+  | "loss"
+  | "need_review"
+  | "low_liquidity";
+
+export type SimulatedStockStatus =
+  | "watching"
+  | "has_position"
+  | "near_stop_loss"
+  | "near_target"
+  | "low_liquidity"
+  | "need_review";
+
+export interface SimulatedAccountSummary {
+  totalCapital: number;
+  cash: number;
+  positionValue: number;
+  unrealizedPnLPercent: number;
+  realizedPnLPercent: number;
+  capitalUsagePercent: number;
+  openPositions: number;
+  closedOrders: number;
+  updatedAt: string;
+}
+
+export interface SimulatedStockQuote {
+  symbol: string;
+  name: string;
+  exchange: string;
+  industry: string;
+  price: number;
+  change: number;
+  changePercent: number;
+  volume: number;
+  tradingValue: number;
+  liquidityLabel: "Thấp" | "Trung bình" | "Cao";
+  ma20Status: "Trên MA20" | "Dưới MA20" | "Sát MA20";
+  ma50Status: "Trên MA50" | "Dưới MA50" | "Sát MA50";
+  volumeVsAvg20: number;
+  status: SimulatedStockStatus;
+}
+
+export interface SimulatedOrder {
+  id: string;
+  symbol: string;
+  side: SimulatedOrderSide;
+  price: number;
+  quantity: number;
+  value: number;
+  fee: number;
+  tax?: number;
+  stopLoss?: number;
+  target?: number;
+  reason: string;
+  status: SimulatedOrderStatus;
+  createdAt: string;
+}
+
+export interface SimulatedPosition {
+  id: string;
+  symbol: string;
+  name: string;
+  openedAt: string;
+  averagePrice: number;
+  currentPrice: number;
+  quantity: number;
+  marketValue: number;
+  weight: number;
+  unrealizedPnL: number;
+  unrealizedPnLPercent: number;
+  stopLoss?: number;
+  target?: number;
+  status: SimulatedPositionStatus;
+  openReason: string;
+}
+
+export interface ClosedSimulatedPosition {
+  id: string;
+  symbol: string;
+  name: string;
+  openedAt: string;
+  closedAt: string;
+  openPrice: number;
+  closePrice: number;
+  quantity: number;
+  realizedPnL: number;
+  realizedPnLPercent: number;
+  closeReason: string;
+  lesson: string;
+}
+
+export interface SimulationHistoryEvent {
+  id: string;
+  timestamp: string;
+  symbol?: string;
+  type:
+    | "order_created"
+    | "position_opened"
+    | "stop_loss_updated"
+    | "target_updated"
+    | "note_added"
+    | "position_closed"
+    | "scenario_reviewed";
+  title: string;
+  description: string;
+}
+
+export interface PossibleScenario {
+  id: string;
+  symbol: string;
+  type:
+    | "positive"
+    | "base"
+    | "negative"
+    | "stop_loss"
+    | "target"
+    | "low_liquidity"
+    | "market_risk"
+    | "behavior";
+  title: string;
+  condition: string;
+  signalsToWatch: string[];
+  impactOnPosition: string;
+  suggestedSimulationResponse: string;
+  relatedModules: string[];
+}
+
+export interface PaperTradingData {
+  account: SimulatedAccountSummary;
+  quotes: SimulatedStockQuote[];
+  openPositions: SimulatedPosition[];
+  closedPositions: ClosedSimulatedPosition[];
+  historyEvents: SimulationHistoryEvent[];
+  scenarios: PossibleScenario[];
+}

@@ -238,7 +238,7 @@ export function ValuationCommandCenter({ data }: ValuationCommandCenterProps) {
               {detail.type === "range" ? (
                 <>
                   <p className="text-sm leading-6 text-muted">Vùng giá là khoảng tham khảo được tạo từ nhiều phương pháp và kịch bản, không phải một con số chắc chắn.</p>
-                  <p className="text-sm leading-6 text-muted">Giá hiện tại nằm trong vùng nghĩa là thị trường đang trả gần mức giả định cơ sở, chưa nói lên hành động mua bán.</p>
+                  <p className="text-sm leading-6 text-muted">Giá hiện tại nằm trong vùng nghĩa là thị trường đang trả gần mức giả định cơ sở, chưa nói lên hành động giao dịch.</p>
                   <p className="text-sm leading-6 text-muted">Biên an toàn là khoảng đệm khi giá hiện tại thấp hơn đáng kể so với kịch bản thận trọng.</p>
                   <p className="rounded-[4px] border border-warning bg-warning/15 px-3 py-2 text-xs leading-5 text-ink">{data.warning}</p>
                 </>

@@ -1,4 +1,6 @@
+import { AnalysisNotePopover } from "@/components/common/AnalysisNotePopover";
 import { Button, Card, CardBody, CardHeader, Chip } from "@/components/ui";
+import type { AnalysisNote } from "@/types/analysis-note";
 import type { ScenarioModeData, ScenarioThesisResult } from "../types";
 
 type ScenarioStressTestWorkspaceProps = {
@@ -134,17 +136,42 @@ export function ScenarioStressTestWorkspace({
           </div>
           <label className="mt-3 grid gap-2">
             <span className="text-xs font-bold text-ink">Bài học rút ra</span>
-            <textarea
-              className="min-h-[84px] resize-y rounded-[4px] border-[1.5px] border-border-soft bg-surface px-3 py-2 text-sm leading-6 text-ink outline-none focus:border-border"
-              value={lesson}
-              placeholder="Nếu kịch bản này xảy ra, tôi cần kiểm tra dữ liệu nào trước?"
-              onChange={(event) => onLessonChange(event.target.value)}
-            />
+            <div className="flex flex-col gap-3 rounded-[4px] border border-border-soft bg-surface px-3 py-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-xs leading-5 text-muted">
+                {lesson.trim() ? lesson : "Chưa có bài học cá nhân cho kịch bản này."}
+              </p>
+              <AnalysisNotePopover
+                contextTitle={`Stress-test: ${selectedGroup.title}`}
+                initialNote={lesson.trim() ? createScenarioNote(selectedGroup.id, selectedGroup.title, lesson) : undefined}
+                moduleId={`simulation-scenario-${selectedGroup.id}`}
+                moduleName="Mô phỏng"
+                noteType="lesson"
+                onSave={(note) => onLessonChange(note.content)}
+                stockSymbol="PNJ"
+                triggerLabel={lesson.trim() ? "Xem bài học" : "Ghi bài học"}
+              />
+            </div>
           </label>
         </section>
       </CardBody>
     </Card>
   );
+}
+
+function createScenarioNote(groupId: string, title: string, content: string): AnalysisNote {
+  const now = new Date().toISOString();
+
+  return {
+    id: `simulation-scenario-${groupId}`,
+    moduleId: `simulation-scenario-${groupId}`,
+    moduleName: "Mô phỏng",
+    type: "lesson",
+    title,
+    content,
+    createdAt: now,
+    updatedAt: now,
+    stockSymbol: "PNJ",
+  };
 }
 
 function StepTitle({ step, title }: { step: number; title: string }) {

@@ -274,7 +274,7 @@ export const learningPageData: LearningPageData = {
       outcome: "Biết khi nào giá rẻ có thể là bẫy thay vì cơ hội.",
       concept: "Value trap là cổ phiếu nhìn rẻ nhưng rẻ vì chất lượng hoặc triển vọng xấu.",
       simpleExplanation:
-        "Một món hàng giảm giá không phải lúc nào cũng đáng mua; có thể nó bị lỗi.",
+        "Một món hàng giảm giá không phải lúc nào cũng phù hợp; có thể nó bị lỗi.",
       usedInModule: "Định giá, Rủi ro, Watchlist.",
       realExample:
         "P/E thấp nhưng lợi nhuận đang giảm, nợ tăng và dòng tiền yếu thì cần thận trọng.",

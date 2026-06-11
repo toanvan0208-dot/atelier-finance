@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from "react";
+import { AnalysisNotePopover } from "@/components/common/AnalysisNotePopover";
 import {
   Button,
   Card,
@@ -458,16 +459,24 @@ export function IndustryThesisHeader({
   return (
     <section className="parent-surface-card rounded-[4px] border-[1.5px] border-border bg-surface px-5 py-5 shadow-soft">
       <div className="max-w-[860px]">
+        <div className="mb-2">
+          <AnalysisNotePopover
+            contextTitle={selectedIndustry.name}
+            moduleId="industry"
+            moduleName="Ngành"
+            noteType="assumption"
+          />
+        </div>
         <Chip variant="accent">Phân tích ngành</Chip>
         <h1 className="mt-3 text-2xl font-bold leading-tight text-ink md:text-3xl">
           Xây luận điểm ngành trước khi chọn cổ phiếu
         </h1>
         <p className="mt-3 text-sm leading-6 text-muted">
-          Hiểu trạng thái ngành, lực vĩ mô đang hỗ trợ hoặc gây áp lực, bộ dữ liệu cần theo dõi và nhóm doanh nghiệp đáng phân tích tiếp. Đây không phải là khuyến nghị mua bán.
+          Hiểu trạng thái ngành, lực vĩ mô đang hỗ trợ hoặc gây áp lực, bộ dữ liệu cần theo dõi và nhóm doanh nghiệp đáng phân tích tiếp. Đây không phải là tín hiệu hành động giao dịch.
         </p>
         <div className="mt-4 rounded-[4px] border border-border-soft bg-accent-soft px-3 py-3">
           <p className="text-xs font-bold text-ink">
-            Ngành tốt chưa chắc cổ phiếu tốt. Bạn vẫn cần kiểm tra mô hình kinh doanh, BCTC, định giá và rủi ro của từng doanh nghiệp.
+            Ngành thuận lợi chưa chắc doanh nghiệp phù hợp. Bạn vẫn cần kiểm tra mô hình kinh doanh, BCTC, định giá và rủi ro của từng doanh nghiệp.
           </p>
           <p className="mt-1 text-xs leading-5 text-muted">
             Đang phân tích: <span className="font-bold text-ink">{selectedIndustry.name}</span> - {selectedIndustry.industryType}
@@ -774,7 +783,7 @@ export function IndustryJourneyBuilder({
                   {[
                     "Lộ trình giúp bạn hiểu ngành trước khi chọn cổ phiếu, không phải checklist cần đọc hết một lượt.",
                     "Mỗi cụm trả lời một câu hỏi lớn và tạo một output đủ ngắn để kiểm chứng tiếp.",
-                    "Ngành tốt chưa chắc cổ phiếu tốt vì doanh nghiệp, BCTC, Định giá và rủi ro có thể khác nhau.",
+                    "Ngành thuận lợi chưa chắc doanh nghiệp phù hợp vì doanh nghiệp, BCTC, Định giá và rủi ro có thể khác nhau.",
                     "Sau module Ngành, cần nối sang BCTC, Định giá và Rủi ro trước khi kết luận.",
                   ].map((item) => (
                     <p
@@ -965,7 +974,7 @@ export function IndustryConclusionBuilder({
                 Ngành có tín hiệu hỗ trợ, nhưng cần xác nhận bằng sản lượng, biên lợi nhuận và dòng tiền.
               </p>
               <p className="mt-2 text-[11px] font-semibold text-subtle">
-                Đây là kết luận ngành có điều kiện, không phải khuyến nghị mua bán.
+                Đây là kết luận ngành có điều kiện, không phải tín hiệu hành động giao dịch.
               </p>
             </div>
             <div className="flex flex-wrap gap-2 lg:max-w-[320px] lg:justify-end">
@@ -1129,12 +1138,12 @@ export function IndustryToStockBridge() {
       />
       <CardBody className="space-y-4">
         <div className="rounded-[4px] border border-accent bg-accent-soft px-4 py-3">
-          <p className="text-sm font-bold text-ink">Ngành tốt chưa chắc cổ phiếu tốt.</p>
+          <p className="text-sm font-bold text-ink">Ngành thuận lợi chưa chắc doanh nghiệp phù hợp.</p>
           <p className="mt-1 text-xs leading-5 text-muted">
             Dựa trên kết luận ngành hiện tại, hãy xác định nên phân tích tiếp, theo dõi thêm hay tạm bỏ qua.
           </p>
           <p className="mt-2 text-[11px] font-semibold text-subtle">
-            Không chuyển từ câu chuyện ngành tốt sang cổ phiếu đáng mua nếu chưa kiểm chứng bằng doanh nghiệp, BCTC, định giá và rủi ro.
+            Không chuyển từ câu chuyện ngành thuận lợi sang kết luận hành động nếu chưa kiểm chứng bằng doanh nghiệp, BCTC, định giá và rủi ro.
           </p>
         </div>
 

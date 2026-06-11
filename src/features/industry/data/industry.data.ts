@@ -709,9 +709,9 @@ const blocks: IndustryBlockData[] = [
     id: "traps",
     stepNumber: 16,
     tab: "synthesis",
-    title: "Ngành tốt chưa chắc cổ phiếu tốt",
+    title: "Ngành thuận lợi chưa chắc doanh nghiệp phù hợp",
     icon: "16",
-    centralQuestion: "Ngành tốt chưa chắc cổ phiếu tốt, tôi có đang suy luận quá nhanh không?",
+    centralQuestion: "Ngành thuận lợi chưa chắc doanh nghiệp phù hợp, tôi có đang suy luận quá nhanh không?",
     easyExplanation:
       "Phân tích ngành chỉ là một lớp của quy trình. Bạn vẫn cần kiểm tra doanh nghiệp, BCTC, định giá và rủi ro.",
     dataToWatch: ["Dữ liệu xác nhận", "Kỳ vọng đã phản ánh", "Chất lượng doanh nghiệp", "Dòng tiền"],
@@ -847,7 +847,7 @@ export const industryPageData: IndustryPageData = {
   disclaimer: {
     title: "Lưu ý cuối module",
     content:
-      "Phân tích ngành chỉ giúp trả lời ngành kiếm tiền bằng cách nào, đang thuận lợi hay bất lợi, và dữ liệu nào cần kiểm chứng. Nó chưa đủ để kết luận cổ phiếu đáng mua. Trước khi chọn cổ phiếu, cần kiểm tra doanh nghiệp, BCTC, định giá và rủi ro.",
+      "Phân tích ngành chỉ giúp trả lời ngành kiếm tiền bằng cách nào, đang thuận lợi hay bất lợi, và dữ liệu nào cần kiểm chứng. Nó chưa đủ để kết luận ý tưởng phù hợp để đi tiếp. Trước khi chọn cổ phiếu, cần kiểm tra doanh nghiệp, BCTC, định giá và rủi ro.",
   },
   nextActions: {
     title: "Bạn đã đủ hiểu ngành để chuyển sang bước tiếp theo chưa?",

@@ -28,11 +28,11 @@ const stepLabels = ["Mục tiêu", "Cách đi", "Mức AI giải thích", "Đi�
 
 const pathByGoal: Record<RouteGoalId, string[]> = {
   learn_from_scratch: ["Học tập", "Vĩ mô cơ bản", "Ngành cơ bản", "Hiểu doanh nghiệp", "BCTC cơ bản", "Watchlist"],
-  analyze_stock: ["Hiểu doanh nghiệp", "BCTC", "Định giá", "PVT", "Rủi ro", "Checklist", "Mô phỏng", "Nhật ký"],
+  analyze_stock: ["Hiểu doanh nghiệp", "BCTC", "Định giá", "Rủi ro", "PVT", "Checklist", "Mô phỏng", "Watchlist"],
   find_ideas: ["Vĩ mô", "Bản đồ ngành", "Phân tích ngành", "Lọc cổ phiếu", "Watchlist"],
-  simulate_first: ["Watchlist", "Checklist", "Thesis Builder", "Mô phỏng", "Nhật ký", "Hậu kiểm"],
-  review_decision: ["Checklist", "Rủi ro", "Định giá", "PVT", "Nhật ký quyết định"],
-  research_project: ["Tổng quan", "Học tập", "Vĩ mô", "Ngành", "Mô phỏng", "Nhật ký/hậu kiểm"],
+  simulate_first: ["Checklist", "Thesis Builder", "Mô phỏng", "Hậu kiểm", "Watchlist"],
+  review_decision: ["Checklist", "Rủi ro", "Định giá", "PVT", "Mô phỏng"],
+  research_project: ["Tổng quan", "Học tập", "Vĩ mô", "Ngành", "Mô phỏng", "Hậu kiểm"],
 };
 
 const nextModuleByGoal: Record<RouteGoalId, { label: string; moduleKey: string }> = {
@@ -124,7 +124,7 @@ function RouteConfigHeader({ currentStep }: { currentStep: number }) {
           </p>
         </div>
         <p className="rounded-[4px] border-[1.5px] border-border bg-accent-soft px-4 py-3 text-sm font-semibold leading-6 text-ink">
-          Module này không đưa ra khuyến nghị mua/bán. Mục tiêu là giúp bạn biết nên bắt đầu từ đâu
+          Module này không đưa ra tín hiệu giao dịch. Mục tiêu là giúp bạn biết nên bắt đầu từ đâu
           và cần học hoặc kiểm tra gì trước khi đi tiếp.
         </p>
       </CardBody>

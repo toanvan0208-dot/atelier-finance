@@ -1,3 +1,4 @@
+import { AnalysisNotePopover } from "@/components/common/AnalysisNotePopover";
 import { Chip } from "@/components/ui";
 import type { StockIdea, WatchlistHeaderData } from "../types";
 
@@ -20,7 +21,15 @@ export function WatchlistHeader({ data, ideas }: WatchlistHeaderProps) {
     <section className="rounded-[4px] border-[1.5px] border-border bg-surface px-5 py-5 shadow-soft">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <Chip variant="accent">{data.moduleName}</Chip>
+          <div className="flex flex-wrap items-center gap-2">
+            <Chip variant="accent">{data.moduleName}</Chip>
+            <AnalysisNotePopover
+              contextTitle="Watchlist"
+              moduleId="watchlist"
+              moduleName="Watchlist"
+              noteType="personal"
+            />
+          </div>
           <h1 className="mt-3 font-brand text-2xl font-bold leading-tight text-ink">
             Watchlist
           </h1>

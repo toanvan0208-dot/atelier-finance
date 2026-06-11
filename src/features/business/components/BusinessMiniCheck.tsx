@@ -23,7 +23,6 @@ export function BusinessMiniCheck({
   const isAnswered = typeof selectedAnswer === "number";
   const isCorrect = selectedAnswer === question.correctIndex;
   const isLastQuestion = activeQuestion === data.questions.length - 1;
-  const answeredCount = Object.keys(answers).length;
   const canGoNext = isAnswered && !isLastQuestion;
   const hasWrongAnswer = data.questions.some((item, index) => {
     const answer = answers[index];
@@ -37,11 +36,6 @@ export function BusinessMiniCheck({
   return (
     <Card>
       <CardHeader
-        chip={
-          <Chip variant={isComplete ? "success" : "warning"}>
-            Câu {activeQuestion + 1}/{data.questions.length}
-          </Chip>
-        }
         description={data.description}
         icon="?"
         title={data.title}
@@ -111,9 +105,6 @@ export function BusinessMiniCheck({
               Câu tiếp theo
             </Button>
           </div>
-          <Chip variant="neutral">
-            Đã trả lời {answeredCount}/{data.questions.length}
-          </Chip>
         </div>
 
         {isComplete ? (

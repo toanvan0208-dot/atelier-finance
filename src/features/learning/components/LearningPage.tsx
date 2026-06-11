@@ -31,7 +31,7 @@ const moduleKeyMap: Record<string, string> = {
   "Ngành": "industry",
   "Hiểu doanh nghiệp": "business",
   "Lọc cổ phiếu": "screening",
-  "Nhật ký": "journal",
+  "Nhật ký": "simulation",
 };
 
 export function LearningPage() {

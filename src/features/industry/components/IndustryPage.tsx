@@ -5,7 +5,6 @@ import { EmptyState, LoadingState } from "@/components/ui";
 import { industryOptions, industryPageData } from "../data/industry.data";
 import {
   IndustryConclusionBuilder,
-  IndustryDataBoard,
   IndustryDisclaimer,
   IndustryJourneyBuilder,
   IndustryQuickSnapshot,
@@ -13,7 +12,6 @@ import {
   IndustryStepDetailModal,
   IndustryThesisHeader,
   IndustryThesisMap,
-  IndustryToStockBridge,
 } from "./IndustryBlocks";
 
 export function IndustryPage() {
@@ -99,9 +97,7 @@ export function IndustryPage() {
           onSelectStep={handleSelectStep}
         />
 
-        <IndustryDataBoard selectedIndustry={selectedIndustry} />
         <IndustryConclusionBuilder selectedIndustry={selectedIndustry} />
-        <IndustryToStockBridge />
 
         <IndustryDisclaimer
           content={data.disclaimer.content}

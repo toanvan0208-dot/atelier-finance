@@ -1,3 +1,4 @@
+import { AnalysisNotePopover } from "@/components/common/AnalysisNotePopover";
 import { Button, Chip } from "@/components/ui";
 import type { ValuationHeaderData } from "../types";
 
@@ -40,6 +41,13 @@ export function ValuationHeader({
         </div>
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
+        <AnalysisNotePopover
+          contextTitle={`${data.ticker} - ${data.moduleName}`}
+          moduleId="valuation"
+          moduleName="Định giá"
+          noteType="assumption"
+          stockSymbol={data.ticker}
+        />
         {data.actions.map((action) => {
           const isRiskAction = action.label.includes("Quản trị rủi ro");
           const disabled = isRiskAction && !canContinueToRisk;

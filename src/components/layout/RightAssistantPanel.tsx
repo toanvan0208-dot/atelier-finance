@@ -193,7 +193,7 @@ function AskAIInput({
 function AITutorAskTab({ config }: { config: AITutorConfig }) {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState(
-    "Chọn một câu hỏi gợi ý hoặc nhập câu hỏi. AI sẽ giải thích theo hướng học tập, không đưa ra tín hiệu mua/bán."
+    "Chọn một câu hỏi gợi ý hoặc nhập câu hỏi. AI sẽ giải thích theo hướng học tập, không đưa ra tín hiệu giao dịch."
   );
 
   function submitQuestion() {
@@ -209,7 +209,7 @@ function AITutorAskTab({ config }: { config: AITutorConfig }) {
   function pickQuestion(nextQuestion: string) {
     setQuestion(nextQuestion);
     setAnswer(
-      `Gợi ý trả lời: ${nextQuestion} nên được hiểu trong ngữ cảnh Module ${config.moduleName}. AI sẽ giúp giải thích khái niệm và câu hỏi kiểm tra, không kết luận cổ phiếu nên mua hay bán.`
+      `Gợi ý trả lời: ${nextQuestion} nên được hiểu trong ngữ cảnh Module ${config.moduleName}. AI sẽ giúp giải thích khái niệm và câu hỏi kiểm tra, không kết luận hành động giao dịch.`
     );
   }
 

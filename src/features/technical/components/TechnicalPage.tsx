@@ -1,6 +1,5 @@
 import { EmptyState, LoadingState } from "@/components/ui";
 import { technicalPageData } from "../data/technical.data";
-import { PersonalPVTObservation } from "./PersonalPVTObservation";
 import { PVTCommandCenter } from "./PVTCommandCenter";
 import { PVTCrossModuleAlignment } from "./PVTCrossModuleAlignment";
 import { PVTReadinessPanel } from "./PVTReadinessPanel";
@@ -31,12 +30,13 @@ export function TechnicalPage() {
       <TechnicalHeader
         canContinueToRisk={canContinueToRisk}
         data={data.header}
+        notePrompts={data.pvtObservation.prompts}
         riskDisabledReason={data.pvtReadiness.helperText}
+        sampleNote={data.pvtObservation.sample}
       />
       <PVTCommandCenter data={data.commandCenter} priceVolume={data.priceVolume} />
       <PVTCrossModuleAlignment data={data.pvtAlignment} />
       <PVTReadinessPanel data={data.pvtReadiness} />
-      <PersonalPVTObservation data={data.pvtObservation} />
 
       <div className="space-y-5">
         <TechnicalDisclaimer data={data.disclaimer} />

@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { AnalysisNotePopover } from "@/components/common/AnalysisNotePopover";
 import { Button, Card, CardBody, CardHeader, Chip, Tabs } from "@/components/ui";
+import type { AnalysisNote } from "@/types/analysis-note";
 import { cn } from "@/lib/cn";
 import type {
   SimulationTrackingData,
@@ -94,9 +96,11 @@ export function WatchlistInsightPanel({
 }: WatchlistInsightPanelProps) {
   const simulationItem = getSimulationItem(simulationTracking, data.ticker);
   const [note, setNote] = useState("");
-  const [noteType, setNoteType] = useState<WatchlistJournalEntry["type"]>("personal_note");
-  const [noteModule, setNoteModule] = useState("Watchlist");
   const journalEntries = buildJournalEntries(data);
+
+  function handleAnalysisNoteSave(savedNote: AnalysisNote) {
+    setNote(savedNote.content);
+  }
 
   return (
     <>
@@ -294,36 +298,23 @@ export function WatchlistInsightPanel({
                         ))}
                       </div>
                       <div className="rounded-[4px] border-[1.5px] border-border bg-surface-soft px-3 py-3">
-                        <p className="text-sm font-bold text-ink">Thêm ghi chú</p>
-                        <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                          <select
-                            className="h-9 rounded-[4px] border border-border-soft bg-surface px-2 text-xs text-ink"
-                            value={noteType}
-                            onChange={(event) => setNoteType(event.target.value as WatchlistJournalEntry["type"])}
-                          >
-                            {Object.entries(journalTypeLabels).map(([value, label]) => (
-                              <option key={value} value={value}>{label}</option>
-                            ))}
-                          </select>
-                          <select
-                            className="h-9 rounded-[4px] border border-border-soft bg-surface px-2 text-xs text-ink"
-                            value={noteModule}
-                            onChange={(event) => setNoteModule(event.target.value)}
-                          >
-                            {["Watchlist", "BCTC", "Định giá", "PVT", "Rủi ro", "Mô phỏng"].map((module) => (
-                              <option key={module} value={module}>{module}</option>
-                            ))}
-                          </select>
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                          <div>
+                            <p className="text-sm font-bold text-ink">Ghi chú phân tích về {data.ticker}</p>
+                            <p className="mt-1 text-xs leading-5 text-muted">
+                              {note.trim() ? note : "Chưa có ghi chú cá nhân mới trong phiên này."}
+                            </p>
+                          </div>
+                          <AnalysisNotePopover
+                            contextTitle={`Ghi chú phân tích về ${data.ticker}`}
+                            moduleId={`watchlist-drawer-${data.ticker}`}
+                            moduleName="Watchlist"
+                            noteType="personal"
+                            onSave={handleAnalysisNoteSave}
+                            stockSymbol={data.ticker}
+                            triggerLabel={note.trim() ? "Xem ghi chú" : "Thêm ghi chú"}
+                          />
                         </div>
-                        <textarea
-                          className="mt-3 min-h-24 w-full resize-y rounded-[4px] border-[1.5px] border-border bg-surface px-3 py-2 text-sm text-ink outline-none focus:bg-accent-soft"
-                          placeholder="Ghi lại điều vừa cập nhật..."
-                          value={note}
-                          onChange={(event) => setNote(event.target.value)}
-                        />
-                        <Button className="mt-3" size="sm" disabled={!note.trim()}>
-                          Lưu ghi chú
-                        </Button>
                       </div>
                     </div>
                   ),

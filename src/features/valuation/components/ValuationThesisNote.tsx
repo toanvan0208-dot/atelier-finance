@@ -1,3 +1,4 @@
+import { AnalysisNotePopover } from "@/components/common/AnalysisNotePopover";
 import { Card, CardBody, CardHeader, Chip } from "@/components/ui";
 import type { ValuationThesisNoteData } from "../types";
 
@@ -8,7 +9,20 @@ type ValuationThesisNoteProps = {
 export function ValuationThesisNote({ data }: ValuationThesisNoteProps) {
   return (
     <Card className="border-border-soft">
-      <CardHeader description={data.description} icon="G" title={data.title} />
+      <CardHeader
+        action={
+          <AnalysisNotePopover
+            contextTitle={data.title}
+            moduleId="valuation-thesis-note"
+            moduleName="Định giá"
+            noteType="assumption"
+            stockSymbol="MWG"
+          />
+        }
+        description={data.description}
+        icon="G"
+        title={data.title}
+      />
       <CardBody className="space-y-4">
         <div className="grid gap-3 md:grid-cols-3">
           <div className="rounded-[4px] bg-surface-soft px-3 py-3">

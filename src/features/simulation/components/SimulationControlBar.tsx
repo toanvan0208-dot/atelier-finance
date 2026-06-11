@@ -1,9 +1,10 @@
+import { AnalysisNotePopover } from "@/components/common/AnalysisNotePopover";
 import { Card, CardBody, Chip } from "@/components/ui";
 import type { SimulationModeId, SimulationStatus } from "../types";
 
 const modeLabels: Record<SimulationModeId, string> = {
   current: "Mô phỏng hiện tại",
-  scenario: "Kịch bản giả định",
+  scenario: "Stress-test kịch bản",
   history: "Case lịch sử",
 };
 
@@ -37,6 +38,14 @@ export function SimulationControlBar({
           <span className="text-xs font-semibold text-muted">
             {ticker} · {companyName} · {industry}
           </span>
+          <AnalysisNotePopover
+            contextTitle="Ghi chú cấp module Mô phỏng"
+            moduleId="simulation-module"
+            moduleName="Mô phỏng"
+            noteType="personal"
+            stockSymbol={ticker}
+            triggerLabel="Ghi chú phân tích"
+          />
         </div>
         <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
           <div>

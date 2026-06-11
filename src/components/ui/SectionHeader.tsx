@@ -15,6 +15,8 @@ export function SectionHeader({
   icon,
   title,
 }: SectionHeaderProps) {
+  void icon;
+
   return (
     <div className="mb-3 flex items-start justify-between gap-4">
       <div className="min-w-0">
@@ -24,11 +26,6 @@ export function SectionHeader({
           </p>
         ) : null}
         <div className="flex min-w-0 items-center gap-2">
-          {icon ? (
-            <span className="grid h-6 w-6 shrink-0 place-items-center rounded-[3px] border-[1.5px] border-border bg-accent-soft text-[10px] font-bold text-accent">
-              {icon}
-            </span>
-          ) : null}
           <h2 className="truncate font-brand text-base font-bold text-ink">{title}</h2>
         </div>
         {description ? (

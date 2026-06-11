@@ -52,7 +52,7 @@ export function ScreeningFunnelSummary({ data, mode }: ScreeningFunnelSummaryPro
           })}
         </div>
         <p className="rounded-[4px] border border-border-soft bg-surface px-3 py-2 text-xs font-semibold leading-5 text-muted">
-          Kết quả lọc chỉ tạo danh sách ứng viên, không phải khuyến nghị mua bán.
+          Kết quả lọc chỉ tạo danh sách ứng viên, không phải tín hiệu giao dịch.
         </p>
 
         {openGate ? (
@@ -76,7 +76,7 @@ export function ScreeningFunnelSummary({ data, mode }: ScreeningFunnelSummaryPro
               <div className="space-y-3 px-4 py-4">
                 <p className="text-sm leading-6 text-muted">{openGate.detail}</p>
                 <p className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-2 text-xs leading-5 text-muted">
-                  Cửa này không kết luận mã đáng mua. Nó chỉ quyết định mã có nên đi tiếp sang bước kiểm chứng sâu hơn hay không.
+                  Cửa này không kết luận mã đủ điều kiện hành động. Nó chỉ quyết định mã có nên đi tiếp sang bước kiểm chứng sâu hơn hay không.
                 </p>
               </div>
             </div>

@@ -1,4 +1,6 @@
+import { AnalysisNotePopover } from "@/components/common/AnalysisNotePopover";
 import { Button, Card, CardBody, CardHeader, Chip } from "@/components/ui";
+import type { AnalysisNote } from "@/types/analysis-note";
 import type { HistoricalCaseData } from "../types";
 
 type HistoricalCaseWorkspaceProps = {
@@ -93,12 +95,21 @@ export function HistoricalCaseWorkspace({
           </div>
           <label className="mt-3 grid gap-2">
             <span className="text-xs font-bold text-ink">Lý do và thesis tại thời điểm bị khóa</span>
-            <textarea
-              className="min-h-[96px] resize-y rounded-[4px] border-[1.5px] border-border-soft bg-surface px-3 py-2 text-sm leading-6 text-ink outline-none focus:border-border"
-              value={reason}
-              placeholder={data.requiredFields.join(" · ")}
-              onChange={(event) => onReasonChange(event.target.value)}
-            />
+            <div className="flex flex-col gap-3 rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-xs leading-5 text-muted">
+                {reason.trim() ? reason : `Chưa ghi lý do. Gợi ý: ${data.requiredFields.slice(0, 3).join(" · ")}`}
+              </p>
+              <AnalysisNotePopover
+                contextTitle={`Case lịch sử - ${selectedCase.caseName}`}
+                initialNote={reason.trim() ? createHistoryNote(selectedCase.id, "personal", selectedCase.caseName, reason) : undefined}
+                moduleId={`simulation-history-decision-${selectedCase.id}`}
+                moduleName="Mô phỏng"
+                noteType="personal"
+                onSave={(note) => onReasonChange(note.content)}
+                stockSymbol={selectedCase.tickerOrGroup}
+                triggerLabel={reason.trim() ? "Xem lý do" : "Ghi lý do"}
+              />
+            </div>
           </label>
           <div className="mt-3">
             <Button disabled={!decision || !reason.trim()} onClick={onUnlockReplay}>
@@ -131,12 +142,21 @@ export function HistoricalCaseWorkspace({
 
         <section>
           <h3 className="text-base font-bold text-ink">Reflection Box</h3>
-          <textarea
-            className="mt-3 min-h-[120px] w-full resize-y rounded-[4px] border-[1.5px] border-border-soft bg-surface px-3 py-2 text-sm leading-6 text-ink outline-none focus:border-border"
-            value={reflection}
-            placeholder="Tôi học được gì về quy trình ra quyết định tại thời điểm đó?"
-            onChange={(event) => onReflectionChange(event.target.value)}
-          />
+          <div className="mt-3 flex flex-col gap-3 rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-xs leading-5 text-muted">
+              {reflection.trim() ? reflection : "Chưa có bài học cá nhân cho case này."}
+            </p>
+            <AnalysisNotePopover
+              contextTitle={`Bài học case - ${selectedCase.caseName}`}
+              initialNote={reflection.trim() ? createHistoryNote(`${selectedCase.id}-reflection`, "lesson", selectedCase.caseName, reflection) : undefined}
+              moduleId={`simulation-history-reflection-${selectedCase.id}`}
+              moduleName="Mô phỏng"
+              noteType="lesson"
+              onSave={(note) => onReflectionChange(note.content)}
+              stockSymbol={selectedCase.tickerOrGroup}
+              triggerLabel={reflection.trim() ? "Xem bài học" : "Ghi bài học"}
+            />
+          </div>
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             {data.postReviewTypes.map((item) => (
               <p key={`${item.label}-${item.value}`} className="rounded-[3px] border border-border-soft bg-surface-soft px-3 py-2 text-xs leading-5 text-muted">
@@ -148,4 +168,24 @@ export function HistoricalCaseWorkspace({
       </CardBody>
     </Card>
   );
+}
+
+function createHistoryNote(
+  id: string,
+  type: "personal" | "lesson",
+  title: string,
+  content: string
+): AnalysisNote {
+  const now = new Date().toISOString();
+
+  return {
+    id: `simulation-history-${id}`,
+    moduleId: `simulation-history-${id}`,
+    moduleName: "Mô phỏng",
+    type,
+    title,
+    content,
+    createdAt: now,
+    updatedAt: now,
+  };
 }

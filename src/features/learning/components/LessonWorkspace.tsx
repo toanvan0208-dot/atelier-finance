@@ -1,4 +1,5 @@
 import { Button, Card, CardBody, CardHeader, Chip } from "@/components/ui";
+import { AnalysisNotePopover } from "@/components/common/AnalysisNotePopover";
 import type { ReactNode } from "react";
 import type { LearningLesson, LessonStatus } from "../types";
 
@@ -40,6 +41,15 @@ export function LessonWorkspace({
         title="Lesson Workspace"
         description="Học theo từng bước ngắn, làm quiz và áp dụng ngay vào module liên quan."
         chip={<Chip variant={status === "Đã học" ? "success" : status === "Cần ôn lại" ? "warning" : "accent"}>{status}</Chip>}
+        action={
+          <AnalysisNotePopover
+            contextTitle={lesson.title}
+            moduleId={`learning-${lesson.id}`}
+            moduleName="Học tập"
+            noteType="lesson"
+            triggerLabel="Ghi chú bài học"
+          />
+        }
       />
       <CardBody className="space-y-5">
         <Step title="1. Vì sao bạn cần học bài này?">

@@ -78,7 +78,7 @@ export const valuationPageData: ValuationPageData = {
     confidence: "medium",
     primaryMethod: "P/E + EV/EBITDA + DCF đơn giản",
     summary: "Giá hiện tại chưa rẻ rõ ràng, cần kiểm tra thêm lợi nhuận và CFO.",
-    warning: "Vùng giá này không phải khuyến nghị mua bán.",
+    warning: "Vùng giá này không phải tín hiệu giao dịch.",
     isMock: true,
     range: {
       minDomain: 32,
@@ -102,7 +102,7 @@ export const valuationPageData: ValuationPageData = {
         detail: {
           definition: "Giá thị trường hiện tại dùng để so với vùng định giá.",
           whyItMatters: "Giúp biết thị trường đang trả giá gần vùng nào.",
-          commonMistake: "Xem giá trong vùng là tín hiệu mua/bán.",
+          commonMistake: "Xem giá trong vùng là tín hiệu giao dịch.",
         },
       },
       {

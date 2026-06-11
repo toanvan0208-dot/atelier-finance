@@ -1,3 +1,4 @@
+import { AnalysisNotePopover } from "@/components/common/AnalysisNotePopover";
 import { Button, Card, CardBody, Chip } from "@/components/ui";
 import type { FinancialsHeaderData } from "../types";
 
@@ -32,6 +33,13 @@ export function FinancialsHeader({
           </div>
           <div className="lg:max-w-[280px]">
             <div className="flex flex-wrap gap-2 lg:justify-end">
+              <AnalysisNotePopover
+                contextTitle={`${data.ticker} - ${data.moduleName}`}
+                moduleId="financials"
+                moduleName="BCTC"
+                noteType="follow_up"
+                stockSymbol={data.ticker}
+              />
               {data.actions.map((action) => {
                 const isValuationAction = action.label.includes("Định Giá") || action.label.includes("Định giá");
                 const disabled = isValuationAction && !canContinueToValuation;

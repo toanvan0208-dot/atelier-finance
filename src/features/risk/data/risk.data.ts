@@ -340,7 +340,7 @@ export const riskPageData: RiskPageData = {
     status: "Cần theo dõi",
     score: 64,
     conclusion: "Rủi ro chính nằm ở dòng tiền, định giá và dữ liệu minh bạch cần kiểm tra thêm.",
-    warning: "Đây là bản đồ rủi ro, không phải khuyến nghị mua bán.",
+    warning: "Đây là bản đồ rủi ro, không phải tín hiệu giao dịch.",
     isMock: true,
     checklistReadinessSummary: {
       completed: 5,

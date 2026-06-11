@@ -295,15 +295,14 @@ export const aiTutorConfig: Record<string, AITutorConfig> = {
     ],
     recommendedLessons: [
       { title: "Thesis đầu tư là gì?", duration: "5 phút", usedIn: "Watchlist, Checklist, Mô phỏng", reason: "Giúp bạn biết cần viết gì trước khi đi tiếp." },
-      { title: "FOMO trong đầu tư là gì?", duration: "4 phút", usedIn: "Checklist, Watchlist, Nhật ký", reason: "Giúp bạn kiểm tra cảm xúc trước khi hành động." },
+      { title: "FOMO trong đầu tư là gì?", duration: "4 phút", usedIn: "Checklist, Watchlist, Mô phỏng", reason: "Giúp bạn kiểm tra cảm xúc trước khi hành động." },
       { title: "Vì sao lợi nhuận cao nhưng dòng tiền yếu?", duration: "5 phút", usedIn: "BCTC, Rủi ro, Checklist", reason: "Giúp bạn không bỏ qua chất lượng dòng tiền." },
       { title: "Value trap là gì?", duration: "5 phút", usedIn: "Định giá, Rủi ro, Checklist", reason: "Giúp tránh kết luận vội khi chỉ thấy chỉ số định giá thấp." },
-      { title: "Đúng quy trình khác gì may mắn?", duration: "4 phút", usedIn: "Mô phỏng, Nhật ký, Checklist", reason: "Giúp bạn học từ quy trình thay vì chỉ nhìn kết quả." },
+      { title: "Đúng quy trình khác gì may mắn?", duration: "4 phút", usedIn: "Mô phỏng, Checklist", reason: "Giúp bạn học từ quy trình thay vì chỉ nhìn kết quả." },
     ],
     nextActions: [
       { label: "Hoàn thành Checklist", moduleKey: "checklist", primary: true },
       { label: "Chuyển sang Mô phỏng", moduleKey: "simulation" },
-      { label: "Ghi Nhật ký", moduleKey: "journal" },
     ],
     softWarning: "Checklist chỉ giúp kiểm tra kỷ luật và dữ liệu còn thiếu. Nó không thay bạn ra quyết định.",
   },
@@ -316,30 +315,12 @@ export const aiTutorConfig: Record<string, AITutorConfig> = {
     commonMistakes: ["Lãi không chắc đúng. Lỗ không chắc sai.", "Xem mô phỏng như game trading.", "Không ghi nhật ký khi thesis đổi."],
     suggestedQuestions: ["Lãi/lỗ mô phỏng có chứng minh tôi đúng/sai không?", "Benchmark dùng để làm gì?", "Mốc xem lại thesis là gì?", "Tôi có đang FOMO không?"],
     recommendedLessons: [
-      { title: "Benchmark trong mô phỏng dùng để làm gì?", duration: "5 phút", usedIn: "Mô phỏng, Nhật ký", reason: "Giúp bạn đánh giá thesis thay vì chỉ nhìn lãi/lỗ." },
+      { title: "Benchmark trong mô phỏng dùng để làm gì?", duration: "5 phút", usedIn: "Mô phỏng", reason: "Giúp bạn đánh giá thesis thay vì chỉ nhìn lãi/lỗ." },
     ],
     nextActions: [
       { label: "Cập nhật thesis mô phỏng", moduleKey: "simulation", primary: true },
-      { label: "Ghi Nhật ký", moduleKey: "journal" },
     ],
     softWarning: "Mô phỏng không chứng minh bạn đúng sai tuyệt đối. Nó giúp học từ dữ liệu và quy trình.",
-  },
-  journal: {
-    moduleId: "journal",
-    moduleName: "Nhật ký",
-    currentGoal: "Ghi lại quyết định, cảm xúc, dữ liệu mới và bài học sau mô phỏng hoặc checklist.",
-    whatThisStepDoes: "Nhật ký giúp bạn hậu kiểm quy trình để biết mình sai vì phân tích, định giá, rủi ro hay cảm xúc.",
-    questionsToCheck: ["Tôi đã quyết định vì lý do gì?", "Tôi có làm đúng quy trình không?", "Tôi sai vì phân tích, định giá, rủi ro hay cảm xúc?", "Tôi cần học lại module nào?"],
-    commonMistakes: ["Một kết quả tốt nhưng sai quy trình vẫn là rủi ro cần học lại.", "Chỉ ghi kết quả mà không ghi cảm xúc.", "Không quay lại module gây lỗi."],
-    suggestedQuestions: ["Nhật ký đầu tư nên ghi gì?", "Làm sao hậu kiểm thesis?", "Sai vì quy trình nghĩa là gì?"],
-    recommendedLessons: [
-      { title: "Hậu kiểm quyết định đầu tư", duration: "6 phút", usedIn: "Nhật ký, Mô phỏng", reason: "Giúp bạn học từ quy trình thay vì chỉ từ kết quả." },
-    ],
-    nextActions: [
-      { label: "Ghi nhật ký mới", moduleKey: "journal", primary: true },
-      { label: "Quay lại Tổng quan", moduleKey: "overview" },
-    ],
-    softWarning: "Nhật ký là công cụ học, không phải nơi tự phán xét.",
   },
 };
 

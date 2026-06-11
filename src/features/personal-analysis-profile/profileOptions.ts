@@ -130,8 +130,8 @@ export const coreAnalysisRoute = [
   "Doanh nghiệp",
   "Báo cáo tài chính",
   "Định giá",
-  "Price Volume Time",
   "Rủi ro & minh bạch",
+  "Price Volume Time",
   "Checklist cuối",
 ];
 

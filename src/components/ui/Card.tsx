@@ -37,6 +37,8 @@ export function CardHeader({
   title,
   ...props
 }: CardHeaderProps) {
+  void icon;
+
   return (
     <div
       className={cn(
@@ -47,11 +49,6 @@ export function CardHeader({
     >
       <div className="min-w-0">
         <div className="flex min-w-0 items-center gap-2">
-          {icon ? (
-            <span className="grid h-6 w-6 shrink-0 place-items-center rounded-[3px] border-[1.5px] border-border bg-accent-soft text-[10px] font-bold text-accent">
-              {icon}
-            </span>
-          ) : null}
           <h3 className="truncate text-sm font-bold text-ink">{title}</h3>
           {chip}
         </div>

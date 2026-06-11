@@ -276,7 +276,7 @@ const macroOverviewDashboard: MacroOverviewDashboardData = {
     score: 62,
     status: "mixed",
     summary: "Lạm phát ổn hơn, nhưng tỷ giá và dòng vốn còn gây áp lực.",
-    warning: "Đây là bối cảnh, không phải khuyến nghị mua bán.",
+    warning: "Đây là bối cảnh, không phải tín hiệu giao dịch.",
   },
   metrics: [
     {
@@ -403,7 +403,7 @@ const macroOverviewDashboard: MacroOverviewDashboardData = {
       isMock: true,
       sparkline: [800, -400, -1200, -2500, -3200],
       detail: {
-        definition: "Khối ngoại là dòng mua/bán của nhà đầu tư nước ngoài.",
+        definition: "Khối ngoại là dòng giao dịch của nhà đầu tư nước ngoài.",
         currentReading: "Bán ròng 3,200 tỷ cho thấy dòng vốn đang thận trọng.",
         whyItMatters: "Dòng vốn ngoại ảnh hưởng thanh khoản, định giá và tâm lý thị trường.",
         transmission: ["Khối ngoại bán ròng", "Thanh khoản thận trọng", "Định giá chịu áp lực", "Cần xem nhóm bị bán"],
@@ -1193,14 +1193,14 @@ export const macroJourneyData: MacroJourneyData = {
             value:
               "Bước tiếp theo: sang Module Ngành với ngành cần xem, biến vĩ mô liên quan và dữ liệu cần kiểm chứng.",
             tutorNote:
-              "Đây là output đúng của Module Vĩ mô. Chưa phải quyết định mua bán.",
+              "Đây là output đúng của Module Vĩ mô. Chưa phải quyết định giao dịch.",
           },
           {
             id: "after-buy-signal",
-            label: "Khi thấy tín hiệu mua",
+            label: "Khi thấy tín hiệu thuận lợi",
             value: "Hiểu sai Module Vĩ mô thành tín hiệu giao dịch.",
             tutorNote:
-              "Module Vĩ mô không tạo tín hiệu mua bán. Nó chỉ tạo bối cảnh và câu hỏi kiểm chứng.",
+              "Module Vĩ mô không tạo tín hiệu giao dịch. Nó chỉ tạo bối cảnh và câu hỏi kiểm chứng.",
           },
           {
             id: "never",
@@ -1216,6 +1216,6 @@ export const macroJourneyData: MacroJourneyData = {
   disclaimer: {
     title: "Nhắc nhở trước khi đi tiếp",
     content:
-      "Một tín hiệu vĩ mô tích cực chưa đủ để kết luận thị trường thuận lợi. Cần kiểm tra xem dữ liệu ngành, BCTC doanh nghiệp, định giá và dòng tiền có xác nhận không. Module này không đưa khuyến nghị mua bán, không dự báo chắc chắn và không xếp hạng ngành đáng đầu tư nhất.",
+      "Một tín hiệu vĩ mô tích cực chưa đủ để kết luận thị trường thuận lợi. Cần kiểm tra xem dữ liệu ngành, BCTC doanh nghiệp, định giá và dòng tiền có xác nhận không. Module này không đưa tín hiệu giao dịch, không dự báo chắc chắn và không xếp hạng ngành đáng đầu tư nhất.",
   },
 };

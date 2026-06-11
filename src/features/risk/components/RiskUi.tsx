@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
+import { AnalysisNotePopover } from "@/components/common/AnalysisNotePopover";
 import { Button, Card, CardBody, CardHeader, Chip, DataTable, MetricCard, SectionHeader, Tabs } from "@/components/ui";
 import type { DataTableColumn } from "@/components/ui";
 import type {
@@ -216,6 +217,13 @@ export function RiskHeader({
         </div>
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
+        <AnalysisNotePopover
+          contextTitle={`${data.ticker} - ${data.moduleName}`}
+          moduleId="risk"
+          moduleName="Rủi ro"
+          noteType="counter_thesis"
+          stockSymbol={data.ticker}
+        />
         {data.actions.map((action) => {
           const isChecklistAction = action.label.toLowerCase().includes("checklist");
           return (
@@ -346,7 +354,6 @@ export function RiskDetailCard({
   data: RiskDetailGroup;
   detailLabels: DetailLabels;
 }) {
-  const [note, setNote] = useState("");
   const tabs = [
     {
       value: "questions",
@@ -403,25 +410,25 @@ export function RiskDetailCard({
           <p className="mt-2 text-sm leading-6 text-muted">{data.statusReason}</p>
           <Button size="sm" variant="secondary">{data.sourceActionLabel}</Button>
         </div>
-        {data.reflectionPrompt ? (
-          <p className="rounded-[4px] border border-border-soft bg-accent-soft/70 px-3 py-2 text-sm leading-6 text-muted">
-            {data.reflectionPrompt}
+        <div className="flex flex-col gap-3 rounded-[4px] border border-border-soft bg-accent-soft/70 px-3 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm leading-6 text-muted">
+            {data.reflectionPrompt ?? "Ghi lại điều bạn còn lo ngại hoặc giả định rủi ro trong panel riêng."}
           </p>
-        ) : null}
-        <textarea
-          className="min-h-24 w-full resize-y rounded-[4px] border-[1.5px] border-border bg-surface px-3 py-2 text-sm leading-6 text-ink outline-none transition focus:bg-accent-soft"
-          value={note}
-          onChange={(event) => setNote(event.target.value)}
-          placeholder="Ghi chú cá nhân cho nhóm rủi ro này..."
-        />
+          <AnalysisNotePopover
+            contextTitle={data.title}
+            moduleId={`risk-detail-${data.id}`}
+            moduleName="Rủi ro"
+            noteType="counter_thesis"
+            stockSymbol="MWG"
+            triggerLabel="Ghi chú rủi ro"
+          />
+        </div>
       </div>
     </RiskSectionCard>
   );
 }
 
 export function RiskFinalNote({ data }: { data: RiskFinalNoteData }) {
-  const template = useMemo(() => data.prompts.join("\n"), [data.prompts]);
-  const [value, setValue] = useState(template);
   const columns: Array<DataTableColumn<RiskFieldItem>> = [
     { key: "label", header: "Trường", cell: (row) => <span className="font-medium text-ink">{row.label}</span> },
     { key: "value", header: "Ghi nhận mẫu", cell: (row) => row.value },
@@ -444,12 +451,18 @@ export function RiskFinalNote({ data }: { data: RiskFinalNoteData }) {
         <p className="rounded-[4px] border-[1.5px] border-border bg-warning/25 px-3 py-2 text-sm leading-6 text-muted">
           {data.readinessReminder}
         </p>
-        <textarea
-          className="min-h-72 w-full resize-y rounded-[4px] border-[1.5px] border-border bg-surface px-3 py-2 text-sm leading-6 text-ink outline-none transition focus:bg-accent-soft"
-          value={value}
-          onChange={(event) => setValue(event.target.value)}
-          placeholder={data.placeholder}
-        />
+        <div className="flex flex-col gap-3 rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm leading-6 text-muted">
+            Các ghi chú cá nhân trước khi sang Checklist được lưu trong panel riêng; trạng thái readiness và dữ liệu rủi ro vẫn hiển thị trực tiếp.
+          </p>
+          <AnalysisNotePopover
+            contextTitle={data.title}
+            moduleId="risk-final-note"
+            moduleName="Rủi ro"
+            noteType="follow_up"
+            stockSymbol="MWG"
+          />
+        </div>
       </div>
     </RiskSectionCard>
   );
@@ -626,8 +639,6 @@ export function RiskEvidenceMap({ data }: { data: RiskEvidenceMapData }) {
 }
 
 function RiskGroupDetail({ data, detailLabels }: { data: RiskDetailGroup; detailLabels: DetailLabels }) {
-  const [note, setNote] = useState("");
-
   return (
     <div className="space-y-4">
       <p className="text-sm leading-6 text-muted">{data.plainExplanation}</p>
@@ -648,12 +659,19 @@ function RiskGroupDetail({ data, detailLabels }: { data: RiskDetailGroup; detail
         <BulletList items={data.watchSigns} />
       </FieldBlock>
       <DetailToggleCard details={data.advancedQuestions} labels={detailLabels} />
-      <textarea
-        className="min-h-28 w-full resize-y rounded-[4px] border-[1.5px] border-border bg-surface px-3 py-2 text-sm leading-6 text-ink outline-none transition focus:bg-accent-soft"
-        value={note}
-        onChange={(event) => setNote(event.target.value)}
-        placeholder="Ghi chú kiểm tra rủi ro..."
-      />
+      <div className="flex flex-col gap-3 rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm leading-6 text-muted">
+          Ghi chú cá nhân, giả định rủi ro hoặc điều muốn kiểm tra thêm được đặt trong panel riêng.
+        </p>
+        <AnalysisNotePopover
+          contextTitle={data.title}
+          moduleId={`risk-group-${data.id}`}
+          moduleName="Rủi ro"
+          noteType="counter_thesis"
+          stockSymbol="MWG"
+          triggerLabel="Ghi chú rủi ro"
+        />
+      </div>
     </div>
   );
 }
@@ -766,9 +784,6 @@ export function TransparencyGovernancePanel({ data }: { data: TransparencyGovern
 }
 
 export function RiskCaseFile({ data }: { data: RiskCaseFileData }) {
-  const template = useMemo(() => data.notePrompts.join("\n"), [data.notePrompts]);
-  const [note, setNote] = useState(template);
-
   return (
     <RiskSectionCard description={data.description} icon="C" title={data.title}>
       <div className="grid gap-3 xl:grid-cols-2">
@@ -781,12 +796,21 @@ export function RiskCaseFile({ data }: { data: RiskCaseFileData }) {
         <Chip size="sm" variant="warning">Điều kiện trước Checklist</Chip>
         <BulletList items={data.checklistConditions} />
       </div>
-      <textarea
-        className="mt-4 min-h-52 w-full resize-y rounded-[4px] border-[1.5px] border-border bg-surface px-3 py-2 text-sm leading-6 text-ink outline-none transition focus:bg-accent-soft"
-        value={note}
-        onChange={(event) => setNote(event.target.value)}
-        placeholder="Ghi lại case rủi ro trước khi sang Checklist..."
-      />
+      <div className="mt-4 flex flex-col gap-3 rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-sm font-bold text-ink">Ghi chú case rủi ro</p>
+          <p className="mt-1 text-xs leading-5 text-muted">
+            Lưu điều bạn lo ngại, giả định rủi ro hoặc việc cần kiểm tra thêm trước khi sang Checklist.
+          </p>
+        </div>
+        <AnalysisNotePopover
+          contextTitle={data.title}
+          moduleId="risk-case-file"
+          moduleName="Rủi ro"
+          noteType="counter_thesis"
+          stockSymbol="MWG"
+        />
+      </div>
     </RiskSectionCard>
   );
 }

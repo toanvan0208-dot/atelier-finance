@@ -1,3 +1,4 @@
+import { AnalysisNotePopover } from "@/components/common/AnalysisNotePopover";
 import { Button, Card, CardBody, Chip } from "@/components/ui";
 import type { LearningLesson, LessonStatus } from "../types";
 
@@ -29,6 +30,13 @@ export function LearningCoachBar({
           <span className="text-xs font-semibold text-muted">
             Học đúng bài, sửa đúng lỗi, quay lại đúng module.
           </span>
+          <AnalysisNotePopover
+            contextTitle="Ghi chú cấp module Học tập"
+            moduleId="learning-module"
+            moduleName="Học tập"
+            noteType="lesson"
+            triggerLabel="Ghi chú phân tích"
+          />
         </div>
         <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
           <div>

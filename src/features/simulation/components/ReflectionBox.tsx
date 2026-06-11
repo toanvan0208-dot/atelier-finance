@@ -1,4 +1,4 @@
-"use client";
+import { AnalysisNotePopover } from "@/components/common/AnalysisNotePopover";
 
 type ReflectionBoxProps = {
   placeholder: string;
@@ -6,9 +6,16 @@ type ReflectionBoxProps = {
 
 export function ReflectionBox({ placeholder }: ReflectionBoxProps) {
   return (
-    <textarea
-      className="min-h-28 w-full resize-y rounded-[4px] border-[1.5px] border-border bg-surface px-3 py-3 text-sm leading-6 text-ink outline-none transition placeholder:text-subtle focus:bg-accent-soft/35"
-      placeholder={placeholder}
-    />
+    <div className="flex flex-col gap-3 rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3 sm:flex-row sm:items-center sm:justify-between">
+      <p className="text-sm leading-6 text-muted">{placeholder}</p>
+      <AnalysisNotePopover
+        contextTitle="Nhật ký mô phỏng"
+        moduleId="simulation-reflection"
+        moduleName="Mô phỏng"
+        noteType="lesson"
+        stockSymbol="MWG"
+        triggerLabel="Ghi nhật ký"
+      />
+    </div>
   );
 }

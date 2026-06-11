@@ -5,9 +5,6 @@ import { EmptyState, LoadingState } from "@/components/ui";
 import { watchlistPageData } from "../data/watchlist.data";
 import type { StockIdea, WatchlistFilterState } from "../types";
 import { StockIdeaGrid } from "./StockIdeaGrid";
-import { WatchlistActionQueue } from "./WatchlistActionQueue";
-import { WatchlistCommandCenter } from "./WatchlistCommandCenter";
-import { WatchlistDisciplinePanel } from "./WatchlistDisciplinePanel";
 import { WatchlistDisclaimer } from "./WatchlistDisclaimer";
 import { WatchlistFilters } from "./WatchlistFilters";
 import { WatchlistHeader } from "./WatchlistHeader";
@@ -119,18 +116,6 @@ export function WatchlistPage() {
     setFilters((current) => ({ ...current, pipelineStatus: status }));
   }
 
-  function applyQuickFilter(filter: "missing-thesis" | "review" | "event" | "simulation-ready" | "paused") {
-    const next: WatchlistFilterState = { sortBy: "priority", pipelineStatus: "all" };
-
-    if (filter === "missing-thesis") next.thesisStatus = "missing";
-    if (filter === "review") next.pipelineStatus = "Cần xem lại";
-    if (filter === "event") next.hasEvent = true;
-    if (filter === "simulation-ready") next.readyForSimulation = true;
-    if (filter === "paused") next.pausedOnly = true;
-
-    setFilters(next);
-  }
-
   if (data.isLoading) {
     return <LoadingState description={data.loading.content} title={data.loading.title} />;
   }
@@ -148,11 +133,6 @@ export function WatchlistPage() {
   return (
     <div className="mx-auto w-full max-w-[1180px] space-y-5">
       <WatchlistHeader data={data.header} ideas={data.ideas} />
-      <WatchlistCommandCenter
-        ideas={data.ideas}
-        onSelectFilter={applyQuickFilter}
-      />
-      <WatchlistActionQueue ideas={data.ideas} onOpenIdea={handleOpenIdea} />
       <WatchlistPipelineBoard
         activeStatus={filters.pipelineStatus ?? "all"}
         ideas={data.ideas}
@@ -177,7 +157,6 @@ export function WatchlistPage() {
             onOpenDetails={handleOpenIdea}
             totalCount={data.ideas.length}
           />
-          <WatchlistDisciplinePanel ideas={data.ideas} onOpenIdea={handleOpenIdea} />
           <WatchlistDisclaimer data={data.disclaimer} />
         </main>
       </div>

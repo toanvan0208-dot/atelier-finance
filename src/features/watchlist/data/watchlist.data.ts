@@ -85,7 +85,7 @@ export const watchlistPageData: WatchlistPageData = {
       { label: "Ngành", value: "Công nghệ, ngân hàng, thép, logistics" },
       { label: "Trạng thái phân tích", value: "Mới thêm, đang phân tích, cần xem lại" },
       { label: "Mức độ ưu tiên", value: "Cao, vừa, theo dõi nhẹ, chờ dữ liệu" },
-      { label: "Module còn thiếu", value: "BCTC, Định giá, PVT, Rủi ro" },
+      { label: "Module còn thiếu", value: "BCTC, Định giá, Rủi ro, PVT" },
       { label: "Sự kiện sắp tới", value: "BCTC, đại hội cổ đông, chính sách ngành" },
       { label: "Đang mô phỏng", value: "Lọc các thesis cần nhật ký" },
       { label: "Cần xem lại", value: "Ưu tiên dữ liệu mới và cảnh báo mềm" },
@@ -204,7 +204,7 @@ export const watchlistPageData: WatchlistPageData = {
       invalidatingData: ["Biên lợi nhuận thu hẹp", "Tăng trưởng đơn hàng chậm lại", "Định giá vượt xa giả định"],
       risks: ["Rủi ro định giá", "Rủi ro kỳ vọng tăng trưởng", "Rủi ro tỷ giá"],
       missingModules: [],
-      completedModules: ["Hiểu doanh nghiệp", "Ngành", "BCTC", "Định giá", "PVT", "Rủi ro"],
+      completedModules: ["Hiểu doanh nghiệp", "Ngành", "BCTC", "Định giá", "Rủi ro", "PVT"],
       dataToUpdate: ["Đơn hàng mới", "Biên lợi nhuận", "Giả định tăng trưởng"],
       events: [{ label: "Cập nhật kết quả kinh doanh", date: "2026-07-18", tone: "accent" }],
       latestNote: "Thesis đủ rõ, cần mô phỏng để luyện theo dõi điều kiện đúng sai.",
@@ -254,7 +254,7 @@ export const watchlistPageData: WatchlistPageData = {
       invalidatingData: ["Nhu cầu yếu kéo dài", "Biên gộp giảm", "Tồn kho tăng nhanh"],
       risks: ["Rủi ro nhu cầu tiêu dùng", "Rủi ro biên lợi nhuận", "Rủi ro hành vi/FOMO"],
       missingModules: ["Nhật ký hậu kiểm"],
-      completedModules: ["Hiểu doanh nghiệp", "Ngành", "BCTC", "Định giá", "PVT", "Rủi ro", "Mô phỏng"],
+      completedModules: ["Hiểu doanh nghiệp", "Ngành", "BCTC", "Định giá", "Rủi ro", "PVT", "Mô phỏng"],
       dataToUpdate: ["Doanh thu quý", "Biên gộp", "Mốc xem lại thesis"],
       events: [{ label: "Mốc xem lại thesis", date: "2026-07-30", tone: "success" }],
       latestNote: "Đang mô phỏng, cần ghi nguyên nhân nếu thesis đổi sau BCTC.",
@@ -480,7 +480,7 @@ export const watchlistPageData: WatchlistPageData = {
         journalStatus: "Cần cập nhật sau dữ liệu quý",
         requiredUpdate:
           "Kiểm tra doanh thu, biên gộp, tồn kho và dòng tiền hoạt động.",
-        linkedModules: ["Mô phỏng", "BCTC", "PVT", "Rủi ro", "Nhật ký"],
+        linkedModules: ["Mô phỏng", "BCTC", "Rủi ro", "PVT", "Nhật ký"],
         softWarning:
           "Đây là vị thế theo dõi giả lập để kiểm tra thesis, không phải trạng thái giao dịch thật.",
         actions: [

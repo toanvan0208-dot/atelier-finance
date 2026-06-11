@@ -68,20 +68,20 @@ export const overviewState: OverviewState = {
       ctaLabel: "Mở Định giá",
     },
     {
-      id: "technical",
-      label: "Price Volume Time",
-      moduleKey: "technical",
-      status: "needs_check",
-      shortOutput: "Cần kiểm tra volume và sự kiện trước nhịp tăng.",
-      ctaLabel: "Mở PVT",
-    },
-    {
       id: "risk",
       label: "Rủi ro & minh bạch",
       moduleKey: "risk",
       status: "warning",
       shortOutput: "Minh bạch và biên an toàn cần xem kỹ hơn.",
       ctaLabel: "Mở Rủi ro",
+    },
+    {
+      id: "technical",
+      label: "Price Volume Time",
+      moduleKey: "technical",
+      status: "needs_check",
+      shortOutput: "Cần kiểm tra volume và sự kiện trước nhịp tăng.",
+      ctaLabel: "Mở PVT",
     },
     {
       id: "checklist",
@@ -238,14 +238,6 @@ export const overviewState: OverviewState = {
       helperText: "Nên tạo sau khi thesis và rủi ro đã rõ hơn.",
       ctaLabel: "Mở Mô phỏng",
       moduleKey: "simulation",
-    },
-    {
-      id: "journal",
-      title: "Nhật ký phân tích",
-      status: "Chưa ghi thesis",
-      helperText: "Ghi lại điều chưa chắc trước khi đi tiếp.",
-      ctaLabel: "Ghi nhật ký",
-      moduleKey: "journal",
     },
   ],
   disclaimer:

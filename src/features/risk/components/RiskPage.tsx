@@ -8,7 +8,6 @@ import {
   RiskDisclaimer,
   RiskEvidenceMap,
   RiskHeader,
-  RiskNextActions,
   TransparencyGovernancePanel,
 } from "./RiskUi";
 
@@ -48,7 +47,6 @@ export function RiskPage() {
       <TransparencyGovernancePanel data={data.transparencyGovernance} />
       <RiskCaseFile data={data.caseFile} />
       <ChecklistReadinessPanel data={data.checklistReadiness} />
-      <RiskNextActions canContinueToChecklist={canContinueToChecklist} data={data.nextActions} />
       <RiskDisclaimer data={data.disclaimer} />
     </div>
   );

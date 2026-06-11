@@ -1,69 +1,136 @@
-export type ChecklistPurposeId =
-  | "simulation"
-  | "real_decision"
-  | "new_data_update"
-  | "price_volume_event"
-  | "unclear_thesis";
+export type AnalysisModuleKey =
+  | "macro"
+  | "industry"
+  | "screening"
+  | "business"
+  | "financials"
+  | "valuation"
+  | "technical"
+  | "risk";
 
-export type ChecklistStatusId =
+export type AnalysisModuleStatus =
   | "not_started"
   | "in_progress"
-  | "basic_ok"
-  | "need_more_check"
-  | "missing_important_data";
+  | "minimum_completed"
+  | "completed"
+  | "needs_update";
 
-export type ReadinessStatus =
-  | "Sẵn sàng cho bước tiếp theo"
-  | "Tạm đủ để mô phỏng"
-  | "Cần kiểm tra thêm"
-  | "Chưa nên đi tiếp"
-  | "Thiếu dữ liệu quan trọng"
-  | "Có thể mô phỏng với cảnh báo";
+export type AnalysisModuleCompletion = {
+  moduleKey: AnalysisModuleKey;
+  moduleName: string;
+  status: AnalysisModuleStatus;
+  required: boolean;
+  completionPercent: number;
+  requiredOutputs: string[];
+  completedOutputs: string[];
+  missingOutputs: string[];
+  evidence?: string;
+  summary?: string;
+  lastUpdated?: string;
+  blockingReason?: string;
+  navigateTo: string;
+};
 
-export type ChecklistPurpose = {
-  id: ChecklistPurposeId;
+export type ChecklistModeId = "standard" | "full_before_simulation";
+
+export type ChecklistMode = {
+  id: ChecklistModeId;
   label: string;
+  minQuestions: number;
+  maxQuestions: number;
+  estimatedTime: string;
   description: string;
-  priorityGroupIds: string[];
-  explanation: string;
+  structure: string;
+  bestFor: string;
 };
 
-export type ChecklistGroup = {
+export type StockChecklistQuestionType =
+  | "single_choice"
+  | "multiple_choice"
+  | "short_text";
+
+export type StockChecklistQuestion = {
   id: string;
-  name: string;
-  goal: string;
-  status: ChecklistStatusId;
-  answered: number;
-  total: number;
-  missingPoints: string[];
-  relatedModules: Array<{
-    label: string;
-    moduleKey: string;
-  }>;
-  questions: string[];
-  softWarning?: string;
+  groupId: string;
+  questionText: string;
+  questionType: StockChecklistQuestionType;
+  required: boolean;
+  coreQuestion: boolean;
+  relatedModule: AnalysisModuleKey | "watchlist";
+  options?: string[];
+  aiPersonalized?: boolean;
 };
 
-export type ChecklistState = {
+export type StockChecklistAnswerStatus =
+  | "available"
+  | "unsure"
+  | "missing"
+  | "unknown";
+
+export type StockChecklistAnswer = {
+  questionId: string;
+  status: StockChecklistAnswerStatus;
+  selectedOptions?: string[];
+  textAnswer?: string;
+  note?: string;
+  evidence?: string;
+  relatedModule?: string;
+};
+
+export type ChecklistReadiness =
+  | "locked"
+  | "not_enough_understanding"
+  | "need_more_analysis"
+  | "watchlist_only"
+  | "prepare_simulation_with_warning"
+  | "ready_for_simulation"
+  | "fomo_warning"
+  | "unclear_thesis"
+  | "missing_critical_data";
+
+export type StockChecklistResult = {
+  ticker: string;
+  mode: ChecklistModeId;
+  readiness: ChecklistReadiness;
+  completedRequiredModules: number;
+  totalRequiredModules: number;
+  totalQuestions: number;
+  answeredQuestions: number;
+  missingCriticalCount: number;
+  unsureCount: number;
+  fomoWarning: boolean;
+  nextAction: string;
+  modulesToRevisit: string[];
+};
+
+export type ChecklistQuestionGroup = {
+  id: string;
+  title: string;
+  goal: string;
+  relatedModules: Array<AnalysisModuleKey | "watchlist">;
+  standardQuestionIds: string[];
+  fullQuestionIds: string[];
+};
+
+export type ChecklistTickerState = {
   ticker: string;
   companyName: string;
   industry: string;
-  checklistPurpose: ChecklistPurposeId;
-  readinessStatus: ReadinessStatus;
-  completedGroups: number;
-  totalGroups: number;
-  missingPoints: string[];
+  currentStatus: string;
   thesis: string;
   confirmingData: string[];
   disconfirmingData: string[];
-  groups: ChecklistGroup[];
-  result: {
-    readiness: ReadinessStatus;
-    nextAction: string;
-    suggestedModules: Array<{
-      label: string;
-      moduleKey: string;
-    }>;
-    recommendedLessons: string[];
-  };
+  mainRisk: string;
+  reviewMilestone: string;
+  moduleCompletions: AnalysisModuleCompletion[];
+  answers: StockChecklistAnswer[];
+};
+
+export type ChecklistBlockingModule = {
+  moduleKey: AnalysisModuleKey;
+  moduleName: string;
+  status: AnalysisModuleStatus;
+  missingOutputs: string[];
+  blockingReason: string;
+  navigateTo: string;
 };

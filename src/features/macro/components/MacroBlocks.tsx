@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { AnalysisNotePopover } from "@/components/common/AnalysisNotePopover";
 import { Button, Card, CardBody, CardHeader, Chip } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import type {
@@ -136,11 +137,19 @@ export function MacroHeader({
 }) {
   return (
     <div className="rounded-[4px] border-[1.5px] border-border bg-surface px-5 py-5 shadow-soft">
-      <div className="mb-3 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.04em] text-accent">
-        <span className="grid h-7 w-7 place-items-center rounded-[3px] border-[1.5px] border-border bg-accent-soft text-[10px] font-bold text-accent">
-          {overview.icon}
-        </span>
-        <span>{overview.eyebrow}</span>
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.04em] text-accent">
+          <span className="grid h-7 w-7 place-items-center rounded-[3px] border-[1.5px] border-border bg-accent-soft text-[10px] font-bold text-accent">
+            {overview.icon}
+          </span>
+          <span>{overview.eyebrow}</span>
+        </div>
+        <AnalysisNotePopover
+          contextTitle={overview.title}
+          moduleId="macro"
+          moduleName="Vĩ mô"
+          noteType="assumption"
+        />
       </div>
       <h1 className="font-brand text-2xl font-bold text-ink sm:text-3xl">
         {overview.title}
@@ -401,7 +410,7 @@ export function MacroSectorImpactMap({
   return (
     <div className="grid gap-4">
       <div className="rounded-[4px] border border-border-soft bg-accent-soft/50 px-4 py-3 text-sm leading-6 text-ink">
-        “Hưởng lợi” không có nghĩa là nên mua cổ phiếu trong ngành đó. Cần
+        “Hưởng lợi” không có nghĩa là có thể chuyển thành hành động giao dịch trong ngành đó. Cần
         kiểm chứng bằng dữ liệu ngành, BCTC, định giá và rủi ro.
       </div>
 

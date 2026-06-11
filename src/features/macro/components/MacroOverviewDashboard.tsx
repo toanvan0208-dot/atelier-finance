@@ -294,7 +294,7 @@ function openSectorDetail(tile: MacroSectorTile): DetailState {
       { title: "Module nên xem tiếp", content: <ChipList items={tile.detail.nextModule} /> },
       {
         title: "Cảnh báo",
-        content: `${tile.detail.warning} Hưởng lợi từ vĩ mô không có nghĩa là nên mua cổ phiếu trong ngành đó.`,
+        content: `${tile.detail.warning} Hưởng lợi từ vĩ mô không có nghĩa là có thể chuyển thành hành động giao dịch trong ngành đó.`,
       },
     ],
   };
@@ -346,7 +346,7 @@ function openHowToReadDetail(): DetailState {
     sections: [
       {
         title: "Mục đích",
-        content: "Dashboard dùng để đọc bối cảnh vĩ mô, không phải khuyến nghị mua bán.",
+        content: "Dashboard dùng để đọc bối cảnh vĩ mô, không phải tín hiệu giao dịch.",
       },
       {
         title: "Cách hiểu trạng thái",
@@ -455,7 +455,7 @@ function DetailedMacroDashboard({
         {activeTab === "sectors" ? (
           <div className="space-y-3">
             <p className="rounded-[4px] border border-warning bg-warning/10 px-3 py-2 text-xs font-bold leading-5 text-ink">
-              Hưởng lợi từ vĩ mô không có nghĩa là nên mua cổ phiếu trong ngành đó. Cần kiểm chứng tiếp bằng dữ liệu ngành, BCTC, định giá và rủi ro.
+              Hưởng lợi từ vĩ mô không có nghĩa là có thể chuyển thành hành động giao dịch trong ngành đó. Cần kiểm chứng tiếp bằng dữ liệu ngành, BCTC, định giá và rủi ro.
             </p>
             <SectorHeatmap
               tiles={data.dashboard.sectorTiles}

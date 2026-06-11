@@ -19,7 +19,7 @@ export const routeGoalOptions: Array<RouteOption & { id: RouteGoalId }> = [
     title: "Tôi muốn phân tích một cổ phiếu cụ thể",
     description: "Dành cho người đã có mã cổ phiếu trong đầu và muốn đi theo quy trình phân tích.",
     suitableWhen: ["Bạn đã có mã muốn tìm hiểu.", "Bạn cần kiểm tra doanh nghiệp, BCTC, định giá và rủi ro.", "Bạn muốn tạo thesis rõ ràng."],
-    suggestedPath: ["Hiểu doanh nghiệp", "BCTC", "Định giá", "PVT", "Rủi ro", "Checklist", "Mô phỏng"],
+    suggestedPath: ["Hiểu doanh nghiệp", "BCTC", "Định giá", "Rủi ro", "PVT", "Checklist", "Mô phỏng", "Watchlist"],
   },
   {
     id: "find_ideas",
@@ -32,22 +32,22 @@ export const routeGoalOptions: Array<RouteOption & { id: RouteGoalId }> = [
     id: "simulate_first",
     title: "Tôi muốn mô phỏng trước khi dùng tiền thật",
     description: "Dành cho người muốn luyện thesis, vị thế giả lập, theo dõi dữ liệu mới và hậu kiểm.",
-    suitableWhen: ["Bạn muốn luyện quyết định trước.", "Bạn muốn học từ sai lầm mà không mất tiền.", "Bạn cần nhật ký và mốc xem lại."],
-    suggestedPath: ["Watchlist", "Checklist", "Thesis Builder", "Mô phỏng", "Nhật ký", "Hậu kiểm"],
+    suitableWhen: ["Bạn muốn luyện quyết định trước.", "Bạn muốn học từ sai lầm mà không mất tiền.", "Bạn cần mốc xem lại và hậu kiểm."],
+    suggestedPath: ["Checklist", "Thesis Builder", "Mô phỏng", "Hậu kiểm", "Watchlist"],
   },
   {
     id: "review_decision",
     title: "Tôi muốn kiểm tra lại một quyết định",
-    description: "Dành cho người đã có ý định mua/bán/theo dõi một mã và muốn kiểm tra lại dữ liệu, rủi ro, cảm xúc.",
+    description: "Dành cho người đã có ý định hành động/theo dõi một mã và muốn kiểm tra lại dữ liệu, rủi ro, cảm xúc.",
     suitableWhen: ["Bạn muốn tránh quyết định vội.", "Bạn cần kiểm tra định giá và rủi ro.", "Bạn nghi ngờ mình đang FOMO."],
-    suggestedPath: ["Checklist", "Rủi ro", "Định giá", "PVT", "Nhật ký quyết định"],
+    suggestedPath: ["Checklist", "Rủi ro", "Định giá", "PVT", "Mô phỏng"],
   },
   {
     id: "research_project",
     title: "Tôi muốn làm đồ án/nghiên cứu/học tập",
     description: "Dành cho người dùng hệ thống để học, làm prototype, nghiên cứu hoặc trình bày quy trình.",
     suitableWhen: ["Bạn muốn xem toàn bộ hệ thống.", "Bạn cần luồng rõ để trình bày.", "Bạn muốn có ví dụ mô phỏng và hậu kiểm."],
-    suggestedPath: ["Tổng quan", "Học tập", "Vĩ mô", "Ngành", "Mô phỏng", "Nhật ký/hậu kiểm"],
+    suggestedPath: ["Tổng quan", "Học tập", "Vĩ mô", "Ngành", "Mô phỏng", "Hậu kiểm"],
   },
 ];
 
@@ -83,9 +83,9 @@ export const journeyModeOptions: Array<RouteOption & { id: JourneyModeId }> = [
   {
     id: "simulate_review",
     title: "Mô phỏng và hậu kiểm",
-    description: "Hệ thống ưu tiên thesis, vị thế giả lập, nhật ký và bài học sau mô phỏng.",
+    description: "Hệ thống ưu tiên thesis, vị thế giả lập, hậu kiểm và bài học sau mô phỏng.",
     suitableWhen: ["Bạn muốn luyện quyết định.", "Bạn muốn học từ sai lầm.", "Bạn cần hậu kiểm quy trình."],
-    suggestedPath: ["Watchlist", "Checklist", "Mô phỏng", "Nhật ký"],
+    suggestedPath: ["Checklist", "Mô phỏng", "Hậu kiểm", "Watchlist"],
   },
 ];
 
@@ -133,7 +133,7 @@ export const stuckPoints: StuckPoint[] = [
   { id: "risk", label: "Tôi không biết rủi ro nào quan trọng.", lesson: "Checklist rủi ro trước khi đi tiếp" },
   { id: "thesis", label: "Tôi chưa có thói quen viết thesis.", lesson: "Thesis đầu tư là gì?" },
   { id: "simulation", label: "Tôi chưa biết khi nào nên mô phỏng.", lesson: "Mô phỏng trước khi dùng tiền thật" },
-  { id: "checklist", label: "Tôi chưa biết checklist trước quyết định gồm gì.", lesson: "Checklist không phải tín hiệu mua/bán" },
+  { id: "checklist", label: "Tôi chưa biết checklist trước quyết định gồm gì.", lesson: "Checklist không phải tín hiệu giao dịch" },
 ];
 
 export const industryChoices = [

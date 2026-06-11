@@ -1,12 +1,9 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
-import { Button, Card, CardBody, LoadingState } from "@/components/ui";
+import { useMemo, useState } from "react";
+import { LoadingState } from "@/components/ui";
 import { screeningPageData } from "../data/screening.data";
 import type { ScreeningMode, ScreeningOption } from "../types";
-import { ScreeningComparisonTable } from "./ScreeningComparisonTable";
-import { ScreeningContextSummary } from "./ScreeningContextSummary";
-import { ScreeningDeepDive } from "./ScreeningDeepDive";
 import { ScreeningDisclaimer } from "./ScreeningDisclaimer";
 import { ScreeningFunnelSummary } from "./ScreeningFunnelSummary";
 import { ScreeningInputPanel } from "./ScreeningInputPanel";
@@ -14,7 +11,6 @@ import { ScreeningModeSelector } from "./ScreeningModeSelector";
 import { ScreeningNextActions } from "./ScreeningNextActions";
 import { ScreeningResultGroups } from "./ScreeningResultGroups";
 import { TickerQuickCheck } from "./TickerQuickCheck";
-import { UnderstandingCheck } from "./UnderstandingCheck";
 
 function ScreeningHeader() {
   const data = screeningPageData.hero;
@@ -76,12 +72,8 @@ export function ScreeningPage() {
   const [screeningMode, setScreeningMode] = useState<ScreeningMode>("context");
   const [activeIndustry, setActiveIndustry] = useState(data.input.defaultIndustry);
   const [selectedTicker, setSelectedTicker] = useState<string | null>(null);
-  const [showAnalysisLayer, setShowAnalysisLayer] = useState(false);
-  const deepDiveRef = useRef<HTMLElement | null>(null);
 
   const selectedStock = selectedTicker ? data.stocksByTicker[selectedTicker] : null;
-  const shouldShowTickerDependentSections =
-    screeningMode === "context" || Boolean(selectedStock);
   const contextIndustry =
     screeningMode === "ticker"
       ? sectorToIndustryKey(selectedStock?.sector)
@@ -111,10 +103,6 @@ export function ScreeningPage() {
     }
   }
 
-  function scrollToDeepDive() {
-    deepDiveRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-
   return (
     <div className="mx-auto w-full max-w-[1040px] space-y-8">
       <ScreeningHeader />
@@ -137,7 +125,7 @@ export function ScreeningPage() {
           labels={data.stockCardLabels}
           selectedTicker={selectedTicker}
           stocksByTicker={data.stocksByTicker}
-          onOpenFunnel={scrollToDeepDive}
+          onOpenFunnel={() => undefined}
           onSelectTicker={setSelectedTicker}
         />
       )}
@@ -151,52 +139,6 @@ export function ScreeningPage() {
           labels={data.resultGroupLabels}
           stockCardLabels={data.stockCardLabels}
         />
-      ) : null}
-
-      <Card>
-        <CardBody className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-sm font-bold text-ink">Lớp phân tích tùy chọn</p>
-            <p className="mt-1 text-xs leading-5 text-muted">
-              Mở khi cần xem luận điểm bối cảnh, so sánh nhanh, cách hệ thống lọc và quiz hiểu đúng.
-            </p>
-          </div>
-          <Button size="sm" variant="secondary" onClick={() => setShowAnalysisLayer((value) => !value)}>
-            {showAnalysisLayer ? "Ẩn phân tích phụ" : "Mở phân tích phụ"}
-          </Button>
-        </CardBody>
-      </Card>
-
-      {showAnalysisLayer ? (
-        <div className="space-y-5">
-          {shouldShowTickerDependentSections ? (
-            <ScreeningContextSummary
-              activeIndustry={contextIndustry}
-              data={data.context}
-              ticker={selectedTicker}
-              tickerSector={selectedStock?.sector}
-            />
-          ) : null}
-
-          {shouldShowTickerDependentSections ? (
-            <ScreeningComparisonTable
-              data={data.comparison}
-              mode={screeningMode}
-              selectedStock={selectedStock}
-              stocksByTicker={data.stocksByTicker}
-            />
-          ) : (
-            <p className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-2 text-xs font-semibold leading-5 text-muted">
-              Chọn hoặc nhập một mã hợp lệ để mở so sánh nhanh.
-            </p>
-          )}
-
-          <section ref={deepDiveRef}>
-            <ScreeningDeepDive data={data.deepDive} />
-          </section>
-
-          <UnderstandingCheck data={data.understanding} />
-        </div>
       ) : null}
 
       <ScreeningNextActions

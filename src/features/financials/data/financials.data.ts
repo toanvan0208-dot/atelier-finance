@@ -68,7 +68,7 @@ export const financialsPageData: FinancialsPageData = {
     healthStatus: "Cần theo dõi",
     score: 68,
     conclusion: "Doanh thu phục hồi, nhưng cần kiểm tra dòng tiền và tồn kho.",
-    warning: "Đây là đánh giá sơ bộ BCTC, không phải khuyến nghị mua bán.",
+    warning: "Đây là đánh giá sơ bộ BCTC, không phải tín hiệu giao dịch.",
     isMock: true,
     valuationReadinessSummary: {
       completed: 4,

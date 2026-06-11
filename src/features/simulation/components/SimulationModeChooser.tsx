@@ -10,13 +10,13 @@ type SimulationModeChooserProps = {
 
 const friendlyNames: Record<SimulationModeId, string> = {
   current: "Mô phỏng hiện tại",
-  scenario: "Kịch bản giả định",
+  scenario: "Stress-test kịch bản",
   history: "Case lịch sử",
 };
 
 const beginnerHint: Record<SimulationModeId, string> = {
   current: "Người mới nên bắt đầu tại đây nếu đã có một mã muốn theo dõi.",
-  scenario: "Dùng khi muốn biết thesis yếu ở điểm nào nếu rủi ro xảy ra.",
+  scenario: "Đào sâu một rủi ro cụ thể để xem thesis còn đứng vững không.",
   history: "Dùng khi muốn luyện quyết định với dữ liệu quá khứ bị khóa.",
 };
 

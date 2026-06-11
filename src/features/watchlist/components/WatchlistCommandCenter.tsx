@@ -50,7 +50,7 @@ export function WatchlistCommandCenter({
               Ưu tiên hôm nay: xử lý các mã thiếu dữ liệu BCTC, định giá hoặc lý do theo dõi chưa rõ.
             </p>
             <p className="rounded-[4px] border border-border-soft bg-accent-soft px-3 py-2 text-xs leading-5 text-muted">
-              Watchlist dùng để quản lý ý tưởng cần kiểm chứng, không phải danh sách khuyến nghị mua bán.
+              Watchlist dùng để quản lý ý tưởng cần kiểm chứng, không phải danh sách tín hiệu giao dịch.
             </p>
           </CardBody>
         </Card>

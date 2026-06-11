@@ -52,7 +52,7 @@ const fields: Array<{
   {
     key: "moduleToRecheck",
     label: "Module cần quay lại nếu dữ liệu thay đổi",
-    placeholder: "BCTC, PVT, Rủi ro hoặc Định giá.",
+    placeholder: "BCTC, Rủi ro, PVT hoặc Định giá.",
   },
 ];
 

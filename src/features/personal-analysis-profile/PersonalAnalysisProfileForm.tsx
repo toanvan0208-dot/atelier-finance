@@ -88,7 +88,7 @@ export function PersonalAnalysisProfileForm({
         value={draft.goal}
       />
       <OptionGroup
-        description="Không dùng để khuyến nghị mua bán. Chỉ dùng để điều chỉnh mức cảnh báo và thứ tự ưu tiên kiểm tra."
+        description="Không dùng để tạo tín hiệu giao dịch. Chỉ dùng để điều chỉnh mức cảnh báo và thứ tự ưu tiên kiểm tra."
         label="Khẩu vị rủi ro"
         onChange={(riskAppetite) => onChange({ ...draft, riskAppetite })}
         options={riskAppetiteOptions}

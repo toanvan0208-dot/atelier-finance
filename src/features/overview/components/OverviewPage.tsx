@@ -71,7 +71,7 @@ function OverviewHeader() {
           </p>
         </div>
         <p className="max-w-[360px] rounded-[4px] border border-border-soft bg-accent-soft px-3 py-2 text-xs leading-5 text-muted">
-          Không có khuyến nghị mua/bán. Các trạng thái chỉ giúp điều phối học, kiểm tra dữ liệu và cảnh báo.
+          Không có tín hiệu giao dịch. Các trạng thái chỉ giúp điều phối học, kiểm tra dữ liệu và cảnh báo.
         </p>
       </div>
     </section>
