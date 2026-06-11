@@ -1,28 +1,31 @@
-import { EmptyState, LoadingState, StepAccordion } from "@/components/ui";
+import { EmptyState, LoadingState } from "@/components/ui";
 import { financialsPageData } from "../data/financials.data";
 import { BalanceSheetBlock } from "./BalanceSheetBlock";
+import { BusinessHypothesisVerification } from "./BusinessHypothesisVerification";
 import { CapitalAllocationFinancialsBlock } from "./CapitalAllocationFinancialsBlock";
 import { CashFlowBlock } from "./CashFlowBlock";
 import { DebtStructureBlock } from "./DebtStructureBlock";
 import { EarningsQualityBlock } from "./EarningsQualityBlock";
+import { FinancialAnalysisJourney, type FinancialJourneyGroup } from "./FinancialAnalysisJourney";
+import { FinancialConclusionCheckpoint } from "./FinancialConclusionCheckpoint";
+import { FinancialHealthCommandCenter } from "./FinancialHealthCommandCenter";
 import { FinancialRatioGroups } from "./FinancialRatioGroups";
 import { FinancialSnapshotBlock } from "./FinancialSnapshotBlock";
+import { FinancialStatementMap } from "./FinancialStatementMap";
 import { FinancialWarningSigns } from "./FinancialWarningSigns";
 import { FinancialsDisclaimer } from "./FinancialsDisclaimer";
 import { FinancialsHeader } from "./FinancialsHeader";
-import { FinancialsNextActions } from "./FinancialsNextActions";
-import { FinancialsQuickSummary } from "./FinancialsQuickSummary";
 import { FinancialsUnderstandingChecklist } from "./FinancialsUnderstandingChecklist";
 import { IncomeStatementBlock } from "./IncomeStatementBlock";
 import { IndustrySpecificFinancialsBlock } from "./IndustrySpecificFinancialsBlock";
 import { PersonalFinancialsThesis } from "./PersonalFinancialsThesis";
 import { ProfitToCashBlock } from "./ProfitToCashBlock";
 import { ValuationBridgeBlock } from "./ValuationBridgeBlock";
+import { ValuationReadinessPanel } from "./ValuationReadinessPanel";
 import { WorkingCapitalBlock } from "./WorkingCapitalBlock";
 
 export function FinancialsPage() {
   const data = financialsPageData;
-  const steps = data.progress.steps;
 
   if (data.isLoading) {
     return <LoadingState description={data.loading.content} title={data.loading.title} />;
@@ -38,37 +41,131 @@ export function FinancialsPage() {
     );
   }
 
+  const journeyGroups: FinancialJourneyGroup[] = [
+    {
+      id: "quick-health",
+      order: 1,
+      title: "Nhìn nhanh sức khỏe tài chính",
+      description: "Bắt đầu từ snapshot, chỉ số lõi và cảnh báo nhanh trước khi đọc sâu.",
+      status: "Đã kiểm tra",
+      includedBlocks: ["Snapshot", "Chỉ số lõi", "Cảnh báo nhanh"],
+      content: (
+        <div id="snapshot" className="scroll-mt-6">
+          <FinancialSnapshotBlock data={data.snapshot} />
+        </div>
+      ),
+    },
+    {
+      id: "three-statements",
+      order: 2,
+      title: "Đọc 3 báo cáo chính",
+      description: "Đọc KQKD, bảng cân đối và lưu chuyển tiền tệ như một dòng chảy.",
+      status: "Đang đọc",
+      includedBlocks: ["KQKD", "Cân đối", "Dòng tiền"],
+      content: (
+        <>
+          <div id="income" className="scroll-mt-6">
+            <IncomeStatementBlock data={data.incomeStatement} />
+          </div>
+          <div id="balance" className="scroll-mt-6">
+            <BalanceSheetBlock data={data.balanceSheet} />
+          </div>
+          <div id="cashflow" className="scroll-mt-6">
+            <CashFlowBlock data={data.cashFlow} />
+          </div>
+        </>
+      ),
+    },
+    {
+      id: "quality-cash",
+      order: 3,
+      title: "Kiểm tra chất lượng lợi nhuận và dòng tiền",
+      description: "So lợi nhuận kế toán với tiền thật và tách khoản bất thường.",
+      status: "Cần xem lại",
+      includedBlocks: ["LNST vs CFO", "Chất lượng lợi nhuận"],
+      content: (
+        <>
+          <div id="profit-cash" className="scroll-mt-6">
+            <ProfitToCashBlock data={data.profitToCash} />
+          </div>
+          <div id="earnings-quality" className="scroll-mt-6">
+            <EarningsQualityBlock data={data.earningsQuality} />
+          </div>
+        </>
+      ),
+    },
+    {
+      id: "financial-risk",
+      order: 4,
+      title: "Kiểm tra rủi ro tài chính",
+      description: "Tập trung vào nợ vay, vốn lưu động, tồn kho, khoản phải thu và cảnh báo.",
+      status: "Cần xem lại",
+      includedBlocks: ["Nợ vay", "Vốn lưu động", "Cảnh báo"],
+      content: (
+        <>
+          <div id="debt" className="scroll-mt-6">
+            <DebtStructureBlock data={data.debtStructure} />
+          </div>
+          <div id="working-capital" className="scroll-mt-6">
+            <WorkingCapitalBlock data={data.workingCapital} />
+          </div>
+          <div id="warning" className="scroll-mt-6">
+            <FinancialWarningSigns data={data.warningSigns} />
+          </div>
+        </>
+      ),
+    },
+    {
+      id: "valuation-bridge",
+      order: 5,
+      title: "Kết luận BCTC và nối sang định giá",
+      description: "Đọc phân bổ vốn, nhóm chỉ số, đặc thù ngành và cầu nối sang định giá.",
+      status: "Chưa đọc",
+      includedBlocks: ["Phân bổ vốn", "Chỉ số", "Đặc thù ngành", "Cầu nối"],
+      content: (
+        <>
+          <div id="capital-allocation" className="scroll-mt-6">
+            <CapitalAllocationFinancialsBlock data={data.capitalAllocation} />
+          </div>
+          <div id="ratios" className="scroll-mt-6">
+            <FinancialRatioGroups data={data.ratios} />
+          </div>
+          <div id="industry-specific" className="scroll-mt-6">
+            <IndustrySpecificFinancialsBlock data={data.industrySpecific} />
+          </div>
+          <div id="valuation-bridge" className="scroll-mt-6">
+            <ValuationBridgeBlock data={data.valuationBridge} />
+          </div>
+        </>
+      ),
+    },
+  ];
+  const canContinueToValuation = data.valuationReadiness.completed === data.valuationReadiness.total;
+
   return (
     <div className="mx-auto w-full max-w-[980px] space-y-6">
-      <FinancialsHeader data={data.header} />
-      <FinancialsQuickSummary data={data.quickSummary} />
-
-      <StepAccordion
-        title={data.progress.title}
-        description={data.progress.description}
-        items={[
-          { key: "snapshot", order: steps[0].order, title: steps[0].title, status: steps[0].status, content: <FinancialSnapshotBlock data={data.snapshot} /> },
-          { key: "income", order: steps[1].order, title: steps[1].title, status: steps[1].status, content: <IncomeStatementBlock data={data.incomeStatement} /> },
-          { key: "balance", order: steps[2].order, title: steps[2].title, status: steps[2].status, content: <BalanceSheetBlock data={data.balanceSheet} /> },
-          { key: "cashflow", order: steps[3].order, title: steps[3].title, status: steps[3].status, content: <CashFlowBlock data={data.cashFlow} /> },
-          { key: "profit-cash", order: steps[4].order, title: steps[4].title, status: steps[4].status, content: <ProfitToCashBlock data={data.profitToCash} /> },
-          { key: "earnings-quality", order: steps[5].order, title: steps[5].title, status: steps[5].status, content: <EarningsQualityBlock data={data.earningsQuality} /> },
-          { key: "debt", order: steps[6].order, title: steps[6].title, status: steps[6].status, content: <DebtStructureBlock data={data.debtStructure} /> },
-          { key: "working-capital", order: steps[7].order, title: steps[7].title, status: steps[7].status, content: <WorkingCapitalBlock data={data.workingCapital} /> },
-          { key: "capital-allocation", order: steps[8].order, title: steps[8].title, status: steps[8].status, content: <CapitalAllocationFinancialsBlock data={data.capitalAllocation} /> },
-          { key: "ratios", order: steps[9].order, title: steps[9].title, status: steps[9].status, content: <FinancialRatioGroups data={data.ratios} /> },
-          { key: "industry-specific", order: steps[10].order, title: steps[10].title, status: steps[10].status, content: <IndustrySpecificFinancialsBlock data={data.industrySpecific} /> },
-          { key: "warning", order: steps[11].order, title: steps[11].title, status: steps[11].status, content: <FinancialWarningSigns data={data.warningSigns} /> },
-          { key: "valuation-bridge", order: steps[12].order, title: steps[12].title, status: steps[12].status, content: <ValuationBridgeBlock data={data.valuationBridge} /> },
-          { key: "personal", order: steps[13].order, title: steps[13].title, status: steps[13].status, content: <PersonalFinancialsThesis data={data.personalThesis} /> },
-          { key: "checklist", order: steps[14].order, title: steps[14].title, status: steps[14].status, content: <FinancialsUnderstandingChecklist data={data.checklist} /> },
-        ]}
+      <FinancialsHeader
+        canContinueToValuation={canContinueToValuation}
+        data={data.header}
+        valuationDisabledReason={data.valuationReadiness.helperText}
       />
-
-      <div className="space-y-5">
-        <FinancialsDisclaimer data={data.disclaimer} />
-        <FinancialsNextActions data={data.nextActions} />
+      <FinancialHealthCommandCenter data={data.healthCommandCenter} />
+      <BusinessHypothesisVerification data={data.businessHypothesisVerification} />
+      <FinancialStatementMap data={data.statementMap} />
+      <FinancialAnalysisJourney
+        title="Lộ trình đọc BCTC theo 5 cụm"
+        description="Các block phân tích cũ vẫn được giữ, nhưng chỉ mở cụm đang cần đọc."
+        groups={journeyGroups}
+      />
+      <FinancialConclusionCheckpoint data={data.conclusionCheckpoint} />
+      <ValuationReadinessPanel data={data.valuationReadiness} />
+      <div id="personal" className="scroll-mt-6">
+        <PersonalFinancialsThesis data={data.personalThesis} />
       </div>
+      <div id="checklist" className="scroll-mt-6">
+        <FinancialsUnderstandingChecklist data={data.checklist} />
+      </div>
+      <FinancialsDisclaimer data={data.disclaimer} />
     </div>
   );
 }

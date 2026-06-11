@@ -1,6 +1,13 @@
-import { Button, Card, CardBody, CardHeader, Tabs } from "@/components/ui";
+"use client";
+
+import { useState } from "react";
+import { Button, Card, CardBody, CardHeader, Chip, Tabs } from "@/components/ui";
 import { cn } from "@/lib/cn";
-import type { SimulationTrackingData, StockIdea } from "../types";
+import type {
+  SimulationTrackingData,
+  StockIdea,
+  WatchlistJournalEntry,
+} from "../types";
 import { StockEventBadge } from "./StockEventBadge";
 import {
   FieldGrid,
@@ -22,6 +29,63 @@ function getSimulationItem(data: SimulationTrackingData, ticker: string) {
   return data.items.find((item) => item.ticker === ticker);
 }
 
+function getThesisStatus(data: StockIdea) {
+  if (data.status === "Tạm loại") return "Tạm loại";
+  if (!data.thesis || data.thesis.toLowerCase().includes("chưa có thesis")) return "Chưa có";
+  if (data.status === "Sẵn sàng mô phỏng") return "Có cơ sở sơ bộ";
+  if (data.alerts.some((alert) => alert.tone === "danger")) return "Bị phủ định một phần";
+  return "Đang kiểm chứng";
+}
+
+function buildJournalEntries(data: StockIdea): WatchlistJournalEntry[] {
+  const entries: WatchlistJournalEntry[] = [
+    {
+      id: `${data.ticker}-added`,
+      ticker: data.ticker,
+      createdAt: data.addedDate,
+      type: "added",
+      relatedModule: "Watchlist",
+      content: `Thêm vào Watchlist từ ${data.ideaSource}.`,
+      nextStatus: data.status,
+    },
+    {
+      id: `${data.ticker}-thesis`,
+      ticker: data.ticker,
+      createdAt: "2026-06-12",
+      type: "thesis_updated",
+      relatedModule: "BCTC",
+      content: data.latestNote,
+    },
+  ];
+
+  if (data.status === "Tạm loại") {
+    entries.push({
+      id: `${data.ticker}-paused`,
+      ticker: data.ticker,
+      createdAt: "2026-06-14",
+      type: "paused",
+      relatedModule: "Rủi ro",
+      content: data.pauseReason ?? "Tạm loại vì dữ liệu hoặc thesis chưa đủ rõ.",
+      previousStatus: "Cần xem lại",
+      nextStatus: "Tạm loại",
+    });
+  }
+
+  return entries;
+}
+
+const journalTypeLabels: Record<WatchlistJournalEntry["type"], string> = {
+  added: "Thêm vào Watchlist",
+  event_added: "Sự kiện mới",
+  module_completed: "Hoàn thành module",
+  paused: "Tạm loại",
+  personal_note: "Ghi chú cá nhân",
+  resumed: "Đưa lại vào theo dõi",
+  risk_found: "Phát hiện rủi ro",
+  thesis_updated: "Cập nhật thesis",
+  valuation_updated: "Cập nhật định giá",
+};
+
 export function WatchlistInsightPanel({
   data,
   isOpen,
@@ -29,197 +93,246 @@ export function WatchlistInsightPanel({
   simulationTracking,
 }: WatchlistInsightPanelProps) {
   const simulationItem = getSimulationItem(simulationTracking, data.ticker);
+  const [note, setNote] = useState("");
+  const [noteType, setNoteType] = useState<WatchlistJournalEntry["type"]>("personal_note");
+  const [noteModule, setNoteModule] = useState("Watchlist");
+  const journalEntries = buildJournalEntries(data);
 
   return (
-    <div
-      className={cn(
-        "fixed inset-y-0 right-0 z-40 w-full max-w-[520px] border-l-[1.5px] border-border bg-page p-4 shadow-hard transition-transform duration-200",
-        isOpen ? "translate-x-0" : "translate-x-full"
-      )}
-      aria-hidden={!isOpen}
-    >
-      <Card className="flex h-full flex-col overflow-hidden">
-        <CardHeader
-          action={
-            <Button size="sm" variant="secondary" onClick={onClose}>
-              Đóng
-            </Button>
-          }
-          chip={<StatusBadge status={data.status} />}
-          description={`${data.companyName} · ${data.industry}`}
-          icon={data.ticker.slice(0, 2)}
-          title={`Chi tiết cổ phiếu ${data.ticker}`}
-        />
-        <CardBody className="min-h-0 flex-1 overflow-y-auto">
-          <Tabs
-            ariaLabel="Chi tiết cổ phiếu"
-            items={[
-              {
-                value: "overview",
-                label: "Tổng quan",
-                content: (
-                  <div className="space-y-4">
-                    <FieldGrid
-                      items={[
-                        { label: "Mã cổ phiếu", value: data.ticker, tone: "accent" },
-                        { label: "Tên doanh nghiệp", value: data.companyName },
-                        { label: "Ngành", value: data.industry },
-                        { label: "Sàn", value: data.exchange },
-                        { label: "Giá hiện tại", value: data.currentPrice },
-                        { label: "Biến động 30 ngày", value: data.recentMove },
-                        { label: "Thanh khoản", value: data.liquidity },
-                        { label: "Mức ưu tiên", value: data.priority },
-                      ]}
-                    />
-                    <div>
-                      <p className="mb-2 text-xs font-bold text-ink">Tags</p>
+    <>
+      {isOpen ? (
+        <div className="fixed inset-0 z-40 bg-ink/30 md:hidden" onClick={onClose} aria-hidden="true" />
+      ) : null}
+      <aside
+        className={cn(
+          "fixed inset-y-0 right-0 z-50 w-full border-l-[1.5px] border-border bg-page p-3 shadow-hard transition-transform duration-200 md:max-w-[620px]",
+          isOpen ? "translate-x-0" : "translate-x-full"
+        )}
+        aria-hidden={!isOpen}
+        aria-label={`Chi tiết Watchlist ${data.ticker}`}
+      >
+        <Card className="flex h-full flex-col overflow-hidden">
+          <CardHeader
+            action={
+              <Button size="sm" variant="secondary" onClick={onClose}>
+                Đóng
+              </Button>
+            }
+            chip={<StatusBadge status={data.status} />}
+            description={`${data.companyName} · ${data.industry}`}
+            icon={data.ticker.slice(0, 2)}
+            title={`Hồ sơ ý tưởng ${data.ticker}`}
+          />
+          <CardBody className="min-h-0 flex-1 overflow-y-auto">
+            <Tabs
+              ariaLabel="Chi tiết Watchlist"
+              items={[
+                {
+                  value: "overview",
+                  label: "Tổng quan",
+                  content: (
+                    <div className="space-y-4">
+                      <FieldGrid
+                        items={[
+                          { label: "Mã", value: data.ticker, tone: "accent" },
+                          { label: "Doanh nghiệp", value: data.companyName },
+                          { label: "Ngành", value: data.industry },
+                          { label: "Trạng thái", value: data.status },
+                          { label: "Ưu tiên", value: data.priority },
+                          { label: "Giá hiện tại", value: data.currentPrice },
+                          { label: "30 ngày", value: data.recentMove },
+                          { label: "Thanh khoản", value: data.liquidity },
+                        ]}
+                      />
+                      <TextStack items={[data.thesis, `Rủi ro chính: ${data.risks[0] ?? "Chưa rõ"}`, `Bước tiếp theo: ${data.nextStep}`]} />
                       <TagList tags={data.tags} />
                     </div>
-                    <div>
-                      <p className="mb-2 text-xs font-bold text-ink">Bước tiếp theo</p>
-                      <TextStack items={[data.nextStep]} />
-                    </div>
-                  </div>
-                ),
-              },
-              {
-                value: "thesis",
-                label: "Thesis",
-                content: (
-                  <div className="space-y-4">
-                    <FieldGrid
-                      items={[
-                        { label: "Lý do theo dõi", value: data.reason },
-                        { label: "Điều muốn kiểm chứng", value: data.validationQuestion },
-                        { label: "Thesis hiện tại", value: data.thesis },
-                        { label: "Catalyst", value: data.catalyst ?? "Chưa có" },
-                      ]}
-                    />
-                    <div className="grid gap-3 md:grid-cols-2">
-                      <div>
-                        <p className="mb-2 text-xs font-bold text-ink">
-                          Dữ liệu xác nhận thesis
-                        </p>
-                        <TextStack items={data.confirmingData} />
+                  ),
+                },
+                {
+                  value: "thesis",
+                  label: "Thesis",
+                  content: (
+                    <div className="space-y-4">
+                      <FieldGrid
+                        items={[
+                          { label: "Trạng thái thesis", value: getThesisStatus(data), tone: data.status === "Tạm loại" ? "danger" : "warning" },
+                          { label: "Lý do thêm vào Watchlist", value: data.reason },
+                          { label: "Thesis hiện tại", value: data.thesis },
+                          { label: "Điều muốn kiểm chứng", value: data.validationQuestion },
+                        ]}
+                      />
+                      <div className="grid gap-3 md:grid-cols-2">
+                        <div>
+                          <p className="mb-2 text-xs font-bold text-ink">Điều làm thesis mạnh hơn</p>
+                          <TextStack items={data.confirmingData} />
+                        </div>
+                        <div>
+                          <p className="mb-2 text-xs font-bold text-ink">Điều làm thesis yếu đi</p>
+                          <TextStack items={data.invalidatingData} />
+                        </div>
                       </div>
-                      <div>
-                        <p className="mb-2 text-xs font-bold text-ink">
-                          Dữ liệu phủ định thesis
-                        </p>
-                        <TextStack items={data.invalidatingData} />
-                      </div>
+                      {data.pauseReason ? (
+                        <div className="rounded-[4px] border border-[#E6A29B] bg-[#FBE3DC] px-3 py-3 text-xs leading-5 text-muted">
+                          <strong className="text-ink">Lý do tạm loại:</strong> {data.pauseReason}
+                          <br />
+                          Có thể đưa lại vào theo dõi nếu dữ liệu nền, thesis và rủi ro được kiểm chứng rõ hơn.
+                        </div>
+                      ) : null}
+                      <Button size="sm" variant="secondary">Cập nhật thesis</Button>
                     </div>
-                    <div>
-                      <p className="mb-2 text-xs font-bold text-ink">Rủi ro chính</p>
-                      <TextStack items={data.risks} />
+                  ),
+                },
+                {
+                  value: "progress",
+                  label: "Tiến độ phân tích",
+                  content: (
+                    <div className="space-y-2">
+                      {data.progress.map((item) => (
+                        <div key={item.moduleName} className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3">
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <p className="text-sm font-bold text-ink">{item.moduleName}</p>
+                              <p className="mt-1 text-xs leading-5 text-muted">{item.question}</p>
+                            </div>
+                            <ModuleStatusBadge status={item.status} />
+                          </div>
+                          <Button className="mt-3" size="sm" variant="secondary">{item.actionLabel}</Button>
+                        </div>
+                      ))}
                     </div>
-                  </div>
-                ),
-              },
-              {
-                value: "checklist",
-                label: "Checklist phân tích",
-                content: (
-                  <div className="space-y-2">
-                    {data.progress.map((item) => (
-                      <div
-                        key={item.moduleName}
-                        className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3"
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <p className="text-sm font-bold text-ink">{item.moduleName}</p>
-                            <p className="mt-1 text-xs leading-5 text-muted">
-                              {item.question}
+                  ),
+                },
+                {
+                  value: "data",
+                  label: "Dữ liệu cần cập nhật",
+                  content: (
+                    <div className="space-y-2">
+                      {data.dataToUpdate.map((item, index) => (
+                        <div key={item} className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3">
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <p className="text-sm font-bold text-ink">{item}</p>
+                            <Chip size="sm" variant={index === 0 ? "warning" : "neutral"}>{index === 0 ? "Ưu tiên cao" : "Cần cập nhật"}</Chip>
+                          </div>
+                          <p className="mt-1 text-xs leading-5 text-muted">
+                            Dùng để kiểm tra thesis hiện tại có còn phù hợp không.
+                          </p>
+                          <Button className="mt-3" size="sm" variant="secondary">Mở module liên quan</Button>
+                        </div>
+                      ))}
+                    </div>
+                  ),
+                },
+                {
+                  value: "events",
+                  label: "Sự kiện",
+                  content: (
+                    <div className="space-y-3">
+                      {data.events.length ? (
+                        data.events.map((event) => (
+                          <div key={`${event.label}-${event.date}`} className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3">
+                            <StockEventBadge event={event} />
+                            <p className="mt-2 text-xs leading-5 text-muted">
+                              Cần theo dõi tác động, không kết luận nguyên nhân nếu chỉ là tương quan.
                             </p>
                           </div>
-                          <ModuleStatusBadge status={item.status} />
+                        ))
+                      ) : (
+                        <div className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3 text-sm leading-6 text-muted">
+                          Chưa có sự kiện gần cần ưu tiên.
                         </div>
-                        <p className="mt-2 text-xs font-bold text-accent">
-                          {item.actionLabel}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                ),
-              },
-              {
-                value: "simulation",
-                label: "Mô phỏng",
-                content: simulationItem ? (
-                  <div className="space-y-4">
-                    <FieldGrid
-                      items={[
-                        { label: "Trạng thái thesis", value: simulationItem.thesisStatus },
-                        { label: "Ngày bắt đầu mô phỏng", value: simulationItem.startedAt },
-                        { label: "Giá bắt đầu mô phỏng", value: simulationItem.startPrice },
-                        { label: "Giá hiện tại", value: simulationItem.currentPrice },
-                        { label: "Vốn giả lập", value: simulationItem.simulatedCapital },
-                        { label: "Tỷ trọng giả lập", value: simulationItem.simulatedWeight },
-                        { label: "Số lượng hệ thống tính", value: simulationItem.simulatedQuantity },
-                        { label: "Mốc xem lại thesis", value: simulationItem.nextReviewMilestone },
-                      ]}
-                    />
-                    <TextStack
-                      items={[
-                        simulationItem.requiredUpdate,
-                        simulationItem.softWarning,
-                      ]}
-                    />
-                    <div>
-                      <p className="mb-2 text-xs font-bold text-ink">Module liên kết</p>
-                      <TagList tags={simulationItem.linkedModules} />
+                      )}
+                      {data.alerts.map((alert) => (
+                        <WatchlistSoftAlert key={alert.title} data={alert} />
+                      ))}
                     </div>
-                  </div>
-                ) : (
-                  <div className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3 text-sm leading-6 text-muted">
-                    Cổ phiếu này chưa có vị thế theo dõi giả lập trong Watchlist.
-                  </div>
-                ),
-              },
-              {
-                value: "journal",
-                label: "Nhật ký",
-                content: (
-                  <div className="space-y-3">
-                    <FieldGrid
-                      items={[
-                        { label: "Ghi chú gần nhất", value: data.latestNote },
-                        { label: "Trạng thái cảm xúc", value: data.emotionalState },
-                        { label: "Bài học", value: data.lesson ?? "Chưa có" },
-                        { label: "Tạm loại vì", value: data.pauseReason ?? "Không áp dụng" },
-                      ]}
-                    />
-                    {simulationItem ? (
-                      <TextStack items={[`Nhật ký mô phỏng: ${simulationItem.journalStatus}`]} />
-                    ) : null}
-                  </div>
-                ),
-              },
-              {
-                value: "events",
-                label: "Sự kiện",
-                content: (
-                  <div className="space-y-3">
-                    {data.events.length ? (
-                      data.events.map((event) => (
-                        <StockEventBadge key={`${event.label}-${event.date}`} event={event} />
-                      ))
-                    ) : (
-                      <div className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3 text-sm leading-6 text-muted">
-                        Chưa có sự kiện gần cần ưu tiên.
+                  ),
+                },
+                {
+                  value: "simulation",
+                  label: "Mô phỏng",
+                  content: simulationItem ? (
+                    <div className="space-y-4">
+                      <FieldGrid
+                        items={[
+                          { label: "Trạng thái mô phỏng", value: simulationItem.thesisStatus },
+                          { label: "Kịch bản cơ sở", value: simulationItem.requiredUpdate },
+                          { label: "Điều kiện xem lại", value: simulationItem.nextReviewMilestone },
+                          { label: "Nhật ký mô phỏng", value: simulationItem.journalStatus },
+                        ]}
+                      />
+                      <TextStack
+                        items={[
+                          "Kịch bản xấu: dữ liệu xác nhận thesis suy yếu hoặc rủi ro tăng.",
+                          "Kịch bản tốt: dữ liệu mới xác nhận thesis và rủi ro được kiểm soát.",
+                          simulationItem.softWarning,
+                        ]}
+                      />
+                      <Button size="sm" variant="secondary">Mở mô phỏng</Button>
+                    </div>
+                  ) : (
+                    <div className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3 text-sm leading-6 text-muted">
+                      Chưa đủ dữ liệu để mô phỏng. Cần hoàn thiện thesis, định giá và rủi ro trước.
+                    </div>
+                  ),
+                },
+                {
+                  value: "journal",
+                  label: "Nhật ký",
+                  content: (
+                    <div className="space-y-4">
+                      <div className="space-y-3">
+                        {journalEntries.map((entry) => (
+                          <div key={entry.id} className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3">
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <Chip size="sm" variant="neutral">{entry.createdAt}</Chip>
+                              <Chip size="sm" variant="accent">{journalTypeLabels[entry.type]}</Chip>
+                            </div>
+                            <p className="mt-2 text-sm leading-6 text-muted">{entry.content}</p>
+                            {entry.relatedModule ? <p className="mt-1 text-xs font-bold text-subtle">Module: {entry.relatedModule}</p> : null}
+                          </div>
+                        ))}
                       </div>
-                    )}
-                    {data.alerts.map((alert) => (
-                      <WatchlistSoftAlert key={alert.title} data={alert} />
-                    ))}
-                  </div>
-                ),
-              },
-            ]}
-          />
-        </CardBody>
-      </Card>
-    </div>
+                      <div className="rounded-[4px] border-[1.5px] border-border bg-surface-soft px-3 py-3">
+                        <p className="text-sm font-bold text-ink">Thêm ghi chú</p>
+                        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                          <select
+                            className="h-9 rounded-[4px] border border-border-soft bg-surface px-2 text-xs text-ink"
+                            value={noteType}
+                            onChange={(event) => setNoteType(event.target.value as WatchlistJournalEntry["type"])}
+                          >
+                            {Object.entries(journalTypeLabels).map(([value, label]) => (
+                              <option key={value} value={value}>{label}</option>
+                            ))}
+                          </select>
+                          <select
+                            className="h-9 rounded-[4px] border border-border-soft bg-surface px-2 text-xs text-ink"
+                            value={noteModule}
+                            onChange={(event) => setNoteModule(event.target.value)}
+                          >
+                            {["Watchlist", "BCTC", "Định giá", "PVT", "Rủi ro", "Mô phỏng"].map((module) => (
+                              <option key={module} value={module}>{module}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <textarea
+                          className="mt-3 min-h-24 w-full resize-y rounded-[4px] border-[1.5px] border-border bg-surface px-3 py-2 text-sm text-ink outline-none focus:bg-accent-soft"
+                          placeholder="Ghi lại điều vừa cập nhật..."
+                          value={note}
+                          onChange={(event) => setNote(event.target.value)}
+                        />
+                        <Button className="mt-3" size="sm" disabled={!note.trim()}>
+                          Lưu ghi chú
+                        </Button>
+                      </div>
+                    </div>
+                  ),
+                },
+              ]}
+            />
+          </CardBody>
+        </Card>
+      </aside>
+    </>
   );
 }

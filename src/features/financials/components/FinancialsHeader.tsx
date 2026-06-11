@@ -3,9 +3,15 @@ import type { FinancialsHeaderData } from "../types";
 
 type FinancialsHeaderProps = {
   data: FinancialsHeaderData;
+  canContinueToValuation?: boolean;
+  valuationDisabledReason?: string;
 };
 
-export function FinancialsHeader({ data }: FinancialsHeaderProps) {
+export function FinancialsHeader({
+  canContinueToValuation = false,
+  data,
+  valuationDisabledReason,
+}: FinancialsHeaderProps) {
   return (
     <Card>
       <CardBody>
@@ -24,12 +30,22 @@ export function FinancialsHeader({ data }: FinancialsHeaderProps) {
               {data.previousModuleLink}
             </p>
           </div>
-          <div className="flex flex-wrap gap-2 lg:justify-end">
-            {data.actions.map((action) => (
-              <Button key={action.label} variant={action.variant}>
-                {action.label}
-              </Button>
-            ))}
+          <div className="lg:max-w-[280px]">
+            <div className="flex flex-wrap gap-2 lg:justify-end">
+              {data.actions.map((action) => {
+                const isValuationAction = action.label.includes("Định Giá") || action.label.includes("Định giá");
+                const disabled = isValuationAction && !canContinueToValuation;
+
+                return (
+                  <Button key={action.label} disabled={disabled} variant={disabled ? "secondary" : action.variant}>
+                    {disabled ? "Hoàn thành kiểm tra BCTC" : action.label}
+                  </Button>
+                );
+              })}
+            </div>
+            {!canContinueToValuation && valuationDisabledReason ? (
+              <p className="mt-2 text-xs leading-5 text-muted lg:text-right">{valuationDisabledReason}</p>
+            ) : null}
           </div>
         </div>
       </CardBody>

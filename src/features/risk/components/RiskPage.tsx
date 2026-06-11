@@ -1,12 +1,15 @@
-import { EmptyState, LoadingState, StepAccordion } from "@/components/ui";
+import { EmptyState, LoadingState } from "@/components/ui";
 import { riskPageData } from "../data/risk.data";
 import {
-  RiskDetailCard,
+  ChecklistReadinessPanel,
+  RiskAnalysisJourney,
+  RiskCaseFile,
+  RiskControlRoom,
   RiskDisclaimer,
+  RiskEvidenceMap,
   RiskHeader,
   RiskNextActions,
-  RiskOverview,
-  RiskStatusLegend,
+  TransparencyGovernancePanel,
 } from "./RiskUi";
 
 export function RiskPage() {
@@ -26,43 +29,27 @@ export function RiskPage() {
     );
   }
 
+  const canContinueToChecklist = data.checklistReadiness.completed >= data.checklistReadiness.total;
+
   return (
     <div className="mx-auto w-full max-w-[980px] space-y-6">
-      <RiskHeader data={data.header} />
-      <RiskOverview data={data.overview} />
-
-      <StepAccordion
-        title={data.journey.title}
-        description={data.journey.description}
-        items={data.journey.steps.map((step, index) => {
-          const group = data.riskGroups[index];
-
-          return {
-            key: group?.id ?? step.title,
-            order: step.order,
-            title: step.title,
-            status: step.status,
-            description: step.question,
-            meta: step.source,
-            content: (
-              <div className="space-y-5">
-                {index === 0 ? <RiskStatusLegend data={data.statusLegend} /> : null}
-                {group ? (
-                  <RiskDetailCard
-                    data={group}
-                    detailLabels={data.detailLabels}
-                  />
-                ) : null}
-              </div>
-            ),
-          };
-        })}
+      <RiskHeader
+        canContinueToChecklist={canContinueToChecklist}
+        checklistDisabledReason={data.checklistReadiness.disabledCtaLabel}
+        data={data.header}
       />
-
-      <div className="space-y-5">
-        <RiskDisclaimer data={data.disclaimer} />
-        <RiskNextActions data={data.nextActions} />
-      </div>
+      <RiskControlRoom data={data.controlRoom} />
+      <RiskEvidenceMap data={data.evidenceMap} />
+      <RiskAnalysisJourney
+        clusters={data.analysisClusters}
+        detailLabels={data.detailLabels}
+        riskGroups={data.riskGroups}
+      />
+      <TransparencyGovernancePanel data={data.transparencyGovernance} />
+      <RiskCaseFile data={data.caseFile} />
+      <ChecklistReadinessPanel data={data.checklistReadiness} />
+      <RiskNextActions canContinueToChecklist={canContinueToChecklist} data={data.nextActions} />
+      <RiskDisclaimer data={data.disclaimer} />
     </div>
   );
 }

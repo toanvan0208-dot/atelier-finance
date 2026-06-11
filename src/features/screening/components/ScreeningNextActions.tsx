@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardBody, CardHeader, Chip } from "@/components/ui";
+import { Button, Card, CardBody, CardHeader, Chip } from "@/components/ui";
 import type { ScreeningMode, ScreeningNextActionsData, ScreeningOption } from "../types";
 
 type ScreeningNextActionsProps = {
@@ -20,6 +20,8 @@ export function ScreeningNextActions({
   const [selectedStock, setSelectedStock] = useState(stocks[0]?.value ?? "");
   const activeTicker = mode === "ticker" ? selectedTicker : selectedStock;
   const description = mode === "ticker" ? data.tickerDescription : data.contextDescription;
+  const primaryAction = data.actions[0];
+  const secondaryActions = data.actions.slice(1);
 
   return (
     <Card>
@@ -54,11 +56,23 @@ export function ScreeningNextActions({
           )}
         </div>
 
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {data.actions.map((action) => (
+        <div className="rounded-[4px] border border-accent bg-accent-soft px-4 py-4">
+          <p className="text-sm font-bold text-ink">Bước tiếp theo được khuyến nghị</p>
+          <p className="mt-1 text-xs leading-5 text-muted">
+            {primaryAction?.description}
+          </p>
+          <div className="mt-3">
+            <Button size="sm" variant="primary" disabled={!activeTicker}>
+              {primaryAction?.label}
+            </Button>
+          </div>
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-2">
+          {secondaryActions.map((action) => (
             <button
               key={action.label}
-              className="rounded-[4px] border-[1.5px] border-border bg-surface px-3 py-3 text-left shadow-hard-sm transition hover:-translate-y-0.5 hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-[4px] border border-border-soft bg-surface px-3 py-3 text-left transition hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-60"
               type="button"
               disabled={!activeTicker}
             >

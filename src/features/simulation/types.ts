@@ -203,6 +203,71 @@ export type SimulationPageData = {
 
 export type SimulationModeId = "current" | "scenario" | "history";
 
+export type SimulationStatus =
+  | "Chưa đủ điều kiện tạo mô phỏng"
+  | "Có thể mô phỏng với cảnh báo"
+  | "Sẵn sàng tạo mô phỏng"
+  | "Đang theo dõi thesis"
+  | "Cần cập nhật mô phỏng"
+  | "Đã hậu kiểm";
+
+export type SimulationPhaseId =
+  | "prepare"
+  | "thesis"
+  | "position"
+  | "tracking"
+  | "review";
+
+export type SimulationPhaseStatus = "Chưa làm" | "Đang làm" | "Tạm đủ" | "Cần bổ sung";
+
+export type ThesisHealth =
+  | "Chưa có thesis"
+  | "Cần kiểm tra thêm"
+  | "Đang đứng vững"
+  | "Yếu đi"
+  | "Cần cập nhật sau dữ liệu mới";
+
+export type SimulationThesisFormState = {
+  mainThesis: string;
+  whyFollow: string;
+  confirmingData: string;
+  disconfirmingData: string;
+  mainRisk: string;
+  weakenCondition: string;
+  reviewDate: string;
+  moduleToRecheck: string;
+};
+
+export type SimulationPositionState = {
+  capital: number;
+  weight: number;
+  referencePrice: number;
+  created: boolean;
+};
+
+export type SimulationPvtInterpretation =
+  | "Biến động chưa ảnh hưởng thesis"
+  | "Biến động xác nhận thesis"
+  | "Biến động làm thesis yếu đi"
+  | "Cần kiểm tra thêm ở PVT"
+  | "Cần kiểm tra thêm ở Tin tức/Rủi ro";
+
+export type ScenarioThesisResult =
+  | "Thesis vẫn đứng vững"
+  | "Thesis yếu đi nhưng chưa gãy"
+  | "Thesis bị phủ định một phần"
+  | "Cần quay lại module liên quan";
+
+export type ReflectionState = {
+  initialThought: string;
+  supportingData: string;
+  weakeningData: string;
+  emotionCheck: string;
+  processLesson: string;
+  nextCheck: string;
+  completed: boolean;
+};
+
 export type SimulationModeChoice = {
   id: SimulationModeId;
   title: string;

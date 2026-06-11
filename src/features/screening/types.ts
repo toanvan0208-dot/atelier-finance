@@ -7,6 +7,7 @@ export type ScreeningOption = {
 };
 
 export type ScreeningTone = "success" | "warning" | "danger";
+export type ScreeningMetricStatus = "pass" | "watch" | "risk" | "neutral" | "missing";
 
 export type ScreeningFunnelStatus =
   | "Đạt"
@@ -55,6 +56,14 @@ export type ScreeningStock = {
   beginnerFit: string;
   beginnerFitLevel: BeginnerFitLevel;
   conclusion: string;
+  metrics: Array<{
+    id: string;
+    label: string;
+    value: string;
+    status: ScreeningMetricStatus;
+    explanation: string;
+    isMock?: boolean;
+  }>;
   funnel: StockFunnelReview[];
 };
 

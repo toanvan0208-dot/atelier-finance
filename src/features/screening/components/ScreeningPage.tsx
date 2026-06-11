@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import { LoadingState } from "@/components/ui";
+import { Button, Card, CardBody, LoadingState } from "@/components/ui";
 import { screeningPageData } from "../data/screening.data";
 import type { ScreeningMode, ScreeningOption } from "../types";
 import { ScreeningComparisonTable } from "./ScreeningComparisonTable";
@@ -76,6 +76,7 @@ export function ScreeningPage() {
   const [screeningMode, setScreeningMode] = useState<ScreeningMode>("context");
   const [activeIndustry, setActiveIndustry] = useState(data.input.defaultIndustry);
   const [selectedTicker, setSelectedTicker] = useState<string | null>(null);
+  const [showAnalysisLayer, setShowAnalysisLayer] = useState(false);
   const deepDiveRef = useRef<HTMLElement | null>(null);
 
   const selectedStock = selectedTicker ? data.stocksByTicker[selectedTicker] : null;
@@ -127,6 +128,7 @@ export function ScreeningPage() {
       {screeningMode === "context" ? (
         <ScreeningInputPanel
           data={data.input}
+          resultGroups={data.resultGroups}
           onIndustryChange={setActiveIndustry}
         />
       ) : (
@@ -140,15 +142,6 @@ export function ScreeningPage() {
         />
       )}
 
-      {shouldShowTickerDependentSections ? (
-        <ScreeningContextSummary
-          activeIndustry={contextIndustry}
-          data={data.context}
-          ticker={selectedTicker}
-          tickerSector={selectedStock?.sector}
-        />
-      ) : null}
-
       <ScreeningFunnelSummary data={data.funnelSummary} mode={screeningMode} />
 
       {screeningMode === "context" ? (
@@ -160,20 +153,51 @@ export function ScreeningPage() {
         />
       ) : null}
 
-      {shouldShowTickerDependentSections ? (
-        <ScreeningComparisonTable
-          data={data.comparison}
-          mode={screeningMode}
-          selectedStock={selectedStock}
-          stocksByTicker={data.stocksByTicker}
-        />
+      <Card>
+        <CardBody className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-bold text-ink">Lớp phân tích tùy chọn</p>
+            <p className="mt-1 text-xs leading-5 text-muted">
+              Mở khi cần xem luận điểm bối cảnh, so sánh nhanh, cách hệ thống lọc và quiz hiểu đúng.
+            </p>
+          </div>
+          <Button size="sm" variant="secondary" onClick={() => setShowAnalysisLayer((value) => !value)}>
+            {showAnalysisLayer ? "Ẩn phân tích phụ" : "Mở phân tích phụ"}
+          </Button>
+        </CardBody>
+      </Card>
+
+      {showAnalysisLayer ? (
+        <div className="space-y-5">
+          {shouldShowTickerDependentSections ? (
+            <ScreeningContextSummary
+              activeIndustry={contextIndustry}
+              data={data.context}
+              ticker={selectedTicker}
+              tickerSector={selectedStock?.sector}
+            />
+          ) : null}
+
+          {shouldShowTickerDependentSections ? (
+            <ScreeningComparisonTable
+              data={data.comparison}
+              mode={screeningMode}
+              selectedStock={selectedStock}
+              stocksByTicker={data.stocksByTicker}
+            />
+          ) : (
+            <p className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-2 text-xs font-semibold leading-5 text-muted">
+              Chọn hoặc nhập một mã hợp lệ để mở so sánh nhanh.
+            </p>
+          )}
+
+          <section ref={deepDiveRef}>
+            <ScreeningDeepDive data={data.deepDive} />
+          </section>
+
+          <UnderstandingCheck data={data.understanding} />
+        </div>
       ) : null}
-
-      <section ref={deepDiveRef}>
-        <ScreeningDeepDive data={data.deepDive} />
-      </section>
-
-      <UnderstandingCheck data={data.understanding} />
 
       <ScreeningNextActions
         data={data.nextActions}

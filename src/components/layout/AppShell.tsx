@@ -10,8 +10,13 @@ import { IndustryPage } from "@/features/industry";
 import { LearningPage } from "@/features/learning";
 import { MacroPage } from "@/features/macro";
 import { OverviewPage } from "@/features/overview";
+import {
+  PersonalAnalysisProfileButton,
+  PersonalAnalysisProfileDrawer,
+  PersonalAnalysisProfileProvider,
+  usePersonalAnalysisProfile,
+} from "@/features/personal-analysis-profile";
 import { RiskPage } from "@/features/risk";
-import { RouteConfigPage } from "@/features/route-config";
 import { ScreeningPage } from "@/features/screening";
 import { SimulationPage } from "@/features/simulation";
 import { TechnicalPage } from "@/features/technical";
@@ -33,11 +38,19 @@ const modulesWithInternalProgress = new Set([
   "risk",
   "simulation",
   "overview",
-  "route-config",
   "screening",
 ]);
 
 export function AppShell() {
+  return (
+    <PersonalAnalysisProfileProvider>
+      <AppShellContent />
+    </PersonalAnalysisProfileProvider>
+  );
+}
+
+function AppShellContent() {
+  const { openDrawer } = usePersonalAnalysisProfile();
   const moduleKeys = useMemo(
     () => new Set(navigationItems.map((item) => item.key)),
     []
@@ -56,6 +69,15 @@ export function AppShell() {
   });
 
   function handleNavigate(nextModule: string) {
+    if (nextModule === "route-config") {
+      openDrawer();
+      return;
+    }
+
+    if (!moduleKeys.has(nextModule)) {
+      return;
+    }
+
     setActiveModule(nextModule);
 
     const url = new URL(window.location.href);
@@ -79,8 +101,11 @@ export function AppShell() {
       <Topbar
         actions={shellConfig.topbarActions}
         brandName={shellConfig.brandName}
+        profileAction={<PersonalAnalysisProfileButton />}
         title={shellConfig.title}
       />
+      <PersonalAnalysisProfileButton placement="floating" />
+      <PersonalAnalysisProfileDrawer />
       <Sidebar
         activeKey={activeModule}
         description={shellConfig.journey.description}
@@ -100,9 +125,6 @@ export function AppShell() {
       >
         {activeModule === "overview" ? (
           <OverviewPage onNavigate={handleNavigate} />
-        ) : null}
-        {activeModule === "route-config" ? (
-          <RouteConfigPage onNavigate={handleNavigate} />
         ) : null}
         {activeModule === "macro" ? (
           <MacroPage onNavigate={handleNavigate} />

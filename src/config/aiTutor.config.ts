@@ -32,27 +32,27 @@ export const aiTutorConfig: Record<string, AITutorConfig> = {
     currentGoal: "Theo dõi toàn bộ lộ trình phân tích, học tập, watchlist, mô phỏng và checklist.",
     whatThisStepDoes: "Màn Tổng quan giúp bạn biết mình đang ở đâu, nên làm gì tiếp và còn thiếu dữ liệu gì.",
     questionsToCheck: [
-      "Bạn đã cấu hình lộ trình hôm nay chưa?",
+      "Bạn đã thiết lập Hồ sơ phân tích hôm nay chưa?",
       "Có bài học nào nên học trước không?",
       "Có module nào còn thiếu dữ liệu không?",
       "Có cổ phiếu nào trong Watchlist thiếu thesis không?",
     ],
     commonMistakes: [
       "Nhảy thẳng vào cổ phiếu mà chưa biết lộ trình phân tích.",
-      "Bỏ qua cấu hình lộ trình nên không biết bắt đầu từ đâu.",
+      "Bỏ qua Hồ sơ phân tích nên hệ thống chưa biết nên giải thích ở mức nào.",
       "Tập trung vào giá mà chưa hiểu rủi ro.",
     ],
     suggestedQuestions: [
       "Tôi nên bắt đầu từ module nào?",
-      "Vì sao cần cấu hình lộ trình?",
+      "Vì sao cần Hồ sơ phân tích?",
       "Watchlist khác khuyến nghị mua như thế nào?",
     ],
     recommendedLessons: [
-      { title: "Lộ trình phân tích cổ phiếu cho người mới", duration: "6 phút", usedIn: "Tổng quan, Cấu hình lộ trình", reason: "Giúp bạn biết thứ tự học, phân tích và kiểm tra." },
+      { title: "Lộ trình phân tích cổ phiếu cho người mới", duration: "6 phút", usedIn: "Tổng quan, Hồ sơ phân tích", reason: "Giúp bạn biết thứ tự học, phân tích và kiểm tra." },
       { title: "Vì sao không nên mua chỉ vì giá tăng?", duration: "4 phút", usedIn: "PVT, Watchlist", reason: "Giúp tránh FOMO khi thấy cổ phiếu tăng nóng." },
     ],
     nextActions: [
-      { label: "Cấu hình lộ trình", moduleKey: "route-config", primary: true },
+      { label: "Hồ sơ phân tích", moduleKey: "route-config", primary: true },
       { label: "Học bài nền tảng", moduleKey: "learning" },
       { label: "Bắt đầu Module Vĩ mô", moduleKey: "macro" },
     ],
@@ -60,7 +60,7 @@ export const aiTutorConfig: Record<string, AITutorConfig> = {
   },
   "route-config": {
     moduleId: "route-config",
-    moduleName: "Cấu hình lộ trình",
+    moduleName: "Hồ sơ phân tích",
     currentGoal: "Chọn mục tiêu hôm nay, cách đi qua hệ thống, mức AI giải thích và điểm đang vướng.",
     whatThisStepDoes: "Bước này tạo lộ trình cá nhân hóa để bạn biết nên học, phân tích, mô phỏng hoặc checklist theo thứ tự nào.",
     questionsToCheck: [
@@ -83,13 +83,13 @@ export const aiTutorConfig: Record<string, AITutorConfig> = {
       "Tôi có nên mô phỏng trước khi dùng tiền thật không?",
     ],
     recommendedLessons: [
-      { title: "Lộ trình phân tích cổ phiếu cho người mới", duration: "6 phút", usedIn: "Cấu hình lộ trình, Tổng quan", reason: "Giúp bạn hiểu hệ thống sẽ dẫn bạn đi qua các module nào." },
+      { title: "Lộ trình phân tích cổ phiếu cho người mới", duration: "6 phút", usedIn: "Hồ sơ phân tích, Tổng quan", reason: "Giúp bạn hiểu hệ thống sẽ dẫn bạn đi qua các module nào." },
       { title: "Vì sao không nên mua chỉ vì giá tăng?", duration: "4 phút", usedIn: "PVT, Watchlist", reason: "Giúp bạn tránh FOMO khi cấu hình có điểm vướng về cảm xúc." },
       { title: "Thesis đầu tư là gì?", duration: "5 phút", usedIn: "Watchlist, Mô phỏng", reason: "Giúp bạn biết cần viết gì trước khi theo dõi hoặc mô phỏng." },
       { title: "FOMO trong đầu tư là gì?", duration: "4 phút", usedIn: "Checklist, Mô phỏng", reason: "Giúp bạn nhận diện quyết định đến từ dữ liệu hay cảm xúc." },
     ],
     nextActions: [
-      { label: "Tạo lộ trình cá nhân hóa", moduleKey: "route-config", primary: true },
+      { label: "Mở Hồ sơ phân tích", moduleKey: "route-config", primary: true },
       { label: "Mở Module Học tập", moduleKey: "learning" },
       { label: "Bắt đầu Vĩ mô", moduleKey: "macro" },
     ],

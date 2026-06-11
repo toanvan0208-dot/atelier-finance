@@ -51,7 +51,7 @@ export const shellConfig = {
       totalSteps: 15,
       plainDescription: "Theo dõi toàn bộ lộ trình phân tích, dữ liệu còn thiếu, học tập, watchlist, mô phỏng và checklist.",
       status: "Mặc định",
-      nextSuggestion: "Bắt đầu từ Cấu hình lộ trình để hệ thống dẫn bạn đi đúng nhu cầu hôm nay.",
+      nextSuggestion: "Mở Hồ sơ phân tích để hệ thống điều chỉnh cách giải thích theo nhu cầu hôm nay.",
     },
     "route-config": {
       stepNumber: 1,

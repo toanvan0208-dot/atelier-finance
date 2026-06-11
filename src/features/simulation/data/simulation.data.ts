@@ -175,7 +175,7 @@ export const simulationExperienceData: SimulationExperienceData = {
         { label: "Mốc xem lại", value: "Sau BCTC quý tiếp theo." },
       ],
       positionNotes: [
-        { label: "Ngôn ngữ giao diện", value: "Vị thế theo dõi giả lập, không dùng mua/bán làm trung tâm." },
+        { label: "Ngôn ngữ giao diện", value: "Vị thế theo dõi giả lập, không dùng hành động giao dịch làm trung tâm." },
         { label: "Lãi/lỗ", value: "Hiển thị nhỏ, màu mềm, không làm trung tâm." },
         { label: "Mục tiêu", value: "Kiểm tra thesis và hành vi, không mô phỏng đặt lệnh." },
       ],
@@ -366,6 +366,6 @@ export const simulationExperienceData: SimulationExperienceData = {
   disclaimer: {
     title: "Cảnh báo quan trọng",
     content:
-      "Mô phỏng là môi trường học quy trình, không phải công cụ đặt lệnh. Giao diện dùng ngôn ngữ vị thế theo dõi giả lập, mốc xem lại thesis, nhật ký và hậu kiểm để tránh biến bài học thành phản ứng mua/bán.",
+      "Mô phỏng là môi trường học quy trình, không phải công cụ đặt lệnh. Giao diện dùng ngôn ngữ vị thế theo dõi giả lập, mốc xem lại thesis, nhật ký và hậu kiểm để tránh biến bài học thành phản ứng giao dịch.",
   },
 };

@@ -415,3 +415,490 @@ https://react.dev/link/hydration-mismatch
   139 |       <div className="mb-3 flex items-center gap-2 text-[11px] font-bold uppercase tracki...
   140 |         <span className="grid h-7 w-7 place-items-center rounded-[3px] border-[1.5px] bor...
   141 |           {overview.icon}
+[browser] Uncaught Error: Hydration failed because the server rendered HTML didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.tsx">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <script>
+                      <RootLayout>
+                        <html
+                          lang="vi"
+-                         className="mdl-js"
+                        >
+                          ...
+                            <div className="grid min-h...">
+                              <Topbar>
+                              ...
+                                <nav className="grid gap-4" aria-label="Điều hướng...">
+                                  <div className="grid gap-2">
+                                    <p>
+                                    <button
++                                     className="grid min-h-10 w-full grid-cols-[22px_minmax(0,1fr)] items-center gap-..."
+-                                     className="grid min-h-10 w-full grid-cols-[22px_minmax(0,1fr)] items-center gap-..."
+                                      type="button"
+                                      onClick={function onClick}
++                                     aria-current={undefined}
+-                                     aria-current="page"
+                                    >
+                                      <span
++                                       className="grid h-5 w-5 place-items-center rounded-[3px] border border-border-..."
+-                                       className="grid h-5 w-5 place-items-center rounded-[3px] border border-border-..."
+                                        aria-hidden="true"
+                                      >
++                                       ◇
+                                      ...
+                                  <div>
+                                  <div className="grid gap-2">
+                                    <p>
+                                    <button
++                                     className="grid min-h-10 w-full grid-cols-[22px_minmax(0,1fr)] items-center gap-..."
+-                                     className="grid min-h-10 w-full grid-cols-[22px_minmax(0,1fr)] items-center gap-..."
+                                      type="button"
+                                      onClick={function onClick}
++                                     aria-current="page"
+-                                     aria-current={null}
+                                    >
+                                      <span
++                                       className="grid h-5 w-5 place-items-center rounded-[3px] border border-border-..."
+-                                       className="grid h-5 w-5 place-items-center rounded-[3px] border border-border-..."
+                                        aria-hidden="true"
+                                      >
++                                       ◆
+                                      ...
+                                    ...
+                                  ...
+                              ...
+                                <div className="module-con...">
+                                  <MacroPage onNavigate={function handleNavigate}>
+                                    <div
++                                     className="mx-auto w-full max-w-[1180px] space-y-6"
+-                                     className="mx-auto w-full max-w-[1280px] space-y-5"
+                                    >
+                                      <MacroHeader overview={{eyebrow:"B...", ...}}>
++                                       <div
++                                         className="rounded-[4px] border-[1.5px] border-border bg-surface px-5 py-5 s..."
++                                       >
+-                                       <section
+-                                         className="rounded-[4px] border-[1.5px] border-border bg-surface shadow-soft..."
+-                                       >
+                                      ...
+                              ...
+                  ...
+
+    at <unknown> (https://react.dev/link/hydration-mismatch)
+    at div (<anonymous>)
+    at MacroHeader (src/features/macro/components/MacroBlocks.tsx:138:5)
+    at MacroPage (src/features/macro/components/MacroPage.tsx:26:7)
+    at AppShell (src/components/layout/AppShell.tsx:108:11)
+    at HomePage (src\app\page.tsx:4:10)
+  136 | }) {
+  137 |   return (
+> 138 |     <div className="rounded-[4px] border-[1.5px] border-border bg-surface px-5 py-5 shado...
+      |     ^
+  139 |       <div className="mb-3 flex items-center gap-2 text-[11px] font-bold uppercase tracki...
+  140 |         <span className="grid h-7 w-7 place-items-center rounded-[3px] border-[1.5px] bor...
+  141 |           {overview.icon}
+[browser] Uncaught Error: Hydration failed because the server rendered HTML didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.tsx">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <script>
+                      <RootLayout>
+                        <html
+                          lang="vi"
+-                         className="mdl-js"
+                        >
+                          ...
+                            <div className="grid min-h...">
+                              <Topbar>
+                              ...
+                                <nav className="grid gap-4" aria-label="Điều hướng...">
+                                  <div className="grid gap-2">
+                                    <p>
+                                    <button
++                                     className="grid min-h-10 w-full grid-cols-[22px_minmax(0,1fr)] items-center gap-..."
+-                                     className="grid min-h-10 w-full grid-cols-[22px_minmax(0,1fr)] items-center gap-..."
+                                      type="button"
+                                      onClick={function onClick}
++                                     aria-current={undefined}
+-                                     aria-current="page"
+                                    >
+                                      <span
++                                       className="grid h-5 w-5 place-items-center rounded-[3px] border border-border-..."
+-                                       className="grid h-5 w-5 place-items-center rounded-[3px] border border-border-..."
+                                        aria-hidden="true"
+                                      >
++                                       ◇
+                                      ...
+                                  <div>
+                                  <div className="grid gap-2">
+                                    <p>
+                                    <button>
+                                    <button>
+                                    <button>
+                                    <button>
+                                    <button
++                                     className="grid min-h-10 w-full grid-cols-[22px_minmax(0,1fr)] items-center gap-..."
+-                                     className="grid min-h-10 w-full grid-cols-[22px_minmax(0,1fr)] items-center gap-..."
+                                      type="button"
+                                      onClick={function onClick}
++                                     aria-current="page"
+-                                     aria-current={null}
+                                    >
+                                      <span
++                                       className="grid h-5 w-5 place-items-center rounded-[3px] border border-border-..."
+-                                       className="grid h-5 w-5 place-items-center rounded-[3px] border border-border-..."
+                                        aria-hidden="true"
+                                      >
++                                       ▤
+                                      ...
+                                    ...
+                                  ...
+                              ...
+                                <div className="module-con...">
+                                  <FinancialsPage>
+                                    <div
++                                     className="mx-auto w-full max-w-[980px] space-y-6"
+-                                     className="mx-auto w-full max-w-[1280px] space-y-5"
+                                    >
+                                      <FinancialsHeader canContinueToValuation={false} data={{...}} ...>
+                                        <Card>
+                                          <section
++                                           className="rounded-[4px] border-[1.5px] border-border bg-surface shadow-soft"
+-                                           className="rounded-[4px] border-[1.5px] border-border bg-surface shadow-so..."
+                                          >
+                                            <CardBody>
+                                              <div
++                                               className="px-5 py-5"
+-                                               className="grid gap-5 border-b border-border-soft bg-surface-soft px-5..."
+                                              >
+                                                <div
++                                                 className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify..."
+-                                                 className={null}
+                                                >
++                                                 <div>
+-                                                 <p
+-                                                   className="text-[11px] font-bold uppercase tracking-[0.04em] text-..."
+-                                                 >
+                                                  ...
+                                      ...
+                              ...
+                  ...
+
+    at <unknown> (https://react.dev/link/hydration-mismatch)
+    at div (<anonymous>)
+    at FinancialsHeader (src/features/financials/components/FinancialsHeader.tsx:19:11)
+    at FinancialsPage (src/features/financials/components/FinancialsPage.tsx:147:7)
+    at AppShell (src/components/layout/AppShell.tsx:114:42)
+    at HomePage (src\app\page.tsx:4:10)
+  17 |       <CardBody>
+  18 |         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+> 19 |           <div>
+     |           ^
+  20 |             <div className="flex flex-wrap items-center gap-2">
+  21 |               <Chip variant="accent">{data.moduleName}</Chip>
+  22 |               <Chip variant="warning">{data.dataStatus}</Chip>
+[browser] Uncaught Error: Hydration failed because the server rendered HTML didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.tsx">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <script>
+                      <RootLayout>
+                        <html
+                          lang="vi"
+-                         className="mdl-js"
+                        >
+                          ...
+                            <div className="grid min-h...">
+                              <Topbar>
+                              ...
+                                <nav className="grid gap-4" aria-label="Điều hướng...">
+                                  <div className="grid gap-2">
+                                    <p>
+                                    <button
++                                     className="grid min-h-10 w-full grid-cols-[22px_minmax(0,1fr)] items-center gap-..."
+-                                     className="grid min-h-10 w-full grid-cols-[22px_minmax(0,1fr)] items-center gap-..."
+                                      type="button"
+                                      onClick={function onClick}
++                                     aria-current={undefined}
+-                                     aria-current="page"
+                                    >
+                                      <span
++                                       className="grid h-5 w-5 place-items-center rounded-[3px] border border-border-..."
+-                                       className="grid h-5 w-5 place-items-center rounded-[3px] border border-border-..."
+                                        aria-hidden="true"
+                                      >
++                                       ◇
+                                      ...
+                                  <div>
+                                  <div className="grid gap-2">
+                                    <p>
+                                    <button>
+                                    <button>
+                                    <button>
+                                    <button>
+                                    <button>
+                                    <button>
+                                    <button>
+                                    <button
++                                     className="grid min-h-10 w-full grid-cols-[22px_minmax(0,1fr)] items-center gap-..."
+-                                     className="grid min-h-10 w-full grid-cols-[22px_minmax(0,1fr)] items-center gap-..."
+                                      type="button"
+                                      onClick={function onClick}
++                                     aria-current="page"
+-                                     aria-current={null}
+                                    >
+                                      <span
++                                       className="grid h-5 w-5 place-items-center rounded-[3px] border border-border-..."
+-                                       className="grid h-5 w-5 place-items-center rounded-[3px] border border-border-..."
+                                        aria-hidden="true"
+                                      >
++                                       ◉
+                                      ...
+                                  ...
+                              ...
+                                <div className="module-con...">
+                                  <RiskPage>
+                                    <div
++                                     className="mx-auto w-full max-w-[980px] space-y-6"
+-                                     className="mx-auto w-full max-w-[1280px] space-y-5"
+                                    >
+                                      <RiskHeader data={{...}}>
+                                        <section
++                                         className="rounded-[4px] border-[1.5px] border-border bg-surface px-5 py-5 s..."
+-                                         className="rounded-[4px] border-[1.5px] border-border bg-surface shadow-soft..."
+                                        >
+                                          <div
++                                           className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between"
+-                                           className="grid gap-5 border-b border-border-soft bg-surface-soft px-5 py-..."
+                                          >
+                                            <div>
++                                             <div className="flex flex-wrap items-center gap-2">
+-                                             <p
+-                                               className="text-[11px] font-bold uppercase tracking-[0.04em] text-subtle"
+-                                             >
+                                              ...
+                                            ...
+                                          ...
+                                      ...
+                              ...
+                  ...
+
+    at <unknown> (https://react.dev/link/hydration-mismatch)
+    at div (<anonymous>)
+    at RiskHeader (src/features/risk/components/RiskUi.tsx:124:11)
+    at RiskPage (src/features/risk/components/RiskPage.tsx:31:7)
+    at AppShell (src/components/layout/AppShell.tsx:117:36)
+    at HomePage (src\app\page.tsx:4:10)
+  122 |       <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+  123 |         <div>
+> 124 |           <div className="flex flex-wrap items-center gap-2">
+      |           ^
+  125 |             <Chip variant="accent">{data.moduleName}</Chip>
+  126 |             <Chip variant="warning">{data.reviewStatus}</Chip>
+  127 |           </div>
+[browser] Uncaught TypeError: Cannot read properties of undefined (reading 'map')
+    at PVTWorkspaceChart (src/features/technical/components/PVTCommandCenter.tsx:171:19)
+    at PVTCommandCenter (src/features/technical/components/PVTCommandCenter.tsx:239:12)
+    at TechnicalPage (src/features/technical/components/TechnicalPage.tsx:36:7)
+    at AppShell (src/components/layout/AppShell.tsx:116:41)
+    at HomePage (src\app\page.tsx:4:10)
+  169 |           })}
+  170 |
+> 171 |           {events.map((event) => {
+      |                   ^
+  172 |             const point = points[Math.min(points.length - 1, event.pointIndex)];
+  173 |             const x = scale(event.pointIndex, 0, Math.max(1, points.length - 1), width);
+  174 |             const y = priceHeight - scale(point.price, min, max, priceHeight);
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+[browser] Uncaught Error: Hydration failed because the server rendered HTML didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.tsx">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <script>
+                      <RootLayout>
+                        <html
+                          lang="vi"
+-                         className="mdl-js"
+                        >
+                          ...
+                            <div className="grid min-h...">
+                              <Topbar>
+                              ...
+                                <nav className="grid gap-4" aria-label="Điều hướng...">
+                                  <div className="grid gap-2">
+                                    <p>
+                                    <button
++                                     className="grid min-h-10 w-full grid-cols-[22px_minmax(0,1fr)] items-center gap-..."
+-                                     className="grid min-h-10 w-full grid-cols-[22px_minmax(0,1fr)] items-center gap-..."
+                                      type="button"
+                                      onClick={function onClick}
++                                     aria-current={undefined}
+-                                     aria-current="page"
+                                    >
+                                      <span
++                                       className="grid h-5 w-5 place-items-center rounded-[3px] border border-border-..."
+-                                       className="grid h-5 w-5 place-items-center rounded-[3px] border border-border-..."
+                                        aria-hidden="true"
+                                      >
++                                       ◇
+                                      ...
+                                  <div>
+                                  <div className="grid gap-2">
+                                    <p>
+                                    <button>
+                                    <button>
+                                    <button>
+                                    <button>
+                                    <button>
+                                    <button>
+                                    <button
++                                     className="grid min-h-10 w-full grid-cols-[22px_minmax(0,1fr)] items-center gap-..."
+-                                     className="grid min-h-10 w-full grid-cols-[22px_minmax(0,1fr)] items-center gap-..."
+                                      type="button"
+                                      onClick={function onClick}
++                                     aria-current="page"
+-                                     aria-current={null}
+                                    >
+                                      <span
++                                       className="grid h-5 w-5 place-items-center rounded-[3px] border border-border-..."
+-                                       className="grid h-5 w-5 place-items-center rounded-[3px] border border-border-..."
+                                        aria-hidden="true"
+                                      >
++                                       ⌁
+                                      ...
+                                    ...
+                                  ...
+                              ...
+                                <div className="module-con...">
+                                  <TechnicalPage>
+                                    <div
++                                     className="mx-auto w-full max-w-[1120px] space-y-6"
+-                                     className="mx-auto w-full max-w-[1280px] space-y-5"
+                                    >
+                                      <TechnicalHeader canContinueToRisk={false} data={{...}} ...>
+                                        <section
++                                         className="rounded-[4px] border-[1.5px] border-border bg-surface px-5 py-5 s..."
+-                                         className="rounded-[4px] border-[1.5px] border-border bg-surface shadow-soft..."
+                                        >
+                                          <div
++                                           className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between"
+-                                           className="grid gap-5 border-b border-border-soft bg-surface-soft px-5 py-..."
+                                          >
+                                            <div>
++                                             <div className="flex flex-wrap items-center gap-2">
+-                                             <p
+-                                               className="text-[11px] font-bold uppercase tracking-[0.04em] text-subtle"
+-                                             >
+                                              ...
+                                            ...
+                                          ...
+                                      ...
+                              ...
+                  ...
+
+    at <unknown> (https://react.dev/link/hydration-mismatch)
+    at div (<anonymous>)
+    at TechnicalHeader (src/features/technical/components/TechnicalHeader.tsx:19:11)
+    at TechnicalPage (src/features/technical/components/TechnicalPage.tsx:31:7)
+    at AppShell (src/components/layout/AppShell.tsx:116:41)
+    at HomePage (src\app\page.tsx:4:10)
+  17 |       <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+  18 |         <div>
+> 19 |           <div className="flex flex-wrap items-center gap-2">
+     |           ^
+  20 |             <Chip variant="accent">{data.moduleName}</Chip>
+  21 |             <Chip variant="neutral">{data.subtitle}</Chip>
+  22 |             <Chip variant="warning">{data.status}</Chip>

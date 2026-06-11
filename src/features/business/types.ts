@@ -1,6 +1,7 @@
 export type BusinessStatus = "Đang phân tích" | "Cần bổ sung dữ liệu" | "Hoàn thành";
 export type StepStatus = "Chưa làm" | "Đang làm" | "Đã hoàn thành" | "Cần kiểm tra thêm";
 export type AssessmentTone = "success" | "warning" | "danger" | "neutral" | "accent";
+export type BusinessMetricStatus = "good" | "watch" | "risk" | "unknown";
 
 export type BusinessAction = {
   label: string;
@@ -37,6 +38,54 @@ export type BusinessQuickSummaryData = {
   icon: string;
   items: BusinessQuickSummaryItem[];
   oneSentenceSummary: string;
+};
+
+export type BusinessOperatingMetric = {
+  id: string;
+  label: string;
+  value: string;
+  period: string;
+  status: BusinessMetricStatus;
+  explanation: string;
+  isMock?: boolean;
+  detail: {
+    definition: string;
+    whyItMatters: string;
+    bctcCheck: string[];
+    commonMistake: string;
+  };
+};
+
+export type BusinessMoneyMachineNode = {
+  id: string;
+  label: string;
+  description: string;
+  relatedMetrics: string[];
+  bctcChecks: string[];
+  riskNote?: string;
+};
+
+export type BusinessReadinessItem = {
+  id: string;
+  label: string;
+  status: "done" | "missing" | "needs_check";
+  helperText: string;
+};
+
+export type BusinessDashboardData = {
+  identity: {
+    ticker: string;
+    companyName: string;
+    industry: string;
+    model: string;
+    customers: string;
+    beginnerFit: string;
+  };
+  moneyMachine: BusinessMoneyMachineNode[];
+  operatingMetrics: BusinessOperatingMetric[];
+  advantages: Array<{ title: string; description: string; module: string }>;
+  risks: Array<{ title: string; description: string; module: string }>;
+  readiness: BusinessReadinessItem[];
 };
 
 export type BusinessConclusionData = {
@@ -121,6 +170,7 @@ export type BusinessPageData = {
   emptyState: BusinessEmptyStateData;
   header: BusinessHeaderData;
   quickSummary: BusinessQuickSummaryData;
+  dashboard: BusinessDashboardData;
   conclusion: BusinessConclusionData;
   groups: BusinessAnalysisGroup[];
   bctcBridge: BusinessBctcBridgeData;

@@ -74,7 +74,26 @@ export function StockScreeningExplanationDrawer({
           <div className="rounded-[4px] border border-border-soft bg-accent-soft px-3 py-3">
             <Chip variant="accent">{stock.classification}</Chip>
             <p className="mt-2 text-sm leading-6 text-muted">{stock.mainReason}</p>
+            <p className="mt-2 text-[11px] font-semibold text-subtle">
+              Đây không phải khuyến nghị mua bán.
+            </p>
           </div>
+
+          <section className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3">
+            <h3 className="text-sm font-bold text-ink">Số liệu chính</h3>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              {stock.metrics.map((metric) => (
+                <div key={metric.id} className="rounded-[4px] bg-surface px-2 py-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-[11px] font-bold uppercase text-subtle">{metric.label}</p>
+                    {metric.isMock ? <Chip size="sm" variant="neutral">Mock</Chip> : null}
+                  </div>
+                  <p className="mt-1 text-sm font-bold text-ink">{metric.value}</p>
+                  <p className="mt-1 text-[11px] leading-4 text-muted">{metric.explanation}</p>
+                </div>
+              ))}
+            </div>
+          </section>
 
           <div className="space-y-3">
             {stock.funnel.map((item) => (

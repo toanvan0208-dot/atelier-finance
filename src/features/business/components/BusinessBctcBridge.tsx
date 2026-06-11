@@ -52,20 +52,23 @@ export function BusinessBctcBridge({
               {isOpen ? "Thu gọn" : "Xem chi tiết"}
             </span>
           }
-          description={data.description}
+          description="BCTC dùng để kiểm chứng giả thuyết kinh doanh, không chỉ để nhìn số đẹp hay xấu."
           icon="B"
-          title={data.title}
+          title="Dữ liệu cần mang sang BCTC"
         />
       </button>
 
       {isOpen ? (
         <CardBody className="space-y-4">
           <DataTable
-            caption={data.title}
+            caption="Dữ liệu cần mang sang BCTC"
             columns={columns}
             getRowKey={(row) => row.question}
             rows={data.items}
           />
+          <p className="rounded-[4px] border border-warning bg-warning/15 px-3 py-2 text-xs font-semibold leading-5 text-ink">
+            Nếu nút BCTC đang khóa, hãy hoàn thành mini check để đảm bảo bạn hiểu doanh nghiệp kiếm tiền từ đâu trước khi đọc số.
+          </p>
           <Button disabled={!canGoToFinancials} variant={canGoToFinancials ? "primary" : "secondary"}>
             {canGoToFinancials ? data.ctaLabel : data.disabledCtaLabel}
           </Button>

@@ -5,16 +5,23 @@ export type ModuleReadinessStatus =
   | "Sẵn sàng dùng"
   | "Có thể dùng với hướng dẫn"
   | "Cần học thêm trước"
-  | "Chưa nên dùng một mình";
+  | "Cần ôn lại";
+
+export type LearningTabId = "today" | "roadmap" | "mistakes" | "profile";
+
+export type MistakeSelfCheck = "Tôi đã mắc lỗi này" | "Tôi chưa chắc" | "Tôi muốn luyện thêm";
 
 export type LearningQuiz = {
   question: string;
   answer: string;
+  options?: string[];
+  explanation?: string;
 };
 
 export type LearningMiniCase = {
   prompt: string;
   goodAnswer: string;
+  options?: string[];
 };
 
 export type LearningLesson = {

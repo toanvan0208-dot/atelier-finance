@@ -218,8 +218,32 @@ function createStock({
           : "Nên học thêm về ngành và rủi ro trước khi phân tích sâu.",
     beginnerFitLevel,
     conclusion,
+    metrics: mockMetrics(ticker),
     funnel: stockFunnel(),
   };
+}
+
+function mockMetrics(ticker: string): ScreeningStock["metrics"] {
+  const base = {
+    MWG: ["14.2x", "2.1x", "16.4%", "+8.5% YoY", "Dương", "0.6x", "2.4 triệu cp/ngày"],
+    PNJ: ["18.6x", "3.3x", "18.9%", "+11.2% YoY", "Dương", "0.4x", "0.9 triệu cp/ngày"],
+    FRT: ["22.4x", "4.0x", "14.1%", "+12.8% YoY", "Theo dõi", "1.2x", "1.8 triệu cp/ngày"],
+    FPT: ["21.8x", "5.4x", "24.7%", "+19.5% YoY", "Dương", "0.2x", "3.1 triệu cp/ngày"],
+    HPG: ["13.5x", "1.5x", "12.6%", "+6.9% YoY", "Dương", "0.5x", "18.2 triệu cp/ngày"],
+    VCB: ["15.9x", "2.7x", "19.8%", "+7.4% YoY", "Dương", "N/A", "1.1 triệu cp/ngày"],
+    TCB: ["8.7x", "1.2x", "15.2%", "+5.1% YoY", "Dương", "N/A", "4.6 triệu cp/ngày"],
+    SSI: ["16.1x", "1.9x", "13.4%", "+10.6% YoY", "Biến động", "0.8x", "12.7 triệu cp/ngày"],
+  }[ticker] ?? ["N/A", "N/A", "N/A", "N/A", "N/A", "N/A", "N/A"];
+
+  return [
+    { id: "pe", label: "P/E", value: base[0], status: "neutral", explanation: "Định giá sơ bộ theo lợi nhuận.", isMock: true },
+    { id: "pb", label: "P/B", value: base[1], status: "neutral", explanation: "Định giá theo giá trị sổ sách.", isMock: true },
+    { id: "roe", label: "ROE", value: base[2], status: "pass", explanation: "Hiệu quả vốn chủ sở hữu.", isMock: true },
+    { id: "growth", label: "Doanh thu", value: base[3], status: "pass", explanation: "Tăng trưởng doanh thu gần nhất.", isMock: true },
+    { id: "cfo", label: "CFO", value: base[4], status: base[4] === "Dương" ? "pass" : "watch", explanation: "Dòng tiền kinh doanh sơ bộ.", isMock: true },
+    { id: "debt", label: "D/E", value: base[5], status: base[5] === "N/A" ? "neutral" : "watch", explanation: "Đòn bẩy tài chính sơ bộ.", isMock: true },
+    { id: "liquidity", label: "Thanh khoản", value: base[6], status: "pass", explanation: "Khối lượng giao dịch bình quân.", isMock: true },
+  ];
 }
 
 const stocksByTicker: Record<string, ScreeningStock> = {

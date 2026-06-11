@@ -13,11 +13,12 @@ export type ChecklistStatusId =
   | "missing_important_data";
 
 export type ReadinessStatus =
-  | "Có thể đi tiếp"
+  | "Sẵn sàng cho bước tiếp theo"
+  | "Tạm đủ để mô phỏng"
   | "Cần kiểm tra thêm"
-  | "Chưa nên quyết định vội"
-  | "Nên mô phỏng trước"
-  | "Nên quay lại phân tích";
+  | "Chưa nên đi tiếp"
+  | "Thiếu dữ liệu quan trọng"
+  | "Có thể mô phỏng với cảnh báo";
 
 export type ChecklistPurpose = {
   id: ChecklistPurposeId;

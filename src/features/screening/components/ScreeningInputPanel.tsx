@@ -2,10 +2,11 @@
 
 import { useMemo, useState } from "react";
 import { Button, Card, CardBody, CardHeader } from "@/components/ui";
-import type { ScreeningInputData, ScreeningOption } from "../types";
+import type { ScreeningInputData, ScreeningOption, ScreeningStockGroup } from "../types";
 
 type ScreeningInputPanelProps = {
   data: ScreeningInputData;
+  resultGroups?: ScreeningStockGroup[];
   onIndustryChange?: (industry: string) => void;
 };
 
@@ -62,6 +63,7 @@ function ChoiceGroup({
 
 export function ScreeningInputPanel({
   data,
+  resultGroups = [],
   onIndustryChange,
 }: ScreeningInputPanelProps) {
   const [selectedIndustry, setSelectedIndustry] = useState(data.defaultIndustry);
@@ -109,11 +111,14 @@ export function ScreeningInputPanel({
     selectedObjective,
     data.sentenceTemplate.objectiveFallback
   );
+  const priorityCount = resultGroups.find((group) => group.key === "priority")?.stocks.length ?? 0;
+  const reviewCount = resultGroups.find((group) => group.key === "review")?.stocks.length ?? 0;
+  const excludedCount = resultGroups.find((group) => group.key === "excluded")?.stocks.length ?? 0;
 
   return (
     <>
       <Card className="border-border bg-surface">
-        <CardHeader description={data.description} icon="F" title={data.title} />
+        <CardHeader description={data.description} icon="F" title="Screening Command Center" />
         <CardBody className="space-y-4">
           <div className="rounded-[4px] border border-accent bg-accent-soft px-4 py-4">
             <p className="text-sm font-bold leading-6 text-ink">{sentence}</p>
@@ -131,6 +136,19 @@ export function ScreeningInputPanel({
               <div key={item.label} className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-2">
                 <p className="text-[11px] font-bold uppercase tracking-[0.04em] text-subtle">{item.label}</p>
                 <p className="mt-1 text-sm font-bold text-ink">{item.value}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="grid gap-2 sm:grid-cols-3">
+            {[
+              { label: "Đáng phân tích tiếp", value: priorityCount },
+              { label: "Theo dõi thêm", value: reviewCount },
+              { label: "Chưa phù hợp", value: excludedCount },
+            ].map((item) => (
+              <div key={item.label} className="rounded-[4px] border border-border-soft bg-surface px-3 py-2">
+                <p className="text-[11px] font-bold uppercase tracking-[0.04em] text-subtle">{item.label}</p>
+                <p className="mt-1 text-lg font-bold text-ink">{item.value} mã</p>
               </div>
             ))}
           </div>

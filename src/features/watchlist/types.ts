@@ -40,6 +40,92 @@ export type WatchlistStatus =
   | "Tạm loại"
   | "Lưu trữ";
 
+export type WatchlistPipelineStatus =
+  | "new"
+  | "analyzing"
+  | "needs_review"
+  | "ready_for_simulation"
+  | "simulating"
+  | "paused"
+  | "archived";
+
+export type WatchlistPriority = "low" | "medium" | "high";
+
+export type WatchlistModuleKey =
+  | "macro"
+  | "industry"
+  | "business"
+  | "financials"
+  | "valuation"
+  | "technical"
+  | "risk"
+  | "checklist"
+  | "simulation"
+  | "journal";
+
+export type ThesisStatus =
+  | "missing"
+  | "draft"
+  | "testing"
+  | "partially_confirmed"
+  | "partially_rejected"
+  | "paused";
+
+export type WatchlistSortBy =
+  | "priority"
+  | "reviewDate"
+  | "missingThesis"
+  | "eventDate"
+  | "progress"
+  | "recentlyAdded";
+
+export type WatchlistFilterState = {
+  industry?: string;
+  pipelineStatus?: WatchlistStatus | "all";
+  priority?: string;
+  missingModule?: string;
+  mainRisk?: string;
+  hasEvent?: boolean;
+  thesisStatus?: ThesisStatus | "all";
+  readyForSimulation?: boolean;
+  pausedOnly?: boolean;
+  fomoWarning?: boolean;
+  search?: string;
+  sortBy: WatchlistSortBy;
+};
+
+export type WatchlistActionQueueItem = {
+  id: string;
+  ticker: string;
+  title: string;
+  reason: string;
+  priority: WatchlistPriority;
+  relatedModule?: string;
+  ctaLabel: string;
+  moduleKey?: string;
+  reviewDate?: string;
+};
+
+export type WatchlistJournalEntry = {
+  id: string;
+  ticker: string;
+  createdAt: string;
+  type:
+    | "added"
+    | "thesis_updated"
+    | "module_completed"
+    | "risk_found"
+    | "valuation_updated"
+    | "event_added"
+    | "paused"
+    | "resumed"
+    | "personal_note";
+  relatedModule?: string;
+  content: string;
+  previousStatus?: WatchlistStatus;
+  nextStatus?: WatchlistStatus;
+};
+
 export type ActionableWatchlistStatus =
   | "Mới thêm"
   | "Đang phân tích"

@@ -1,149 +1,128 @@
+"use client";
+
 import { Button, Card, CardBody, CardHeader, Chip } from "@/components/ui";
-import { cn } from "@/lib/cn";
-import type { StockIdea, WatchlistStatus } from "../types";
-import {
-  ModuleStatusBadge,
-  StatusBadge,
-  TextStack,
-} from "./WatchlistPrimitives";
+import type { StockIdea } from "../types";
+import { ModuleStatusBadge, StatusBadge } from "./WatchlistPrimitives";
 
 type StockIdeaCardProps = {
   data: StockIdea;
-  isExpanded?: boolean;
   onOpenDetails?: (ticker: string) => void;
-  onToggle?: (ticker: string) => void;
 };
 
-const primaryCtaByStatus: Partial<Record<WatchlistStatus, string>> = {
-  "Cần xem lại": "Xem lại thesis",
-  "Đang mô phỏng": "Ghi nhật ký",
-  "Đang phân tích": "Phân tích tiếp",
-  "Mới thêm": "Bắt đầu phân tích",
-  "Sẵn sàng mô phỏng": "Tạo mô phỏng",
-  "Tạm loại": "Xem lý do tạm loại",
-};
-
-const compactModuleNames = ["Hiểu DN", "Ngành", "BCTC", "Định giá", "PVT", "Rủi ro"];
-
-function clampText(text: string, fallback: string) {
-  return text || fallback;
-}
+const compactModuleNames = ["Vĩ mô", "Ngành", "Doanh nghiệp", "BCTC", "Định giá", "PVT", "Rủi ro", "Checklist"];
 
 function getModuleStatus(data: StockIdea, compactName: string) {
-  const fullName = compactName === "Hiểu DN" ? "Hiểu doanh nghiệp" : compactName;
-  return data.progress.find((item) => item.moduleName === fullName)?.status ?? "Chưa làm";
+  const aliases: Record<string, string[]> = {
+    "Vĩ mô": ["Vĩ mô"],
+    Ngành: ["Ngành"],
+    "Doanh nghiệp": ["Hiểu doanh nghiệp", "Doanh nghiệp"],
+    BCTC: ["BCTC"],
+    "Định giá": ["Định giá"],
+    PVT: ["PVT"],
+    "Rủi ro": ["Rủi ro"],
+    Checklist: ["Checklist"],
+  };
+  const names = aliases[compactName] ?? [compactName];
+  return data.progress.find((item) => names.includes(item.moduleName))?.status ?? "Chưa làm";
 }
 
-export function StockIdeaCard({
-  data,
-  isExpanded = false,
-  onOpenDetails,
-  onToggle,
-}: StockIdeaCardProps) {
-  const primaryLabel = primaryCtaByStatus[data.status] ?? "Xem hồ sơ";
+function hasFomoWarning(data: StockIdea) {
+  return data.tags.some((tag) => tag.toLowerCase().includes("fomo")) ||
+    data.risks.some((risk) => risk.toLowerCase().includes("fomo")) ||
+    data.emotionalState.toLowerCase().includes("fomo");
+}
 
+export function StockIdeaCard({ data, onOpenDetails }: StockIdeaCardProps) {
   return (
-    <Card className={isExpanded ? "bg-accent-soft/30" : undefined}>
-      <button
-        className="block w-full text-left"
-        type="button"
-        aria-expanded={isExpanded}
-        onClick={() => onToggle?.(data.ticker)}
-      >
-        <CardHeader
-          action={
-            <div className="flex items-center gap-2">
-              <StatusBadge status={data.status} />
-              <span
-                className={cn(
-                  "flex h-7 w-7 items-center justify-center rounded-[3px] border border-border-soft bg-surface-soft text-sm font-bold text-ink",
-                  isExpanded && "border-border bg-accent-soft"
-                )}
-                aria-hidden="true"
-              >
-                {isExpanded ? "−" : "+"}
-              </span>
+    <Card>
+      <CardHeader
+        action={
+          <div className="flex flex-wrap justify-end gap-2">
+            <StatusBadge status={data.status} />
+            <Chip variant={data.priority.toLowerCase().includes("cao") ? "warning" : "neutral"}>
+              {data.priority}
+            </Chip>
+          </div>
+        }
+        description={`${data.companyName} · ${data.industry}`}
+        icon={data.ticker.slice(0, 2)}
+        title={data.ticker}
+      />
+      <CardBody className="space-y-4">
+        <section className="rounded-[4px] border border-border-soft bg-accent-soft px-3 py-3">
+          <Chip size="sm" variant="accent">Thesis đang kiểm chứng</Chip>
+          <p className="mt-2 text-sm font-semibold leading-6 text-ink">{data.thesis || "Chưa có thesis rõ."}</p>
+        </section>
+
+        <section>
+          <p className="text-xs font-bold text-ink">Lý do theo dõi</p>
+          <p className="mt-1 text-sm leading-6 text-muted">{data.reason}</p>
+        </section>
+
+        <div className="grid gap-3 md:grid-cols-2">
+          <section className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3">
+            <p className="text-xs font-bold text-ink">Còn thiếu</p>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {data.missingModules.length ? (
+                data.missingModules.slice(0, 4).map((module) => <Chip key={module} size="sm" variant="warning">{module}</Chip>)
+              ) : (
+                <Chip size="sm" variant="success">Đã có nền sơ bộ</Chip>
+              )}
             </div>
-          }
-          description={`${data.companyName} · ${data.industry}`}
-          icon={data.ticker.slice(0, 2)}
-          title={data.ticker}
-        />
-        <CardBody>
-          <div className="grid gap-2 sm:grid-cols-[1fr_1fr_1fr_auto] sm:items-center">
-            {[
-              { label: "Giá hiện tại", value: data.currentPrice },
-              { label: "Biến động 30 ngày", value: data.recentMove },
-              { label: "Thanh khoản", value: data.liquidity },
-            ].map((item) => (
-              <div key={item.label}>
-                <p className="text-[11px] font-semibold text-subtle">{item.label}</p>
-                <p className="mt-1 text-sm font-bold text-ink">{item.value}</p>
+          </section>
+          <section className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3">
+            <p className="text-xs font-bold text-ink">Cảnh báo chính</p>
+            <p className="mt-2 text-xs leading-5 text-muted">{data.risks[0] ?? "Chưa có cảnh báo nổi bật."}</p>
+          </section>
+        </div>
+
+        <section>
+          <p className="mb-2 text-xs font-bold text-ink">Tiến độ 8 bước</p>
+          <div className="grid gap-1.5 sm:grid-cols-2">
+            {compactModuleNames.map((moduleName) => (
+              <div key={moduleName} className="flex items-center justify-between gap-2 rounded-[3px] border border-border-soft bg-surface-soft px-2 py-1">
+                <span className="text-[11px] font-bold text-ink">{moduleName}</span>
+                <ModuleStatusBadge status={getModuleStatus(data, moduleName)} />
               </div>
             ))}
-            <p className="rounded-[3px] border border-border-soft bg-surface-soft px-2 py-1 text-xs font-bold text-muted">
-              {isExpanded ? "Thu gọn" : "Xổ chi tiết"}
-            </p>
           </div>
-        </CardBody>
-      </button>
+        </section>
 
-      {isExpanded ? (
-        <CardBody className="border-t border-border-soft">
-          <div className="space-y-4">
-            <section>
-              <p className="text-xs font-bold text-ink">Lý do theo dõi</p>
-              <p className="mt-1 line-clamp-2 text-sm leading-6 text-muted">
-                {clampText(data.reason, "Chưa có lý do theo dõi rõ ràng.")}
-              </p>
-            </section>
-
-            <section>
-              <p className="text-xs font-bold text-ink">Thesis đang kiểm tra</p>
-              <p className="mt-1 line-clamp-2 text-sm leading-6 text-muted">
-                {clampText(data.thesis, "Chưa có thesis. Cần viết lại trước khi đi tiếp.")}
-              </p>
-            </section>
-
-            <section>
-              <p className="mb-2 text-xs font-bold text-ink">Rủi ro chính</p>
-              <TextStack items={data.risks.slice(0, 3)} />
-            </section>
-
-            <section>
-              <p className="mb-2 text-xs font-bold text-ink">Tiến độ phân tích</p>
-              <div className="flex flex-wrap gap-1.5">
-                {compactModuleNames.map((moduleName) => (
-                  <div
-                    key={moduleName}
-                    className="flex items-center gap-1 rounded-[3px] border border-border-soft bg-surface-soft px-2 py-1"
-                  >
-                    <span className="text-[11px] font-bold text-ink">{moduleName}</span>
-                    <ModuleStatusBadge status={getModuleStatus(data, moduleName)} />
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            <div className="rounded-[4px] border-[1.5px] border-border bg-surface-soft px-3 py-3">
-              <div className="mb-2 flex items-center gap-2">
-                <Chip variant="accent">Bước tiếp theo</Chip>
-                <p className="text-xs font-bold text-ink">{data.readiness}</p>
-              </div>
-              <p className="text-xs leading-5 text-muted">{data.nextStep}</p>
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              <Button size="sm" variant="primary" onClick={() => onOpenDetails?.(data.ticker)}>
-                {primaryLabel}
-              </Button>
-              <Button size="sm" variant="secondary" onClick={() => onOpenDetails?.(data.ticker)}>
-                Xem hồ sơ
-              </Button>
-            </div>
+        <section className="rounded-[4px] border-[1.5px] border-border bg-surface-soft px-3 py-3">
+          <div className="mb-2 flex flex-wrap items-center gap-2">
+            <Chip variant="accent">Bước tiếp theo</Chip>
+            <span className="text-xs font-bold text-ink">{data.readiness}</span>
           </div>
-        </CardBody>
-      ) : null}
+          <p className="text-xs leading-5 text-muted">{data.nextStep}</p>
+        </section>
+
+        {hasFomoWarning(data) ? (
+          <p className="rounded-[4px] border border-[#D6B15C] bg-[#FFF6D8] px-3 py-2 text-xs leading-5 text-muted">
+            Có dấu hiệu FOMO: cần ghi rõ dữ liệu đang kiểm chứng trước khi tiếp tục theo dõi.
+          </p>
+        ) : null}
+
+        {data.events[0] ? (
+          <div className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-2 text-xs leading-5 text-muted">
+            Sự kiện gần nhất: <strong className="text-ink">{data.events[0].label}</strong> · {data.events[0].date}
+          </div>
+        ) : null}
+
+        <div className="grid gap-2 rounded-[4px] border border-border-soft bg-surface-soft px-3 py-2 text-xs text-muted sm:grid-cols-3">
+          <span>Giá: <strong className="text-ink">{data.currentPrice}</strong></span>
+          <span>30 ngày: <strong className="text-ink">{data.recentMove}</strong></span>
+          <span>Thanh khoản: <strong className="text-ink">{data.liquidity}</strong></span>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          <Button size="sm" onClick={() => onOpenDetails?.(data.ticker)}>
+            {data.actions[0]?.label ?? "Xem chi tiết"}
+          </Button>
+          <Button size="sm" variant="secondary" onClick={() => onOpenDetails?.(data.ticker)}>
+            Mở chi tiết
+          </Button>
+        </div>
+      </CardBody>
     </Card>
   );
 }

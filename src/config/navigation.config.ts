@@ -18,14 +18,6 @@ export const navigationItems: NavigationItem[] = [
     group: "Tổng quan",
   },
   {
-    key: "route-config",
-    label: "Cấu hình lộ trình",
-    shortLabel: "Cấu hình",
-    icon: "⌂",
-    href: "/route-config",
-    group: "Chuẩn bị",
-  },
-  {
     key: "learning",
     label: "Học tập",
     shortLabel: "Học",

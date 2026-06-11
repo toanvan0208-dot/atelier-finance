@@ -1,93 +1,114 @@
-export type OverviewStatus =
-  | "Chưa bắt đầu"
-  | "Đang làm"
-  | "Đã hoàn thành"
-  | "Cần xem lại"
-  | "Thiếu dữ liệu"
-  | "Chưa sẵn sàng"
-  | "Xuyên suốt";
+export type OverviewStepStatus =
+  | "not_started"
+  | "in_progress"
+  | "needs_check"
+  | "draft_done"
+  | "warning";
 
-export type OverviewModule = {
+export type OverviewPriority = "low" | "medium" | "high";
+
+export type OverviewAlertSeverity = "soft" | "watch" | "important";
+
+export type OverviewPipelineStep = {
   id: string;
-  name: string;
-  group: "Chuẩn bị" | "Phân tích" | "Thực hành & quyết định";
-  status: OverviewStatus;
-  goal: string;
-  action: string;
+  label: string;
   moduleKey: string;
-  completedSteps: number;
-  totalSteps: number;
-  missingData?: string;
+  status: OverviewStepStatus;
+  shortOutput: string;
+  ctaLabel: string;
+};
+
+export type OverviewCurrentCase = {
+  hasCase: boolean;
+  ticker?: string;
+  companyName?: string;
+  industry?: string;
+  currentStage: string;
+  progressLabel: string;
+  temporaryThesis?: string;
+  missingData: string[];
+  mainWarning?: string;
+};
+
+export type OverviewNextAction = {
+  id: string;
+  title: string;
+  relatedModule: string;
+  reason: string;
+  priority: OverviewPriority;
+  primaryAction: string;
+  secondaryAction?: string;
+  targetModuleKey?: string;
+  secondaryTargetModuleKey?: string;
+};
+
+export type OverviewMissingDataItem = {
+  id: string;
+  label: string;
+  relatedModule: string;
+  reason: string;
+  ctaLabel: string;
+  moduleKey: string;
+};
+
+export type OverviewProfileStatus = {
+  status: "complete" | "incomplete" | "needs_update";
+  summary: string;
+  ctaLabel: string;
+  moduleKey: string;
+};
+
+export type OverviewAlert = {
+  id: string;
+  title: string;
+  severity: OverviewAlertSeverity;
+  relatedModule: string;
+  reason: string;
+  ctaLabel: string;
+  moduleKey: string;
+};
+
+export type OverviewWatchlistIdea = {
+  ticker: string;
+  company: string;
+  currentStep: string;
+  mainWarning: string;
+  nextAction: string;
+  moduleKey: string;
+};
+
+export type OverviewLearningLesson = {
+  title: string;
+  duration: string;
+  reason: string;
+  moduleKey: string;
+};
+
+export type OverviewPracticeItem = {
+  id: string;
+  title: string;
+  status: string;
+  helperText: string;
+  ctaLabel: string;
+  moduleKey: string;
 };
 
 export type OverviewState = {
-  userStage: string;
-  totalProgress: {
-    completedSteps: number;
-    totalSteps: number;
-  };
-  nextBestAction: {
-    title: string;
-    reason: string;
-    priority: string;
-    relatedModule: string;
-    primaryAction: string;
-    primaryModuleKey: string;
-    secondaryAction: string;
-    secondaryModuleKey: string;
-  };
-  investorProfile: {
-    goal: string;
-    riskAppetite: string;
-    timeHorizon: string;
-    financialKnowledge: string;
-    decisionHabit: string;
-    behaviorFlags: string[];
-  };
-  learning: {
-    recommendedLessons: Array<{
-      title: string;
-      duration: string;
-      usedIn: string;
-    }>;
-    weakTopics: string[];
-  };
-  modules: OverviewModule[];
-  macroSector: {
-    supports: string[];
-    pressures: string[];
-    sectorsToReview: string[];
-    emptyState: string;
-  };
+  isMock: boolean;
+  currentCase: OverviewCurrentCase;
+  nextAction: OverviewNextAction;
+  pipeline: OverviewPipelineStep[];
+  missingData: OverviewMissingDataItem[];
+  profileStatus: OverviewProfileStatus;
+  alerts: OverviewAlert[];
   watchlist: {
     total: number;
-    newlyAdded: number;
-    missingThesis: number;
-    needReview: number;
-    readyForSimulation: number;
-    paused: number;
-    ideas: Array<{
-      ticker: string;
-      company: string;
-      status: string;
-      missing: string;
-      nextStep: string;
-    }>;
+    ideas: OverviewWatchlistIdea[];
   };
-  practice: Array<{
-    title: string;
-    goal: string;
-    metric: string;
-    secondaryMetric: string;
-    action: string;
-    moduleKey: string;
-  }>;
-  alerts: Array<{
-    type: string;
-    title: string;
-    message: string;
-    module: string;
-    action: string;
-    moduleKey: string;
-  }>;
+  learning: {
+    currentStep: string;
+    lessons: OverviewLearningLesson[];
+  };
+  practice: OverviewPracticeItem[];
+  disclaimer: string;
 };

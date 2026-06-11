@@ -196,6 +196,135 @@ export type TechnicalNextActionsData = {
   actions: TechnicalAction[];
 };
 
+export type PVTLayer =
+  | "price"
+  | "volume"
+  | "time"
+  | "market"
+  | "event"
+  | "psychology";
+
+export type PVTStatus =
+  | "normal"
+  | "watch"
+  | "risk"
+  | "unclear"
+  | "aligned"
+  | "conflict";
+
+export type PVTMetric = {
+  id: string;
+  label: string;
+  value: string;
+  unit?: string;
+  status: PVTStatus;
+  explanation: string;
+  isMock?: boolean;
+  detail?: {
+    definition: string;
+    whyItMatters: string;
+    commonMistake: string;
+  };
+};
+
+export type PVTZone = {
+  id: string;
+  label: string;
+  min: number;
+  max: number;
+  type: "support" | "resistance" | "current" | "neutral";
+};
+
+export type PVTEvent = {
+  id: string;
+  date: string;
+  title: string;
+  type: "financials" | "industry" | "macro" | "business" | "market";
+  priceReaction: string;
+  volumeReaction: string;
+  status: "possibly_related" | "unclear" | "noise";
+  pointIndex: number;
+};
+
+export type PVTLayerDetail = {
+  layer: PVTLayer;
+  label: string;
+  question: string;
+  observation: string;
+  metrics: TechnicalFieldItem[];
+  checks: string[];
+  commonMistake: string;
+  ctaLabel: string;
+};
+
+export type PVTReadinessItem = {
+  id: string;
+  label: string;
+  status: "done" | "missing" | "needs_review";
+  helperText: string;
+};
+
+export type PVTCommandCenterData = {
+  title: string;
+  ticker: string;
+  currentPrice: string;
+  timeframe: string;
+  observation: {
+    price: string;
+    volume: string;
+    time: string;
+    event: string;
+    psychology: string;
+    warning: string;
+  };
+  zones: PVTZone[];
+  metrics: PVTMetric[];
+  events: PVTEvent[];
+  layerDetails: PVTLayerDetail[];
+  fomoMini: {
+    checked: number;
+    total: number;
+    temperature: "Bình thường" | "Cần theo dõi" | "Nóng" | "Dễ FOMO";
+    highlights: string[];
+  };
+  isMock?: boolean;
+};
+
+export type PVTCrossModuleAlignmentItem = {
+  id: string;
+  module: string;
+  question: string;
+  status: "aligned" | "unclear" | "conflict" | "needs_check";
+  observation: string;
+  ctaLabel?: string;
+};
+
+export type PVTCrossModuleAlignmentData = {
+  title: string;
+  description: string;
+  items: PVTCrossModuleAlignmentItem[];
+  primaryCtaLabel: string;
+};
+
+export type PVTReadinessData = {
+  title: string;
+  description: string;
+  completed: number;
+  total: number;
+  status: "Có thể sang Rủi ro" | "Nên kiểm tra thêm" | "Chưa đủ điều kiện";
+  ctaLabel: string;
+  disabledCtaLabel: string;
+  helperText: string;
+  items: PVTReadinessItem[];
+};
+
+export type PersonalPVTObservationData = {
+  title: string;
+  description: string;
+  prompts: string[];
+  sample: string;
+};
+
 export type TechnicalPageData = {
   isLoading: boolean;
   loading: TutorNoteData;
@@ -206,6 +335,10 @@ export type TechnicalPageData = {
   };
   detailLabels: DetailLabels;
   header: TechnicalHeaderData;
+  commandCenter: PVTCommandCenterData;
+  pvtAlignment: PVTCrossModuleAlignmentData;
+  pvtReadiness: PVTReadinessData;
+  pvtObservation: PersonalPVTObservationData;
   quickSummary: TechnicalQuickSummaryData;
   readingPath: PVTReadingPathData;
   progress: TechnicalProgressData;

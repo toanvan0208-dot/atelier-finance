@@ -235,7 +235,7 @@ export const learningPageData: LearningPageData = {
     },
     {
       id: "good-sector-bad-stock",
-      title: "Ngành tốt chưa chắc cổ phiếu tốt vì sao?",
+      title: "Ngành thuận lợi chưa chắc doanh nghiệp phù hợp vì sao?",
       duration: "5 phút",
       level: "Cơ bản",
       stageId: "context-reading",
@@ -252,10 +252,10 @@ export const learningPageData: LearningPageData = {
       usedInModule: "Phân tích ngành, Lọc cổ phiếu, Watchlist.",
       realExample:
         "Bán lẻ phục hồi không có nghĩa mọi chuỗi bán lẻ đều có tồn kho tốt và biên lợi nhuận tốt.",
-      commonMistake: "Chọn cổ phiếu chỉ vì ngành đang được nhắc đến nhiều.",
+      commonMistake: "Chọn mã theo dõi chỉ vì ngành đang được nhắc đến nhiều.",
       dataToCheck: ["Thị phần", "Biên lợi nhuận", "Tồn kho", "Dòng tiền", "Quản trị"],
       quiz: {
-        question: "Sau khi xác định ngành tốt, cần kiểm tra tiếp điều gì?",
+        question: "Sau khi xác định ngành thuận lợi, cần kiểm tra tiếp điều gì?",
         answer: "Doanh nghiệp cụ thể có hưởng lợi thật không và dữ liệu tài chính có xác nhận không.",
       },
     },
@@ -406,7 +406,7 @@ export const learningPageData: LearningPageData = {
       signal:
         "Bạn nhìn thấy GDP tăng rồi kết luận mọi cổ phiếu đều hưởng lợi.",
       danger:
-        "Vĩ mô tốt không có nghĩa mọi ngành và mọi doanh nghiệp đều tốt.",
+        "Vĩ mô thuận lợi không có nghĩa mọi ngành và mọi doanh nghiệp đều phù hợp để đi tiếp.",
       miniCase:
         "Ngành hưởng lợi nhưng doanh nghiệp yếu về dòng tiền thì có nên đưa vào nhóm ưu tiên không?",
       relatedLessonIds: ["macro-sector", "good-sector-bad-stock"],
@@ -480,7 +480,7 @@ export const learningPageData: LearningPageData = {
       {
         moduleName: "Phân tích ngành",
         status: "Có thể dùng với hướng dẫn",
-        reason: "Cần ôn thêm phần ngành tốt chưa chắc cổ phiếu tốt.",
+        reason: "Cần ôn thêm phần ngành thuận lợi chưa chắc doanh nghiệp phù hợp.",
         recommendedLessonId: "good-sector-bad-stock",
       },
       {

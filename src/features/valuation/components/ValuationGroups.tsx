@@ -29,6 +29,40 @@ function TextList({ items }: { items: string[] }) {
   );
 }
 
+function ScenarioRangeVisual({ rows }: { rows: ValuationScenarioRow[] }) {
+  const values = rows.map((row) => Number(row.range.replace(/\D/g, "")) / 1000).filter(Number.isFinite);
+  const min = Math.max(0, Math.min(...values) - 4);
+  const max = Math.max(...values) + 4;
+  const span = max - min;
+
+  return (
+    <div className="rounded-[4px] border border-border-soft bg-surface px-4 py-4">
+      <p className="text-sm font-bold text-ink">Scenario range</p>
+      <div className="mt-4 space-y-3">
+        {rows.map((row) => {
+          const value = Number(row.range.replace(/\D/g, "")) / 1000;
+          const left = ((value - min) / span) * 100;
+
+          return (
+            <div key={row.scenario} className="grid gap-2 sm:grid-cols-[88px_minmax(0,1fr)_88px] sm:items-center">
+              <Chip size="sm" variant={row.tone}>{row.scenario}</Chip>
+              <div className="relative h-8 rounded-[3px] bg-surface-soft">
+                <div className="absolute left-0 right-0 top-1/2 h-1 -translate-y-1/2 bg-border-soft" />
+                <div
+                  className="absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-[1.5px] border-border bg-accent"
+                  style={{ left: `${left}%` }}
+                />
+              </div>
+              <p className="text-sm font-bold text-ink">{row.range}</p>
+              <p className="text-xs leading-5 text-muted sm:col-span-3">{row.assumption}</p>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function GroupContent({ group }: { group: ValuationGroup }) {
   const inputColumns: Array<DataTableColumn<ValuationInputRow>> = [
     { key: "data", header: "Dữ liệu", cell: (row) => <span className="font-medium text-ink">{row.data}</span> },
@@ -53,11 +87,6 @@ function GroupContent({ group }: { group: ValuationGroup }) {
     { key: "range", header: "Vùng giá", cell: (row) => row.range },
     { key: "reliability", header: "Độ tin cậy", cell: (row) => row.reliability },
     { key: "failureMode", header: "Khi nào dễ sai", cell: (row) => row.failureMode },
-  ];
-  const scenarioColumns: Array<DataTableColumn<ValuationScenarioRow>> = [
-    { key: "scenario", header: "Kịch bản", cell: (row) => <span className="font-medium text-ink">{row.scenario}</span> },
-    { key: "assumption", header: "Giả định", cell: (row) => row.assumption },
-    { key: "range", header: "Vùng giá", cell: (row) => row.range },
   ];
   const trapColumns: Array<DataTableColumn<ValuationTrapRow>> = [
     { key: "trap", header: "Bẫy", cell: (row) => <span className="font-medium text-ink">{row.trap}</span> },
@@ -85,7 +114,7 @@ function GroupContent({ group }: { group: ValuationGroup }) {
         <DataTable caption={group.label} columns={workbenchColumns} getRowKey={(row) => row.method} rows={group.workbenchMethods} />
       ) : null}
       {group.scenarioRows ? (
-        <DataTable caption={`${group.label} - kịch bản`} columns={scenarioColumns} getRowKey={(row) => row.scenario} rows={group.scenarioRows} />
+        <ScenarioRangeVisual rows={group.scenarioRows} />
       ) : null}
       {group.reliabilityRows ? (
         <DataTable

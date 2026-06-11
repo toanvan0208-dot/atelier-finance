@@ -261,6 +261,169 @@ export type ValuationNextActionsData = {
   actions: Array<ActionItem & Pick<ButtonHTMLAttributes<HTMLButtonElement>, "disabled">>;
 };
 
+export type ValuationStatus =
+  | "undervalued"
+  | "within_range"
+  | "overvalued"
+  | "unclear"
+  | "insufficient_data";
+
+export type ValuationConfidence = "high" | "medium" | "low" | "unknown";
+
+export type ValuationMetricStatus =
+  | "reasonable"
+  | "watch"
+  | "risk"
+  | "neutral"
+  | "missing";
+
+export type ValuationMetric = {
+  id: string;
+  label: string;
+  value: string;
+  unit?: string;
+  period: string;
+  status: ValuationMetricStatus;
+  explanation: string;
+  isMock?: boolean;
+  detail?: {
+    definition: string;
+    whyItMatters: string;
+    commonMistake: string;
+  };
+};
+
+export type ValuationRangePoint = {
+  id: string;
+  label: string;
+  value: number;
+  tone: "bear" | "base" | "bull" | "market" | "range";
+};
+
+export type ValuationSensitivityItem = {
+  id: string;
+  name: string;
+  currentValue: string;
+  impact: string;
+  sensitivity: "high" | "medium" | "low";
+  isMock?: boolean;
+};
+
+export type ValuationCommandCenterData = {
+  title: string;
+  ticker: string;
+  companyName: string;
+  currentPrice: string;
+  referenceRange: string;
+  status: ValuationStatus;
+  marginOfSafety: "Rõ" | "Mỏng" | "Không rõ" | "Chưa tính được";
+  confidence: ValuationConfidence;
+  primaryMethod: string;
+  summary: string;
+  warning: string;
+  range: {
+    minDomain: number;
+    maxDomain: number;
+    bear: number;
+    base: number;
+    bull: number;
+    referenceMin: number;
+    referenceMax: number;
+    market: number;
+  };
+  metrics: ValuationMetric[];
+  sensitivity: ValuationSensitivityItem[];
+  nextCheckpoint: {
+    title: string;
+    description: string;
+    ctaLabel: string;
+  };
+  isMock?: boolean;
+};
+
+export type ValuationInputReadinessItem = {
+  id: string;
+  label: string;
+  status: "done" | "needs_check" | "risk" | "missing";
+  helperText: string;
+};
+
+export type ValuationInputReadinessData = {
+  title: string;
+  confidenceLabel: "Cao" | "Trung bình" | "Thấp";
+  completed: number;
+  total: number;
+  warning: string;
+  concernItems: string[];
+  items: ValuationInputReadinessItem[];
+};
+
+export type ValuationMethodConfidenceItem = {
+  id: string;
+  method: string;
+  suitability: "primary" | "reference" | "caution" | "not_suitable";
+  confidence: ValuationConfidence;
+  reason: string;
+  range?: string;
+  detail: {
+    whenToUse: string;
+    inputsToCheck: string[];
+    failureMode: string;
+    beginnerTrap: string;
+  };
+};
+
+export type ValuationMethodConfidenceData = {
+  title: string;
+  description: string;
+  methods: ValuationMethodConfidenceItem[];
+};
+
+export type ValuationTrapItem = {
+  id: string;
+  name: string;
+  severity: "high" | "medium" | "low" | "unknown";
+  whyRelevant: string;
+  dataToCheck: string[];
+  targetModule?: string;
+};
+
+export type ValuationTrapRadarData = {
+  title: string;
+  description: string;
+  traps: ValuationTrapItem[];
+};
+
+export type RiskReadinessItem = {
+  id: string;
+  label: string;
+  status: "done" | "needs_review" | "missing";
+  helperText: string;
+};
+
+export type RiskReadinessData = {
+  title: string;
+  description: string;
+  completed: number;
+  total: number;
+  status: "Có thể sang Rủi ro" | "Nên kiểm tra thêm" | "Chưa đủ điều kiện";
+  ctaLabel: string;
+  disabledCtaLabel: string;
+  helperText: string;
+  items: RiskReadinessItem[];
+};
+
+export type ValuationThesisNoteData = {
+  title: string;
+  description: string;
+  primaryMethod: string;
+  referenceRange: string;
+  keyAssumption: string;
+  changeConditions: string[];
+  trapsToWatch: string[];
+  draftConclusion: string;
+};
+
 export type ValuationPageData = {
   isLoading: boolean;
   loading: TutorNoteData;
@@ -272,6 +435,12 @@ export type ValuationPageData = {
   detailLabels: DetailLabels;
   header: ValuationHeaderData;
   quickSummary: ValuationQuickSummaryData;
+  commandCenter: ValuationCommandCenterData;
+  inputReadiness: ValuationInputReadinessData;
+  methodConfidence: ValuationMethodConfidenceData;
+  trapRadar: ValuationTrapRadarData;
+  riskReadiness: RiskReadinessData;
+  thesisNote: ValuationThesisNoteData;
   groups: ValuationGroup[];
   disclaimer: ValuationDisclaimerData;
   nextActions: ValuationNextActionsData;

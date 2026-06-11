@@ -3,9 +3,15 @@ import type { TechnicalHeaderData } from "../types";
 
 type TechnicalHeaderProps = {
   data: TechnicalHeaderData;
+  canContinueToRisk?: boolean;
+  riskDisabledReason?: string;
 };
 
-export function TechnicalHeader({ data }: TechnicalHeaderProps) {
+export function TechnicalHeader({
+  canContinueToRisk = false,
+  data,
+  riskDisabledReason,
+}: TechnicalHeaderProps) {
   return (
     <section className="rounded-[4px] border-[1.5px] border-border bg-surface px-5 py-5 shadow-soft">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
@@ -38,12 +44,20 @@ export function TechnicalHeader({ data }: TechnicalHeaderProps) {
         </div>
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
-        {data.actions.map((action) => (
-          <Button key={action.label} size="sm" variant={action.variant}>
-            {action.label}
-          </Button>
-        ))}
+        {data.actions.map((action) => {
+          const isRiskAction = action.label.includes("Rủi ro");
+          const disabled = isRiskAction && !canContinueToRisk;
+
+          return (
+            <Button key={action.label} disabled={disabled} size="sm" variant={disabled ? "secondary" : action.variant}>
+              {disabled ? "Hoàn thành quan sát PVT" : action.label}
+            </Button>
+          );
+        })}
       </div>
+      {!canContinueToRisk && riskDisabledReason ? (
+        <p className="mt-2 text-xs leading-5 text-muted">{riskDisabledReason}</p>
+      ) : null}
     </section>
   );
 }

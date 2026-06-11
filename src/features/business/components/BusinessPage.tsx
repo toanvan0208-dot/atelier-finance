@@ -10,7 +10,7 @@ import { BusinessDisclaimer } from "./BusinessDisclaimer";
 import { BusinessHeader } from "./BusinessHeader";
 import { BusinessMiniCheck } from "./BusinessMiniCheck";
 import { BusinessNextActions } from "./BusinessNextActions";
-import { BusinessQuickSummary } from "./BusinessQuickSummary";
+import { BusinessUnderstandingDashboard } from "./BusinessUnderstandingDashboard";
 
 export function BusinessPage() {
   const data = businessPageData;
@@ -56,18 +56,23 @@ export function BusinessPage() {
         canGoToFinancials={canGoToFinancials}
         data={data.header}
       />
-      <BusinessQuickSummary data={data.quickSummary} />
-      <BusinessAnalysisGroups groups={data.groups} />
-      <BusinessConclusion data={data.conclusion} />
-      <BusinessBctcBridge
+      <BusinessUnderstandingDashboard
+        answeredCount={Object.keys(answers).length}
         canGoToFinancials={canGoToFinancials}
-        data={data.bctcBridge}
+        data={data.dashboard}
+        totalQuestions={data.miniCheck.questions.length}
       />
+      <BusinessAnalysisGroups groups={data.groups} />
       <BusinessMiniCheck
         answers={answers}
         data={data.miniCheck}
         isComplete={canGoToFinancials}
         onAnswer={handleAnswer}
+      />
+      <BusinessConclusion canGoToFinancials={canGoToFinancials} data={data.conclusion} />
+      <BusinessBctcBridge
+        canGoToFinancials={canGoToFinancials}
+        data={data.bctcBridge}
       />
       <BusinessNextActions
         canGoToFinancials={canGoToFinancials}

@@ -267,6 +267,146 @@ export type FinancialsNextActionsData = {
   actions: FinancialAction[];
 };
 
+export type FinancialMetricStatus =
+  | "good"
+  | "watch"
+  | "risk"
+  | "neutral"
+  | "unknown";
+
+export type FinancialCoreMetric = {
+  id: string;
+  label: string;
+  value: string;
+  unit?: string;
+  period: string;
+  change?: string;
+  status: FinancialMetricStatus;
+  explanation: string;
+  source?: string;
+  updatedAt?: string;
+  isMock?: boolean;
+  detail?: {
+    definition: string;
+    whyItMatters: string;
+    relatedStatement: string;
+    commonMistake: string;
+  };
+};
+
+export type FinancialWarningSignal = {
+  id: string;
+  title: string;
+  severity: "light" | "watch" | "serious";
+  explanation: string;
+  targetBlockId: string;
+  ctaLabel: string;
+};
+
+export type FinancialPriorityReadingItem = {
+  id: string;
+  priority: string;
+  target: string;
+  reason: string;
+  targetBlockId: string;
+};
+
+export type FinancialHealthCommandCenterData = {
+  title: string;
+  ticker: string;
+  companyName: string;
+  period: string;
+  healthStatus: "Khỏe sơ bộ" | "Cần theo dõi" | "Có rủi ro" | "Dữ liệu trái chiều" | "Chưa đủ dữ liệu";
+  score: number;
+  conclusion: string;
+  warning: string;
+  isMock?: boolean;
+  metrics: FinancialCoreMetric[];
+  warningSignals: FinancialWarningSignal[];
+  priorityReadingPath: FinancialPriorityReadingItem[];
+  valuationReadinessSummary: {
+    completed: number;
+    total: number;
+    status: "Có thể sang định giá" | "Nên kiểm tra thêm" | "Chưa đủ điều kiện";
+    helperText: string;
+  };
+};
+
+export type BusinessHypothesisCheckStatus =
+  | "confirmed"
+  | "not_confirmed"
+  | "watch"
+  | "risk"
+  | "missing_data";
+
+export type BusinessHypothesisFinancialCheck = {
+  id: string;
+  hypothesis: string;
+  financialDataToCheck: string[];
+  preliminaryResult: string;
+  status: BusinessHypothesisCheckStatus;
+  targetBlockId?: string;
+  ctaLabel: string;
+  isMock?: boolean;
+  detail: {
+    sourceHypothesis: string;
+    financialLines: string[];
+    currentEvidence: string;
+    thesisImpact: string;
+  };
+};
+
+export type BusinessHypothesisVerificationData = {
+  title: string;
+  description: string;
+  warning: string;
+  checks: BusinessHypothesisFinancialCheck[];
+};
+
+export type FinancialStatementMapItem = {
+  id: string;
+  title: string;
+  mainQuestion: string;
+  keyLines: string[];
+  targetBlockId?: string;
+};
+
+export type FinancialStatementMapData = {
+  title: string;
+  description: string;
+  items: FinancialStatementMapItem[];
+  qualityNode: FinancialStatementMapItem;
+};
+
+export type FinancialConclusionCheckpointData = {
+  title: string;
+  status: "Xác nhận sơ bộ thesis" | "Chưa đủ dữ liệu" | "Có điểm cần theo dõi" | "Có rủi ro đáng chú ý";
+  conclusion: string;
+  supportingEvidence: string[];
+  cautionPoints: string[];
+  weakeningConditions: string[];
+  ctaLabel: string;
+};
+
+export type ValuationReadinessItem = {
+  id: string;
+  label: string;
+  status: "done" | "missing" | "needs_review";
+  helperText: string;
+};
+
+export type ValuationReadinessData = {
+  title: string;
+  description: string;
+  completed: number;
+  total: number;
+  status: "Có thể sang định giá" | "Nên kiểm tra thêm" | "Chưa đủ điều kiện";
+  ctaLabel: string;
+  disabledCtaLabel: string;
+  helperText: string;
+  items: ValuationReadinessItem[];
+};
+
 export type FinancialsPageData = {
   isLoading: boolean;
   loading: TutorNoteData;
@@ -277,6 +417,11 @@ export type FinancialsPageData = {
   };
   header: FinancialsHeaderData;
   quickSummary: FinancialsQuickSummaryData;
+  healthCommandCenter: FinancialHealthCommandCenterData;
+  businessHypothesisVerification: BusinessHypothesisVerificationData;
+  statementMap: FinancialStatementMapData;
+  conclusionCheckpoint: FinancialConclusionCheckpointData;
+  valuationReadiness: ValuationReadinessData;
   progress: FinancialsProgressData;
   snapshot: FinancialSnapshotData;
   incomeStatement: IncomeStatementData;
