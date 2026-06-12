@@ -6,7 +6,7 @@ import { industryPageData } from "../data/industry.data";
 import { industryCompassData } from "../data/industryCompass.data";
 import {
   IndustryAnalysisClusters,
-  IndustryCompanyBridge,
+  IndustryCompanyMapSection,
   IndustryConditionalConclusion,
   IndustryCurrentHeader,
   IndustryDataConfirmationSection,
@@ -66,15 +66,15 @@ export function IndustryPage({ onNavigate }: IndustryPageProps) {
         selectedIndustry={selectedIndustry}
         termTips={industryCompassData.termTips}
       />
-      <IndustryCompanyBridge
-        selectedIndustry={selectedIndustry}
-        onNavigate={onNavigate}
-      />
       <IndustryAnalysisClusters
         blocks={industryPageData.blocks}
         clusters={industryCompassData.clusters}
       />
       <IndustryConditionalConclusion
+        selectedIndustry={selectedIndustry}
+        onNavigate={onNavigate}
+      />
+      <IndustryCompanyMapSection
         selectedIndustry={selectedIndustry}
         onNavigate={onNavigate}
       />

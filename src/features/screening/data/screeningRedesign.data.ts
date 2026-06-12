@@ -21,16 +21,21 @@ export type RedesignedScreeningCandidate = {
 
 export type RedesignedScreeningGate = {
   id: string;
+  shortLabel: string;
   title: string;
   question: string;
   beforeCount: number;
   afterCount: number;
   status: RedesignedGateStatus;
   shortReason: string;
+  passedTickers: string[];
+  watchTickers: string[];
+  rejectedTickers: string[];
   whyItMatters: string;
   dataUsed: string[];
   beginnerMistake: string;
   example: string;
+  nextModuleNote: string;
 };
 
 export type RedesignedResultGroup = {
@@ -63,6 +68,22 @@ export const screeningRedesignData = {
     emptyError: "Vui lòng nhập một mã cổ phiếu.",
     missingError: "Chưa có dữ liệu mẫu cho mã này. Hãy thử MWG, PNJ, FRT, FPT, HPG hoặc SSI.",
   },
+  defaultInputSource: {
+    sourceModule: "direct",
+    label: "Ngành đã chọn",
+    industryName: "Bán lẻ",
+    selectedIndustryGroup: "Rổ cổ phiếu bán lẻ dễ quan sát",
+    inputTickers: ["MWG", "PNJ", "FRT", "FPT", "HPG", "SSI"],
+    industryContext: ["Sức mua nội địa", "Tồn kho", "Biên lợi nhuận", "Thanh khoản giao dịch"],
+    industryRole: "Rổ mã đầu vào để kiểm tra qua bộ lọc, chưa phải kết luận phân tích.",
+    riskFactorsToCheck: ["Tồn kho", "Biên lợi nhuận", "Dòng tiền", "Định giá", "Thanh khoản"],
+    suggestedScreeningCriteria: [
+      "Thanh khoản đủ theo dõi",
+      "Mô hình kinh doanh đủ dễ hiểu",
+      "Không có cảnh báo tài chính lớn",
+      "Định giá không quá lệch so với ngành",
+    ],
+  },
   activeQuery: {
     sentence:
       "Tôi đang lọc cổ phiếu ngành Bán lẻ, rủi ro thấp, phù hợp để học cách phân tích.",
@@ -74,82 +95,107 @@ export const screeningRedesignData = {
       { label: "Thanh khoản tối thiểu", value: "Giao dịch đều", description: "Có thể theo dõi và xử lý khi sai." },
       { label: "Tài chính sơ bộ", value: "Không có cờ đỏ lớn", description: "Cần kiểm tra tiếp, chưa kết luận." },
       { label: "Định giá sơ bộ", value: "Không quá bất thường", description: "Cần đối chiếu ở module định giá." },
+      { label: "Yếu tố ngành cần kiểm tra", value: "Tồn kho, biên lợi nhuận", description: "Không bỏ qua bối cảnh ngành." },
     ],
   },
   quickStats: [
-    { label: "Mã ban đầu", count: 128 },
-    { label: "Qua ngành", count: 42 },
-    { label: "Dễ hiểu", count: 18 },
-    { label: "Qua tài chính sơ bộ", count: 9 },
-    { label: "Qua định giá sơ bộ", count: 6 },
+    { label: "Mã đầu vào", count: 18 },
+    { label: "Qua ngành", count: 12 },
+    { label: "Dễ hiểu", count: 8 },
+    { label: "Qua tài chính", count: 5 },
+    { label: "Qua định giá", count: 4 },
     { label: "Đủ thanh khoản", count: 4 },
-    { label: "Đáng phân tích tiếp", count: 2 },
   ],
   gates: [
     {
       id: "industry",
+      shortLabel: "Ngành",
       title: "Bối cảnh ngành",
       question: "Ngành của cổ phiếu này đang được hỗ trợ hay đang chịu áp lực?",
-      beforeCount: 128,
-      afterCount: 42,
+      beforeCount: 18,
+      afterCount: 12,
       status: "Đã qua",
       shortReason: "Giữ lại các mã thuộc ngành có dữ liệu hỗ trợ hoặc không đi ngược câu lọc hiện tại.",
+      passedTickers: ["MWG", "PNJ", "FRT"],
+      watchTickers: ["FPT"],
+      rejectedTickers: ["HPG", "SSI"],
       whyItMatters: "Một doanh nghiệp ổn vẫn có thể gặp khó nếu cả ngành đang ở pha bất lợi.",
       dataUsed: ["Sức mua", "Lãi suất", "Tăng trưởng ngành", "Chính sách", "Nhu cầu tiêu thụ"],
       beginnerMistake: "Chỉ nhìn mã cổ phiếu mà bỏ qua bối cảnh ngành.",
       example: "Bán lẻ được giữ lại vì sức mua có dấu hiệu hồi phục, nhưng vẫn cần kiểm tra biên lợi nhuận.",
+      nextModuleNote: "Nếu lệch ngành, quay lại module Ngành để đọc bối cảnh trước khi lọc tiếp.",
     },
     {
       id: "business",
+      shortLabel: "Dễ hiểu",
       title: "Độ dễ hiểu của doanh nghiệp",
       question: "Người mới có hiểu công ty kiếm tiền bằng cách nào không?",
-      beforeCount: 42,
-      afterCount: 18,
+      beforeCount: 12,
+      afterCount: 8,
       status: "Đã qua",
       shortReason: "Ưu tiên doanh nghiệp có nguồn doanh thu, khách hàng và chi phí chính dễ giải thích.",
+      passedTickers: ["MWG", "PNJ", "FRT", "FPT"],
+      watchTickers: ["HPG"],
+      rejectedTickers: ["SSI"],
       whyItMatters: "Nếu chưa hiểu doanh nghiệp tạo tiền từ đâu, rất khó biết khi nào giả định bị sai.",
       dataUsed: ["Nguồn doanh thu", "Khách hàng", "Chi phí chính", "Mô hình kinh doanh"],
       beginnerMistake: "Chọn theo tên quen thuộc nhưng không hiểu doanh nghiệp tạo tiền như thế nào.",
       example: "MWG và PNJ dễ hình dung hơn các mô hình tài chính hoặc hàng hóa phức tạp.",
+      nextModuleNote: "Mã còn mơ hồ nên được đọc ở module Hiểu doanh nghiệp trước.",
     },
     {
       id: "financial",
+      shortLabel: "Tài chính",
       title: "Cảnh báo tài chính sơ bộ",
       question: "Doanh nghiệp có dấu hiệu rủi ro tài chính rõ ràng không?",
-      beforeCount: 18,
-      afterCount: 9,
+      beforeCount: 8,
+      afterCount: 5,
       status: "Cần kiểm tra thêm",
       shortReason: "Loại hoặc gắn nhãn các mã có dòng tiền yếu, nợ cao hoặc lợi nhuận kém bền vững.",
+      passedTickers: ["PNJ", "FPT"],
+      watchTickers: ["MWG", "FRT", "HPG"],
+      rejectedTickers: ["SSI"],
       whyItMatters: "Lợi nhuận kế toán có thể đẹp nhưng dòng tiền yếu hoặc nợ cao vẫn làm rủi ro tăng.",
       dataUsed: ["CFO", "Lợi nhuận sau thuế", "Nợ vay", "Tồn kho", "Biên lợi nhuận"],
       beginnerMistake: "Chỉ nhìn lợi nhuận tăng mà không kiểm tra tiền có thật sự về doanh nghiệp không.",
       example: "FRT còn cần kiểm tra hiệu quả mở rộng và dòng tiền trước khi mở hồ sơ sâu.",
+      nextModuleNote: "Mở module Báo cáo tài chính để kiểm tra CFO, tồn kho, nợ vay và biên lợi nhuận.",
     },
     {
       id: "valuation",
+      shortLabel: "Định giá",
       title: "Định giá sơ bộ",
       question: "Giá hiện tại có đang phản ánh kỳ vọng quá cao không?",
-      beforeCount: 9,
-      afterCount: 6,
+      beforeCount: 5,
+      afterCount: 4,
       status: "Cần kiểm tra thêm",
       shortReason: "Giữ lại mã có định giá chưa quá lệch, chuyển mã thiếu dữ liệu sang theo dõi.",
+      passedTickers: ["MWG", "PNJ"],
+      watchTickers: ["FRT", "FPT", "HPG"],
+      rejectedTickers: ["SSI"],
       whyItMatters: "Doanh nghiệp dễ hiểu nhưng mức giá vẫn cần được kiểm tra riêng ở module định giá.",
       dataUsed: ["P/E", "P/B", "So sánh cùng ngành", "Tăng trưởng lợi nhuận"],
       beginnerMistake: "Thấy doanh nghiệp dễ hiểu là nghĩ giá nào cũng phù hợp.",
       example: "PNJ được giữ lại nhưng vẫn cần kiểm tra sức mua và định giá tiêu dùng cao cấp.",
+      nextModuleNote: "Mở module Định giá để đối chiếu P/E, P/B và kỳ vọng tăng trưởng.",
     },
     {
       id: "liquidity",
+      shortLabel: "Thanh khoản",
       title: "Thanh khoản và khả năng theo dõi",
       question: "Mã này có đủ thanh khoản để người mới theo dõi và xử lý khi sai không?",
-      beforeCount: 6,
+      beforeCount: 4,
       afterCount: 4,
       status: "Đã qua",
       shortReason: "Ưu tiên mã giao dịch đều, thông tin dễ theo dõi và không quá khó xử lý khi giả định sai.",
+      passedTickers: ["MWG", "PNJ", "FRT", "FPT"],
+      watchTickers: ["HPG"],
+      rejectedTickers: ["SSI"],
       whyItMatters: "Thanh khoản thấp có thể khiến việc theo dõi và xử lý tình huống khó hơn.",
       dataUsed: ["Giá trị giao dịch", "Khối lượng", "Biên độ dao động", "Số phiên thanh khoản thấp"],
       beginnerMistake: "Chỉ nhìn giá tăng mà quên kiểm tra cổ phiếu có được giao dịch đều hay không.",
       example: "MWG và PNJ có thanh khoản đủ tốt để đưa vào danh sách phân tích tiếp.",
+      nextModuleNote: "Mã thanh khoản mỏng nên chỉ theo dõi sau khi hiểu rõ rủi ro.",
     },
   ] satisfies RedesignedScreeningGate[],
   resultGroups: [

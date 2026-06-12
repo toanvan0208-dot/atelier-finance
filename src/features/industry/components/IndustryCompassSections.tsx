@@ -27,6 +27,12 @@ const toneBorder: Record<IndustryCompassTone, string> = {
   watch: "border-warning bg-warning/10",
 };
 
+const industryCompanyRoleTitles = [
+  "Nhóm đầu ngành / quy mô lớn",
+  "Nhóm nhạy với chu kỳ hoặc dự án",
+  "Nhóm dữ liệu khó đọc / rủi ro cao",
+];
+
 function goToModule(targetModule?: string, onNavigate?: IndustryNavigate) {
   if (!targetModule) {
     return;
@@ -38,6 +44,37 @@ function goToModule(targetModule?: string, onNavigate?: IndustryNavigate) {
   }
 
   window.location.href = `/?module=${targetModule}`;
+}
+
+function saveIndustryScreeningSource({
+  group,
+  roleTitle,
+  selectedIndustry,
+}: {
+  selectedIndustry: IndustryCompassOption;
+  group: IndustryCompassOption["companyGroups"][number];
+  roleTitle?: string;
+}) {
+  if (typeof window === "undefined") return;
+
+  window.sessionStorage.setItem(
+    "atelier.screeningInputSource",
+    JSON.stringify({
+      sourceModule: "industry",
+      industryName: selectedIndustry.shortName || selectedIndustry.name,
+      selectedIndustryGroup: roleTitle ?? group.title,
+      inputTickers: group.tickers,
+      industryContext: selectedIndustry.sensitivityTags,
+      industryRole: group.role,
+      riskFactorsToCheck: group.checks,
+      suggestedScreeningCriteria: [
+        "Thanh khoản đủ theo dõi",
+        "Mô hình kinh doanh đủ dễ hiểu",
+        "Không có cảnh báo tài chính lớn",
+        "Định giá không quá lệch so với ngành",
+      ],
+    })
+  );
 }
 
 function IndustryActionButton({
@@ -449,7 +486,7 @@ export function IndustryDataConfirmationSection({
   );
 }
 
-export function IndustryCompanyBridge({
+export function IndustryCompanyMapSection({
   onNavigate,
   selectedIndustry,
 }: {
@@ -459,25 +496,31 @@ export function IndustryCompanyBridge({
   return (
     <section>
       <SectionHeader
-        eyebrow="Phần 6"
-        title="Doanh nghiệp nào đáng phân tích tiếp?"
-        description="Từ ngành này, chọn nhóm doanh nghiệp để phân tích tiếp. Đây không phải khuyến nghị mua/bán."
+        title="Rổ cổ phiếu đầu vào từ ngành"
+        description="Module Ngành chỉ lập bản đồ doanh nghiệp theo vai trò trong ngành. Việc phân loại mã nào đáng phân tích tiếp sẽ diễn ra ở module Lọc cổ phiếu."
       />
       <Card>
         <CardBody>
           <div className="grid gap-4 lg:grid-cols-3">
-            {selectedIndustry.companyGroups.map((group) => (
-              <article key={group.title} className={`rounded-[4px] border px-4 py-4 ${toneBorder[group.tone]}`}>
-                <div className="flex items-start justify-between gap-2">
-                  <p className="text-sm font-bold text-ink">{group.title}</p>
-                  <Chip size="sm" variant={toneVariant[group.tone]}>
-                    {group.tickers.join(", ")}
-                  </Chip>
-                </div>
-                <p className="mt-2 text-xs leading-5 text-muted">{group.description}</p>
-                <p className="mt-3 text-[11px] font-semibold leading-4 text-ink">Vai trò: {group.role}</p>
-                <p className="mt-2 text-xs leading-5 text-muted">{group.why}</p>
-                <div className="mt-3 flex flex-wrap gap-2">
+            {selectedIndustry.companyGroups.map((group, index) => (
+              <article key={`${group.role}-${group.tickers.join("-")}`} className={`rounded-[4px] border px-4 py-4 ${toneBorder[group.tone]}`}>
+                <p className="text-sm font-bold text-ink">
+                  {industryCompanyRoleTitles[index] ?? group.role}
+                </p>
+                <p className="mt-2 text-xl font-bold leading-none text-ink">
+                  {group.tickers.join(", ")}
+                </p>
+                <p className="mt-3 text-xs leading-5 text-muted">{group.description}</p>
+                <p className="mt-3 text-[11px] font-semibold leading-4 text-ink">
+                  Vai trò trong chuỗi giá trị: {group.role}
+                </p>
+                <p className="mt-2 text-xs leading-5 text-muted">
+                  Vì sao đưa vào bước lọc: {group.why}
+                </p>
+                <p className="mt-3 text-[11px] font-bold uppercase text-subtle">
+                  Dữ liệu nên kiểm tra ở module Lọc cổ phiếu
+                </p>
+                <div className="mt-2 flex flex-wrap gap-2">
                   {group.checks.map((check) => (
                     <Chip key={check} size="sm" variant="neutral">
                       {check}
@@ -485,15 +528,26 @@ export function IndustryCompanyBridge({
                   ))}
                 </div>
                 <div className="mt-4 grid gap-2">
-                  <Button size="sm" variant="secondary" onClick={() => goToModule("financials", onNavigate)}>
-                    Xem báo cáo tài chính
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      saveIndustryScreeningSource({
+                        group,
+                        roleTitle: industryCompanyRoleTitles[index] ?? group.role,
+                        selectedIndustry,
+                      });
+                      goToModule("screening", onNavigate);
+                    }}
+                  >
+                    Đưa vào bộ lọc cổ phiếu
                   </Button>
-                  <Button size="sm" variant="ghost" onClick={() => goToModule("watchlist", onNavigate)}>
-                    Đưa vào danh sách theo dõi
-                  </Button>
-                  <Button size="sm" variant="ghost" onClick={() => goToModule("screening", onNavigate)}>
-                    So sánh cùng ngành
-                  </Button>
+                  <button
+                    className="text-left text-xs font-bold text-muted underline-offset-2 hover:text-ink hover:underline"
+                    type="button"
+                    onClick={() => goToModule("watchlist", onNavigate)}
+                  >
+                    Lưu nhóm này để theo dõi
+                  </button>
                 </div>
               </article>
             ))}
@@ -542,9 +596,6 @@ export function IndustryAnalysisClusters({
                     <p className="text-sm font-bold text-ink">{cluster.title}</p>
                     <p className="mt-1 text-xs leading-5 text-muted">{cluster.question}</p>
                   </div>
-                  <Chip size="sm" variant="accent">
-                    Bước {cluster.stepRange[0]}-{cluster.stepRange[1]}
-                  </Chip>
                 </div>
               </summary>
               <div className="mt-3 border-t border-border-soft pt-3">

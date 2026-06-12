@@ -17,6 +17,8 @@ type ScreeningPageProps = {
   onNavigate?: (moduleKey: string) => void;
 };
 
+type ScreeningInputSource = typeof screeningRedesignData.defaultInputSource;
+
 const toneVariant: Record<ScreeningGuideTone, "neutral" | "accent" | "success" | "warning" | "danger"> = {
   neutral: "neutral",
   pass: "success",
@@ -44,6 +46,41 @@ function goToModule(moduleKey: string, onNavigate?: (moduleKey: string) => void)
   }
 
   window.location.href = `/?module=${moduleKey}`;
+}
+
+function readScreeningInputSource(): ScreeningInputSource {
+  if (typeof window === "undefined") {
+    return screeningRedesignData.defaultInputSource;
+  }
+
+  try {
+    const stored = window.sessionStorage.getItem("atelier.screeningInputSource");
+
+    if (!stored) {
+      return screeningRedesignData.defaultInputSource;
+    }
+
+    const parsed = JSON.parse(stored) as Partial<ScreeningInputSource>;
+
+    return {
+      ...screeningRedesignData.defaultInputSource,
+      ...parsed,
+      inputTickers: parsed.inputTickers?.length
+        ? parsed.inputTickers
+        : screeningRedesignData.defaultInputSource.inputTickers,
+      industryContext: parsed.industryContext?.length
+        ? parsed.industryContext
+        : screeningRedesignData.defaultInputSource.industryContext,
+      riskFactorsToCheck: parsed.riskFactorsToCheck?.length
+        ? parsed.riskFactorsToCheck
+        : screeningRedesignData.defaultInputSource.riskFactorsToCheck,
+      suggestedScreeningCriteria: parsed.suggestedScreeningCriteria?.length
+        ? parsed.suggestedScreeningCriteria
+        : screeningRedesignData.defaultInputSource.suggestedScreeningCriteria,
+    };
+  } catch {
+    return screeningRedesignData.defaultInputSource;
+  }
 }
 
 function ScreeningHeader({ onGuideOpen }: { onGuideOpen: () => void }) {
@@ -239,6 +276,75 @@ function GateList({
   );
 }
 
+function ScreeningInputSourceBanner({
+  inputSource,
+  onNavigate,
+}: {
+  inputSource: ScreeningInputSource;
+  onNavigate?: (moduleKey: string) => void;
+}) {
+  const fromIndustry = inputSource.sourceModule === "industry";
+
+  return (
+    <Card className="min-w-0 overflow-hidden">
+      <CardBody className="space-y-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <Chip variant={fromIndustry ? "accent" : "neutral"}>
+              {fromIndustry ? "Nguồn từ module Ngành" : "Nguồn đầu vào"}
+            </Chip>
+            <h2 className="mt-2 text-lg font-bold text-ink">
+              {fromIndustry
+                ? `Đang lọc tiếp: ${inputSource.industryName}`
+                : `Nguồn đầu vào: ${inputSource.label}`}
+            </h2>
+            <p className="mt-1 max-w-3xl text-sm leading-6 text-muted">
+              {fromIndustry
+                ? "Module Ngành chỉ chuyển rổ cổ phiếu theo vai trò. Module Lọc cổ phiếu mới phân loại mã nào đáng phân tích tiếp."
+                : "Bạn có thể lọc từ ngành đã chọn, nhận rổ mã chuyển từ module Ngành, hoặc kiểm tra nhanh một mã riêng lẻ."}
+            </p>
+          </div>
+          <Button size="sm" variant="secondary" onClick={() => goToModule("industry", onNavigate)}>
+            Mở module Ngành
+          </Button>
+        </div>
+
+        <div className="grid gap-3 lg:grid-cols-[minmax(0,1.1fr)_minmax(280px,0.9fr)]">
+          <div className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-4">
+            <p className="text-[11px] font-bold uppercase text-subtle">Rổ mã đầu vào</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {inputSource.inputTickers.map((ticker) => (
+                <Chip key={ticker} size="sm" variant="neutral">
+                  {ticker}
+                </Chip>
+              ))}
+            </div>
+            <p className="mt-3 text-xs font-semibold leading-5 text-muted">
+              Nhóm: {inputSource.selectedIndustryGroup}
+            </p>
+            <p className="mt-1 text-xs leading-5 text-muted">{inputSource.industryRole}</p>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+            <GateList
+              label="Yếu tố ngành cần kiểm tra"
+              items={inputSource.riskFactorsToCheck}
+              tone="warning"
+              fallback="Chưa có yếu tố ngành"
+            />
+            <GateList
+              label="Tiêu chí lọc gợi ý"
+              items={inputSource.suggestedScreeningCriteria}
+              tone="success"
+              fallback="Chưa có tiêu chí"
+            />
+          </div>
+        </div>
+      </CardBody>
+    </Card>
+  );
+}
+
 function ActiveScreeningQuery() {
   const { activeQuery } = screeningRedesignData;
 
@@ -265,6 +371,8 @@ function ActiveScreeningQuery() {
 
 function ScreeningQuickStats() {
   const stats = screeningRedesignData.quickStats;
+  const firstCount = stats[0]?.count ?? 0;
+  const lastCount = stats[stats.length - 1]?.count ?? 0;
 
   return (
     <Card className="min-w-0 overflow-hidden">
@@ -272,16 +380,21 @@ function ScreeningQuickStats() {
         <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <Chip variant="neutral">Tóm tắt kết quả nhanh</Chip>
-            <h2 className="mt-2 text-lg font-bold text-ink">Còn bao nhiêu mã sau từng cửa?</h2>
+            <h2 className="mt-2 text-lg font-bold text-ink">Dòng chảy số mã qua 5 cửa</h2>
           </div>
-          <p className="text-xs font-semibold text-muted">128 mã ban đầu -&gt; 2 mã đáng phân tích tiếp</p>
+          <p className="text-xs font-semibold text-muted">
+            {firstCount} mã đầu vào -&gt; {lastCount} mã còn lại sau phễu
+          </p>
         </div>
-        <div className="grid min-w-0 gap-2 md:grid-cols-4 xl:grid-cols-7">
+        <div className="grid min-w-0 gap-2 sm:grid-cols-2 lg:grid-cols-6">
           {stats.map((item, index) => (
-            <div key={item.label} className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3">
+            <div key={item.label} className="relative rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3">
               <p className="font-mono text-[11px] font-bold text-subtle">{String(index + 1).padStart(2, "0")}</p>
               <p className="mt-1 text-2xl font-bold leading-none text-ink">{item.count}</p>
               <p className="mt-2 text-xs font-semibold leading-4 text-muted">{item.label}</p>
+              {index < stats.length - 1 ? (
+                <span className="absolute right-3 top-3 hidden text-xs font-bold text-subtle lg:block">-&gt;</span>
+              ) : null}
             </div>
           ))}
         </div>
@@ -292,6 +405,15 @@ function ScreeningQuickStats() {
 
 function ScreeningFunnel() {
   const gates = screeningRedesignData.gates;
+  const [activeGateId, setActiveGateId] = useState(gates[0]?.id ?? "");
+  const activeGate = gates.find((gate) => gate.id === activeGateId) ?? gates[0];
+  const activeIndex = Math.max(
+    0,
+    gates.findIndex((gate) => gate.id === activeGate.id)
+  );
+  const countFlow = [gates[0]?.beforeCount, ...gates.map((gate) => gate.afterCount)].filter(
+    (count): count is number => typeof count === "number"
+  );
 
   return (
     <section className="space-y-4">
@@ -299,15 +421,57 @@ function ScreeningFunnel() {
         <Chip variant="neutral">Phễu lọc 5 cửa</Chip>
         <h2 className="mt-2 text-xl font-bold text-ink">Quy trình lọc và số mã còn lại</h2>
         <p className="mt-1 max-w-3xl text-sm leading-6 text-muted">
-          Phần này cho biết bộ lọc được áp dụng qua từng cửa như thế nào. Giải thích sâu chỉ mở khi cần.
+          Chọn từng cửa để xem chi tiết. Trang chỉ mở một cửa tại một thời điểm để phần lọc không biến thành accordion dài.
         </p>
       </div>
 
       <Card className="min-w-0 overflow-hidden">
-        <CardBody className="space-y-3">
-          {gates.map((gate, index) => (
-            <FunnelStep key={gate.id} gate={gate} index={index} />
-          ))}
+        <CardBody className="space-y-4">
+          <div className="flex min-w-0 flex-wrap items-center gap-2 rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3">
+            {countFlow.map((count, index) => (
+              <div key={`${count}-${index}`} className="flex items-center gap-2">
+                <span className="rounded-[4px] border border-border bg-surface px-2 py-1 font-mono text-sm font-bold text-ink">
+                  {count}
+                </span>
+                {index < countFlow.length - 1 ? (
+                  <span className="text-xs font-bold text-subtle">-&gt;</span>
+                ) : null}
+              </div>
+            ))}
+          </div>
+
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+            {gates.map((gate, index) => {
+              const isActive = gate.id === activeGate.id;
+
+              return (
+                <button
+                  key={gate.id}
+                  aria-pressed={isActive}
+                  className={cn(
+                    "rounded-[4px] border px-3 py-3 text-left transition",
+                    isActive
+                      ? "border-border bg-ink text-white shadow-soft"
+                      : "border-border-soft bg-surface-soft text-ink hover:border-border hover:bg-surface-hover"
+                  )}
+                  type="button"
+                  onClick={() => setActiveGateId(gate.id)}
+                >
+                  <span className={cn("font-mono text-[11px] font-bold", isActive ? "text-white/70" : "text-subtle")}>
+                    Cửa {index + 1}
+                  </span>
+                  <span className={cn("mt-1 block text-sm font-bold", isActive ? "text-white" : "text-ink")}>
+                    {gate.shortLabel}
+                  </span>
+                  <span className={cn("mt-1 block text-xs", isActive ? "text-white/70" : "text-muted")}>
+                    {gate.beforeCount} -&gt; {gate.afterCount} mã
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          <FunnelStep gate={activeGate} index={activeIndex} />
         </CardBody>
       </Card>
     </section>
@@ -337,6 +501,11 @@ function FunnelStep({ gate, index }: { gate: RedesignedScreeningGate; index: num
           </div>
           <p className="mt-1 text-center text-[11px] font-semibold text-subtle">mã trước / sau lọc</p>
         </div>
+      </div>
+      <div className="grid gap-3 border-t border-border-soft px-4 py-4 md:grid-cols-3">
+        <GateList label="Mã qua cửa này" items={gate.passedTickers} tone="success" />
+        <GateList label="Cần kiểm tra thêm" items={gate.watchTickers} tone="warning" />
+        <GateList label="Bị loại nếu có" items={gate.rejectedTickers} tone="neutral" fallback="Không có mã bị loại" />
       </div>
       <details className="border-t border-border-soft px-4 py-3">
         <summary className="cursor-pointer text-xs font-bold text-accent">
@@ -570,6 +739,7 @@ function NextStepPanel() {
 export function ScreeningPage({ onNavigate }: ScreeningPageProps) {
   const [guideOpen, setGuideOpen] = useState(false);
   const [activeCandidate, setActiveCandidate] = useState<RedesignedScreeningCandidate | null>(null);
+  const [inputSource] = useState(readScreeningInputSource);
 
   const priorityCount = useMemo(
     () => screeningRedesignData.candidates.filter((candidate) => candidate.group === "priority").length,
@@ -580,6 +750,7 @@ export function ScreeningPage({ onNavigate }: ScreeningPageProps) {
     <div className="mx-auto w-[calc(100vw-40px)] max-w-[1180px] min-w-0 space-y-8 overflow-x-hidden md:w-full">
       <ScreeningHeader onGuideOpen={() => setGuideOpen(true)} />
       <TickerQuickCheck onAnalyze={setActiveCandidate} />
+      <ScreeningInputSourceBanner inputSource={inputSource} onNavigate={onNavigate} />
       <ActiveScreeningQuery />
       <ScreeningQuickStats />
       <ScreeningFunnel />
