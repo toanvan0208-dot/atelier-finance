@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
 import { navigationItems } from "@/config/navigation.config";
 import { shellConfig } from "@/config/shell.config";
 import { BusinessPage } from "@/features/business";
@@ -55,18 +55,28 @@ function AppShellContent() {
     () => new Set(navigationItems.map((item) => item.key)),
     []
   );
-  const [activeModule, setActiveModule] = useState(() => {
-    if (typeof window === "undefined") {
-      return shellConfig.defaultModuleKey;
-    }
+  const moduleFromUrl = useSyncExternalStore(
+    (callback) => {
+      const timeoutId = window.setTimeout(callback, 0);
+      window.addEventListener("popstate", callback);
 
-    const params = new URLSearchParams(window.location.search);
-    const moduleFromUrl = params.get("module") ?? window.location.hash.replace("#", "");
+      return () => {
+        window.clearTimeout(timeoutId);
+        window.removeEventListener("popstate", callback);
+      };
+    },
+    () => {
+      if (typeof window === "undefined") return null;
 
-    return moduleFromUrl && moduleKeys.has(moduleFromUrl)
-      ? moduleFromUrl
-      : shellConfig.defaultModuleKey;
-  });
+      const params = new URLSearchParams(window.location.search);
+      return params.get("module") ?? window.location.hash.replace("#", "") ?? null;
+    },
+    () => null
+  );
+  const [activeModuleOverride, setActiveModuleOverride] = useState<string | null>(null);
+  const activeModule =
+    activeModuleOverride ??
+    (moduleFromUrl && moduleKeys.has(moduleFromUrl) ? moduleFromUrl : shellConfig.defaultModuleKey);
 
   function handleNavigate(nextModule: string) {
     if (nextModule === "route-config") {
@@ -78,7 +88,7 @@ function AppShellContent() {
       return;
     }
 
-    setActiveModule(nextModule);
+    setActiveModuleOverride(nextModule);
 
     const url = new URL(window.location.href);
     url.searchParams.set("module", nextModule);
@@ -131,7 +141,7 @@ function AppShellContent() {
         ) : null}
         {activeModule === "learning" ? <LearningPage /> : null}
         {activeModule === "industry" ? <IndustryPage /> : null}
-        {activeModule === "screening" ? <ScreeningPage /> : null}
+        {activeModule === "screening" ? <ScreeningPage onNavigate={handleNavigate} /> : null}
         {activeModule === "business" ? <BusinessPage /> : null}
         {activeModule === "financials" ? <FinancialsPage /> : null}
         {activeModule === "valuation" ? <ValuationPage /> : null}
