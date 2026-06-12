@@ -365,3 +365,105 @@ export type BusinessSectionLabels = {
   assessmentLabel: string;
   warningLabel: string;
 };
+
+export type BusinessVerificationModule = "Báo cáo tài chính" | "Phân tích ngành" | "Rủi ro" | "Định giá" | "Tin tức / sự kiện";
+
+export type BusinessDeepDiveData = {
+  title: string;
+  plainLanguage?: string;
+  checklist: string[];
+  realWorldSignals: string[];
+  verifyIn: BusinessVerificationModule[];
+};
+
+export type BusinessJourneySectionBase = {
+  id: string;
+  question: string;
+  shortExplanation: string;
+  example: string;
+  practicalConclusion: string;
+  beginnerRemember: string;
+  deepDive: BusinessDeepDiveData;
+};
+
+export type BusinessJourneyIdentityData = BusinessJourneySectionBase & {
+  ticker: string;
+  companyName: string;
+  businessType: string;
+  simpleDescription: string;
+  modelTags: string[];
+  cycleType: string;
+  coreMessage: string;
+};
+
+export type BusinessJourneyCustomersData = BusinessJourneySectionBase & {
+  mainCustomers: string[];
+  whatTheyBuy: string[];
+  whyTheyBuy: string[];
+  repeatBehavior: string;
+  priceSensitivity: string;
+};
+
+export type BusinessJourneyMoneyMachineData = BusinessJourneySectionBase & {
+  inputs: string[];
+  operations: string[];
+  salesChannels: string[];
+  cashCollection: string[];
+  expansionMethod: string[];
+  bottlenecks: string[];
+};
+
+export type BusinessJourneyAdvantageItem = {
+  advantageName: string;
+  howItCreatesMoney: string;
+  whatToQuestion: string;
+  durabilityLevel: "Cần kiểm chứng" | "Tương đối bền" | "Dễ bị sao chép";
+};
+
+export type BusinessJourneyCompetitiveAdvantageData = BusinessJourneySectionBase & {
+  advantages: BusinessJourneyAdvantageItem[];
+};
+
+export type BusinessJourneyStrategyData = BusinessJourneySectionBase & {
+  strategicDirection: string[];
+  executionCapability: string[];
+  capitalAllocationNotes: string[];
+  leadershipConcerns: string[];
+  shareholderAlignment: string;
+};
+
+export type BusinessJourneyRiskItem = {
+  riskName: string;
+  riskType: string;
+  whyItMatters: string;
+  realWorldSignals: string[];
+  severity: "Cần theo dõi" | "Quan trọng" | "Cảnh báo";
+  practicalConclusion: string;
+};
+
+export type BusinessJourneyRiskData = BusinessJourneySectionBase & {
+  risks: BusinessJourneyRiskItem[];
+};
+
+export type BusinessJourneyBridgeData = {
+  title: string;
+  businessUnderstandingSummary: string;
+  strengthsToVerify: string[];
+  weaknessesToVerify: string[];
+  financialMetricsToCheck: string[];
+  nextModuleSuggestion: string;
+};
+
+export type BusinessJourneyData = {
+  isLoading: boolean;
+  loading: BusinessLoadingData;
+  emptyState: BusinessEmptyStateData;
+  businessIdentity: BusinessJourneyIdentityData;
+  customers: BusinessJourneyCustomersData;
+  moneyMachine: BusinessJourneyMoneyMachineData;
+  competitiveAdvantage: BusinessJourneyCompetitiveAdvantageData;
+  strategyAndLeadership: BusinessJourneyStrategyData;
+  nonFinancialRisks: BusinessJourneyRiskData;
+  bridgeToFinancialStatements: BusinessJourneyBridgeData;
+  beginnerSummary: string[];
+};

@@ -9,10 +9,6 @@ import { WatchlistDisclaimer } from "./WatchlistDisclaimer";
 import { WatchlistFilters } from "./WatchlistFilters";
 import { WatchlistHeader } from "./WatchlistHeader";
 import { WatchlistInsightPanel } from "./WatchlistInsightPanel";
-import {
-  WatchlistPipelineBoard,
-  type WatchlistPipelineBoardKey,
-} from "./WatchlistPipelineBoard";
 
 function ideaHasMissingThesis(idea: StockIdea) {
   return !idea.thesis || idea.thesis.toLowerCase().includes("chưa có thesis");
@@ -112,10 +108,6 @@ export function WatchlistPage() {
     setIsDetailOpen(true);
   }
 
-  function handlePipelineChange(status: WatchlistPipelineBoardKey) {
-    setFilters((current) => ({ ...current, pipelineStatus: status }));
-  }
-
   if (data.isLoading) {
     return <LoadingState description={data.loading.content} title={data.loading.title} />;
   }
@@ -133,11 +125,6 @@ export function WatchlistPage() {
   return (
     <div className="mx-auto w-full max-w-[1180px] space-y-5">
       <WatchlistHeader data={data.header} ideas={data.ideas} />
-      <WatchlistPipelineBoard
-        activeStatus={filters.pipelineStatus ?? "all"}
-        ideas={data.ideas}
-        onChange={handlePipelineChange}
-      />
 
       <div className="grid gap-5 lg:grid-cols-[300px_minmax(0,1fr)]">
         <aside className="space-y-4 lg:sticky lg:top-5 lg:self-start">

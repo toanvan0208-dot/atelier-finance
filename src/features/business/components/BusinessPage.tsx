@@ -2,22 +2,33 @@
 
 import { useMemo, useState, useSyncExternalStore } from "react";
 import { Button, Card, CardBody, Chip, EmptyState, LoadingState } from "@/components/ui";
-import { businessPageData } from "../data/business.data";
-import type { BusinessPageData } from "../types";
-import { BusinessAnalysisGroups } from "./BusinessAnalysisGroups";
-import { BusinessConclusion } from "./BusinessConclusion";
-import { BusinessDisclaimer } from "./BusinessDisclaimer";
-import { BusinessHeader } from "./BusinessHeader";
-import { BusinessMiniCheck } from "./BusinessMiniCheck";
-import { BusinessNextActions } from "./BusinessNextActions";
-import { BusinessQuickSummary } from "./BusinessQuickSummary";
-import { BusinessUnderstandingDashboard } from "./BusinessUnderstandingDashboard";
+import {
+  businessJourneyByTicker,
+  defaultBusinessJourneyTicker,
+} from "../data/businessJourney.data";
+import type { BusinessDeepDiveData, BusinessJourneyData } from "../types";
+import { AdvantageRealityCheck } from "./AdvantageRealityCheck";
+import { BridgeToFinancialStatements } from "./BridgeToFinancialStatements";
+import { BusinessIdentityCard } from "./BusinessIdentityCard";
+import { CustomerReasonSection } from "./CustomerReasonSection";
+import { DeepDiveDrawer } from "./DeepDiveDrawer";
+import { MoneyMachineFlow } from "./MoneyMachineFlow";
+import { NonFinancialRiskMap } from "./NonFinancialRiskMap";
+import { StrategyLeadershipSection } from "./StrategyLeadershipSection";
 
 type BusinessPageProps = {
   onNavigate?: (moduleKey: string) => void;
 };
 
-const journeySteps = ["Lọc cổ phiếu", "Hiểu doanh nghiệp", "Báo cáo tài chính", "Định giá"];
+const journeySteps = [
+  "Hiểu công ty",
+  "Hiểu khách hàng",
+  "Hiểu cỗ máy kiếm tiền",
+  "Kiểm tra lợi thế",
+  "Nhìn chiến lược",
+  "Nhận diện rủi ro",
+  "Sang BCTC kiểm chứng",
+];
 
 function useTickerFromUrl() {
   return useSyncExternalStore(
@@ -45,44 +56,35 @@ function normalizeTicker(ticker: string | null) {
   return value ? value : null;
 }
 
-function hasValidBusinessData(data: BusinessPageData | null) {
-  return Boolean(
-    data &&
-      data.header?.ticker &&
-      data.header.companyName &&
-      data.dashboard?.identity &&
-      data.dashboard.moneyMachine.length > 0 &&
-      data.dashboard.operatingMetrics.length > 0 &&
-      data.groups.length > 0 &&
-      data.conclusion.items.length > 0 &&
-      data.quickSummary.items.length > 0
-  );
-}
-
-function getBusinessDataForTicker(selectedTicker: string | null) {
-  const sampleTicker = businessPageData.header.ticker.toUpperCase();
-
+function getBusinessJourneyData(selectedTicker: string | null) {
   if (!selectedTicker) {
     return {
-      data: businessPageData,
+      data: businessJourneyByTicker[defaultBusinessJourneyTicker],
       isUsingDemoData: true,
       hasUnsupportedTicker: false,
     };
   }
 
-  if (selectedTicker === sampleTicker) {
-    return {
-      data: businessPageData,
-      isUsingDemoData: false,
-      hasUnsupportedTicker: false,
-    };
-  }
-
   return {
-    data: null,
+    data: businessJourneyByTicker[selectedTicker] ?? null,
     isUsingDemoData: false,
-    hasUnsupportedTicker: true,
+    hasUnsupportedTicker: !businessJourneyByTicker[selectedTicker],
   };
+}
+
+function hasValidBusinessJourneyData(data: BusinessJourneyData | null) {
+  return Boolean(
+    data &&
+      data.businessIdentity?.ticker &&
+      data.businessIdentity.companyName &&
+      data.businessIdentity.simpleDescription &&
+      data.customers.mainCustomers.length > 0 &&
+      data.moneyMachine.inputs.length > 0 &&
+      data.competitiveAdvantage.advantages.length > 0 &&
+      data.strategyAndLeadership.strategicDirection.length > 0 &&
+      data.nonFinancialRisks.risks.length > 0 &&
+      data.bridgeToFinancialStatements.financialMetricsToCheck.length > 0
+  );
 }
 
 function DemoDataNotice() {
@@ -100,17 +102,29 @@ function DemoDataNotice() {
   );
 }
 
-function BusinessJourneyBreadcrumb() {
+function JourneyProgress() {
   return (
-    <div className="flex flex-wrap items-center gap-1.5 rounded-[4px] border border-border-soft bg-surface px-3 py-2">
-      {journeySteps.map((label, index) => (
-        <div key={label} className="flex items-center gap-1.5">
-          <Chip size="sm" variant={index === 1 ? "accent" : index < 1 ? "success" : "neutral"}>
-            {label}
-          </Chip>
-          {index < journeySteps.length - 1 ? <span className="text-xs font-bold text-subtle">→</span> : null}
-        </div>
-      ))}
+    <div className="overflow-x-auto rounded-[4px] border border-border-soft bg-surface px-3 py-3">
+      <div className="flex min-w-max items-center gap-2">
+        {journeySteps.map((step, index) => (
+          <div key={step} className="flex items-center gap-2">
+            <Chip size="sm" variant={index === 0 ? "accent" : "neutral"}>
+              {index + 1}. {step}
+            </Chip>
+            {index < journeySteps.length - 1 ? <span className="text-xs font-bold text-subtle">→</span> : null}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PageIntro() {
+  return (
+    <div className="rounded-[4px] border border-border-soft bg-surface px-4 py-4">
+      <p className="max-w-[82ch] text-sm leading-6 text-muted">
+        Module này không phân tích sâu số liệu tài chính. Mục tiêu là hiểu công ty như một cỗ máy kinh doanh ngoài đời: ai trả tiền, vì sao họ mua, mô hình vận hành ra sao, lợi thế có thật không và rủi ro nào cần quan sát trước khi sang Báo cáo tài chính.
+      </p>
     </div>
   );
 }
@@ -119,39 +133,32 @@ export function BusinessPage({ onNavigate }: BusinessPageProps) {
   const tickerFromUrl = useTickerFromUrl();
   const selectedTicker = normalizeTicker(tickerFromUrl);
   const { data, hasUnsupportedTicker, isUsingDemoData } = useMemo(
-    () => getBusinessDataForTicker(selectedTicker),
+    () => getBusinessJourneyData(selectedTicker),
     [selectedTicker]
   );
-  const [miniCheckAnswers, setMiniCheckAnswers] = useState<Record<number, number>>({});
+  const [deepDive, setDeepDive] = useState<BusinessDeepDiveData | null>(null);
 
-  if (businessPageData.isLoading) {
+  if (data?.isLoading) {
     return (
       <div className="mx-auto w-full max-w-[1120px] px-4 py-5 lg:px-0">
-        <LoadingState
-          title={businessPageData.loading.title}
-          description={businessPageData.loading.description}
-        />
+        <LoadingState title={data.loading.title} description={data.loading.description} />
       </div>
     );
   }
 
-  const hasData = hasValidBusinessData(data);
-
-  if (!hasData || !data) {
+  if (!hasValidBusinessJourneyData(data) || !data) {
+    const emptyState = businessJourneyByTicker[defaultBusinessJourneyTicker].emptyState;
     const title = hasUnsupportedTicker
       ? `Chưa có dữ liệu mô hình kinh doanh cho mã ${selectedTicker}.`
-      : businessPageData.emptyState.title;
-    const description = hasUnsupportedTicker
-      ? "Prototype hiện mới có dữ liệu mẫu MWG cho module Hiểu doanh nghiệp. Hãy quay lại Lọc cổ phiếu hoặc bỏ ticker trên URL để xem demo MWG."
-      : businessPageData.emptyState.description;
+      : emptyState.title;
 
     return (
       <div className="mx-auto w-full max-w-[1120px] space-y-3 px-4 py-5 lg:px-0">
-        <BusinessJourneyBreadcrumb />
+        <JourneyProgress />
         <EmptyState
           title={title}
-          description={description}
-          icon={businessPageData.emptyState.icon}
+          description={emptyState.description}
+          icon={emptyState.icon}
           action={
             <Button variant="secondary" onClick={() => onNavigate?.("screening")}>
               Quay lại Lọc cổ phiếu
@@ -162,53 +169,45 @@ export function BusinessPage({ onNavigate }: BusinessPageProps) {
     );
   }
 
-  const isMiniCheckComplete = data.miniCheck.questions.every((question, index) => {
-    return miniCheckAnswers[index] === question.correctIndex;
-  });
-  const canGoToFinancials = true;
-
-  function handleMiniCheckAnswer(questionIndex: number, optionIndex: number) {
-    setMiniCheckAnswers((current) => ({
-      ...current,
-      [questionIndex]: optionIndex,
-    }));
-  }
-
   return (
-    <div className="mx-auto w-full max-w-[1120px] space-y-4 px-4 py-5 lg:px-0">
+    <div className="mx-auto w-full max-w-[1180px] space-y-4 px-4 py-5 lg:px-0">
       {isUsingDemoData ? <DemoDataNotice /> : null}
-      <BusinessJourneyBreadcrumb />
-      <BusinessHeader
-        canGoToFinancials={canGoToFinancials}
-        data={data.header}
-        onNavigate={onNavigate}
-      />
-      <BusinessQuickSummary data={data.quickSummary} />
-      <section id="business-dashboard">
-        <BusinessUnderstandingDashboard
-          canGoToFinancials={canGoToFinancials}
-          data={data.dashboard}
+      <JourneyProgress />
+      <PageIntro />
+
+      <main className="min-w-0 space-y-4">
+        <BusinessIdentityCard
+          data={data.businessIdentity}
+          isDemo={isUsingDemoData}
+          onDeepDive={() => setDeepDive(data.businessIdentity.deepDive)}
+        />
+        <CustomerReasonSection
+          data={data.customers}
+          onDeepDive={() => setDeepDive(data.customers.deepDive)}
+        />
+        <MoneyMachineFlow
+          data={data.moneyMachine}
+          onDeepDive={() => setDeepDive(data.moneyMachine.deepDive)}
+        />
+        <AdvantageRealityCheck
+          data={data.competitiveAdvantage}
+          onDeepDive={() => setDeepDive(data.competitiveAdvantage.deepDive)}
+        />
+        <StrategyLeadershipSection
+          data={data.strategyAndLeadership}
+          onDeepDive={() => setDeepDive(data.strategyAndLeadership.deepDive)}
+        />
+        <NonFinancialRiskMap
+          data={data.nonFinancialRisks}
+          onDeepDive={() => setDeepDive(data.nonFinancialRisks.deepDive)}
+        />
+        <BridgeToFinancialStatements
+          data={data.bridgeToFinancialStatements}
           onNavigate={onNavigate}
         />
-      </section>
-      <BusinessAnalysisGroups groups={data.groups} />
-      <BusinessConclusion
-        canGoToFinancials={isMiniCheckComplete}
-        data={data.conclusion}
-        onNavigate={onNavigate}
-      />
-      <BusinessMiniCheck
-        answers={miniCheckAnswers}
-        data={data.miniCheck}
-        isComplete={isMiniCheckComplete}
-        onAnswer={handleMiniCheckAnswer}
-      />
-      <BusinessNextActions
-        canGoToFinancials={canGoToFinancials}
-        data={data.nextActions}
-        onNavigate={onNavigate}
-      />
-      <BusinessDisclaimer data={data.disclaimer} />
+      </main>
+
+      <DeepDiveDrawer data={deepDive} onClose={() => setDeepDive(null)} />
     </div>
   );
 }
