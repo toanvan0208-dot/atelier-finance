@@ -278,3 +278,88 @@ export type ScreeningPageData = {
   understanding: UnderstandingCheckData;
   nextActions: ScreeningNextActionsData;
 };
+
+export type ScreeningGuideTone = "pass" | "watch" | "risk" | "neutral";
+
+export type ScreeningGuideAction = {
+  label: string;
+  targetModule?: string;
+  variant?: "primary" | "secondary" | "ghost" | "danger";
+};
+
+export type ScreeningGateStatus = "Đã qua" | "Cần kiểm tra thêm" | "Không đạt bộ lọc" | "Chưa đủ dữ liệu";
+
+export type ScreeningGateData = {
+  id: string;
+  title: string;
+  question: string;
+  whyItMatters: string;
+  dataUsed: string[];
+  passSignal: string;
+  watchSignal: string;
+  beginnerMistake: string;
+  beforeCount: number;
+  afterCount: number;
+  status: ScreeningGateStatus;
+  example: string;
+  filteredReason: string;
+};
+
+export type ScreeningCandidateGroupKey = "priority" | "watch" | "not-fit";
+
+export type ScreeningGateResult = {
+  gateId: string;
+  status: ScreeningGateStatus;
+  reason: string;
+};
+
+export type ScreeningCandidate = {
+  ticker: string;
+  companyName: string;
+  industry: string;
+  group: ScreeningCandidateGroupKey;
+  groupLabel: string;
+  reason: string;
+  redFlags: string[];
+  nextStep: string;
+  beginnerFit: string;
+  gateResults: ScreeningGateResult[];
+  metrics: {
+    pe: string;
+    pb: string;
+    roe: string;
+    cfo: string;
+    de: string;
+    liquidity: string;
+    revenueGrowth: string;
+    margin: string;
+    inventory: string;
+  };
+};
+
+export type ScreeningGuideData = {
+  currentQuery: {
+    sentence: string;
+    criteria: Array<{ label: string; value: string }>;
+    modes: Array<{ id: ScreeningMode; title: string; description: string }>;
+  };
+  method: {
+    title: string;
+    warning: string;
+    summary: string;
+    gates: ScreeningGateData[];
+  };
+  resultGroups: Array<{
+    key: ScreeningCandidateGroupKey;
+    title: string;
+    description: string;
+    tone: ScreeningGuideTone;
+  }>;
+  candidates: ScreeningCandidate[];
+  conclusion: {
+    blocks: Array<{ title: string; content: string }>;
+    warning: string;
+    actions: ScreeningGuideAction[];
+  };
+  termTips: Record<string, string>;
+};

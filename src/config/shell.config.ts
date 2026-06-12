@@ -84,7 +84,7 @@ export const shellConfig = {
     screening: {
       stepNumber: 4,
       totalSteps: 9,
-      plainDescription: "Tạo danh sách cổ phiếu ứng viên, không biến kết quả lọc thành khuyến nghị mua bán.",
+      plainDescription: "Tạo danh sách cổ phiếu ứng viên, không biến kết quả lọc thành kết luận hành động.",
       status: "Đang xây dựng",
       nextSuggestion: "Chọn một cổ phiếu dễ hiểu rồi chuyển sang phân tích doanh nghiệp.",
     },

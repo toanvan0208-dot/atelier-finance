@@ -196,3 +196,107 @@ export type MacroJourneyData = {
 };
 
 export type MacroThesisDraft = Record<string, MacroThesisOption>;
+
+export type MacroCompassTone = "support" | "pressure" | "watch" | "neutral" | "mixed";
+
+export type MacroCompassAction = {
+  label: string;
+  targetModule?: string;
+  targetAnchor?: string;
+  variant?: "primary" | "secondary" | "ghost";
+};
+
+export type MacroCompassPoint = {
+  label: string;
+  value: string;
+  tone: MacroCompassTone;
+};
+
+export type MacroCompassMetric = {
+  id: string;
+  name: string;
+  value: string;
+  status: string;
+  tone: MacroCompassTone;
+  simpleMeaning: string;
+  marketImpact: string;
+  relatedSectors: string[];
+  confidence: string;
+  group: "world" | "growth" | "inflation" | "currency" | "policy";
+};
+
+export type MacroTransmissionItem = {
+  label: string;
+  text: string;
+};
+
+export type MacroTransmissionPath = {
+  id: string;
+  title: string;
+  tone: MacroCompassTone;
+  termIds: string[];
+  steps: MacroTransmissionItem[];
+};
+
+export type MacroAffectedSector = {
+  id: string;
+  sector: string;
+  group: string;
+  tone: MacroCompassTone;
+  macroDriver: string;
+  mechanism: string;
+  impactLevel: string;
+  nextCheck: string;
+};
+
+export type MacroEarlyWarning = {
+  id: string;
+  title: string;
+  level: "Thấp" | "Trung bình" | "Cao";
+  tone: MacroCompassTone;
+  why: string;
+  confirmingData: string;
+  affected: string[];
+  nextAction: string;
+  isPrimary: boolean;
+};
+
+export type MacroTermDefinition = {
+  id: string;
+  label: string;
+  definition: string;
+};
+
+export type MacroConclusionBlock = {
+  title: string;
+  content: string;
+  tone: MacroCompassTone;
+};
+
+export type MacroCompassData = {
+  header: {
+    title: string;
+    description: string;
+    question: string;
+  };
+  currentPicture: {
+    state: string;
+    tone: MacroCompassTone;
+    summary: string;
+    supports: MacroCompassPoint[];
+    pressures: MacroCompassPoint[];
+    unconfirmed: MacroCompassPoint[];
+    actions: MacroCompassAction[];
+  };
+  terms: MacroTermDefinition[];
+  transmissionPaths: MacroTransmissionPath[];
+  worldMetrics: MacroCompassMetric[];
+  vietnamMetrics: MacroCompassMetric[];
+  affectedSectors: MacroAffectedSector[];
+  warnings: MacroEarlyWarning[];
+  conclusion: {
+    blocks: MacroConclusionBlock[];
+    warning: string;
+    actions: MacroCompassAction[];
+  };
+};

@@ -2,115 +2,82 @@
 
 import { useMemo, useState } from "react";
 import { EmptyState, LoadingState } from "@/components/ui";
-import { industryOptions, industryPageData } from "../data/industry.data";
+import { industryPageData } from "../data/industry.data";
+import { industryCompassData } from "../data/industryCompass.data";
 import {
-  IndustryConclusionBuilder,
-  IndustryDisclaimer,
-  IndustryJourneyBuilder,
-  IndustryQuickSnapshot,
-  IndustrySelector,
-  IndustryStepDetailModal,
-  IndustryThesisHeader,
-  IndustryThesisMap,
-} from "./IndustryBlocks";
+  IndustryAnalysisClusters,
+  IndustryCompanyBridge,
+  IndustryConditionalConclusion,
+  IndustryCurrentHeader,
+  IndustryDataConfirmationSection,
+  IndustryMacroPressureSection,
+  IndustryMoneyMap,
+  IndustryQuickPicture,
+} from "./IndustryCompassSections";
 
-export function IndustryPage() {
-  const [selectedIndustryId, setSelectedIndustryId] = useState(industryOptions[0].id);
-  const [activeStepId, setActiveStepId] = useState(industryPageData.blocks[0]?.id ?? "");
-  const [openStepId, setOpenStepId] = useState<string | null>(null);
+type IndustryPageProps = {
+  onNavigate?: (moduleKey: string) => void;
+};
+
+export function IndustryPage({ onNavigate }: IndustryPageProps) {
+  const [selectedIndustryId, setSelectedIndustryId] = useState(
+    industryCompassData.industries[0]?.id ?? ""
+  );
   const selectedIndustry = useMemo(
     () =>
-      industryOptions.find((industry) => industry.id === selectedIndustryId) ??
-      industryOptions[0],
+      industryCompassData.industries.find((industry) => industry.id === selectedIndustryId) ??
+      industryCompassData.industries[0],
     [selectedIndustryId]
   );
-  const data = useMemo(
-    () => ({
-      ...industryPageData,
-      header: {
-        ...industryPageData.header,
-        industryName: selectedIndustry.name,
-        industryType: selectedIndustry.industryType,
-        status: selectedIndustry.status,
-      },
-      quickOverview: {
-        ...industryPageData.quickOverview,
-        metrics: industryPageData.quickOverview.metrics.map((metric, index) =>
-          index === 0
-            ? {
-                ...metric,
-                value: selectedIndustry.shortName,
-                description: selectedIndustry.description,
-              }
-            : metric
-        ),
-        answers: selectedIndustry.quickAnswers,
-      },
-    }),
-    [selectedIndustry]
-  );
-  const activeStep =
-    data.blocks.find((block) => block.id === activeStepId) ?? data.blocks[0];
-  const openStep = openStepId
-    ? data.blocks.find((block) => block.id === openStepId) ?? null
-    : null;
 
-  const handleSelectStep = (stepId: string) => {
-    setActiveStepId(stepId);
-    setOpenStepId(stepId);
-  };
-
-  if (data.isLoading) {
+  if (industryPageData.isLoading) {
     return (
       <LoadingState
-        description={data.loading.description}
-        title={data.loading.title}
+        description={industryPageData.loading.description}
+        title={industryPageData.loading.title}
       />
     );
   }
 
-  if (!data.header.industryName) {
+  if (!selectedIndustry) {
     return (
       <EmptyState
-        description={data.emptyState.description}
-        icon={data.emptyState.icon}
-        title={data.emptyState.title}
+        description={industryPageData.emptyState.description}
+        icon={industryPageData.emptyState.icon}
+        title={industryPageData.emptyState.title}
       />
     );
   }
 
   return (
-    <div className="mx-auto w-full max-w-[1180px] space-y-6">
-      <IndustrySelector
-        options={industryOptions}
-        selectedId={selectedIndustryId}
-        onSelect={setSelectedIndustryId}
+    <div className="mx-auto w-full max-w-[1180px] space-y-8">
+      <IndustryCurrentHeader
+        industries={industryCompassData.industries}
+        selectedIndustry={selectedIndustry}
+        onSelectIndustry={setSelectedIndustryId}
       />
-      <IndustryThesisHeader selectedIndustry={selectedIndustry} />
-      <IndustryQuickSnapshot selectedIndustry={selectedIndustry} />
-      <IndustryThesisMap />
-
-      <main className="space-y-5">
-        <IndustryJourneyBuilder
-          activeStepId={activeStep?.id ?? ""}
-          blocks={data.blocks}
-          onSelectStep={handleSelectStep}
-        />
-
-        <IndustryConclusionBuilder selectedIndustry={selectedIndustry} />
-
-        <IndustryDisclaimer
-          content={data.disclaimer.content}
-          title={data.disclaimer.title}
-        />
-      </main>
-
-      {openStep ? (
-        <IndustryStepDetailModal
-          block={openStep}
-          onClose={() => setOpenStepId(null)}
-        />
-      ) : null}
+      <IndustryQuickPicture selectedIndustry={selectedIndustry} />
+      <IndustryMoneyMap
+        selectedIndustry={selectedIndustry}
+        termTips={industryCompassData.termTips}
+      />
+      <IndustryMacroPressureSection selectedIndustry={selectedIndustry} />
+      <IndustryDataConfirmationSection
+        selectedIndustry={selectedIndustry}
+        termTips={industryCompassData.termTips}
+      />
+      <IndustryCompanyBridge
+        selectedIndustry={selectedIndustry}
+        onNavigate={onNavigate}
+      />
+      <IndustryAnalysisClusters
+        blocks={industryPageData.blocks}
+        clusters={industryCompassData.clusters}
+      />
+      <IndustryConditionalConclusion
+        selectedIndustry={selectedIndustry}
+        onNavigate={onNavigate}
+      />
     </div>
   );
 }

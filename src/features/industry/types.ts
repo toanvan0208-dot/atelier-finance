@@ -184,6 +184,117 @@ export type IndustryPageData = {
   nextActions: IndustryNextActionsData;
 };
 
+export type IndustryCompassTone = "support" | "pressure" | "watch" | "neutral" | "mixed";
+
+export type IndustryCompassAction = {
+  label: string;
+  targetModule?: string;
+  variant?: "primary" | "secondary" | "ghost" | "danger";
+};
+
+export type IndustryCompassPoint = {
+  title: string;
+  description: string;
+};
+
+export type IndustryValueChainStage = {
+  title: string;
+  role: string;
+  whoEarns: string;
+  risk: string;
+  metric: string;
+};
+
+export type IndustryMacroDriver = {
+  factor: string;
+  direction: "Hỗ trợ" | "Gây áp lực" | "Trái chiều" | "Cần theo dõi";
+  strength: "Mạnh" | "Trung bình" | "Yếu" | "Chưa rõ";
+  mechanism: string;
+  chain: string[];
+  checkNext: string;
+  tone: IndustryCompassTone;
+};
+
+export type IndustrySignalMetric = {
+  name: string;
+  sampleStatus: string;
+  simpleRead: string;
+  goodSignal: string;
+  badSignal: string;
+  frequency: string;
+  relatedStep: string;
+};
+
+export type IndustryCompanyGroup = {
+  title: "Đáng phân tích tiếp" | "Cần theo dõi thêm" | "Chưa phù hợp với người mới";
+  description: string;
+  tickers: string[];
+  role: string;
+  why: string;
+  checks: string[];
+  tone: IndustryCompassTone;
+};
+
+export type IndustryConclusionBlock = {
+  title: string;
+  content: string;
+};
+
+export type IndustryAnalysisCluster = {
+  title: string;
+  question: string;
+  stepRange: [number, number];
+  output: string;
+};
+
+export type IndustryCompassOption = {
+  id: string;
+  name: string;
+  shortName: string;
+  description: string;
+  industryType: string;
+  statusLabel: string;
+  statusTone: IndustryCompassTone;
+  sensitivityTags: string[];
+  quickPicture: {
+    summary: string;
+    supports: IndustryCompassPoint[];
+    pressures: IndustryCompassPoint[];
+    firstData: string[];
+    nextStep: string;
+  };
+  moneyMap: {
+    sells: string;
+    customers: string;
+    revenueSource: string;
+    pricingPower: string;
+    biggestCosts: string;
+    marginDependsOn: string;
+    cashPoint: string;
+    winnersWhenGood: string;
+    pressureWhenBad: string;
+    valueChain: IndustryValueChainStage[];
+  };
+  macroDrivers: IndustryMacroDriver[];
+  dataSignals: {
+    leading: IndustrySignalMetric[];
+    confirming: IndustrySignalMetric[];
+    warning: IndustrySignalMetric[];
+  };
+  companyGroups: IndustryCompanyGroup[];
+  conclusion: {
+    blocks: IndustryConclusionBlock[];
+    warning: string;
+    actions: IndustryCompassAction[];
+  };
+};
+
+export type IndustryCompassData = {
+  industries: IndustryCompassOption[];
+  clusters: IndustryAnalysisCluster[];
+  termTips: Record<string, string>;
+};
+
 // Legacy types kept so old, unused component files still type-check.
 export type IndustryStatus = "growth" | "neutral" | "weakening";
 export type IndustryOutlookTone = "positive" | "neutral" | "negative";

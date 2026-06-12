@@ -441,3 +441,99 @@ export type FinancialsPageData = {
   disclaimer: FinancialsDisclaimerData;
   nextActions: FinancialsNextActionsData;
 };
+
+export type FinancialDeskMetricStatus = "good" | "watch" | "risk" | "neutral";
+
+export type FinancialDeskMetric = {
+  id: string;
+  label: string;
+  value: string;
+  unit?: string;
+  period: string;
+  status: FinancialDeskMetricStatus;
+  definition: string;
+  howToRead: string;
+  goodSignal: string;
+  badSignal: string;
+};
+
+export type FinancialDeskWarning = {
+  id: string;
+  title: string;
+  severity: "watch" | "risk" | "serious";
+  summary: string;
+  cause: string;
+  targetStepId: string;
+};
+
+export type FinancialReadingStep = {
+  id: string;
+  order: number;
+  title: string;
+  status: "Đã kiểm tra" | "Đang đọc" | "Cần xem lại" | "Chưa đọc";
+  mainQuestion: string;
+  whyItMatters: string;
+  metricIds: string[];
+  readingGuide: string;
+  goodSigns: string[];
+  badSigns: string[];
+  detailTitle: string;
+};
+
+export type FinancialStatementDeskItem = {
+  id: string;
+  title: string;
+  mainQuestion: string;
+  keyLines: string[];
+  relatedMetricIds: string[];
+};
+
+export type FinancialConclusionReadiness =
+  | "Có thể chuyển"
+  | "Cần kiểm tra thêm"
+  | "Chưa nên định giá";
+
+export type FinancialReadingDeskData = {
+  ticker: string;
+  companyName: string;
+  period: string;
+  preliminaryConclusion: {
+    status: string;
+    summary: string;
+    score: number;
+    scoreNote: string;
+  };
+  nextReadingStep: {
+    stepId: string;
+    title: string;
+    reason: string;
+  };
+  valuationReadiness: {
+    status: FinancialConclusionReadiness;
+    missing: string[];
+    reason: string;
+  };
+  warnings: FinancialDeskWarning[];
+  metrics: FinancialDeskMetric[];
+  statementMap: FinancialStatementDeskItem[];
+  readingSteps: FinancialReadingStep[];
+  cashQuality: {
+    title: string;
+    summary: string;
+    checks: string[];
+  };
+  riskCheck: {
+    title: string;
+    summary: string;
+    checks: string[];
+  };
+  conclusion: {
+    confirmed: string[];
+    notConfirmed: string[];
+    weakeningSignals: string[];
+    readiness: {
+      status: FinancialConclusionReadiness;
+      reason: string;
+    };
+  };
+};

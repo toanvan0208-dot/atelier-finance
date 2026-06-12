@@ -23,7 +23,7 @@ export type AITutorConfig = {
 };
 
 const sharedNoSignalWarning =
-  "AI Trợ giảng không đưa ra khuyến nghị mua/bán. Hãy dùng phần này để kiểm tra dữ liệu, rủi ro và giả định trước khi tự kết luận.";
+  "AI Trợ giảng không đưa ra kết luận hành động. Hãy dùng phần này để kiểm tra dữ liệu, rủi ro và giả định trước khi tự kết luận.";
 
 export const aiTutorConfig: Record<string, AITutorConfig> = {
   overview: {
@@ -124,7 +124,7 @@ export const aiTutorConfig: Record<string, AITutorConfig> = {
       { title: "Lãi suất ảnh hưởng cổ phiếu thế nào?", duration: "5 phút", usedIn: "Vĩ mô, Ngành, Định giá", reason: "Giúp bạn nối biến vĩ mô với ngành và định giá." },
     ],
     nextActions: [
-      { label: "Hoàn thành Macro Thesis Builder", moduleKey: "macro", primary: true },
+      { label: "Xem kết luận vĩ mô có điều kiện", moduleKey: "macro", primary: true },
       { label: "Xem bản đồ ngành", moduleKey: "industry" },
       { label: "Chuyển sang Module Ngành", moduleKey: "industry" },
     ],
@@ -151,13 +151,13 @@ export const aiTutorConfig: Record<string, AITutorConfig> = {
   screening: {
     moduleId: "stock-filter",
     moduleName: "Lọc cổ phiếu",
-    currentGoal: "Tạo danh sách ứng viên để phân tích sâu hơn, không biến bộ lọc thành khuyến nghị.",
+    currentGoal: "Tạo danh sách ứng viên để phân tích sâu hơn, không biến bộ lọc thành kết luận hành động.",
     whatThisStepDoes: "Bộ lọc giúp thu hẹp phạm vi theo tiêu chí dữ liệu, sau đó vẫn phải kiểm tra doanh nghiệp, BCTC, định giá và rủi ro.",
     questionsToCheck: ["Tiêu chí lọc có liên quan thesis không?", "Kết quả nào cần kiểm tra sâu?", "Có loại bỏ cổ phiếu vì thiếu dữ liệu không?"],
-    commonMistakes: ["Xem kết quả lọc là danh sách nên mua.", "Dùng quá nhiều tiêu chí máy móc.", "Không kiểm tra chất lượng dữ liệu."],
-    suggestedQuestions: ["Bộ lọc cổ phiếu nên bắt đầu từ đâu?", "Tiêu chí lọc có phải thesis không?", "Vì sao lọc ra chưa đủ để mua?"],
+    commonMistakes: ["Xem kết quả lọc là kết luận hành động.", "Dùng quá nhiều tiêu chí máy móc.", "Không kiểm tra chất lượng dữ liệu."],
+    suggestedQuestions: ["Bộ lọc cổ phiếu nên bắt đầu từ đâu?", "Tiêu chí lọc có phải thesis không?", "Vì sao lọc ra vẫn phải kiểm tra tiếp?"],
     recommendedLessons: [
-      { title: "Bộ lọc cổ phiếu không phải khuyến nghị mua", duration: "4 phút", usedIn: "Lọc cổ phiếu, Watchlist", reason: "Giúp bạn phân biệt ứng viên và quyết định." },
+      { title: "Bộ lọc cổ phiếu không phải kết luận hành động", duration: "4 phút", usedIn: "Lọc cổ phiếu, Watchlist", reason: "Giúp bạn phân biệt ứng viên và quyết định." },
     ],
     nextActions: [
       { label: "Chọn ứng viên để hiểu doanh nghiệp", moduleKey: "business", primary: true },
