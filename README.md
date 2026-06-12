@@ -1,267 +1,244 @@
 # Atelier Finance
 
-Atelier Finance là prototype giao diện cho một hệ thống hỗ trợ đầu tư chứng khoán dành cho người mới hoặc người có mức độ hiểu biết tài chính còn thấp. Dự án tập trung vào việc biến quy trình phân tích đầu tư thành một lộ trình học có thứ tự, dễ hiểu và ít gây quá tải.
+Atelier Finance là prototype giao diện cho một hệ thống hỗ trợ phân tích đầu tư chứng khoán dành cho người mới, sinh viên và nhà đầu tư cá nhân có mức độ hiểu biết tài chính còn hạn chế.
 
-Mục tiêu chính của dự án không phải là đưa ra khuyến nghị mua hoặc bán cổ phiếu, mà là giúp người dùng hiểu dữ liệu, đặt câu hỏi đúng và tự hình thành luận điểm đầu tư cá nhân trước khi ra quyết định.
-
----
-
-## 1. Mục tiêu sản phẩm
-
-Atelier Finance được xây dựng theo tư duy “đi từng bước trước khi ra quyết định”. Người dùng được dẫn qua các lớp phân tích từ tổng quan đến chi tiết:
-
-1. Hiểu bản thân và khẩu vị rủi ro.
-2. Đọc bối cảnh vĩ mô.
-3. Hiểu ngành.
-4. Lọc cổ phiếu ứng viên.
-5. Hiểu doanh nghiệp.
-6. Phân tích báo cáo tài chính.
-7. Định giá.
-8. Quan sát Price - Volume - Time.
-9. Kiểm tra rủi ro và minh bạch.
-10. Tổng hợp checklist.
-11. Theo dõi watchlist.
-12. Mô phỏng quyết định.
-13. Ghi lại nhật ký đầu tư.
-
-Dự án ưu tiên cách trình bày đơn giản, có giải thích, có checklist và có cảnh báo để hạn chế việc người dùng hiểu sai dữ liệu hoặc ra quyết định theo cảm xúc.
+Dự án không được xây dựng để đưa ra khuyến nghị mua, bán hoặc nắm giữ cổ phiếu. Mục tiêu chính của hệ thống là giúp người dùng đi qua một quy trình phân tích có cấu trúc, hiểu dữ liệu theo ngôn ngữ dễ tiếp cận, kiểm tra rủi ro trước khi ra quyết định và từng bước hình thành tư duy đầu tư độc lập.
 
 ---
 
-## 2. Đối tượng người dùng
+## Mục tiêu sản phẩm
+
+Atelier Finance được thiết kế theo triết lý:
+
+> Không bắt người mới nhìn vào một đống chỉ số rồi tự hiểu.
+> Hệ thống phải dẫn họ đi từng bước, giải thích vì sao cần xem dữ liệu đó và dữ liệu đó ảnh hưởng gì đến quyết định đầu tư.
+
+Các mục tiêu chính:
+
+* Biến quy trình phân tích cổ phiếu thành một lộ trình rõ ràng.
+* Giúp người dùng hiểu bối cảnh trước khi nhìn vào từng doanh nghiệp.
+* Tách từng lớp phân tích để tránh quá tải thông tin.
+* Giải thích dữ liệu tài chính bằng ngôn ngữ dễ hiểu.
+* Giúp người dùng nhận diện rủi ro, giả định và dữ liệu còn thiếu.
+* Hạn chế hành vi ra quyết định theo cảm xúc, tin đồn hoặc tín hiệu đơn lẻ.
+* Chuẩn bị nền tảng để tích hợp dữ liệu thật và AI giải thích trong các giai đoạn sau.
+
+---
+
+## Đối tượng người dùng
 
 Dự án hướng tới:
 
-- Nhà đầu tư cá nhân mới bắt đầu.
-- Người có kiến thức tài chính thấp hoặc trung bình.
-- Sinh viên hoặc người học đầu tư muốn có một quy trình phân tích rõ ràng.
-- Người muốn học cách đọc cổ phiếu thay vì chỉ xem tín hiệu mua bán.
-- Người muốn có một hệ thống hỗ trợ tư duy đầu tư nhưng vẫn giữ quyền tự ra quyết định.
+* Nhà đầu tư cá nhân mới bắt đầu.
+* Người có kiến thức tài chính thấp hoặc trung bình.
+* Sinh viên đang học về tài chính, chứng khoán, fintech hoặc phân tích dữ liệu.
+* Người muốn học cách phân tích cổ phiếu theo quy trình thay vì chỉ xem tín hiệu mua bán.
+* Người cần một hệ thống hỗ trợ tư duy đầu tư nhưng vẫn tự chịu trách nhiệm với quyết định của mình.
 
 ---
 
-## 3. Triết lý thiết kế
+## Triết lý thiết kế
 
-Atelier Finance đang được thiết kế theo hướng:
+Atelier Finance được thiết kế theo hướng:
 
-- Dễ hiểu trước, chuyên sâu sau.
-- Không biến giao diện thành một bảng số liệu dày đặc.
-- Mỗi module có nhiệm vụ rõ ràng.
-- Mỗi bước đều giải thích ý nghĩa dữ liệu cho người mới.
-- Có nhắc nhở rằng dữ liệu không phải là khuyến nghị đầu tư.
-- Có lộ trình phân tích để người dùng biết mình đang ở đâu trong toàn bộ quy trình.
+* Dễ hiểu trước, chuyên sâu sau.
+* Mỗi module có một nhiệm vụ rõ ràng.
+* Không biến giao diện thành bảng số liệu dày đặc.
+* Không đưa ra kết luận đầu tư quá sớm.
+* Luôn cho người dùng biết họ đang ở bước nào trong quy trình phân tích.
+* Mỗi dữ liệu quan trọng cần đi kèm ý nghĩa, cách đọc và cảnh báo.
+* Kết quả phân tích chỉ là thông tin tham khảo, không phải khuyến nghị đầu tư.
 
-Giao diện sử dụng bố cục dạng shell gồm:
-
-- Sidebar bên trái: danh sách module và lộ trình phân tích.
-- Khu vực chính: nội dung module đang xem.
-- Panel bên phải: trợ giảng hoặc trợ lý giải thích.
-- Mobile navigation: điều hướng tối ưu cho màn hình nhỏ.
+Hệ thống ưu tiên trải nghiệm học và phân tích có dẫn dắt, phù hợp với nhóm người dùng chưa quen đọc báo cáo tài chính hoặc chưa có khung tư duy đầu tư hoàn chỉnh.
 
 ---
 
-## 4. Công nghệ sử dụng
+## Lộ trình phân tích trong hệ thống
 
-| Nhóm | Công nghệ |
-| --- | --- |
-| Framework | Next.js |
-| UI Library | React |
-| Ngôn ngữ | TypeScript |
-| Styling | Tailwind CSS |
-| Lint | ESLint |
-| Font | Inter, Be Vietnam Pro |
+Atelier Finance tổ chức quá trình phân tích theo một chuỗi logic từ tổng quan đến hành động:
 
-Dự án hiện sử dụng App Router của Next.js và tổ chức source code trong thư mục `src`.
+1. Tổng quan hệ thống.
+2. Học tập kiến thức nền.
+3. Phân tích vĩ mô.
+4. Phân tích ngành.
+5. Lọc cổ phiếu ứng viên.
+6. Hiểu doanh nghiệp.
+7. Phân tích báo cáo tài chính.
+8. Định giá.
+9. Kiểm tra rủi ro và minh bạch.
+10. Quan sát Giá - Thanh khoản - Thời điểm.
+11. Kiểm tra và luyện tư duy.
+12. Mô phỏng quyết định.
+13. Theo dõi Watchlist.
 
----
-
-## 5. Tính năng hiện có
-
-### 5.1. App Shell
-
-App Shell là khung giao diện chính của toàn bộ hệ thống. Thành phần này quản lý module đang được chọn và render nội dung tương ứng.
-
-Các thành phần chính:
-
-- `Topbar`: thanh trên cùng.
-- `Sidebar`: điều hướng module bên trái.
-- `MainContent`: vùng nội dung trung tâm.
-- `RightAssistantPanel`: panel trợ giảng bên phải.
-- `MobileNavigation`: điều hướng trên thiết bị nhỏ.
-
-Hiện tại việc chuyển module được xử lý bằng state trong React, chưa phải routing nhiều trang theo URL.
+Luồng này giúp người dùng tránh lỗi phổ biến là nhảy thẳng vào giá cổ phiếu hoặc chỉ số định giá mà chưa hiểu bối cảnh, ngành, mô hình kinh doanh, chất lượng tài chính và rủi ro chính.
 
 ---
 
-### 5.2. Module Vĩ mô
+## Các module chính
 
-Module Vĩ mô giúp người dùng hiểu bối cảnh kinh tế trước khi nhìn vào ngành hoặc cổ phiếu riêng lẻ.
+### 1. Tổng quan
 
-Nội dung chính:
+Module Tổng quan giúp người dùng nhìn toàn bộ hệ thống, biết mình đang ở bước nào, bước nào đã hoàn thành, bước nào còn thiếu dữ liệu và nên phân tích tiếp theo ở đâu.
 
-- Tổng quan vĩ mô.
-- Giải thích đơn giản cho người mới.
-- Các lớp phân tích vĩ mô toàn cầu.
-- Các chỉ số vĩ mô Việt Nam.
-- Dashboard cảnh báo.
-- Tín hiệu cần chú ý.
-- Gợi ý bước tiếp theo.
-- Tóm tắt module.
+### 2. Học tập
 
-Mục tiêu của module này là giúp người dùng trả lời câu hỏi: thị trường hiện đang thuận gió, ngược gió hay cần thận trọng?
+Module Học tập đóng vai trò bổ trợ xuyên suốt. Người dùng có thể học các khái niệm cần thiết trong quá trình phân tích, thay vì phải tách riêng việc học lý thuyết và việc đọc cổ phiếu.
 
----
+### 3. Vĩ mô
 
-### 5.3. Module Ngành
+Module Vĩ mô giúp người dùng hiểu bối cảnh kinh tế trước khi chọn ngành hoặc cổ phiếu.
+
+Mục tiêu của module này là trả lời các câu hỏi:
+
+* Thị trường hiện đang thuận gió hay ngược gió?
+* Lãi suất, tỷ giá, lạm phát, tăng trưởng và dòng tiền đang ảnh hưởng thế nào?
+* Bối cảnh hiện tại phù hợp với nhóm ngành nào?
+* Có rủi ro vĩ mô nào cần thận trọng không?
+
+### 4. Ngành
 
 Module Ngành giúp người dùng hiểu ngành trước khi chọn doanh nghiệp cụ thể.
 
-Nội dung chính:
+Nội dung trọng tâm:
 
-- Tổng quan ngành.
-- Điểm sức khỏe ngành.
-- Các yếu tố tác động đến ngành.
-- Triển vọng ngành.
-- Nhóm ngành hoặc doanh nghiệp hưởng lợi.
-- Cổ phiếu đại diện.
-- Phần đào sâu ngành.
+* Ngành đang ở pha nào?
+* Ngành kiếm tiền từ đâu?
+* Yếu tố nào ảnh hưởng mạnh đến lợi nhuận toàn ngành?
+* Ngành có đang được vĩ mô hỗ trợ không?
+* Doanh nghiệp nào có thể hưởng lợi hoặc chịu áp lực?
 
-Mục tiêu của module này là giúp người dùng biết ngành đang ở pha nào, chịu tác động bởi yếu tố gì và có phù hợp với bối cảnh vĩ mô hay không.
+### 5. Lọc cổ phiếu
 
----
+Module Lọc cổ phiếu giúp thu hẹp danh sách cổ phiếu ứng viên, nhưng không biến kết quả lọc thành khuyến nghị mua bán.
 
-### 5.4. Module Lọc cổ phiếu
+Module này cần giúp người dùng hiểu:
 
-Module Lọc cổ phiếu giúp tạo danh sách cổ phiếu ứng viên, nhưng không biến kết quả lọc thành khuyến nghị mua bán.
+* Vì sao dùng tiêu chí lọc đó?
+* Mỗi tiêu chí loại bỏ điều gì?
+* Cổ phiếu còn lại phù hợp để phân tích tiếp ở điểm nào?
+* Dữ liệu nào vẫn cần kiểm chứng ở các module sau?
 
-Nội dung chính:
+### 6. Hiểu doanh nghiệp
 
-- Panel nhập tiêu chí lọc.
-- Tóm tắt bối cảnh lọc.
-- Tóm tắt dễ hiểu cho người mới.
-- Nhóm kết quả lọc.
-- Phân tích sâu từng nhóm.
-- Bảng so sánh.
-- Cảnh báo và disclaimer.
-- Kiểm tra mức độ hiểu.
-- Gợi ý hành động tiếp theo.
+Module Hiểu doanh nghiệp giúp người dùng hiểu bản chất hoạt động của doanh nghiệp trước khi nhìn vào số liệu tài chính.
 
-Mục tiêu của module này là giúp người dùng thu hẹp phạm vi phân tích thay vì chọn cổ phiếu theo cảm tính.
+Nội dung trọng tâm:
 
----
+* Doanh nghiệp kiếm tiền bằng cách nào?
+* Khách hàng chính là ai?
+* Sản phẩm hoặc dịch vụ cốt lõi là gì?
+* Doanh nghiệp nằm ở đâu trong chuỗi giá trị?
+* Lợi thế cạnh tranh có thật không?
+* Động lực tăng trưởng đến từ đâu?
+* Rủi ro kinh doanh chính là gì?
 
-### 5.5. Module Hiểu doanh nghiệp
+Mục tiêu của module này là giúp người dùng hiểu “doanh nghiệp này thực sự đang làm gì” trước khi đọc báo cáo tài chính.
 
-Module Hiểu doanh nghiệp giúp người dùng hiểu doanh nghiệp kiếm tiền bằng cách nào và rủi ro chính nằm ở đâu.
+### 7. Báo cáo tài chính
 
-Nội dung chính:
+Module Báo cáo tài chính giúp kiểm tra sức khỏe tài chính, chất lượng lợi nhuận, dòng tiền, nợ vay và hiệu quả vận hành.
 
-- Header doanh nghiệp.
-- Tóm tắt nhanh.
-- Sidebar tiến trình phân tích.
-- Nhận diện doanh nghiệp.
-- Loại hình kinh doanh.
-- Sản phẩm và khách hàng.
-- Nguồn doanh thu.
-- Động lực tăng trưởng.
-- Vị thế trong chuỗi giá trị.
-- Hệ sinh thái kinh doanh.
-- Quản trị doanh nghiệp.
-- Phân bổ vốn.
-- Liên kết với luận điểm ngành.
-- Lợi thế cạnh tranh.
-- Khả năng mở rộng.
-- Rủi ro kinh doanh.
-- Luận điểm cá nhân.
-- Checklist hiểu doanh nghiệp.
-- Disclaimer và bước tiếp theo.
+Nội dung trọng tâm:
 
-Mục tiêu của module này là giúp người dùng hiểu “doanh nghiệp này thực sự đang làm gì” trước khi nhìn vào số liệu tài chính.
+* Doanh thu và lợi nhuận có tăng trưởng bền vững không?
+* Lợi nhuận có đi kèm dòng tiền không?
+* Doanh nghiệp có dùng nợ quá mức không?
+* Biên lợi nhuận có ổn định không?
+* Vốn lưu động có vấn đề không?
+* Có dấu hiệu cảnh báo nào trong báo cáo tài chính không?
 
----
+### 8. Định giá
 
-### 5.6. Module Báo cáo tài chính
+Module Định giá giúp người dùng tiếp cận giá trị hợp lý theo cách thận trọng.
 
-Module Báo cáo tài chính giúp người dùng kiểm tra sức khỏe tài chính, chất lượng lợi nhuận, dòng tiền và rủi ro tài chính.
+Nguyên tắc của module:
 
-Nội dung chính:
+* Định giá là một vùng ước lượng, không phải một con số tuyệt đối.
+* Mọi kết quả định giá phải đi kèm giả định.
+* Cần có kịch bản thận trọng, cơ sở và tích cực.
+* Cần kiểm tra biên an toàn trước khi kết luận.
+* Không dùng định giá để hợp thức hóa cảm xúc muốn mua cổ phiếu.
 
-- Header báo cáo tài chính.
-- Tóm tắt nhanh.
-- Sidebar tiến trình phân tích.
-- Snapshot tài chính.
-- Báo cáo kết quả kinh doanh.
-- Bảng cân đối kế toán.
-- Lưu chuyển tiền tệ.
-- So sánh lợi nhuận và dòng tiền.
-- Chất lượng lợi nhuận.
-- Cấu trúc nợ.
-- Vốn lưu động.
-- Phân bổ vốn.
-- Nhóm chỉ số tài chính.
-- Chỉ số đặc thù ngành.
-- Dấu hiệu cảnh báo.
-- Cầu nối sang định giá.
-- Luận điểm tài chính cá nhân.
-- Checklist hiểu báo cáo tài chính.
-- Disclaimer và bước tiếp theo.
+### 9. Rủi ro và minh bạch
 
-Mục tiêu của module này là giúp người dùng hiểu doanh nghiệp có đang khỏe thật hay chỉ đẹp trên bề mặt số liệu.
+Module Rủi ro và minh bạch giúp người dùng kiểm tra điều gì có thể sai trước khi đưa cổ phiếu vào watchlist hoặc mô phỏng.
 
----
+Nội dung trọng tâm:
 
-### 5.7. Module Định giá
+* Rủi ro kinh doanh.
+* Rủi ro tài chính.
+* Rủi ro quản trị.
+* Rủi ro minh bạch thông tin.
+* Rủi ro định giá.
+* Rủi ro thanh khoản.
+* Rủi ro từ giả định phân tích.
 
-Module Định giá giúp người dùng tiếp cận giá trị hợp lý theo cách thận trọng, có giả định rõ ràng và có biên an toàn.
+### 10. Giá - Thanh khoản - Thời điểm
 
-Nội dung chính:
+Module này giúp người dùng quan sát hành vi giá, thanh khoản và thời điểm, nhưng không thay thế cho phân tích cơ bản.
 
-- Header định giá.
-- Tóm tắt nhanh.
-- Sidebar tiến trình phân tích.
-- Kiểm tra điều kiện trước khi định giá.
-- Chuẩn hóa đầu vào.
-- Xác định loại hình doanh nghiệp để chọn phương pháp phù hợp.
-- Đọc định giá thị trường.
-- Chọn phương pháp định giá.
-- Các phương pháp định giá.
-- So sánh lịch sử.
-- Kỳ vọng thị trường.
-- Kịch bản định giá.
-- Catalyst và rủi ro.
-- Biên an toàn.
-- Độ tin cậy của định giá.
-- Vùng giá trị hợp lý.
-- Trợ giảng định giá.
-- Luận điểm định giá cá nhân.
-- Disclaimer và bước tiếp theo.
+Mục tiêu:
 
-Mục tiêu của module này là giúp người dùng hiểu rằng định giá là một vùng ước lượng dựa trên giả định, không phải một con số tuyệt đối.
+* Tránh mua đuổi theo FOMO.
+* Quan sát thanh khoản có xác nhận xu hướng không.
+* Nhận diện vùng giá cần theo dõi.
+* Kết hợp hành vi giá với luận điểm đầu tư, không tách rời khỏi nền tảng doanh nghiệp.
+
+### 11. Kiểm tra và luyện tư duy
+
+Module này giúp người dùng tự kiểm tra lại luận điểm trước khi ra quyết định.
+
+Nội dung có thể bao gồm:
+
+* Checklist hiểu doanh nghiệp.
+* Checklist tài chính.
+* Checklist định giá.
+* Checklist rủi ro.
+* Câu hỏi phản biện.
+* Những điểm còn thiếu dữ liệu.
+* Những giả định cần kiểm chứng.
+
+### 12. Mô phỏng
+
+Module Mô phỏng giúp người dùng ghi nhận quyết định giả lập trước khi hành động thật.
+
+Mục tiêu:
+
+* Ghi lại thesis đầu tư.
+* Xác định kịch bản đúng và sai.
+* Theo dõi kết quả giả lập.
+* Rút kinh nghiệm từ quá trình phân tích.
+* Hạn chế việc học đầu tư chỉ bằng cảm xúc sau khi lãi hoặc lỗ.
+
+### 13. Watchlist
+
+Module Watchlist giúp lưu các cổ phiếu cần theo dõi, trạng thái phân tích, dữ liệu còn thiếu và bước tiếp theo cần làm.
+
+Watchlist không chỉ là danh sách mã cổ phiếu, mà là nơi quản lý tiến độ tư duy đầu tư.
 
 ---
 
-## 6. Các module đã có trong điều hướng nhưng chưa render đầy đủ
+## Công nghệ sử dụng
 
-Sidebar hiện đã khai báo thêm các module sau:
+| Nhóm            | Công nghệ    |
+| --------------- | ------------ |
+| Framework       | Next.js      |
+| UI Library      | React        |
+| Ngôn ngữ        | TypeScript   |
+| Styling         | Tailwind CSS |
+| Lint            | ESLint       |
+| Package Manager | npm          |
 
-- Hiểu bản thân.
-- Price - Volume - Time.
-- Rủi ro và minh bạch.
-- Checklist.
-- Watchlist.
-- Mô phỏng.
-- Nhật ký.
-
-Một số module đã có trong cấu hình lộ trình nhưng chưa được render thành trang nội dung hoàn chỉnh trong `AppShell`. Đây là phần cần tiếp tục phát triển ở các giai đoạn sau.
+Dự án sử dụng App Router của Next.js và tổ chức mã nguồn trong thư mục `src`.
 
 ---
 
-## 7. Cấu trúc thư mục
-
-Cấu trúc tổng quan:
+## Cấu trúc thư mục
 
 ```txt
 atelier-finance/
+├── docs/
 ├── src/
 │   ├── app/
 │   │   ├── globals.css
@@ -274,11 +251,11 @@ atelier-finance/
 │   │   ├── navigation.config.ts
 │   │   └── shell.config.ts
 │   └── features/
-│       ├── macro/
-│       ├── industry/
-│       ├── screening/
 │       ├── business/
 │       ├── financials/
+│       ├── industry/
+│       ├── macro/
+│       ├── screening/
 │       └── valuation/
 ├── next.config.ts
 ├── package.json
@@ -289,98 +266,40 @@ atelier-finance/
 
 Ý nghĩa chính:
 
-| Thư mục / file | Vai trò |
-| --- | --- |
-| `src/app` | Entry point của Next.js App Router |
+| Thư mục / File          | Vai trò                                                          |
+| ----------------------- | ---------------------------------------------------------------- |
+| `src/app`               | Entry point của Next.js App Router                               |
 | `src/components/layout` | Các thành phần khung giao diện như sidebar, topbar, main content |
-| `src/components/ui` | Các UI component dùng lại nhiều nơi |
-| `src/config` | Cấu hình điều hướng, lộ trình module và nội dung shell |
-| `src/features` | Các module nghiệp vụ của hệ thống |
-| `tailwind.config.ts` | Theme màu, font, shadow và cấu hình Tailwind |
-| `tsconfig.json` | Cấu hình TypeScript và alias `@/*` |
+| `src/components/ui`     | Các UI component dùng lại nhiều nơi                              |
+| `src/config`            | Cấu hình điều hướng, lộ trình module và nội dung shell           |
+| `src/features`          | Các module nghiệp vụ của hệ thống                                |
+| `docs`                  | Tài liệu mô tả yêu cầu, tiến độ hoặc định hướng phát triển       |
+| `tailwind.config.ts`    | Cấu hình Tailwind CSS                                            |
+| `tsconfig.json`         | Cấu hình TypeScript và alias                                     |
 
 ---
 
-## 8. Cách chạy dự án local
+## Cách chạy dự án local
 
-### 8.1. Clone repository
+### 1. Clone repository
 
 ```bash
 git clone https://github.com/toanvan0208-dot/atelier-finance.git
 cd atelier-finance
 ```
 
-### 8.2. Cài dependencies
-=======
-Atelier Finance là prototype giao diện học phân tích đầu tư theo từng bước, xây bằng Next.js App Router, React, TypeScript và Tailwind CSS. Ứng dụng tập trung vào việc giúp người mới đọc dữ liệu tài chính theo ngôn ngữ dễ hiểu, không biến giao diện thành spreadsheet phức tạp và không đưa ra khuyến nghị mua/bán/nắm giữ.
-
-## Mục Tiêu
-
-- Hướng dẫn người dùng đi qua một lộ trình phân tích có cấu trúc.
-- Tách dữ liệu mẫu khỏi component để dễ mở rộng từng module.
-- Giữ giao diện Neo-Brutalism Lite + Clean Minimal: viền navy, card ít bo góc, shadow nhẹ, accent vàng dùng tiết chế.
-- Trình bày định giá theo vùng giá tham khảo và kịch bản, không phải một con số chắc chắn.
-
-## Module Hiện Có
-
-- Vĩ mô (`src/features/macro`)
-- Ngành (`src/features/industry`)
-- Lọc cổ phiếu (`src/features/screening`)
-- Hiểu doanh nghiệp (`src/features/business`)
-- Phân tích báo cáo tài chính (`src/features/financials`)
-- Định giá doanh nghiệp (`src/features/valuation`)
-
-## Tech Stack
-
-- Next.js 16
-- React 19
-- TypeScript
-- Tailwind CSS
-- ESLint
-
-## Cấu Trúc Chính
-
-```text
-src/
-  app/
-    globals.css
-    layout.tsx
-    page.tsx
-  components/
-    layout/
-    ui/
-  config/
-    navigation.config.ts
-    shell.config.ts
-  features/
-    business/
-    financials/
-    industry/
-    macro/
-    screening/
-    valuation/
-```
-
-## Chạy Local
-
-Cài dependency:
->>>>>>> 741482e (update code)
+### 2. Cài dependencies
 
 ```bash
 npm install
 ```
 
-<<<<<<< HEAD
-### 8.3. Chạy development server
-=======
-Chạy dev server:
->>>>>>> 741482e (update code)
+### 3. Chạy development server
 
 ```bash
 npm run dev
 ```
 
-<<<<<<< HEAD
 Sau đó mở trình duyệt tại:
 
 ```txt
@@ -389,20 +308,20 @@ http://localhost:3000
 
 ---
 
-## 9. Scripts có sẵn
+## Scripts có sẵn
 
-| Lệnh | Chức năng |
-| --- | --- |
-| `npm run dev` | Chạy dự án ở môi trường development |
-| `npm run build` | Build production |
-| `npm run start` | Chạy bản production sau khi build |
-| `npm run lint` | Kiểm tra lint |
+| Lệnh            | Chức năng                           |
+| --------------- | ----------------------------------- |
+| `npm run dev`   | Chạy dự án ở môi trường development |
+| `npm run build` | Build production                    |
+| `npm run start` | Chạy bản production sau khi build   |
+| `npm run lint`  | Kiểm tra lint                       |
 
 ---
 
-## 10. Quy ước phát triển module
+## Quy ước phát triển module
 
-Khi thêm một module mới, nên đi theo cấu trúc:
+Khi thêm một module mới, nên tổ chức theo hướng:
 
 ```txt
 src/features/module-name/
@@ -415,107 +334,78 @@ src/features/module-name/
 
 Nguyên tắc nên giữ:
 
-- Component chỉ lo hiển thị.
-- Dữ liệu mock hoặc nội dung tĩnh nên đặt trong `data`.
-- Các block nhỏ nên tách component riêng.
-- Không nhồi toàn bộ logic vào một file quá dài.
-- Mỗi module nên có header, summary, lộ trình, cảnh báo, checklist và bước tiếp theo.
+* Component chỉ nên tập trung vào hiển thị.
+* Dữ liệu mock hoặc nội dung tĩnh nên tách ra khỏi component.
+* Các block giao diện lặp lại nên tách thành component nhỏ.
+* Không nhồi toàn bộ nội dung module vào một file quá dài.
+* Mỗi module nên có mục tiêu rõ ràng, phần giải thích, dữ liệu chính, cảnh báo, checklist và bước tiếp theo.
+* Không dùng dữ liệu mẫu như kết luận đầu tư thật.
+* Không viết nội dung khiến người dùng hiểu rằng hệ thống đang khuyến nghị mua hoặc bán cổ phiếu.
 
 ---
 
-## 11. Hướng phát triển tiếp theo
+## Trạng thái hiện tại
 
-Các việc nên làm tiếp:
+Dự án đang ở giai đoạn prototype giao diện và kiến trúc module.
 
-1. Hoàn thiện module Hiểu bản thân.
-2. Hoàn thiện module Price - Volume - Time.
-3. Hoàn thiện module Rủi ro và minh bạch.
-4. Thêm module Checklist quyết định.
-5. Thêm Watchlist.
-6. Thêm Mô phỏng quyết định đầu tư.
-7. Thêm Nhật ký đầu tư.
-8. Chuyển điều hướng state sang routing nếu cần URL riêng cho từng module.
-9. Kết nối dữ liệu thật cho cổ phiếu, báo cáo tài chính và vĩ mô.
-10. Thêm trạng thái loading, empty, error đồng bộ cho toàn bộ module.
-11. Thêm test cho component quan trọng.
-12. Chuẩn hóa design system.
-13. Kết nối AI Chat hoặc trợ giảng giải thích dữ liệu.
+Trọng tâm hiện tại:
+
+* Xây dựng layout tổng thể.
+* Tách các module thành feature độc lập.
+* Chuẩn hóa lộ trình phân tích.
+* Thiết kế giao diện dễ hiểu cho người mới.
+* Chuẩn bị nền tảng để kết nối dữ liệu thật và AI giải thích ở các giai đoạn sau.
+
+Một số module đã có trong điều hướng nhưng chưa nhất thiết hoàn thiện đầy đủ nội dung hoặc logic xử lý dữ liệu thật. Vì vậy, dự án hiện nên được hiểu là prototype sản phẩm, không phải hệ thống phân tích đầu tư hoàn chỉnh.
 
 ---
 
-## 12. Định hướng dữ liệu
+## Định hướng phát triển tiếp theo
 
-Hiện tại nhiều phần trong dự án phù hợp với prototype hoặc dữ liệu tĩnh. Khi chuyển sang sản phẩm thật, có thể cần thêm:
+Các hướng phát triển quan trọng:
 
-- API dữ liệu cổ phiếu.
-- API báo cáo tài chính.
-- API dữ liệu vĩ mô.
-- Cơ sở dữ liệu người dùng.
-- Watchlist cá nhân.
-- Nhật ký đầu tư.
-- Lịch sử mô phỏng.
-- Hệ thống giải thích dữ liệu bằng AI.
-
----
-
-## 13. Lưu ý quan trọng
-
-Atelier Finance là hệ thống hỗ trợ học và phân tích đầu tư. Dự án không nên được trình bày như một công cụ khuyến nghị mua bán cổ phiếu.
-
-Các nội dung phân tích, điểm số, cảnh báo hoặc định giá trong hệ thống chỉ nên được hiểu là thông tin tham khảo và công cụ hỗ trợ tư duy. Người dùng cần tự chịu trách nhiệm với quyết định đầu tư của mình.
+1. Hoàn thiện đầy đủ các module còn thiếu.
+2. Chuẩn hóa design system cho toàn bộ giao diện.
+3. Tách dữ liệu mẫu khỏi component.
+4. Bổ sung trạng thái loading, empty và error cho từng module.
+5. Kết nối dữ liệu thật cho cổ phiếu, báo cáo tài chính và vĩ mô.
+6. Xây dựng Watchlist cá nhân.
+7. Bổ sung mô phỏng quyết định đầu tư.
+8. Bổ sung nhật ký phân tích và hậu kiểm.
+9. Tích hợp AI giải thích dữ liệu theo ngữ cảnh.
+10. Thêm kiểm thử cho các component quan trọng.
+11. Tối ưu responsive cho mobile và tablet.
+12. Chuyển điều hướng state sang routing nếu cần URL riêng cho từng module.
 
 ---
 
-## 14. Trạng thái dự án
+## Định hướng dữ liệu
 
-Dự án đang ở giai đoạn prototype giao diện và kiến trúc module. Trọng tâm hiện tại là:
+Ở giai đoạn hiện tại, nhiều phần trong hệ thống có thể sử dụng dữ liệu mẫu để phục vụ thiết kế giao diện và kiểm thử trải nghiệm.
 
-- Xây dựng layout tổng thể.
-- Tách module thành các feature độc lập.
-- Thiết kế lộ trình phân tích dễ hiểu.
-- Chuẩn bị nền tảng để nối dữ liệu thật và AI ở các bước sau.
+Khi phát triển thành sản phẩm hoàn chỉnh, hệ thống cần bổ sung:
+
+* API dữ liệu giá cổ phiếu.
+* API báo cáo tài chính.
+* API dữ liệu vĩ mô.
+* Cơ sở dữ liệu người dùng.
+* Dữ liệu watchlist cá nhân.
+* Lịch sử mô phỏng.
+* Nhật ký phân tích.
+* Hệ thống giải thích dữ liệu bằng AI.
 
 ---
 
-## 15. Tác giả
+## Lưu ý quan trọng
+
+Atelier Finance là hệ thống hỗ trợ học và phân tích đầu tư. Dự án không cung cấp khuyến nghị mua, bán hoặc nắm giữ cổ phiếu.
+
+Các nội dung phân tích, điểm số, cảnh báo, mô phỏng hoặc định giá trong hệ thống chỉ nên được hiểu là thông tin tham khảo và công cụ hỗ trợ tư duy. Người dùng cần tự chịu trách nhiệm với quyết định đầu tư của mình.
+
+---
+
+## Tác giả
 
 Repository: `toanvan0208-dot/atelier-finance`
 
 Dự án phục vụ quá trình xây dựng hệ thống hỗ trợ đầu tư cho người có mức độ hiểu biết tài chính thấp.
-=======
-Mở:
-
-```text
-http://localhost:3000
-```
-
-## Scripts
-
-```bash
-npm run dev
-npm run lint
-npm run build
-npm run start
-```
-
-## Validation Gần Nhất
-
-Trong môi trường Codex hiện tại, `npm` không có trong PATH nên validation được chạy bằng Node runtime bundled:
-
-```bash
-node node_modules/eslint/bin/eslint.js .
-node node_modules/next/dist/bin/next build --webpack
-```
-
-Kết quả gần nhất:
-
-- Lint: pass
-- Build: pass
-
-## Ghi Chú Sản Phẩm
-
-Ứng dụng chỉ dùng dữ liệu mẫu ở giai đoạn này. Nội dung trong các module không phải khuyến nghị đầu tư, không phải khuyến nghị mua/bán/nắm giữ, và không cung cấp giá mục tiêu chắc chắn.
-
-## Bước Tiếp Theo
-
-Module tiếp theo nên triển khai là Phân tích kỹ thuật cơ bản / Price-Volume-Time, vì nằm sau Định giá trong lộ trình hệ thống.
