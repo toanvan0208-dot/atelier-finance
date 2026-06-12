@@ -358,3 +358,111 @@ export type TechnicalPageData = {
   disclaimer: TechnicalDisclaimerData;
   nextActions: TechnicalNextActionsData;
 };
+
+export type PVTStatusTone = "positive" | "caution" | "risk" | "neutral";
+
+export type PVTObservationPoint = {
+  label: string;
+  price: number;
+  volume: number;
+  ma20: number;
+  ma50: number;
+};
+
+export type PVTObservationEvent = {
+  label: string;
+  title: string;
+  pointIndex: number;
+  note: string;
+};
+
+export type PVTSignalLayerId =
+  | "price"
+  | "volume"
+  | "time"
+  | "relative_strength"
+  | "event_psychology";
+
+export type PVTSignalLayer = {
+  id: PVTSignalLayerId;
+  title: string;
+  shortTitle: string;
+  question: string;
+  conclusion: string;
+  evidence: string[];
+  commonMistake: string;
+};
+
+export type PVTScenario = {
+  name: string;
+  condition: string;
+  meaning: string;
+};
+
+export type PVTRiskRewardZoneData = {
+  currentPrice: number;
+  supportPrice: number;
+  resistancePrice: number;
+  upside: string;
+  downside: string;
+  conclusion: string;
+};
+
+export type PVTFomoData = {
+  level: "Thấp" | "Trung bình" | "Cao";
+  score: number;
+  maxScore: number;
+  signs: string[];
+  conclusion: string;
+};
+
+export type PVTFinalConclusionData = {
+  status: string;
+  positive: string;
+  caution: string;
+  nextStep: string;
+};
+
+export type PVTNextAction = {
+  label: string;
+  moduleKey: "watchlist" | "risk" | "valuation" | "checklist";
+  primary?: boolean;
+};
+
+export type PVTObservationData = {
+  ticker: string;
+  companyName: string;
+  industry: string;
+  currentPrice: number;
+  status: {
+    label: string;
+    tone: PVTStatusTone;
+    conclusion: string;
+  };
+  keyLevels: {
+    support: string;
+    resistance: string;
+  };
+  volume: {
+    currentVsAvg20: number;
+    label: string;
+    conclusion: string;
+  };
+  chart: {
+    title: string;
+    points: PVTObservationPoint[];
+    events: PVTObservationEvent[];
+    quickRead: Array<{
+      question: string;
+      answer: string;
+    }>;
+  };
+  signalLayers: PVTSignalLayer[];
+  confirmation: string[];
+  invalidation: string[];
+  scenarios: PVTScenario[];
+  riskReward: PVTRiskRewardZoneData;
+  fomo: PVTFomoData;
+  finalConclusion: PVTFinalConclusionData;
+  nextActions: PVTNextAction[];
+};

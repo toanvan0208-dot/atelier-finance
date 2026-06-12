@@ -1,47 +1,42 @@
-import { EmptyState, LoadingState } from "@/components/ui";
-import { technicalPageData } from "../data/technical.data";
-import { PVTCommandCenter } from "./PVTCommandCenter";
-import { PVTCrossModuleAlignment } from "./PVTCrossModuleAlignment";
-import { PVTReadinessPanel } from "./PVTReadinessPanel";
-import { TechnicalDisclaimer, TechnicalNextActions } from "./TechnicalFooterBlocks";
-import { TechnicalHeader } from "./TechnicalHeader";
+import { pvtObservationData } from "../data/pvtObservation.data";
+import { PVTConfirmationScenarios } from "./PVTConfirmationScenarios";
+import { PVTFinalConclusion } from "./PVTFinalConclusion";
+import { PVTFomoThermometer } from "./PVTFomoThermometer";
+import { PVTHeroStatus } from "./PVTHeroStatus";
+import { PVTMainChart } from "./PVTMainChart";
+import { PVTRiskRewardZone } from "./PVTRiskRewardZone";
+import { PVTSignalLayers } from "./PVTSignalLayers";
 
-export function TechnicalPage() {
-  const data = technicalPageData;
+type TechnicalPageProps = {
+  onNavigate: (key: string) => void;
+};
 
-  if (data.isLoading) {
-    return <LoadingState description={data.loading.content} title={data.loading.title} />;
-  }
-
-  if (!data.header.ticker) {
-    return (
-      <EmptyState
-        description={data.emptyState.description}
-        icon={data.emptyState.icon}
-        title={data.emptyState.title}
-      />
-    );
-  }
-
-  const canContinueToRisk = data.pvtReadiness.completed === data.pvtReadiness.total;
+export function TechnicalPage({ onNavigate }: TechnicalPageProps) {
+  const data = pvtObservationData;
 
   return (
-    <div className="mx-auto w-full max-w-[1120px] space-y-6">
-      <TechnicalHeader
-        canContinueToRisk={canContinueToRisk}
-        data={data.header}
-        notePrompts={data.pvtObservation.prompts}
-        riskDisabledReason={data.pvtReadiness.helperText}
-        sampleNote={data.pvtObservation.sample}
+    <div className="mx-auto w-full max-w-[1180px] space-y-5">
+      <PVTHeroStatus data={data} />
+      <PVTMainChart
+        data={data.chart}
+        supportLabel={data.keyLevels.support}
+        resistanceLabel={data.keyLevels.resistance}
       />
-      <PVTCommandCenter data={data.commandCenter} priceVolume={data.priceVolume} />
-      <PVTCrossModuleAlignment data={data.pvtAlignment} />
-      <PVTReadinessPanel data={data.pvtReadiness} />
-
-      <div className="space-y-5">
-        <TechnicalDisclaimer data={data.disclaimer} />
-        <TechnicalNextActions canContinueToRisk={canContinueToRisk} data={data.nextActions} />
+      <PVTSignalLayers layers={data.signalLayers} />
+      <PVTConfirmationScenarios
+        confirmation={data.confirmation}
+        invalidation={data.invalidation}
+        scenarios={data.scenarios}
+      />
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_390px]">
+        <PVTRiskRewardZone data={data.riskReward} />
+        <PVTFomoThermometer data={data.fomo} />
       </div>
+      <PVTFinalConclusion
+        conclusion={data.finalConclusion}
+        actions={data.nextActions}
+        onNavigate={onNavigate}
+      />
     </div>
   );
 }

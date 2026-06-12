@@ -83,7 +83,7 @@ export const navigationItems: NavigationItem[] = [
   },
   {
     key: "technical",
-    label: "Price Volume Time",
+    label: "Quan sát Giá - Thanh khoản - Thời điểm",
     shortLabel: "PVT",
     icon: "⌁",
     href: "/technical",
@@ -91,7 +91,7 @@ export const navigationItems: NavigationItem[] = [
   },
   {
     key: "checklist",
-    label: "Kiểm tra cổ phiếu",
+    label: "Kiểm tra & luyện tư duy",
     shortLabel: "KT",
     icon: "☷",
     href: "/checklist",

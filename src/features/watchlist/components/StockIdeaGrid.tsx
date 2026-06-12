@@ -7,14 +7,18 @@ import { StockIdeaCard } from "./StockIdeaCard";
 type StockIdeaGridProps = {
   data: StockIdea[];
   filteredCount: number;
-  onOpenDetails: (ticker: string) => void;
+  openTickers: string[];
+  onNavigateModule: (moduleKey: string) => void;
+  onToggleIdea: (ticker: string) => void;
   totalCount: number;
 };
 
 export function StockIdeaGrid({
   data,
   filteredCount,
-  onOpenDetails,
+  onNavigateModule,
+  onToggleIdea,
+  openTickers,
   totalCount,
 }: StockIdeaGridProps) {
   return (
@@ -29,7 +33,9 @@ export function StockIdeaGrid({
             <StockIdeaCard
               key={idea.ticker}
               data={idea}
-              onOpenDetails={onOpenDetails}
+              isOpen={openTickers.includes(idea.ticker)}
+              onNavigateModule={onNavigateModule}
+              onToggle={onToggleIdea}
             />
           ))}
         </div>

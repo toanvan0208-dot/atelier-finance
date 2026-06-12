@@ -1,229 +1,159 @@
 "use client";
 
 import { Button, Card, CardBody, CardHeader, Chip } from "@/components/ui";
-import { cn } from "@/lib/cn";
-import { overviewState } from "../data/overview.data";
+import { overviewCaseData } from "../data/overviewCase.data";
 import type {
-  OverviewAlertSeverity,
-  OverviewPriority,
-  OverviewProfileStatus,
-  OverviewStepStatus,
+  OverviewActionStatusData,
+  OverviewBottleneck,
+  OverviewCaseData,
+  OverviewNextBestAction,
+  OverviewProgressMapItem,
+  OverviewProgressStatus,
+  OverviewSupportData,
 } from "../types";
 
 type OverviewPageProps = {
   onNavigate: (key: string) => void;
 };
 
-const stepStatusLabel: Record<OverviewStepStatus, string> = {
-  not_started: "Chưa bắt đầu",
-  in_progress: "Đang làm",
-  needs_check: "Cần kiểm chứng",
-  draft_done: "Đã có dữ liệu sơ bộ",
-  warning: "Có cảnh báo",
+const progressTone: Record<OverviewProgressStatus, "success" | "warning" | "neutral" | "accent"> = {
+  "Hoàn thành sơ bộ": "success",
+  "Đang làm": "accent",
+  "Thiếu dữ liệu": "warning",
+  "Chưa làm": "neutral",
+  "Cần quay lại": "warning",
+  "Khóa/chưa đủ điều kiện": "neutral",
 };
 
-const stepStatusTone: Record<OverviewStepStatus, "neutral" | "accent" | "success" | "warning" | "danger"> = {
-  not_started: "neutral",
-  in_progress: "accent",
-  needs_check: "warning",
-  draft_done: "success",
-  warning: "danger",
-};
-
-const priorityLabel: Record<OverviewPriority, string> = {
-  low: "Thấp",
-  medium: "Trung bình",
-  high: "Cao",
-};
-
-const alertLabel: Record<OverviewAlertSeverity, string> = {
-  soft: "Nhẹ",
-  watch: "Cần theo dõi",
-  important: "Quan trọng",
-};
-
-const alertTone: Record<OverviewAlertSeverity, "neutral" | "warning" | "danger"> = {
-  soft: "neutral",
-  watch: "warning",
-  important: "danger",
-};
-
-const profileStatusLabel: Record<OverviewProfileStatus["status"], string> = {
-  complete: "Đã thiết lập",
-  incomplete: "Chưa hoàn tất",
-  needs_update: "Cần cập nhật",
-};
-
-function OverviewHeader() {
+function CurrentCaseHero({ data }: { data: OverviewCaseData }) {
   return (
-    <section className="rounded-[4px] border-[1.5px] border-border bg-surface px-5 py-5 shadow-soft">
-      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-        <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Chip variant="accent">Tổng quan</Chip>
-            {overviewState.isMock ? <Chip variant="neutral">Mock data</Chip> : null}
+    <section className="overflow-hidden rounded-[6px] border-[1.5px] border-border bg-surface shadow-soft">
+      <div className="px-6 py-6 md:px-7 md:py-7">
+        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <Chip size="sm" variant="neutral">Case đang phân tích</Chip>
+              <Chip size="sm" variant="warning">{data.caseStatus}</Chip>
+            </div>
+            <p className="mt-3 text-[11px] font-bold uppercase tracking-[0.04em] text-subtle">
+              {data.ticker} · {data.companyName} · {data.industry}
+            </p>
           </div>
-          <h1 className="mt-3 font-brand text-2xl font-bold text-ink md:text-3xl">
-            Dashboard điều phối phân tích
-          </h1>
-          <p className="mt-2 max-w-[78ch] text-sm leading-6 text-muted">
-            Màn này giúp bạn biết case đang ở đâu, việc cần làm tiếp theo và dữ liệu nào cần kiểm chứng trước.
+          <p className="text-xs font-semibold leading-5 text-muted md:max-w-[260px] md:text-right">
+            Giai đoạn hiện tại: {data.currentStage}
           </p>
         </div>
-        <p className="max-w-[360px] rounded-[4px] border border-border-soft bg-accent-soft px-3 py-2 text-xs leading-5 text-muted">
-          Không có tín hiệu giao dịch. Các trạng thái chỉ giúp điều phối học, kiểm tra dữ liệu và cảnh báo.
-        </p>
+
+        <div className="mt-5 max-w-3xl">
+          <h1 className="font-brand text-3xl font-bold leading-tight text-ink md:text-[40px]">
+            {data.ticker} đang kiểm chứng dữ liệu trước khi định giá
+          </h1>
+          <p className="mt-3 text-sm leading-6 text-muted">
+            Case đã có luận điểm ban đầu, nhưng độ tin cậy còn phụ thuộc vào dòng tiền, tồn kho, biên lợi nhuận và vùng định giá.
+          </p>
+        </div>
+
+        <div className="mt-7 grid gap-6 lg:grid-cols-[minmax(0,1.7fr)_minmax(280px,0.9fr)]">
+          <div className="border-l-[3px] border-accent pl-4">
+            <p className="text-[11px] font-bold uppercase tracking-[0.04em] text-subtle">Thesis tạm thời</p>
+            <p className="mt-2 text-base font-semibold leading-7 text-ink">{data.temporaryThesis}</p>
+          </div>
+
+          <div className="space-y-5">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-[0.04em] text-subtle">Cảnh báo chính</p>
+              <p className="mt-2 text-sm font-semibold leading-6 text-ink">{data.mainWarning}</p>
+            </div>
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-[0.04em] text-subtle">Chưa nên làm</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {data.notReadyFor.map((item) => (
+                  <span
+                    key={item}
+                    className="rounded-[999px] border border-border-soft bg-surface-soft px-3 py-1 text-xs font-semibold leading-5 text-muted"
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );
 }
 
-function CurrentCasePanel({ onNavigate }: OverviewPageProps) {
-  const currentCase = overviewState.currentCase;
-
-  if (!currentCase.hasCase) {
-    return (
-      <Card>
-        <CardHeader title="Case đang phân tích" description="Bạn chưa chọn case phân tích." />
-        <CardBody>
-          <p className="text-sm leading-6 text-muted">
-            Bắt đầu bằng Lọc cổ phiếu hoặc chọn một mã trong Watchlist.
-          </p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Button onClick={() => onNavigate("screening")}>Bắt đầu lọc cổ phiếu</Button>
-            <Button variant="secondary" onClick={() => onNavigate("watchlist")}>Mở Watchlist</Button>
-          </div>
-        </CardBody>
-      </Card>
-    );
-  }
-
-  return (
-    <Card>
-      <CardHeader
-        title={`Case đang phân tích: ${currentCase.ticker}`}
-        description={currentCase.companyName}
-        chip={<Chip variant="neutral">{currentCase.industry}</Chip>}
-      />
-      <CardBody className="space-y-4">
-        <div className="grid gap-3 md:grid-cols-3">
-          <Metric label="Giai đoạn hiện tại" value={currentCase.currentStage} />
-          <Metric label="Tiến độ" value={currentCase.progressLabel} />
-          <Metric label="Cảnh báo nổi bật" value={currentCase.mainWarning ?? "Chưa có"} tone="warning" />
-        </div>
-        {currentCase.temporaryThesis ? (
-          <div className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3">
-            <Chip size="sm" variant="accent">Thesis tạm thời</Chip>
-            <p className="mt-2 text-sm leading-6 text-muted">{currentCase.temporaryThesis}</p>
-          </div>
-        ) : null}
-        <div className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3">
-          <p className="text-xs font-bold text-ink">Dữ liệu thiếu quan trọng</p>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {currentCase.missingData.map((item) => (
-              <Chip key={item} size="sm" variant="warning">{item}</Chip>
-            ))}
-          </div>
-        </div>
-      </CardBody>
-    </Card>
-  );
-}
-
-function Metric({
-  label,
-  tone = "neutral",
-  value,
+function NextBestActionCard({
+  data,
+  onNavigate,
 }: {
-  label: string;
-  tone?: "neutral" | "warning";
-  value: string;
+  data: OverviewNextBestAction;
+  onNavigate: (key: string) => void;
 }) {
-  return (
-    <div className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3">
-      <p className="text-[11px] font-bold uppercase text-subtle">{label}</p>
-      <p className={cn("mt-1 text-sm font-bold leading-5 text-ink", tone === "warning" && "text-[#765416]")}>{value}</p>
-    </div>
-  );
-}
-
-function NextBestActionPanel({ onNavigate }: OverviewPageProps) {
-  const action = overviewState.nextAction;
-
   return (
     <Card className="border-[2px] border-border">
       <CardHeader
-        title="Việc nên làm tiếp theo"
-        description={action.relatedModule}
-        chip={<Chip variant="warning">Ưu tiên {priorityLabel[action.priority]}</Chip>}
+        title="Việc cần làm tiếp theo"
+        description={data.module}
+        chip={<Chip variant="warning">Ưu tiên {data.priority}</Chip>}
       />
       <CardBody className="space-y-4">
         <div>
-          <h2 className="font-brand text-xl font-bold leading-6 text-ink">{action.title}</h2>
-          <p className="mt-2 text-sm leading-6 text-muted">{action.reason}</p>
+          <h2 className="font-brand text-xl font-bold leading-7 text-ink">{data.title}</h2>
+          <p className="mt-2 text-sm leading-6 text-muted">{data.reason}</p>
         </div>
-        <Button
-          className="w-full"
-          onClick={() => onNavigate(action.targetModuleKey ?? "overview")}
-        >
-          {action.primaryAction}
+        <Button className="w-full" onClick={() => onNavigate(data.cta.moduleKey)}>
+          {data.cta.label}
         </Button>
-        {action.secondaryAction ? (
-          <Button
-            className="w-full"
-            variant="ghost"
-            onClick={() => onNavigate(action.secondaryTargetModuleKey ?? action.targetModuleKey ?? "overview")}
-          >
-            {action.secondaryAction}
-          </Button>
-        ) : null}
-      </CardBody>
-    </Card>
-  );
-}
-
-function MissingDataSummary({ onNavigate }: OverviewPageProps) {
-  return (
-    <Card>
-      <CardHeader title="Dữ liệu còn thiếu" description="Chỉ hiển thị các điểm cần kiểm chứng trước." />
-      <CardBody className="space-y-2">
-        {overviewState.missingData.slice(0, 4).map((item) => (
-          <button
-            key={item.id}
-            className="w-full rounded-[4px] border border-border-soft bg-surface-soft px-3 py-2 text-left transition hover:border-border hover:bg-accent-soft"
-            type="button"
-            onClick={() => onNavigate(item.moduleKey)}
-          >
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className="text-sm font-bold text-ink">{item.label}</p>
-              <Chip size="sm" variant="neutral">{item.relatedModule}</Chip>
-            </div>
-            <p className="mt-1 text-xs leading-5 text-muted">{item.reason}</p>
-          </button>
-        ))}
-      </CardBody>
-    </Card>
-  );
-}
-
-function ProgressSummary() {
-  const draftDoneCount = overviewState.pipeline.filter((step) => step.status !== "not_started").length;
-
-  return (
-    <Card>
-      <CardHeader title="Tiến độ phân tích" description={`${draftDoneCount}/8 bước có dữ liệu sơ bộ hoặc đang kiểm tra.`} />
-      <CardBody>
-        <div className="h-3 rounded-full bg-surface-soft">
-          <div
-            className="h-full rounded-full bg-accent"
-            style={{ width: `${Math.round((draftDoneCount / overviewState.pipeline.length) * 100)}%` }}
-          />
+        <div className="space-y-2 border-t border-border-soft pt-3">
+          {data.secondaryActions.map((action) => (
+            <Button
+              key={action.title}
+              className="w-full"
+              size="sm"
+              variant="ghost"
+              onClick={() => onNavigate(action.moduleKey)}
+            >
+              {action.title}
+            </Button>
+          ))}
         </div>
-        <div className="mt-3 grid gap-2">
-          {overviewState.pipeline.slice(0, 4).map((step) => (
-            <div key={step.id} className="flex items-center justify-between gap-2 text-xs">
-              <span className="font-bold text-ink">{step.label}</span>
-              <Chip size="sm" variant={stepStatusTone[step.status]}>{stepStatusLabel[step.status]}</Chip>
+      </CardBody>
+    </Card>
+  );
+}
+
+function MissingDataBottlenecks({
+  data,
+  onNavigate,
+}: {
+  data: OverviewBottleneck[];
+  onNavigate: (key: string) => void;
+}) {
+  return (
+    <Card>
+      <CardHeader
+        title="Đang thiếu dữ liệu gì?"
+        description="Các điểm nghẽn làm case chưa đủ tin cậy, kèm hậu quả nếu bỏ qua."
+      />
+      <CardBody>
+        <div className="grid gap-3 md:grid-cols-2">
+          {data.map((item) => (
+            <div key={item.title} className="rounded-[4px] border border-border-soft bg-surface-soft p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="text-sm font-bold text-ink">{item.title}</p>
+                <Chip size="sm" variant={item.priority === "Cao" ? "warning" : "neutral"}>
+                  {item.priority}
+                </Chip>
+              </div>
+              <p className="mt-3 text-xs font-bold uppercase text-subtle">Vì sao quan trọng</p>
+              <p className="mt-1 text-xs leading-5 text-muted">{item.whyItMatters}</p>
+              <p className="mt-3 text-xs font-bold uppercase text-subtle">Nếu thiếu thì sao</p>
+              <p className="mt-1 text-xs leading-5 text-muted">{item.consequence}</p>
+              <Button className="mt-4" size="sm" variant="secondary" onClick={() => onNavigate(item.moduleKey)}>
+                Mở {item.targetModule}
+              </Button>
             </div>
           ))}
         </div>
@@ -232,67 +162,36 @@ function ProgressSummary() {
   );
 }
 
-function ProfileStatusMiniCard({ onNavigate }: OverviewPageProps) {
-  const profile = overviewState.profileStatus;
-
+function AnalysisProgressMap({
+  data,
+  onNavigate,
+}: {
+  data: OverviewProgressMapItem[];
+  onNavigate: (key: string) => void;
+}) {
   return (
     <Card>
       <CardHeader
-        title="Hồ sơ phân tích"
-        description={profileStatusLabel[profile.status]}
-        chip={<Chip variant={profile.status === "complete" ? "success" : "warning"}>{profileStatusLabel[profile.status]}</Chip>}
-      />
-      <CardBody>
-        <p className="text-sm leading-6 text-muted">{profile.summary}</p>
-        <Button className="mt-4" size="sm" variant="secondary" onClick={() => onNavigate(profile.moduleKey)}>
-          {profile.ctaLabel}
-        </Button>
-      </CardBody>
-    </Card>
-  );
-}
-
-function OverviewCommandCenter({ onNavigate }: OverviewPageProps) {
-  return (
-    <section className="space-y-4">
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(300px,1fr)]">
-        <CurrentCasePanel onNavigate={onNavigate} />
-        <NextBestActionPanel onNavigate={onNavigate} />
-      </div>
-      <div className="grid gap-4 lg:grid-cols-3">
-        <ProgressSummary />
-        <MissingDataSummary onNavigate={onNavigate} />
-        <ProfileStatusMiniCard onNavigate={onNavigate} />
-      </div>
-    </section>
-  );
-}
-
-function AnalysisPipeline({ onNavigate }: OverviewPageProps) {
-  return (
-    <Card>
-      <CardHeader
-        title="Lộ trình phân tích"
-        description="Pipeline chỉ gồm các module phân tích chính, không bao gồm Hồ sơ phân tích."
+        title="Đã đi đến đâu trong lộ trình?"
+        description="Timeline chỉ để điều hướng, không thay thế nội dung chi tiết của từng module."
       />
       <CardBody>
         <div className="flex gap-3 overflow-x-auto pb-2">
-          {overviewState.pipeline.map((step, index) => (
+          {data.map((item, index) => (
             <button
-              key={step.id}
-              className="min-w-[190px] rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3 text-left transition hover:border-border hover:bg-accent-soft"
+              key={item.id}
+              className="min-w-[210px] rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3 text-left transition hover:border-border hover:bg-accent-soft"
               type="button"
-              onClick={() => onNavigate(step.moduleKey)}
+              onClick={() => onNavigate(item.moduleKey)}
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="grid h-6 w-6 place-items-center rounded-[3px] border-[1.5px] border-border bg-surface font-mono text-[11px] font-bold text-ink">
+                <span className="grid h-6 w-6 place-items-center rounded-[3px] border border-border bg-surface text-[11px] font-bold text-ink">
                   {index + 1}
                 </span>
-                <Chip size="sm" variant={stepStatusTone[step.status]}>{stepStatusLabel[step.status]}</Chip>
+                <Chip size="sm" variant={progressTone[item.status]}>{item.status}</Chip>
               </div>
-              <p className="mt-3 text-sm font-bold leading-5 text-ink">{step.label}</p>
-              <p className="mt-1 min-h-10 text-xs leading-5 text-muted">{step.shortOutput}</p>
-              <span className="mt-3 inline-block text-[11px] font-bold text-ink">{step.ctaLabel}</span>
+              <p className="mt-3 text-sm font-bold leading-5 text-ink">{item.title}</p>
+              <p className="mt-2 text-xs leading-5 text-muted">{item.summary}</p>
             </button>
           ))}
         </div>
@@ -301,126 +200,118 @@ function AnalysisPipeline({ onNavigate }: OverviewPageProps) {
   );
 }
 
-function PriorityAlertsPanel({ onNavigate }: OverviewPageProps) {
-  return (
-    <Card>
-      <CardHeader title="Cảnh báo cần xem trước" description="Chỉ giữ các cảnh báo quan trọng nhất, không thay thế phân tích chi tiết." />
-      <CardBody className="grid gap-3 lg:grid-cols-2">
-        {overviewState.alerts.slice(0, 4).map((alert) => (
-          <div key={alert.id} className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <Chip size="sm" variant={alertTone[alert.severity]}>{alertLabel[alert.severity]}</Chip>
-              <Chip size="sm" variant="neutral">{alert.relatedModule}</Chip>
-            </div>
-            <p className="mt-3 text-sm font-bold text-ink">{alert.title}</p>
-            <p className="mt-1 text-xs leading-5 text-muted">{alert.reason}</p>
-            <Button className="mt-3" size="sm" variant="secondary" onClick={() => onNavigate(alert.moduleKey)}>
-              {alert.ctaLabel}
-            </Button>
-          </div>
-        ))}
-      </CardBody>
-    </Card>
-  );
-}
+function CurrentActionStatus({ data }: { data: OverviewActionStatusData }) {
+  const groups = [
+    { title: "Có thể làm ngay", items: data.canDo, tone: "success" as const },
+    { title: "Chưa nên làm vội", items: data.shouldNotDoYet, tone: "warning" as const },
+    { title: "Điều kiện mở bước tiếp theo", items: data.unlockConditions, tone: "neutral" as const },
+  ];
 
-function WatchlistSnapshot({ onNavigate }: OverviewPageProps) {
   return (
     <Card>
       <CardHeader
-        title="Watchlist cần chú ý"
-        description={`${overviewState.watchlist.total} mã đang theo dõi. Tổng quan chỉ hiển thị snapshot.`}
+        title="Hiện tại có thể làm gì?"
+        description="Trạng thái trong hệ thống, không phải khuyến nghị mua/bán."
       />
-      <CardBody className="space-y-3">
-        {overviewState.watchlist.ideas.slice(0, 3).map((idea) => (
-          <button
-            key={idea.ticker}
-            className="grid w-full gap-3 rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3 text-left transition hover:border-border hover:bg-accent-soft md:grid-cols-[72px_minmax(0,1fr)_130px]"
-            type="button"
-            onClick={() => onNavigate(idea.moduleKey)}
-          >
-            <strong className="text-lg text-ink">{idea.ticker}</strong>
-            <span>
-              <span className="block text-sm font-bold text-ink">{idea.company}</span>
-              <span className="mt-1 block text-xs leading-5 text-muted">{idea.currentStep} · {idea.mainWarning}</span>
-            </span>
-            <span className="text-xs font-bold text-ink md:text-right">{idea.nextAction}</span>
-          </button>
-        ))}
-        <Button size="sm" variant="secondary" onClick={() => onNavigate("watchlist")}>Mở Watchlist</Button>
+      <CardBody className="space-y-4">
+        <div className="grid gap-3 lg:grid-cols-3">
+          {groups.map((group) => (
+            <div key={group.title} className="rounded-[4px] border border-border-soft bg-surface-soft p-4">
+              <Chip size="sm" variant={group.tone}>{group.title}</Chip>
+              <div className="mt-3 space-y-2">
+                {group.items.map((item) => (
+                  <p key={item} className="rounded-[3px] border border-border-soft bg-surface px-3 py-2 text-xs leading-5 text-muted">
+                    {item}
+                  </p>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+        <p className="rounded-[4px] border border-border-soft bg-accent-soft px-4 py-3 text-sm font-semibold leading-6 text-ink">
+          {data.conclusion}
+        </p>
       </CardBody>
     </Card>
   );
 }
 
-function LearningHelper({ onNavigate }: OverviewPageProps) {
+function OverviewSupportPanel({
+  data,
+  onNavigate,
+}: {
+  data: OverviewSupportData;
+  onNavigate: (key: string) => void;
+}) {
   return (
     <Card>
       <CardHeader
-        title="Học nhanh trước bước tiếp theo"
-        description={`Gợi ý theo bước hiện tại: ${overviewState.learning.currentStep}.`}
+        title="Hỗ trợ thêm"
+        description="Watchlist, học tập và hồ sơ chỉ là phần phụ trợ cho case chính."
       />
-      <CardBody className="space-y-2">
-        {overviewState.learning.lessons.slice(0, 3).map((lesson) => (
-          <button
-            key={lesson.title}
-            className="w-full rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3 text-left transition hover:border-border hover:bg-accent-soft"
-            type="button"
-            onClick={() => onNavigate(lesson.moduleKey)}
-          >
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className="text-sm font-bold text-ink">{lesson.title}</p>
-              <Chip size="sm" variant="neutral">{lesson.duration}</Chip>
+      <CardBody>
+        <div className="grid gap-3 lg:grid-cols-3">
+          <div className="rounded-[4px] border border-border-soft bg-surface-soft p-4">
+            <p className="text-sm font-bold text-ink">Watchlist cần chú ý</p>
+            <div className="mt-3 space-y-2">
+              {data.watchlist.map((item) => (
+                <p key={item.ticker} className="text-xs leading-5 text-muted">
+                  <strong className="text-ink">{item.ticker}</strong>: {item.status}, {item.note}
+                </p>
+              ))}
             </div>
-            <p className="mt-1 text-xs leading-5 text-muted">{lesson.reason}</p>
-          </button>
-        ))}
-      </CardBody>
-    </Card>
-  );
-}
-
-function PracticeSnapshot({ onNavigate }: OverviewPageProps) {
-  return (
-    <Card>
-      <CardHeader title="Thực hành và ghi chú" description="Phần phụ để kiểm tra kỷ luật sau khi dữ liệu chính đã rõ hơn." />
-      <CardBody className="grid gap-3 lg:grid-cols-3">
-        {overviewState.practice.map((item) => (
-          <div key={item.id} className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3">
-            <Chip size="sm" variant="neutral">{item.status}</Chip>
-            <p className="mt-3 text-sm font-bold text-ink">{item.title}</p>
-            <p className="mt-1 min-h-10 text-xs leading-5 text-muted">{item.helperText}</p>
-            <Button className="mt-3" size="sm" variant="secondary" onClick={() => onNavigate(item.moduleKey)}>
-              {item.ctaLabel}
+            <Button className="mt-4" size="sm" variant="secondary" onClick={() => onNavigate("watchlist")}>
+              Mở Watchlist
             </Button>
           </div>
-        ))}
+          <div className="rounded-[4px] border border-border-soft bg-surface-soft p-4">
+            <p className="text-sm font-bold text-ink">Bài học gợi ý</p>
+            <div className="mt-3 space-y-3">
+              {data.learning.map((item) => (
+                <button
+                  key={item.title}
+                  className="block w-full rounded-[3px] border border-border-soft bg-surface px-3 py-2 text-left transition hover:border-border"
+                  type="button"
+                  onClick={() => onNavigate(item.moduleKey)}
+                >
+                  <span className="block text-xs font-bold text-ink">{item.title}</span>
+                  <span className="mt-1 block text-xs leading-5 text-muted">{item.reason}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="rounded-[4px] border border-border-soft bg-surface-soft p-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="text-sm font-bold text-ink">Hồ sơ/lộ trình cá nhân</p>
+              <Chip size="sm" variant="warning">{data.profile.status}</Chip>
+            </div>
+            <p className="mt-3 text-xs leading-5 text-muted">{data.profile.message}</p>
+            <Button className="mt-4" size="sm" variant="secondary" onClick={() => onNavigate(data.profile.moduleKey)}>
+              Hoàn thiện hồ sơ
+            </Button>
+          </div>
+        </div>
       </CardBody>
     </Card>
-  );
-}
-
-function OverviewDisclaimer() {
-  return (
-    <p className="rounded-[4px] border-[1.5px] border-border bg-surface px-4 py-3 text-sm leading-6 text-muted shadow-soft">
-      {overviewState.disclaimer}
-    </p>
   );
 }
 
 export function OverviewPage({ onNavigate }: OverviewPageProps) {
+  const data = overviewCaseData;
+
   return (
     <div className="mx-auto w-full max-w-[1180px] space-y-5">
-      <OverviewHeader />
-      <OverviewCommandCenter onNavigate={onNavigate} />
-      <AnalysisPipeline onNavigate={onNavigate} />
-      <PriorityAlertsPanel onNavigate={onNavigate} />
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_420px]">
-        <WatchlistSnapshot onNavigate={onNavigate} />
-        <LearningHelper onNavigate={onNavigate} />
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.8fr)_minmax(320px,0.9fr)]">
+        <CurrentCaseHero data={data.activeCase} />
+        <NextBestActionCard data={data.nextBestAction} onNavigate={onNavigate} />
       </div>
-      <PracticeSnapshot onNavigate={onNavigate} />
-      <OverviewDisclaimer />
+      <MissingDataBottlenecks data={data.missingData} onNavigate={onNavigate} />
+      <AnalysisProgressMap data={data.progressMap} onNavigate={onNavigate} />
+      <CurrentActionStatus data={data.actionStatus} />
+      <OverviewSupportPanel data={data.support} onNavigate={onNavigate} />
+      <p className="rounded-[4px] border border-border-soft bg-surface px-4 py-3 text-sm leading-6 text-muted">
+        {data.disclaimer}
+      </p>
     </div>
   );
 }

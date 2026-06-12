@@ -146,11 +146,11 @@ function AppShellContent() {
           <BusinessPage onNavigate={handleNavigate} />
         ) : null}
         {activeModule === "financials" ? <FinancialsPage /> : null}
-        {activeModule === "valuation" ? <ValuationPage /> : null}
-        {activeModule === "technical" ? <TechnicalPage /> : null}
-        {activeModule === "risk" ? <RiskPage /> : null}
+        {activeModule === "valuation" ? <ValuationPage onNavigate={handleNavigate} /> : null}
+        {activeModule === "technical" ? <TechnicalPage onNavigate={handleNavigate} /> : null}
+        {activeModule === "risk" ? <RiskPage onNavigate={handleNavigate} /> : null}
         {activeModule === "simulation" ? <SimulationPage /> : null}
-        {activeModule === "watchlist" ? <WatchlistPage /> : null}
+        {activeModule === "watchlist" ? <WatchlistPage onNavigate={handleNavigate} /> : null}
         {activeModule === "checklist" ? (
           <ChecklistPage onNavigate={handleNavigate} />
         ) : null}

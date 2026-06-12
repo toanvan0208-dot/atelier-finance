@@ -1,53 +1,34 @@
-import { EmptyState, LoadingState } from "@/components/ui";
-import { riskPageData } from "../data/risk.data";
-import {
-  ChecklistReadinessPanel,
-  RiskAnalysisJourney,
-  RiskCaseFile,
-  RiskControlRoom,
-  RiskDisclaimer,
-  RiskEvidenceMap,
-  RiskHeader,
-  TransparencyGovernancePanel,
-} from "./RiskUi";
+import { riskRedesignData } from "../data/riskRedesign.data";
+import { CriticalRiskCards } from "./CriticalRiskCards";
+import { RiskFinalConclusion } from "./RiskFinalConclusion";
+import { RiskHeroSummary } from "./RiskHeroSummary";
+import { RiskSourceMap } from "./RiskSourceMap";
+import { StopConditionPanel } from "./StopConditionPanel";
+import { ThesisBreakerPanel } from "./ThesisBreakerPanel";
 
-export function RiskPage() {
-  const data = riskPageData;
+type RiskPageProps = {
+  onNavigate: (key: string) => void;
+};
 
-  if (data.isLoading) {
-    return <LoadingState description={data.loading.content} title={data.loading.title} />;
-  }
-
-  if (!data.header.ticker) {
-    return (
-      <EmptyState
-        description={data.emptyState.description}
-        icon={data.emptyState.icon}
-        title={data.emptyState.title}
-      />
-    );
-  }
-
-  const canContinueToChecklist = data.checklistReadiness.completed >= data.checklistReadiness.total;
+export function RiskPage({ onNavigate }: RiskPageProps) {
+  const data = riskRedesignData;
 
   return (
-    <div className="mx-auto w-full max-w-[980px] space-y-6">
-      <RiskHeader
-        canContinueToChecklist={canContinueToChecklist}
-        checklistDisabledReason={data.checklistReadiness.disabledCtaLabel}
-        data={data.header}
+    <div className="mx-auto w-full max-w-[1180px] space-y-5">
+      <RiskHeroSummary data={data} />
+      <CriticalRiskCards risks={data.topRisks} onNavigate={onNavigate} />
+      <ThesisBreakerPanel items={data.thesisBreakers} onNavigate={onNavigate} />
+      <RiskSourceMap sources={data.riskSources} onNavigate={onNavigate} />
+      <StopConditionPanel
+        stopConditions={data.stopConditions}
+        timeline={data.riskTimeline}
+        reverseRiskNote={data.reverseRiskNote}
       />
-      <RiskControlRoom data={data.controlRoom} />
-      <RiskEvidenceMap data={data.evidenceMap} />
-      <RiskAnalysisJourney
-        clusters={data.analysisClusters}
-        detailLabels={data.detailLabels}
-        riskGroups={data.riskGroups}
+      <RiskFinalConclusion
+        conclusion={data.finalConclusion}
+        actions={data.nextActions}
+        onNavigate={onNavigate}
       />
-      <TransparencyGovernancePanel data={data.transparencyGovernance} />
-      <RiskCaseFile data={data.caseFile} />
-      <ChecklistReadinessPanel data={data.checklistReadiness} />
-      <RiskDisclaimer data={data.disclaimer} />
     </div>
   );
 }

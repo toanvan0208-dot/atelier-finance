@@ -8,7 +8,6 @@ import { StockIdeaGrid } from "./StockIdeaGrid";
 import { WatchlistDisclaimer } from "./WatchlistDisclaimer";
 import { WatchlistFilters } from "./WatchlistFilters";
 import { WatchlistHeader } from "./WatchlistHeader";
-import { WatchlistInsightPanel } from "./WatchlistInsightPanel";
 
 function ideaHasMissingThesis(idea: StockIdea) {
   return !idea.thesis || idea.thesis.toLowerCase().includes("chưa có thesis");
@@ -87,25 +86,23 @@ function applyFilters(ideas: StockIdea[], filters: WatchlistFilterState) {
   });
 }
 
-export function WatchlistPage() {
+type WatchlistPageProps = {
+  onNavigate: (key: string) => void;
+};
+
+export function WatchlistPage({ onNavigate }: WatchlistPageProps) {
   const data = watchlistPageData;
   const [filters, setFilters] = useState<WatchlistFilterState>({ sortBy: "priority", pipelineStatus: "all" });
-  const [selectedTicker, setSelectedTicker] = useState(data.selectedTicker);
-  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [openTickers, setOpenTickers] = useState<string[]>([data.selectedTicker]);
 
   const filteredIdeas = useMemo(() => applyFilters(data.ideas, filters), [data.ideas, filters]);
 
-  const selectedIdea = useMemo(
-    () =>
-      data.ideas.find((idea) => idea.ticker === selectedTicker) ??
-      filteredIdeas[0] ??
-      data.ideas[0],
-    [data.ideas, filteredIdeas, selectedTicker]
-  );
-
-  function handleOpenIdea(ticker: string) {
-    setSelectedTicker(ticker);
-    setIsDetailOpen(true);
+  function handleToggleIdea(ticker: string) {
+    setOpenTickers((current) =>
+      current.includes(ticker)
+        ? current.filter((item) => item !== ticker)
+        : [...current, ticker]
+    );
   }
 
   if (data.isLoading) {
@@ -141,21 +138,15 @@ export function WatchlistPage() {
           <StockIdeaGrid
             data={filteredIdeas}
             filteredCount={filteredIdeas.length}
-            onOpenDetails={handleOpenIdea}
+            onNavigateModule={onNavigate}
+            onToggleIdea={handleToggleIdea}
+            openTickers={openTickers}
             totalCount={data.ideas.length}
           />
           <WatchlistDisclaimer data={data.disclaimer} />
         </main>
       </div>
 
-      {selectedIdea ? (
-        <WatchlistInsightPanel
-          data={selectedIdea}
-          isOpen={isDetailOpen}
-          onClose={() => setIsDetailOpen(false)}
-          simulationTracking={data.simulationTracking}
-        />
-      ) : null}
     </div>
   );
 }

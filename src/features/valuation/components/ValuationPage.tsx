@@ -1,24 +1,29 @@
-import { EmptyState, LoadingState } from "@/components/ui";
-import { valuationPageData } from "../data/valuation.data";
-import { RiskReadinessPanel } from "./RiskReadinessPanel";
-import { ValuationDisclaimer } from "./ValuationDisclaimer";
-import { ValuationCommandCenter } from "./ValuationCommandCenter";
-import { ValuationGroups } from "./ValuationGroups";
-import { ValuationHeader } from "./ValuationHeader";
-import { ValuationInputReadiness } from "./ValuationInputReadiness";
-import { ValuationMethodConfidence } from "./ValuationMethodConfidence";
-import { ValuationNextActions } from "./ValuationNextActions";
-import { ValuationThesisNote } from "./ValuationThesisNote";
-import { ValuationTrapRadar } from "./ValuationTrapRadar";
+"use client";
 
-export function ValuationPage() {
-  const data = valuationPageData;
+import { EmptyState, LoadingState } from "@/components/ui";
+import { valuationRefactoredData } from "../data/valuationRefactored.data";
+import { ValuationAssumptionPanel } from "./ValuationAssumptionPanel";
+import { ValuationFinalConclusion } from "./ValuationFinalConclusion";
+import { ValuationMethodSelector } from "./ValuationMethodSelector";
+import { ValuationNextStepActions } from "./ValuationNextStepActions";
+import { ValuationRangeTable } from "./ValuationRangeTable";
+import { ValuationScenarioSafety } from "./ValuationScenarioSafety";
+import { ValuationSummaryHero } from "./ValuationSummaryHero";
+import { ValuationTrapList } from "./ValuationTrapList";
+import { ValuationUncertaintyPanel } from "./ValuationUncertaintyPanel";
+
+type ValuationPageProps = {
+  onNavigate?: (moduleKey: string) => void;
+};
+
+export function ValuationPage({ onNavigate }: ValuationPageProps) {
+  const data = valuationRefactoredData;
 
   if (data.isLoading) {
     return <LoadingState description={data.loading.content} title={data.loading.title} />;
   }
 
-  if (!data.header.ticker) {
+  if (!data.summary.ticker) {
     return (
       <EmptyState
         description={data.emptyState.description}
@@ -28,24 +33,17 @@ export function ValuationPage() {
     );
   }
 
-  const canContinueToRisk = data.riskReadiness.completed === data.riskReadiness.total;
-
   return (
-    <div className="mx-auto w-full max-w-[1040px] space-y-7">
-      <ValuationHeader
-        canContinueToRisk={canContinueToRisk}
-        data={data.header}
-        riskDisabledReason={data.riskReadiness.helperText}
-      />
-      <ValuationCommandCenter data={data.commandCenter} />
-      <ValuationInputReadiness data={data.inputReadiness} />
-      <ValuationMethodConfidence data={data.methodConfidence} />
-      <ValuationGroups groups={data.groups} />
-      <ValuationTrapRadar data={data.trapRadar} />
-      <RiskReadinessPanel data={data.riskReadiness} />
-      <ValuationThesisNote data={data.thesisNote} />
-      <ValuationDisclaimer data={data.disclaimer} />
-      <ValuationNextActions canContinueToRisk={canContinueToRisk} data={data.nextActions} />
+    <div className="mx-auto w-full max-w-[1080px] space-y-5">
+      <ValuationSummaryHero data={data.summary} />
+      <ValuationAssumptionPanel data={data.assumptions} />
+      <ValuationUncertaintyPanel data={data.uncertainties} onNavigate={onNavigate} />
+      <ValuationMethodSelector data={data.methods} />
+      <ValuationRangeTable data={data.ranges} />
+      <ValuationScenarioSafety data={data.scenarios} />
+      <ValuationTrapList data={data.traps} />
+      <ValuationFinalConclusion data={data.finalConclusion} />
+      <ValuationNextStepActions data={data.nextActions} onNavigate={onNavigate} />
     </div>
   );
 }

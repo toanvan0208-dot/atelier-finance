@@ -218,7 +218,7 @@ export const aiTutorConfig: Record<string, AITutorConfig> = {
   },
   technical: {
     moduleId: "pvt",
-    moduleName: "Price Volume Time",
+    moduleName: "Quan sát Giá - Thanh khoản - Thời điểm",
     currentGoal: "Quan sát giá, khối lượng, thời điểm và sự kiện mà không biến thành tín hiệu mua/bán.",
     whatThisStepDoes: "PVT giúp bạn đọc hành vi thị trường và rủi ro FOMO trước khi mô phỏng hoặc checklist.",
     questionsToCheck: ["Giá đang thay đổi vì gì?", "Volume có bất thường không?", "So với VN-Index thì cổ phiếu mạnh hay yếu?", "So với ngành thì cổ phiếu có vượt trội không?", "Có sự kiện nào gần đây không?"],

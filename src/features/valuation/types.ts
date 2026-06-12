@@ -461,3 +461,106 @@ export type ValuationPageData = {
   tutor?: ValuationTutorData;
   personalThesis?: PersonalThesisData;
 };
+
+export type ValuationRangeStatus = "Rẻ hấp dẫn" | "Đang nằm trong vùng giá trị hợp lý" | "Đắt / rủi ro" | "Cần kiểm tra thêm";
+
+export type ValuationSummaryData = {
+  ticker: string;
+  companyName: string;
+  currentPrice: number;
+  fairValueRange: {
+    low: number;
+    high: number;
+    status: ValuationRangeStatus;
+    marginOfSafety: "Dày" | "Mỏng" | "Không rõ";
+    confidence: "Cao" | "Trung bình" | "Thấp";
+    conclusion: string;
+  };
+};
+
+export type ValuationAssumption = {
+  title: string;
+  description: string;
+  sensitivity: "Rất cao" | "Cao" | "Trung bình" | "Thấp";
+};
+
+export type ValuationUncertainty = {
+  title: string;
+  status: "Đã ổn" | "Cần theo dõi" | "Rủi ro cao";
+  description: string;
+  targetModule?: string;
+};
+
+export type ValuationMethodChoice = {
+  name: string;
+  role: "Chính" | "Đối chiếu" | "Kiểm tra độ nhạy" | "Chỉ tham khảo";
+  explanation: string;
+  confidence: "Cao" | "Trung bình" | "Thấp";
+};
+
+export type ValuationRangeRow = {
+  method: string;
+  keyAssumption: string;
+  range: string;
+  confidence: "Cao" | "Trung bình" | "Thấp" | "Thấp đến trung bình";
+  risk: string;
+};
+
+export type ValuationScenarioSafetyItem = {
+  name: "Kịch bản xấu" | "Kịch bản cơ sở" | "Kịch bản tốt";
+  range: string;
+  explanation: string;
+  tone: "downside" | "base" | "upside";
+};
+
+export type ValuationTrapSimple = {
+  title: string;
+  description: string;
+  targetModule?: string;
+};
+
+export type ValuationFinalConclusionData = {
+  status: "Chưa đủ rẻ rõ ràng" | "Có thể theo dõi tiếp" | "Cần kiểm tra thêm trước khi kết luận";
+  pricePosition: string;
+  marginOfSafety: string;
+  keyRisk: string;
+  nextStep: string;
+};
+
+export type ValuationNextStepAction = {
+  label: string;
+  moduleKey: string;
+  variant: "primary" | "secondary" | "ghost";
+};
+
+export type ValuationRefactoredData = {
+  isLoading: boolean;
+  loading: TutorNoteData;
+  emptyState: {
+    title: string;
+    description: string;
+    icon: string;
+  };
+  summary: ValuationSummaryData;
+  assumptions: {
+    intro: string;
+    sensitiveNote: string;
+    items: ValuationAssumption[];
+  };
+  uncertainties: ValuationUncertainty[];
+  methods: ValuationMethodChoice[];
+  ranges: {
+    rows: ValuationRangeRow[];
+    combinedRange: string;
+    explanation: string;
+  };
+  scenarios: {
+    currentPrice: number;
+    baseRange: string;
+    conclusion: string;
+    items: ValuationScenarioSafetyItem[];
+  };
+  traps: ValuationTrapSimple[];
+  finalConclusion: ValuationFinalConclusionData;
+  nextActions: ValuationNextStepAction[];
+};
