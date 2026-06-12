@@ -30,7 +30,7 @@ export function BusinessConclusion({ canGoToFinancials = false, data }: Business
         <div className="rounded-[4px] border border-border bg-surface px-4 py-3">
           <p className="text-xs font-bold text-ink">Kết luận tạm thời</p>
           <p className="mt-1 text-sm leading-6 text-muted">
-            MWG là doanh nghiệp bán lẻ chuỗi dễ hiểu, nhưng thesis chỉ mạnh hơn nếu biên lợi nhuận, tồn kho và CFO xác nhận phục hồi.
+            Chỉ nên sang BCTC khi phần mô hình kinh doanh đã đủ rõ để kiểm chứng bằng số liệu.
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             <Button size="sm" variant={canGoToFinancials ? "primary" : "secondary"} disabled={!canGoToFinancials}>
