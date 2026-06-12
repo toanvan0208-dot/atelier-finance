@@ -142,7 +142,9 @@ function AppShellContent() {
         {activeModule === "learning" ? <LearningPage /> : null}
         {activeModule === "industry" ? <IndustryPage /> : null}
         {activeModule === "screening" ? <ScreeningPage onNavigate={handleNavigate} /> : null}
-        {activeModule === "business" ? <BusinessPage /> : null}
+        {activeModule === "business" ? (
+          <BusinessPage onNavigate={handleNavigate} />
+        ) : null}
         {activeModule === "financials" ? <FinancialsPage /> : null}
         {activeModule === "valuation" ? <ValuationPage /> : null}
         {activeModule === "technical" ? <TechnicalPage /> : null}
