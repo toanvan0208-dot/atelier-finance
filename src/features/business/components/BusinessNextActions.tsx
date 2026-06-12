@@ -4,11 +4,13 @@ import type { BusinessNextActionsData } from "../types";
 type BusinessNextActionsProps = {
   canGoToFinancials: boolean;
   data: BusinessNextActionsData;
+  onNavigate?: (moduleKey: string) => void;
 };
 
 export function BusinessNextActions({
   canGoToFinancials,
   data,
+  onNavigate,
 }: BusinessNextActionsProps) {
   return (
     <section>
@@ -25,11 +27,21 @@ export function BusinessNextActions({
       <div className="flex flex-wrap gap-2">
         {data.actions.map((action) => {
           const disabled = action.label.includes("BCTC") && !canGoToFinancials;
+          const targetModule = action.label.includes("BCTC")
+            ? "financials"
+            : action.label.includes("Watchlist")
+              ? "watchlist"
+              : action.label.includes("Lá»c") || action.label.includes("Lọc")
+                ? "screening"
+                : undefined;
 
           return (
             <Button
               key={action.label}
               disabled={disabled}
+              onClick={() => {
+                if (targetModule) onNavigate?.(targetModule);
+              }}
               size="sm"
               variant={disabled ? "secondary" : action.variant}
             >

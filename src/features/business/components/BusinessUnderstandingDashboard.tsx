@@ -12,6 +12,7 @@ import type {
 type BusinessUnderstandingDashboardProps = {
   data: BusinessDashboardData;
   canGoToFinancials: boolean;
+  onNavigate?: (moduleKey: string) => void;
 };
 
 type DetailState =
@@ -35,6 +36,7 @@ function readinessTone(status: BusinessDashboardData["readiness"][number]["statu
 export function BusinessUnderstandingDashboard({
   canGoToFinancials,
   data,
+  onNavigate,
 }: BusinessUnderstandingDashboardProps) {
   const [detail, setDetail] = useState<DetailState>(null);
   const doneReadiness = data.readiness.filter((item) => item.status === "done").length;
@@ -135,7 +137,12 @@ export function BusinessUnderstandingDashboard({
                 <p className="mt-1 text-xs leading-5 text-muted">{item.helperText}</p>
               </div>
             ))}
-            <Button size="sm" variant={canGoToFinancials ? "primary" : "secondary"} disabled={!canGoToFinancials}>
+            <Button
+              size="sm"
+              variant={canGoToFinancials ? "primary" : "secondary"}
+              disabled={!canGoToFinancials}
+              onClick={() => onNavigate?.("financials")}
+            >
               {canGoToFinancials ? "Chuyển sang BCTC" : "Bổ sung điều kiện còn thiếu"}
             </Button>
           </CardBody>

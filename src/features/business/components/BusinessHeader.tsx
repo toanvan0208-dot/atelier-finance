@@ -4,11 +4,13 @@ import type { BusinessHeaderData } from "../types";
 type BusinessHeaderProps = {
   data: BusinessHeaderData;
   canGoToFinancials?: boolean;
+  onNavigate?: (moduleKey: string) => void;
 };
 
 export function BusinessHeader({
   canGoToFinancials = false,
   data,
+  onNavigate,
 }: BusinessHeaderProps) {
   return (
     <Card>
@@ -41,6 +43,7 @@ export function BusinessHeader({
                 <Button
                   key={action.label}
                   disabled={disabled}
+                  onClick={() => onNavigate?.(isFinancialsAction ? "financials" : "screening")}
                   variant={disabled ? "secondary" : action.variant}
                 >
                   {disabled

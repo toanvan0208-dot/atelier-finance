@@ -39,13 +39,30 @@ const gateTone: Record<RedesignedGateStatus, "neutral" | "accent" | "success" | 
   "Đã qua": "success",
 };
 
-function goToModule(moduleKey: string, onNavigate?: (moduleKey: string) => void) {
+function updateModuleUrl(moduleKey: string, ticker?: string) {
+  const url = new URL(window.location.href);
+  url.searchParams.set("module", moduleKey);
+
+  if (ticker && moduleKey === "business") {
+    url.searchParams.set("ticker", ticker);
+  } else {
+    url.searchParams.delete("ticker");
+  }
+
+  window.history.replaceState(null, "", url);
+}
+
+function goToModule(moduleKey: string, onNavigate?: (moduleKey: string) => void, ticker?: string) {
   if (onNavigate) {
     onNavigate(moduleKey);
+    updateModuleUrl(moduleKey, ticker);
     return;
   }
 
-  window.location.href = `/?module=${moduleKey}`;
+  const query = new URLSearchParams({ module: moduleKey });
+  if (ticker && moduleKey === "business") query.set("ticker", ticker);
+
+  window.location.href = `/?${query.toString()}`;
 }
 
 function readScreeningInputSource(): ScreeningInputSource {
@@ -369,40 +386,6 @@ function ActiveScreeningQuery() {
   );
 }
 
-function ScreeningQuickStats() {
-  const stats = screeningRedesignData.quickStats;
-  const firstCount = stats[0]?.count ?? 0;
-  const lastCount = stats[stats.length - 1]?.count ?? 0;
-
-  return (
-    <Card className="min-w-0 overflow-hidden">
-      <CardBody>
-        <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <Chip variant="neutral">Tóm tắt kết quả nhanh</Chip>
-            <h2 className="mt-2 text-lg font-bold text-ink">Dòng chảy số mã qua 5 cửa</h2>
-          </div>
-          <p className="text-xs font-semibold text-muted">
-            {firstCount} mã đầu vào -&gt; {lastCount} mã còn lại sau phễu
-          </p>
-        </div>
-        <div className="grid min-w-0 gap-2 sm:grid-cols-2 lg:grid-cols-6">
-          {stats.map((item, index) => (
-            <div key={item.label} className="relative rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3">
-              <p className="font-mono text-[11px] font-bold text-subtle">{String(index + 1).padStart(2, "0")}</p>
-              <p className="mt-1 text-2xl font-bold leading-none text-ink">{item.count}</p>
-              <p className="mt-2 text-xs font-semibold leading-4 text-muted">{item.label}</p>
-              {index < stats.length - 1 ? (
-                <span className="absolute right-3 top-3 hidden text-xs font-bold text-subtle lg:block">-&gt;</span>
-              ) : null}
-            </div>
-          ))}
-        </div>
-      </CardBody>
-    </Card>
-  );
-}
-
 function ScreeningFunnel() {
   const gates = screeningRedesignData.gates;
   const [activeGateId, setActiveGateId] = useState(gates[0]?.id ?? "");
@@ -708,7 +691,7 @@ function AnalysisPathDrawer({
               key={step}
               className="grid gap-1 rounded-[4px] border border-border-soft bg-surface-soft px-4 py-3 text-left transition hover:border-border hover:bg-surface-hover"
               type="button"
-              onClick={() => goToModule(moduleTargets[index], onNavigate)}
+              onClick={() => goToModule(moduleTargets[index], onNavigate, candidate.ticker)}
             >
               <span className="font-mono text-[11px] font-bold text-subtle">Bước {index + 1}</span>
               <span className="text-sm font-bold text-ink">{step}</span>
@@ -752,7 +735,6 @@ export function ScreeningPage({ onNavigate }: ScreeningPageProps) {
       <TickerQuickCheck onAnalyze={setActiveCandidate} />
       <ScreeningInputSourceBanner inputSource={inputSource} onNavigate={onNavigate} />
       <ActiveScreeningQuery />
-      <ScreeningQuickStats />
       <ScreeningFunnel />
       <div className="rounded-[4px] border-[1.5px] border-border bg-accent-soft px-4 py-3">
         <p className="text-sm font-bold text-ink">
