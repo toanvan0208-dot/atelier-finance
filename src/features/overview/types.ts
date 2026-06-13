@@ -197,9 +197,22 @@ export type OverviewSupportData = {
   };
 };
 
+export type OverviewSummaryCard = {
+  id: "financial-health" | "valuation" | "risk" | "data-quality";
+  title: string;
+  status: string;
+  value: string;
+  summary: string;
+  warnings: string[];
+  missingFields: string[];
+  nextChecks: string[];
+  moduleKey: string;
+};
+
 export type OverviewCaseDashboardData = {
   activeCase: OverviewCaseData;
   nextBestAction: OverviewNextBestAction;
+  summaryCards: OverviewSummaryCard[];
   missingData: OverviewBottleneck[];
   progressMap: OverviewProgressMapItem[];
   actionStatus: OverviewActionStatusData;

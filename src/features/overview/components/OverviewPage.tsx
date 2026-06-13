@@ -9,6 +9,7 @@ import type {
   OverviewNextBestAction,
   OverviewProgressMapItem,
   OverviewProgressStatus,
+  OverviewSummaryCard,
   OverviewSupportData,
 } from "../types";
 
@@ -124,6 +125,56 @@ function NextBestActionCard({
   );
 }
 
+function OverviewSummaryCards({
+  data,
+  onNavigate,
+}: {
+  data: OverviewSummaryCard[];
+  onNavigate: (key: string) => void;
+}) {
+  if (data.length === 0) return null;
+
+  return (
+    <Card>
+      <CardHeader
+        title="Tóm tắt từ financial logic"
+        description="Chỉ hiển thị các kết luận ngắn để điều hướng; chi tiết vẫn nằm ở từng module nguồn."
+      />
+      <CardBody>
+        <div className="grid gap-3 lg:grid-cols-4">
+          {data.map((item) => (
+            <div key={item.id} className="rounded-[4px] border border-border-soft bg-surface-soft p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="text-sm font-bold text-ink">{item.title}</p>
+                <Chip size="sm" variant={item.status === "Chưa đủ dữ liệu" ? "warning" : "neutral"}>
+                  {item.status}
+                </Chip>
+              </div>
+              <p className="mt-2 text-lg font-bold text-ink">{item.value}</p>
+              <p className="mt-2 text-xs leading-5 text-muted">{item.summary}</p>
+              {item.missingFields.length > 0 ? (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {item.missingFields.slice(0, 4).map((field) => (
+                    <Chip key={field} size="sm" variant="neutral">{field}</Chip>
+                  ))}
+                </div>
+              ) : null}
+              {item.warnings[0] ? (
+                <p className="mt-3 rounded-[3px] border border-border-soft bg-surface px-3 py-2 text-xs leading-5 text-muted">
+                  {item.warnings[0]}
+                </p>
+              ) : null}
+              <Button className="mt-4 w-full" size="sm" variant="secondary" onClick={() => onNavigate(item.moduleKey)}>
+                Mở module nguồn
+              </Button>
+            </div>
+          ))}
+        </div>
+      </CardBody>
+    </Card>
+  );
+}
+
 function MissingDataBottlenecks({
   data,
   onNavigate,
@@ -211,7 +262,7 @@ function CurrentActionStatus({ data }: { data: OverviewActionStatusData }) {
     <Card>
       <CardHeader
         title="Hiện tại có thể làm gì?"
-        description="Trạng thái trong hệ thống, không phải khuyến nghị mua/bán."
+        description="Trạng thái trong hệ thống, chỉ là dữ liệu tham khảo."
       />
       <CardBody className="space-y-4">
         <div className="grid gap-3 lg:grid-cols-3">
@@ -305,6 +356,7 @@ export function OverviewPage({ onNavigate }: OverviewPageProps) {
         <CurrentCaseHero data={data.activeCase} />
         <NextBestActionCard data={data.nextBestAction} onNavigate={onNavigate} />
       </div>
+      <OverviewSummaryCards data={data.summaryCards} onNavigate={onNavigate} />
       <MissingDataBottlenecks data={data.missingData} onNavigate={onNavigate} />
       <AnalysisProgressMap data={data.progressMap} onNavigate={onNavigate} />
       <CurrentActionStatus data={data.actionStatus} />
