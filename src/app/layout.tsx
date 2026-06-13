@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Atelier Finance",
-  description: "Financial education workspace for beginner investors",
+  title: "Hỗ trợ đầu tư",
+  description: "Cửa vào hệ thống phân tích cổ phiếu cho người mới",
 };
 
 export default function RootLayout({

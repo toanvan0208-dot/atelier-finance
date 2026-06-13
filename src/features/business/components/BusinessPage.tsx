@@ -60,14 +60,14 @@ function getBusinessJourneyData(selectedTicker: string | null) {
   if (!selectedTicker) {
     return {
       data: businessJourneyByTicker[defaultBusinessJourneyTicker],
-      isUsingDemoData: true,
+      isUsingSampleData: true,
       hasUnsupportedTicker: false,
     };
   }
 
   return {
     data: businessJourneyByTicker[selectedTicker] ?? null,
-    isUsingDemoData: false,
+    isUsingSampleData: false,
     hasUnsupportedTicker: !businessJourneyByTicker[selectedTicker],
   };
 }
@@ -87,7 +87,7 @@ function hasValidBusinessJourneyData(data: BusinessJourneyData | null) {
   );
 }
 
-function DemoDataNotice() {
+function SampleDataNotice() {
   return (
     <Card className="border-border-soft bg-accent-soft">
       <CardBody className="flex flex-col gap-2 px-4 py-3 md:flex-row md:items-center md:justify-between">
@@ -95,7 +95,7 @@ function DemoDataNotice() {
           Đang dùng dữ liệu mẫu MWG để minh họa luồng hiểu doanh nghiệp. Khi kết nối dữ liệu thật, nội dung sẽ thay đổi theo mã cổ phiếu được chọn.
         </p>
         <Chip size="sm" variant="accent">
-          Demo MWG
+          Dữ liệu mẫu MWG
         </Chip>
       </CardBody>
     </Card>
@@ -132,7 +132,7 @@ function PageIntro() {
 export function BusinessPage({ onNavigate }: BusinessPageProps) {
   const tickerFromUrl = useTickerFromUrl();
   const selectedTicker = normalizeTicker(tickerFromUrl);
-  const { data, hasUnsupportedTicker, isUsingDemoData } = useMemo(
+  const { data, hasUnsupportedTicker, isUsingSampleData } = useMemo(
     () => getBusinessJourneyData(selectedTicker),
     [selectedTicker]
   );
@@ -171,14 +171,14 @@ export function BusinessPage({ onNavigate }: BusinessPageProps) {
 
   return (
     <div className="mx-auto w-full max-w-[1180px] space-y-4 px-4 py-5 lg:px-0">
-      {isUsingDemoData ? <DemoDataNotice /> : null}
+      {isUsingSampleData ? <SampleDataNotice /> : null}
       <JourneyProgress />
       <PageIntro />
 
       <main className="min-w-0 space-y-4">
         <BusinessIdentityCard
           data={data.businessIdentity}
-          isDemo={isUsingDemoData}
+          isSample={isUsingSampleData}
           onDeepDive={() => setDeepDive(data.businessIdentity.deepDive)}
         />
         <CustomerReasonSection

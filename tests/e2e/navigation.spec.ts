@@ -16,6 +16,8 @@ const moduleKeys = [
   "watchlist",
 ] as const;
 
+const workspacePath = "/workspace";
+
 async function expectActiveModule(page: import("@playwright/test").Page, moduleKey: string) {
   await expect(page.getByTestId("app-shell")).toHaveAttribute("data-active-module", moduleKey);
 }
@@ -25,8 +27,21 @@ function moduleLink(page: import("@playwright/test").Page, testId: string, modul
 }
 
 test.describe("module navigation", () => {
-  test("clicking every desktop sidebar item renders the matching module and URL query", async ({ page }) => {
+  test("entry page shows account actions and both enter the system", async ({ page }) => {
     await page.goto("/");
+
+    await expect(page.getByText("Hỗ trợ đầu tư").first()).toBeVisible();
+    await expect(page.getByRole("link", { name: "Đăng nhập" })).toHaveAttribute("href", workspacePath);
+    await expect(page.getByRole("link", { name: "Đăng ký" })).toHaveAttribute("href", workspacePath);
+    await expect(page.getByText("Demo", { exact: true })).toHaveCount(0);
+
+    await page.getByRole("link", { name: "Đăng nhập" }).click();
+    await expect(page).toHaveURL(new RegExp(`${workspacePath}$`));
+    await expectActiveModule(page, "overview");
+  });
+
+  test("clicking every desktop sidebar item renders the matching module and URL query", async ({ page }) => {
+    await page.goto(workspacePath);
     await expectActiveModule(page, "overview");
 
     for (const moduleKey of moduleKeys) {
@@ -41,7 +56,7 @@ test.describe("module navigation", () => {
   });
 
   test("refresh keeps the module from the URL query", async ({ page }) => {
-    await page.goto("/?module=valuation");
+    await page.goto(`${workspacePath}?module=valuation`);
     await expectActiveModule(page, "valuation");
 
     await page.reload();
@@ -50,12 +65,12 @@ test.describe("module navigation", () => {
   });
 
   test("invalid module query falls back to overview", async ({ page }) => {
-    await page.goto("/?module=not-a-real-module");
+    await page.goto(`${workspacePath}?module=not-a-real-module`);
     await expectActiveModule(page, "overview");
   });
 
   test("browser back and forward restore active module", async ({ page }) => {
-    await page.goto("/");
+    await page.goto(workspacePath);
 
     await moduleLink(page, "sidebar-module-link", "macro").click();
     await expectActiveModule(page, "macro");
@@ -74,7 +89,7 @@ test.describe("module navigation", () => {
 
   test("mobile navigation changes active module and URL", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto("/");
+    await page.goto(workspacePath);
 
     await moduleLink(page, "mobile-module-link", "watchlist").click();
     await expectActiveModule(page, "watchlist");
@@ -82,14 +97,14 @@ test.describe("module navigation", () => {
   });
 
   test("important cross-module CTAs navigate to the expected module", async ({ page }) => {
-    await page.goto("/?module=valuation");
+    await page.goto(`${workspacePath}?module=valuation`);
     await expectActiveModule(page, "valuation");
 
     await moduleLink(page, "module-cta", "risk").first().click();
     await expectActiveModule(page, "risk");
     await expect(page).toHaveURL(/module=risk/);
 
-    await page.goto("/?module=valuation");
+    await page.goto(`${workspacePath}?module=valuation`);
     await moduleLink(page, "module-cta", "technical").first().click();
     await expectActiveModule(page, "technical");
     await expect(page).toHaveURL(/module=technical/);

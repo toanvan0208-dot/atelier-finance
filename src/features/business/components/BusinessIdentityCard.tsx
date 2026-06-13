@@ -3,11 +3,11 @@ import type { BusinessJourneyIdentityData } from "../types";
 
 type BusinessIdentityCardProps = {
   data: BusinessJourneyIdentityData;
-  isDemo: boolean;
+  isSample: boolean;
   onDeepDive: () => void;
 };
 
-export function BusinessIdentityCard({ data, isDemo, onDeepDive }: BusinessIdentityCardProps) {
+export function BusinessIdentityCard({ data, isSample, onDeepDive }: BusinessIdentityCardProps) {
   return (
     <Card className="border-border bg-surface">
       <CardBody className="space-y-4 px-5 py-5 md:px-6 md:py-6">
@@ -15,7 +15,7 @@ export function BusinessIdentityCard({ data, isDemo, onDeepDive }: BusinessIdent
           <Chip variant="accent">Hiểu nhanh trong 30 giây</Chip>
           <Chip variant="neutral">{data.ticker}</Chip>
           <Chip variant="neutral">{data.businessType}</Chip>
-          {isDemo ? <Chip variant="warning">Dữ liệu mẫu</Chip> : null}
+          {isSample ? <Chip variant="warning">Dữ liệu mẫu</Chip> : null}
         </div>
 
         <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
