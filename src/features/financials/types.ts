@@ -442,7 +442,7 @@ export type FinancialsPageData = {
   nextActions: FinancialsNextActionsData;
 };
 
-export type FinancialDeskMetricStatus = "good" | "watch" | "risk" | "neutral";
+export type FinancialDeskMetricStatus = "good" | "watch" | "risk" | "neutral" | "unknown";
 
 export type FinancialDeskMetric = {
   id: string;
@@ -455,6 +455,10 @@ export type FinancialDeskMetric = {
   howToRead: string;
   goodSignal: string;
   badSignal: string;
+  dataQuality?: string;
+  warning?: string | null;
+  missingFields?: string[];
+  logicKey?: string;
 };
 
 export type FinancialDeskWarning = {

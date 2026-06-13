@@ -1,6 +1,8 @@
 import type { FinancialReadingDeskData } from "../types";
+import { buildFinancialReadingDeskData } from "../lib/build-financial-reading-desk-data";
+import type { FinancialsStatementSnapshot } from "../lib/map-financials-to-logic-input";
 
-export const financialReadingDeskData: FinancialReadingDeskData = {
+const baseFinancialReadingDeskData: FinancialReadingDeskData = {
   ticker: "MWG",
   companyName: "Công ty Cổ phần Đầu tư Thế Giới Di Động",
   period: "FY2024/FY2025 mẫu",
@@ -9,7 +11,7 @@ export const financialReadingDeskData: FinancialReadingDeskData = {
     summary:
       "Doanh thu và biên gộp đang tốt lên, nhưng dòng tiền kinh doanh chưa theo kịp lợi nhuận. Cần đọc kỹ tồn kho, khoản phải thu và nợ vay trước khi chuyển sang định giá.",
     score: 68,
-    scoreNote: "Điểm chỉ là tham chiếu phụ, không phải kết luận mua bán.",
+    scoreNote: "Điểm chỉ là tham chiếu phụ để định hướng phần cần đọc tiếp.",
   },
   nextReadingStep: {
     stepId: "cash-quality",
@@ -136,7 +138,7 @@ export const financialReadingDeskData: FinancialReadingDeskData = {
       unit: "nghìn tỷ",
       period: "FY2024",
       status: "neutral",
-      definition: "Toàn bộ nguồn lực doanh nghiệp đang nắm giữ.",
+      definition: "Toàn bộ nguồn lực doanh nghiệp đang kiểm soát.",
       howToRead: "Xem tài sản tăng ở tiền, tồn kho, phải thu hay tài sản cố định.",
       goodSignal: "Tài sản tăng đi kèm doanh thu và hiệu quả vốn.",
       badSignal: "Tài sản phình ra chủ yếu ở hàng chậm bán hoặc phải thu khó đòi.",
@@ -269,7 +271,7 @@ export const financialReadingDeskData: FinancialReadingDeskData = {
       status: "Đã kiểm tra",
       mainQuestion: "Doanh nghiệp đang khỏe, yếu hay có số liệu trái chiều?",
       whyItMatters: "Bước này giúp chọn đúng nơi cần đọc tiếp thay vì lao vào tất cả bảng số.",
-      metricIds: ["revenue", "net-income", "gross-margin", "roe"],
+      metricIds: ["revenue-growth", "gross-margin", "net-margin", "roe"],
       readingGuide: "Đọc doanh thu, lợi nhuận, biên gộp và ROE như một ảnh chụp nhanh.",
       goodSigns: ["Doanh thu phục hồi", "Biên gộp cải thiện", "ROE không phụ thuộc quá mức vào nợ"],
       badSigns: ["Lợi nhuận tăng nhưng biên ròng mỏng", "Doanh thu tăng nhưng dòng tiền yếu"],
@@ -295,7 +297,7 @@ export const financialReadingDeskData: FinancialReadingDeskData = {
       status: "Cần xem lại",
       mainQuestion: "Lợi nhuận trên báo cáo có thu về bằng tiền thật không?",
       whyItMatters: "Định giá dựa vào dòng tiền; lợi nhuận không ra tiền sẽ làm giả định kém tin cậy.",
-      metricIds: ["net-income", "cfo", "fcf", "receivables"],
+      metricIds: ["net-income", "cfo-to-net-profit", "fcf", "receivables"],
       readingGuide: "So LNST với CFO, sau đó xem FCF và phải thu để tìm lý do tiền chưa về.",
       goodSigns: ["CFO gần bằng hoặc cao hơn LNST", "FCF dương", "Phải thu không tăng đột biến"],
       badSigns: ["CFO thấp hơn LNST nhiều kỳ", "FCF mỏng", "Phải thu tăng nhanh hơn doanh thu"],
@@ -308,7 +310,7 @@ export const financialReadingDeskData: FinancialReadingDeskData = {
       status: "Cần xem lại",
       mainQuestion: "Nợ vay, tồn kho và thanh khoản có tạo áp lực không?",
       whyItMatters: "Rủi ro tài chính có thể làm một câu chuyện tăng trưởng tốt trở nên mong manh.",
-      metricIds: ["debt", "interest-coverage", "current-ratio", "inventory", "roa"],
+      metricIds: ["debt-to-equity", "current-ratio", "inventory", "roa", "data-quality"],
       readingGuide: "Đọc nợ vay với khả năng trả lãi, rồi xem thanh khoản hiện hành có thật sự là tiền dễ dùng không.",
       goodSigns: ["Trả lãi thoải mái", "Tồn kho xoay vòng tốt", "Thanh khoản ngắn hạn đủ"],
       badSigns: ["Nợ vay tăng nhanh", "Tồn kho cao", "Thanh khoản phụ thuộc hàng chậm bán"],
@@ -321,7 +323,7 @@ export const financialReadingDeskData: FinancialReadingDeskData = {
       status: "Chưa đọc",
       mainQuestion: "Số liệu đã đủ sạch để đưa vào định giá chưa?",
       whyItMatters: "Nếu đầu vào còn bẩn, kết quả định giá sẽ tạo cảm giác chính xác giả.",
-      metricIds: ["net-margin", "cfo", "fcf", "roe", "debt"],
+      metricIds: ["net-margin", "cfo-to-net-profit", "fcf", "roe", "debt-to-equity"],
       readingGuide: "Chỉ chuyển sang định giá khi biết điểm nào được xác nhận và điểm nào cần đặt giả định thận trọng.",
       goodSigns: ["Lợi nhuận được dòng tiền xác nhận", "Nợ không tạo áp lực", "Chỉ số sinh lời ổn định"],
       badSigns: ["CFO và FCF chưa rõ", "Vốn lưu động xấu", "Biên lợi nhuận quá mỏng"],
@@ -371,3 +373,46 @@ export const financialReadingDeskData: FinancialReadingDeskData = {
     },
   },
 };
+
+const financialsStatementMockSnapshot: FinancialsStatementSnapshot = {
+  ticker: "MWG",
+  companyType: "non_financial",
+  industry: "Bán lẻ",
+  period: "FY2024",
+  periodType: "annual",
+  sourceName: "Dữ liệu mẫu nội bộ",
+  collectedAt: "2026-06-01",
+  revenue: 118_400,
+  previousRevenue: 109_000,
+  grossProfit: 25_811,
+  operatingProfit: 4_900,
+  netProfit: 4_200,
+  previousNetProfit: 2_800,
+  totalAssets: 72_500,
+  previousTotalAssets: 69_000,
+  totalLiabilities: 43_100,
+  totalEquity: 29_400,
+  previousTotalEquity: 25_000,
+  cashAndEquivalents: 12_500,
+  shortTermDebt: 12_000,
+  longTermDebt: 6_600,
+  totalDebt: 18_600,
+  currentAssets: 52_000,
+  currentLiabilities: 41_600,
+  inventory: 19_300,
+  previousInventory: 17_200,
+  accountsReceivable: 12_100,
+  previousAccountsReceivable: 10_200,
+  operatingCashFlow: 2_100,
+  previousOperatingCashFlow: 1_500,
+  capitalExpenditure: 1_300,
+  freeCashFlow: 800,
+  interestExpense: 1_200,
+  ebit: 4_900,
+  ebitda: 7_800,
+};
+
+export const financialReadingDeskData = buildFinancialReadingDeskData(
+  baseFinancialReadingDeskData,
+  financialsStatementMockSnapshot
+);

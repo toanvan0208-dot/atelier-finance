@@ -19,7 +19,7 @@ export function FinancialsOverviewPanel({ data, onFocusStep }: FinancialsOvervie
           <div>
             <h2 className="text-2xl font-extrabold text-ink">Tổng quan sức khỏe tài chính</h2>
             <p className="mt-1 text-sm leading-6 text-muted">
-              {data.ticker} · {data.period} · không phải khuyến nghị mua bán.
+              {data.ticker} · {data.period} · chỉ hỗ trợ đọc và kiểm tra dữ liệu.
             </p>
           </div>
           <Chip variant="warning">{data.preliminaryConclusion.status}</Chip>
