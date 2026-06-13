@@ -5,12 +5,14 @@ import type { FinancialsHeaderData } from "../types";
 type FinancialsHeaderProps = {
   data: FinancialsHeaderData;
   canContinueToValuation?: boolean;
+  onNavigate?: (moduleKey: string) => void;
   valuationDisabledReason?: string;
 };
 
 export function FinancialsHeader({
   canContinueToValuation = false,
   data,
+  onNavigate,
   valuationDisabledReason,
 }: FinancialsHeaderProps) {
   return (
@@ -41,11 +43,18 @@ export function FinancialsHeader({
                 stockSymbol={data.ticker}
               />
               {data.actions.map((action) => {
-                const isValuationAction = action.label.includes("Định Giá") || action.label.includes("Định giá");
+                const isValuationAction =
+                  action.label.includes("Định") || action.label.toLowerCase().includes("valuation");
                 const disabled = isValuationAction && !canContinueToValuation;
+                const targetModule = isValuationAction ? "valuation" : "business";
 
                 return (
-                  <Button key={action.label} disabled={disabled} variant={disabled ? "secondary" : action.variant}>
+                  <Button
+                    key={action.label}
+                    disabled={disabled}
+                    onClick={() => onNavigate?.(targetModule)}
+                    variant={disabled ? "secondary" : action.variant}
+                  >
                     {disabled ? "Hoàn thành kiểm tra BCTC" : action.label}
                   </Button>
                 );

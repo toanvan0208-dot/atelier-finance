@@ -12,6 +12,8 @@ export function ValuationNextStepActions({ data, onNavigate }: ValuationNextStep
       {data.map((action) => (
         <Button
           key={action.label}
+          data-module-key={action.moduleKey}
+          data-testid="module-cta"
           size="sm"
           variant={action.variant}
           onClick={() => onNavigate?.(action.moduleKey)}

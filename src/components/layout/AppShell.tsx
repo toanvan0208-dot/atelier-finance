@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useSyncExternalStore } from "react";
+import { useMemo, useSyncExternalStore } from "react";
 import { navigationItems } from "@/config/navigation.config";
 import { shellConfig } from "@/config/shell.config";
 import { BusinessPage } from "@/features/business";
@@ -41,6 +41,8 @@ const modulesWithInternalProgress = new Set([
   "screening",
 ]);
 
+const navigationChangeEvent = "app:navigation";
+
 export function AppShell() {
   return (
     <PersonalAnalysisProfileProvider>
@@ -59,10 +61,12 @@ function AppShellContent() {
     (callback) => {
       const timeoutId = window.setTimeout(callback, 0);
       window.addEventListener("popstate", callback);
+      window.addEventListener(navigationChangeEvent, callback);
 
       return () => {
         window.clearTimeout(timeoutId);
         window.removeEventListener("popstate", callback);
+        window.removeEventListener(navigationChangeEvent, callback);
       };
     },
     () => {
@@ -73,9 +77,7 @@ function AppShellContent() {
     },
     () => null
   );
-  const [activeModuleOverride, setActiveModuleOverride] = useState<string | null>(null);
   const activeModule =
-    activeModuleOverride ??
     (moduleFromUrl && moduleKeys.has(moduleFromUrl) ? moduleFromUrl : shellConfig.defaultModuleKey);
 
   function handleNavigate(nextModule: string) {
@@ -88,11 +90,10 @@ function AppShellContent() {
       return;
     }
 
-    setActiveModuleOverride(nextModule);
-
     const url = new URL(window.location.href);
     url.searchParams.set("module", nextModule);
-    window.history.replaceState(null, "", url);
+    window.history.pushState(null, "", url);
+    window.dispatchEvent(new Event(navigationChangeEvent));
   }
 
   const activeItem = useMemo(
@@ -107,7 +108,11 @@ function AppShellContent() {
     ];
 
   return (
-    <div className="grid min-h-dvh grid-cols-1 grid-rows-[56px_minmax(0,1fr)] bg-page md:grid-cols-[252px_minmax(0,1fr)_auto]">
+    <div
+      className="grid min-h-dvh grid-cols-1 grid-rows-[56px_minmax(0,1fr)] bg-page md:grid-cols-[252px_minmax(0,1fr)_auto]"
+      data-active-module={activeModule}
+      data-testid="app-shell"
+    >
       <Topbar
         actions={shellConfig.topbarActions}
         brandName={shellConfig.brandName}
@@ -145,7 +150,7 @@ function AppShellContent() {
         {activeModule === "business" ? (
           <BusinessPage onNavigate={handleNavigate} />
         ) : null}
-        {activeModule === "financials" ? <FinancialsPage /> : null}
+        {activeModule === "financials" ? <FinancialsPage onNavigate={handleNavigate} /> : null}
         {activeModule === "valuation" ? <ValuationPage onNavigate={handleNavigate} /> : null}
         {activeModule === "technical" ? <TechnicalPage onNavigate={handleNavigate} /> : null}
         {activeModule === "risk" ? <RiskPage onNavigate={handleNavigate} /> : null}

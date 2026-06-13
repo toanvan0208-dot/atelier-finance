@@ -39,6 +39,8 @@ export function PVTFinalConclusion({
           {actions.slice(0, 4).map((action) => (
             <Button
               key={action.label}
+              data-module-key={action.moduleKey}
+              data-testid="module-cta"
               variant={action.primary ? "primary" : "secondary"}
               onClick={() => onNavigate(action.moduleKey)}
             >

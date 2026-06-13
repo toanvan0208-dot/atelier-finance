@@ -42,6 +42,8 @@ export function Sidebar({
                 return (
                   <button
                     key={item.key}
+                    data-module-key={item.key}
+                    data-testid="sidebar-module-link"
                     className={cn(
                       "grid min-h-10 w-full grid-cols-[22px_minmax(0,1fr)] items-center gap-2 rounded-[3px] border border-transparent px-2.5 text-left text-xs font-semibold text-muted transition",
                       "hover:border-border-soft hover:bg-surface-hover hover:text-ink",

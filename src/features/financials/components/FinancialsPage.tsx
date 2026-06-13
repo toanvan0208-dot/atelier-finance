@@ -8,7 +8,11 @@ import { FinancialsDisclaimer } from "./FinancialsDisclaimer";
 import { FinancialsHeader } from "./FinancialsHeader";
 import { FinancialsOverviewPanel } from "./FinancialsOverviewPanel";
 
-export function FinancialsPage() {
+type FinancialsPageProps = {
+  onNavigate?: (moduleKey: string) => void;
+};
+
+export function FinancialsPage({ onNavigate }: FinancialsPageProps) {
   const data = financialsPageData;
   const deskData = financialReadingDeskData;
   const [activeStepId, setActiveStepId] = useState(deskData.nextReadingStep.stepId);
@@ -39,6 +43,7 @@ export function FinancialsPage() {
       <FinancialsHeader
         canContinueToValuation={false}
         data={data.header}
+        onNavigate={onNavigate}
         valuationDisabledReason={deskData.valuationReadiness.reason}
       />
       <FinancialsOverviewPanel data={deskData} onFocusStep={focusStep} />

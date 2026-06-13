@@ -23,6 +23,8 @@ export function MobileNavigation({
         return (
           <button
             key={item.key}
+            data-module-key={item.key}
+            data-testid="mobile-module-link"
             className={cn(
               "grid min-w-[64px] gap-0.5 rounded-[3px] px-2 py-1.5 text-center text-[11px] text-subtle",
               "border border-transparent hover:border-border-soft hover:bg-surface-hover hover:text-ink",
