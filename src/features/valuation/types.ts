@@ -467,7 +467,7 @@ export type ValuationRangeStatus = "Rẻ hấp dẫn" | "Đang nằm trong vùng
 export type ValuationSummaryData = {
   ticker: string;
   companyName: string;
-  currentPrice: number;
+  currentPrice: number | null;
   fairValueRange: {
     low: number;
     high: number;
@@ -555,7 +555,7 @@ export type ValuationRefactoredData = {
     explanation: string;
   };
   scenarios: {
-    currentPrice: number;
+    currentPrice: number | null;
     baseRange: string;
     conclusion: string;
     items: ValuationScenarioSafetyItem[];

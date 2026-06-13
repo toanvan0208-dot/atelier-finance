@@ -11,6 +11,10 @@ function scenarioVariant(tone: ValuationScenarioSafetyItem["tone"]) {
   return "accent";
 }
 
+function formatCurrentPrice(value: number | null) {
+  return value !== null && value > 0 ? new Intl.NumberFormat("vi-VN").format(value) : "Chưa đủ dữ liệu";
+}
+
 export function ValuationScenarioSafety({ data }: ValuationScenarioSafetyProps) {
   return (
     <Card>
@@ -54,7 +58,7 @@ export function ValuationScenarioSafety({ data }: ValuationScenarioSafetyProps) 
         </div>
 
         <p className="rounded-[4px] border border-border bg-surface px-4 py-3 text-sm font-bold leading-6 text-ink">
-          Giá hiện tại: {new Intl.NumberFormat("vi-VN").format(data.currentPrice)}. Vùng cơ sở: {data.baseRange}. {data.conclusion}
+          Giá hiện tại: {formatCurrentPrice(data.currentPrice)}. Vùng cơ sở: {data.baseRange}. {data.conclusion}
         </p>
       </CardBody>
     </Card>

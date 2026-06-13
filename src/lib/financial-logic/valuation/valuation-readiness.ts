@@ -6,10 +6,16 @@ export const calculateValuationReadiness = (input: FinancialStatementInput): Val
   const coreFields = ["closePrice", "sharesOutstanding", "revenue", "netProfit", "totalEquity", "operatingCashFlow"];
   const missingFields = getMissingFields(input, coreFields);
   const usableMethods: string[] = [];
-  if (hasPositiveNumber(input.eps) || (hasPositiveNumber(input.sharesOutstanding) && isFiniteNumber(input.netProfit) && input.netProfit > 0)) usableMethods.push("P/E");
-  if (hasPositiveNumber(input.bvps) || (hasPositiveNumber(input.sharesOutstanding) && hasPositiveNumber(input.totalEquity))) usableMethods.push("P/B");
+  if (hasPositiveNumber(input.closePrice) && (hasPositiveNumber(input.eps) || (hasPositiveNumber(input.sharesOutstanding) && isFiniteNumber(input.netProfit) && input.netProfit > 0))) usableMethods.push("P/E");
+  if (hasPositiveNumber(input.closePrice) && (hasPositiveNumber(input.bvps) || (hasPositiveNumber(input.sharesOutstanding) && hasPositiveNumber(input.totalEquity)))) usableMethods.push("P/B");
   if (hasPositiveNumber(input.revenue) && hasPositiveNumber(input.sharesOutstanding) && hasPositiveNumber(input.closePrice)) usableMethods.push("P/S");
-  if (hasPositiveNumber(input.ebitda)) usableMethods.push("EV/EBITDA");
+  if (
+    hasPositiveNumber(input.closePrice) &&
+    hasPositiveNumber(input.sharesOutstanding) &&
+    hasPositiveNumber(input.ebitda) &&
+    (hasPositiveNumber(input.totalDebt) || (isFiniteNumber(input.shortTermDebt) && isFiniteNumber(input.longTermDebt))) &&
+    isFiniteNumber(input.cashAndEquivalents)
+  ) usableMethods.push("EV/EBITDA");
 
   const status: ValuationReadinessStatus =
     usableMethods.length >= 3 && missingFields.length <= 1 ? "ready" : usableMethods.length > 0 ? "partial" : missingFields.length === coreFields.length ? "unknown" : "not_ready";

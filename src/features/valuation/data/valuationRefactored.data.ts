@@ -1,6 +1,8 @@
 import type { ValuationRefactoredData } from "../types";
+import { buildValuationDeskData } from "../lib/build-valuation-desk-data";
+import type { ValuationStatementSnapshot } from "../lib/map-valuation-to-logic-input";
 
-export const valuationRefactoredData: ValuationRefactoredData = {
+export const baseValuationRefactoredData: ValuationRefactoredData = {
   isLoading: false,
   loading: {
     title: "Đang chuẩn bị dữ liệu định giá",
@@ -218,3 +220,29 @@ export const valuationRefactoredData: ValuationRefactoredData = {
     },
   ],
 };
+
+const valuationStatementSnapshot: ValuationStatementSnapshot = {
+  ticker: "MWG",
+  companyType: "non_financial",
+  industry: "retail",
+  period: "TTM/FY2024 mẫu",
+  periodType: "ttm",
+  sourceName: "Mock financial statement snapshot",
+  collectedAt: "2026-06-01",
+  revenue: 118_400_000_000_000,
+  netProfit: 4_200_000_000_000,
+  totalEquity: 29_400_000_000_000,
+  cashAndEquivalents: 9_000_000_000_000,
+  totalDebt: 18_600_000_000_000,
+  operatingCashFlow: 2_100_000_000_000,
+  capitalExpenditure: 1_300_000_000_000,
+  ebitda: 8_100_000_000_000,
+  sharesOutstanding: 1_463_000_000,
+  closePrice: 42_000,
+  dividendPerShare: 500,
+};
+
+export const valuationRefactoredData: ValuationRefactoredData = buildValuationDeskData(
+  baseValuationRefactoredData,
+  valuationStatementSnapshot
+);

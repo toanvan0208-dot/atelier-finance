@@ -9,7 +9,12 @@ function formatPrice(value: number) {
   return new Intl.NumberFormat("vi-VN").format(value);
 }
 
-function markerPosition(current: number, low: number, high: number) {
+function hasValidRange(low: number, high: number) {
+  return low > 0 && high > 0 && high >= low;
+}
+
+function markerPosition(current: number | null, low: number, high: number) {
+  if (!hasValidRange(low, high) || current === null || current <= 0) return 50;
   const min = Math.round(low * 0.82);
   const max = Math.round(high * 1.18);
   const percent = ((current - min) / (max - min)) * 100;
@@ -18,6 +23,10 @@ function markerPosition(current: number, low: number, high: number) {
 
 export function ValuationSummaryHero({ data }: ValuationSummaryHeroProps) {
   const marker = markerPosition(data.currentPrice, data.fairValueRange.low, data.fairValueRange.high);
+  const rangeLabel = hasValidRange(data.fairValueRange.low, data.fairValueRange.high)
+    ? `${formatPrice(data.fairValueRange.low)} đến ${formatPrice(data.fairValueRange.high)} đ/cp`
+    : "Chưa đủ dữ liệu";
+  const currentPriceLabel = data.currentPrice !== null && data.currentPrice > 0 ? `${formatPrice(data.currentPrice)} đ/cp` : "Chưa đủ dữ liệu";
 
   return (
     <Card className="border-border">
@@ -29,11 +38,11 @@ export function ValuationSummaryHero({ data }: ValuationSummaryHeroProps) {
             <Chip variant="neutral">{data.companyName}</Chip>
           </div>
           <h1 className="mt-4 text-2xl font-bold leading-tight text-ink md:text-[30px]">
-            Giá hiện tại đang rẻ, hợp lý hay đắt so với vùng giá trị ước tính?
+            Giá hiện tại đang ở đâu so với dữ liệu định giá hiện có?
           </h1>
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
-            <Metric label="Giá hiện tại" value={`${formatPrice(data.currentPrice)} đ/cp`} />
-            <Metric label="Vùng giá trị hợp lý" value={`${formatPrice(data.fairValueRange.low)} đến ${formatPrice(data.fairValueRange.high)} đ/cp`} />
+            <Metric label="Giá hiện tại" value={currentPriceLabel} />
+            <Metric label="Vùng giá trị nội tại" value={rangeLabel} />
             <Metric label="Biên an toàn" value={data.fairValueRange.marginOfSafety} />
           </div>
           <p className="mt-4 rounded-[4px] border border-border bg-accent-soft px-4 py-3 text-sm font-bold leading-6 text-ink">
@@ -57,12 +66,12 @@ export function ValuationSummaryHero({ data }: ValuationSummaryHeroProps) {
               />
             </div>
             <div className="mt-3 grid grid-cols-3 gap-2 text-[11px] font-semibold leading-4 text-muted">
-              <span>Rẻ hấp dẫn</span>
-              <span className="text-center">Vùng hợp lý</span>
-              <span className="text-right">Đắt / rủi ro</span>
+              <span>Thấp hơn vùng tham chiếu</span>
+              <span className="text-center">Vùng tham chiếu</span>
+              <span className="text-right">Cao hơn vùng tham chiếu</span>
             </div>
             <p className="mt-4 text-sm font-bold text-ink">
-              Giá hiện tại: {formatPrice(data.currentPrice)} đ/cp
+              Giá hiện tại: {currentPriceLabel}
             </p>
           </div>
         </div>
