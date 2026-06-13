@@ -11,6 +11,7 @@ import { CheckModeTabs } from "./CheckModeTabs";
 import { CheckNextActions } from "./CheckNextActions";
 import { CheckSetupPanel } from "./CheckSetupPanel";
 import { CheckThinkingHero } from "./CheckThinkingHero";
+import { ChecklistLogicPanel } from "./ChecklistLogicPanel";
 import { FomoCheckPanel } from "./FomoCheckPanel";
 import { MissingEvidencePanel } from "./MissingEvidencePanel";
 import { ModuleCheckCardGrid } from "./ModuleCheckCardGrid";
@@ -118,6 +119,10 @@ export function ChecklistPage({ onNavigate }: ChecklistPageProps) {
             onSelectTicker={setSelectedTicker}
           />
           <ModuleReadinessMap modules={selectedStock.moduleReadiness} onNavigate={onNavigate} />
+          <ChecklistLogicPanel
+            groups={selectedStock.logicChecklistGroups ?? []}
+            onNavigate={onNavigate}
+          />
           <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_420px]">
             <MissingEvidencePanel
               questions={selectedStock.missingEvidenceQuestions}

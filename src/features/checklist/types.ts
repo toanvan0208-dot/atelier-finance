@@ -205,6 +205,31 @@ export type StockReadinessStatus =
   | "missing_data"
   | "not_started";
 
+export type ChecklistLogicStatus =
+  | "completed"
+  | "needs_review"
+  | "insufficient_data"
+  | "not_applicable"
+  | "unknown";
+
+export type ChecklistLogicStep = {
+  id: string;
+  label: string;
+  status: ChecklistLogicStatus;
+  value: string;
+  summary: string;
+  warnings: string[];
+  missingFields: string[];
+  targetModule: AnalysisModuleKey | "watchlist";
+};
+
+export type ChecklistLogicGroup = {
+  id: string;
+  title: string;
+  summary: string;
+  steps: ChecklistLogicStep[];
+};
+
 export type StockModuleReadiness = {
   moduleKey: AnalysisModuleKey;
   moduleName: string;
@@ -257,6 +282,9 @@ export type StockReadinessData = {
   missingEvidenceQuestions: MissingEvidenceQuestion[];
   fomoChecks: FomoCheckItem[];
   finalReadiness: StockFinalReadiness;
+  logicChecklistGroups?: ChecklistLogicGroup[];
+  logicWarnings?: string[];
+  logicMissingFields?: string[];
 };
 
 export type CheckThinkingData = {
