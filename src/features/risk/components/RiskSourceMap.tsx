@@ -70,6 +70,13 @@ export function RiskSourceMap({ onNavigate, sources }: RiskSourceMapProps) {
                   </div>
                 </div>
               ) : null}
+              {isOpen && (source.warnings?.length || source.relatedMetrics?.length || source.nextChecks?.length) ? (
+                <div className="grid gap-3 border-t border-border-soft px-4 py-4 md:grid-cols-3">
+                  <SourceColumn title="Cảnh báo" items={source.warnings ?? []} />
+                  <SourceColumn title="Chỉ số liên quan" items={source.relatedMetrics ?? []} />
+                  <SourceColumn title="Bước kiểm tra tiếp" items={source.nextChecks ?? []} />
+                </div>
+              ) : null}
             </div>
           );
         })}

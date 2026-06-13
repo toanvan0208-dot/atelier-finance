@@ -1,6 +1,8 @@
 import type { RiskRedesignData } from "../types";
+import { buildRiskDeskData } from "../lib/build-risk-desk-data";
+import type { RiskStatementSnapshot } from "../lib/map-risk-to-logic-input";
 
-export const riskRedesignData: RiskRedesignData = {
+export const baseRiskRedesignData: RiskRedesignData = {
   ticker: "MWG",
   companyName: "CTCP Đầu tư Thế Giới Di Động",
   industry: "Bán lẻ",
@@ -280,3 +282,52 @@ export const riskRedesignData: RiskRedesignData = {
     { label: "Quay lại Định giá", moduleKey: "valuation" },
   ],
 };
+
+const riskStatementSnapshot: RiskStatementSnapshot = {
+  ticker: "MWG",
+  companyType: "non_financial",
+  industry: "Bán lẻ",
+  period: "TTM/FY2024 mẫu",
+  periodType: "ttm",
+  sourceName: "Mock financial statement snapshot",
+  collectedAt: "2026-06-01",
+  revenue: 118_400_000_000_000,
+  previousRevenue: 112_000_000_000_000,
+  grossProfit: 25_800_000_000_000,
+  operatingProfit: 5_800_000_000_000,
+  previousOperatingProfit: 4_900_000_000_000,
+  netProfit: 4_200_000_000_000,
+  previousNetProfit: 3_600_000_000_000,
+  totalAssets: 72_500_000_000_000,
+  previousTotalAssets: 69_000_000_000_000,
+  totalLiabilities: 43_100_000_000_000,
+  totalEquity: 29_400_000_000_000,
+  previousTotalEquity: 27_600_000_000_000,
+  cashAndEquivalents: 9_000_000_000_000,
+  shortTermDebt: 13_200_000_000_000,
+  longTermDebt: 5_400_000_000_000,
+  totalDebt: 18_600_000_000_000,
+  currentAssets: 47_000_000_000_000,
+  currentLiabilities: 34_000_000_000_000,
+  inventory: 19_300_000_000_000,
+  previousInventory: 17_900_000_000_000,
+  accountsReceivable: 12_100_000_000_000,
+  previousAccountsReceivable: 10_800_000_000_000,
+  operatingCashFlow: 2_100_000_000_000,
+  previousOperatingCashFlow: 2_500_000_000_000,
+  capitalExpenditure: 1_300_000_000_000,
+  ebit: 5_600_000_000_000,
+  ebitda: 8_100_000_000_000,
+  sharesOutstanding: 1_463_000_000,
+  closePrice: 42_000,
+  previousClosePrice: 40_500,
+  volume: 2_400_000,
+  avgVolume20d: 2_100_000,
+  avgTradingValue20d: 88_200_000_000,
+  dividendPerShare: 500,
+};
+
+export const riskRedesignData: RiskRedesignData = buildRiskDeskData(
+  baseRiskRedesignData,
+  riskStatementSnapshot
+);

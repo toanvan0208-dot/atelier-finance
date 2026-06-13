@@ -304,7 +304,10 @@ export type RiskSource = {
   tone: RiskRedesignTone;
   mainRisk: string;
   evidence: string[];
+  warnings?: string[];
   missingData: string[];
+  relatedMetrics?: string[];
+  nextChecks?: string[];
   sourceModules: string[];
   action: {
     label: string;
@@ -348,7 +351,7 @@ export type RiskRedesignData = {
   industry: string;
   overall: {
     status: string;
-    score: number;
+    score: number | null;
     tone: RiskRedesignTone;
     conclusion: string;
   };

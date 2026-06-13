@@ -13,6 +13,12 @@ const toneVariant: Record<RiskRedesignTone, "success" | "warning" | "danger" | "
 };
 
 export function RiskHeroSummary({ data }: RiskHeroSummaryProps) {
+  const scoreLabel = data.overall.score === null ? "N/A" : data.overall.score;
+  const scoreHelper =
+    data.overall.score === null
+      ? "Chưa đủ dữ liệu để chấm điểm."
+      : "Thang 100, càng cao càng cần kiểm tra kỹ.";
+
   return (
     <Card>
       <CardBody className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_420px]">
@@ -30,11 +36,11 @@ export function RiskHeroSummary({ data }: RiskHeroSummaryProps) {
           <p className="mt-4 text-base font-semibold leading-7 text-ink">{data.overall.conclusion}</p>
           <div className="mt-5 flex max-w-xs items-center gap-4 rounded-[4px] border border-border-soft bg-surface-soft px-4 py-3">
             <div className="grid h-16 w-16 place-items-center rounded-full border-[6px] border-warning bg-surface text-lg font-bold text-ink">
-              {data.overall.score}
+              {scoreLabel}
             </div>
             <div>
               <p className="text-sm font-bold text-ink">Điểm rủi ro</p>
-              <p className="mt-1 text-xs leading-5 text-muted">Thang 100, càng cao càng cần kiểm tra kỹ.</p>
+              <p className="mt-1 text-xs leading-5 text-muted">{scoreHelper}</p>
             </div>
           </div>
         </div>
