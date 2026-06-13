@@ -164,6 +164,59 @@ export function StockIdeaCard({
             </section>
           </div>
 
+          {data.logicSummary ? (
+            <section className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3">
+              <div className="mb-3 flex flex-wrap items-center gap-2">
+                <Chip size="sm" variant="accent">Tóm tắt từ financial logic</Chip>
+                <span className="text-[11px] font-semibold text-subtle">Không phải tín hiệu giao dịch</span>
+              </div>
+              <div className="grid gap-2 md:grid-cols-2">
+                <div className="rounded-[3px] border border-border-soft bg-surface px-2 py-2">
+                  <p className="text-[11px] font-bold text-subtle">Sức khỏe tài chính</p>
+                  <p className="mt-1 text-xs font-bold text-ink">
+                    {data.logicSummary.financialHealthStatus} · {data.logicSummary.financialHealthScore === null ? "Chưa đủ dữ liệu" : `${data.logicSummary.financialHealthScore}/100`}
+                  </p>
+                  <p className="mt-1 line-clamp-2 text-[11px] leading-5 text-muted">{data.logicSummary.financialHealthDetail}</p>
+                </div>
+                <div className="rounded-[3px] border border-border-soft bg-surface px-2 py-2">
+                  <p className="text-[11px] font-bold text-subtle">Định giá</p>
+                  <p className="mt-1 text-xs font-bold text-ink">
+                    {data.logicSummary.valuationReadiness} · Tin cậy: {data.logicSummary.valuationConfidence}
+                  </p>
+                  <p className="mt-1 line-clamp-2 text-[11px] leading-5 text-muted">{data.logicSummary.valuationDetail}</p>
+                </div>
+                <div className="rounded-[3px] border border-border-soft bg-surface px-2 py-2">
+                  <p className="text-[11px] font-bold text-subtle">Rủi ro tổng hợp</p>
+                  <p className="mt-1 text-xs font-bold text-ink">
+                    {data.logicSummary.overallRiskLevel} · {data.logicSummary.overallRiskScore === null ? "Chưa đủ dữ liệu" : `${data.logicSummary.overallRiskScore}/100`}
+                  </p>
+                  <p className="mt-1 line-clamp-2 text-[11px] leading-5 text-muted">{data.logicSummary.overallRiskDetail}</p>
+                </div>
+                <div className="rounded-[3px] border border-border-soft bg-surface px-2 py-2">
+                  <p className="text-[11px] font-bold text-subtle">Chất lượng dữ liệu</p>
+                  <p className="mt-1 text-xs font-bold text-ink">{data.logicSummary.dataQualityStatus}</p>
+                  <p className="mt-1 line-clamp-2 text-[11px] leading-5 text-muted">
+                    {data.logicSummary.missingFields.length
+                      ? `Thiếu: ${data.logicSummary.missingFields.slice(0, 4).join(", ")}`
+                      : "Dữ liệu đủ để đọc sơ bộ, vẫn cần đối chiếu nguồn."}
+                  </p>
+                </div>
+              </div>
+              <div className="mt-3 grid gap-2 md:grid-cols-2">
+                <div>
+                  <p className="text-[11px] font-bold text-ink">Cảnh báo từ logic</p>
+                  <p className="mt-1 text-[11px] leading-5 text-muted">
+                    {data.logicSummary.topWarnings[0] ?? "Chưa có cảnh báo nổi bật từ dữ liệu hiện có."}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[11px] font-bold text-ink">Bước cần kiểm tra</p>
+                  <p className="mt-1 text-[11px] leading-5 text-muted">{data.logicSummary.nextChecks[0]}</p>
+                </div>
+              </div>
+            </section>
+          ) : null}
+
           <section>
             <p className="mb-2 text-xs font-bold text-ink">Tiến độ 8 bước</p>
             <div className="grid gap-1.5 sm:grid-cols-2">

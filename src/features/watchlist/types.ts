@@ -185,6 +185,25 @@ export type SoftAlert = {
   tone: Tone;
 };
 
+export type WatchlistLogicSummary = {
+  ticker: string;
+  companyName: string;
+  financialHealthStatus: string;
+  financialHealthScore: number | null;
+  financialHealthDetail: string;
+  valuationReadiness: string;
+  valuationConfidence: string;
+  valuationDetail: string;
+  overallRiskLevel: string;
+  overallRiskScore: number | null;
+  overallRiskDetail: string;
+  dataQualityStatus: string;
+  topWarnings: string[];
+  missingFields: string[];
+  nextChecks: string[];
+  notFinancialAdvice: true;
+};
+
 export type StockIdea = {
   ticker: string;
   companyName: string;
@@ -219,6 +238,7 @@ export type StockIdea = {
   progress: ModuleProgressItem[];
   alerts: SoftAlert[];
   actions: ActionItem[];
+  logicSummary?: WatchlistLogicSummary;
 };
 
 export type TrackingProfileData = {
