@@ -60,6 +60,8 @@ export type SelectRetrievedChunksInput = {
   activeModule?: string;
   intent: RetrievalIntent;
   maxChunks?: number;
+  maxTotalChars?: number;
+  maxTotalTokenEstimate?: number;
   includeMaintainerDocs?: boolean;
   safetyLevel?: RetrievalSafetyLevel;
 };
@@ -75,7 +77,10 @@ export type SelectRetrievedChunksResult = {
     selectedChunkCount: number;
     scoring: Array<{
       chunkId: string;
+      documentId: RetrievalDocumentId;
+      sectionPath: string[];
       score: number;
+      matchedKeywords: string[];
       reasons: string[];
     }>;
   };
