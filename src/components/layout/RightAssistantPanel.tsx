@@ -175,10 +175,12 @@ function AskAIInput({
   value,
   onChange,
   onSubmit,
+  disabled,
 }: {
   value: string;
   onChange: (value: string) => void;
   onSubmit: () => void;
+  disabled?: boolean;
 }) {
   return (
     <div className="rounded-[4px] border-[1.5px] border-border bg-surface-soft px-3 py-3">
@@ -192,7 +194,8 @@ function AskAIInput({
         />
       </label>
       <button
-        className="mt-3 rounded-[3px] border-[1.5px] border-border bg-accent px-3 py-2 text-xs font-bold text-ink shadow-hard-sm transition hover:-translate-y-0.5 hover:bg-[#DCA900]"
+        className="mt-3 rounded-[3px] border-[1.5px] border-border bg-accent px-3 py-2 text-xs font-bold text-ink shadow-hard-sm transition hover:-translate-y-0.5 hover:bg-[#DCA900] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
+        disabled={disabled}
         type="button"
         onClick={onSubmit}
       >
@@ -202,6 +205,7 @@ function AskAIInput({
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function AITutorAskTab({ config }: { config: AITutorConfig }) {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState(
@@ -253,6 +257,161 @@ function AITutorAskTab({ config }: { config: AITutorConfig }) {
       </section>
 
       <AITutorSoftWarning>{config.softWarning}</AITutorSoftWarning>
+    </div>
+  );
+}
+
+type AssistantApiDocument = {
+  id: string;
+  filePath: string;
+  title?: string;
+};
+
+type AssistantApiRuntime = {
+  selectedDocuments?: AssistantApiDocument[];
+  detectedIntent?: string;
+  warnings?: string[];
+  safetyLevel?: string;
+  missingContext?: string[];
+  debug?: {
+    noLlmCall?: boolean;
+    noApiCall?: boolean;
+    selectedDocumentCount?: number;
+  };
+};
+
+type AssistantApiResponse = {
+  ok: boolean;
+  runtime: AssistantApiRuntime | null;
+  answer: string | null;
+  llmStatus: "not_configured" | string;
+  message: string;
+};
+
+function AITutorAskRuntimeTab({
+  activeModule,
+  config,
+}: {
+  activeModule: string;
+  config: AITutorConfig;
+}) {
+  const [question, setQuestion] = useState("");
+  const [runtimeResponse, setRuntimeResponse] = useState<AssistantApiResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(
+    "Chon mot cau hoi goi y hoac nhap cau hoi. Runtime se chuan bi prompt, chua goi LLM."
+  );
+
+  async function submitQuestion() {
+    const trimmed = question.trim();
+
+    if (!trimmed) {
+      setRuntimeResponse(null);
+      setError("Hay nhap cau hoi cu the hon truoc khi goi AI runtime.");
+      return;
+    }
+
+    setIsLoading(true);
+    setError("");
+
+    try {
+      const response = await fetch("/api/assistant", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          question: trimmed,
+          activeModule,
+        }),
+      });
+      const payload = (await response.json()) as AssistantApiResponse;
+
+      if (!response.ok || !payload.ok) {
+        setRuntimeResponse(payload);
+        setError(payload.message || "Khong the chuan bi AI runtime.");
+        return;
+      }
+
+      setRuntimeResponse(payload);
+    } catch {
+      setRuntimeResponse(null);
+      setError("Khong the goi /api/assistant. Vui long thu lai sau.");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  function pickQuestion(nextQuestion: string) {
+    setQuestion(nextQuestion);
+    setRuntimeResponse(null);
+    setError("Cau hoi da duoc dien. Bam Hoi AI de chuan bi runtime prompt.");
+  }
+
+  const selectedDocuments = runtimeResponse?.runtime?.selectedDocuments ?? [];
+  const warnings = runtimeResponse?.runtime?.warnings ?? [];
+
+  return (
+    <div className="space-y-4">
+      <AskAIInput value={question} onChange={setQuestion} onSubmit={submitQuestion} disabled={isLoading} />
+
+      <section className="space-y-2">
+        <h3 className="text-xs font-bold text-ink">CÃ¢u há»i gá»£i Ã½</h3>
+        <AITutorQuestionList questions={config.suggestedQuestions} onSelect={pickQuestion} />
+      </section>
+
+      <section className="rounded-[4px] border-[1.5px] border-border bg-surface px-3 py-3 shadow-hard-sm">
+        <h3 className="text-xs font-bold text-ink">AI pháº£n há»“i</h3>
+        <p className="mt-2 text-xs leading-5 text-muted">
+          {isLoading
+            ? "Dang goi /api/assistant de chuan bi runtime prompt..."
+            : runtimeResponse?.message ??
+              error ??
+              "AI runtime da san sang prompt, nhung LLM chua duoc cau hinh."}
+        </p>
+        <p className="mt-2 rounded-[3px] border border-border-soft bg-surface-soft px-3 py-2 text-[11px] font-semibold leading-5 text-muted">
+          LLM status: {runtimeResponse?.llmStatus ?? "not_configured"} Â· Answer: {runtimeResponse?.answer ?? "null"}
+        </p>
+
+        {runtimeResponse?.runtime ? (
+          <div className="mt-3 space-y-2">
+            <div className="rounded-[3px] border border-border-soft bg-surface-soft px-3 py-2 text-[11px] leading-5 text-muted">
+              <p className="font-bold text-ink">Runtime</p>
+              <p>Intent: {runtimeResponse.runtime.detectedIntent ?? "unknown"}</p>
+              <p>Safety: {runtimeResponse.runtime.safetyLevel ?? "unknown"}</p>
+              <p>Docs: {runtimeResponse.runtime.debug?.selectedDocumentCount ?? selectedDocuments.length}</p>
+            </div>
+
+            {selectedDocuments.length > 0 ? (
+              <div className="rounded-[3px] border border-border-soft bg-surface-soft px-3 py-2">
+                <p className="text-[11px] font-bold text-ink">Selected documents</p>
+                <ul className="mt-1 space-y-1 text-[11px] leading-4 text-muted">
+                  {selectedDocuments.slice(0, 5).map((document) => (
+                    <li key={document.id}>
+                      <span className="font-bold text-ink">{document.id}</span>
+                      <span className="block break-words">{document.filePath}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
+            {warnings.length > 0 ? (
+              <div className="rounded-[3px] border border-[#D6B15C] bg-[#FFF6D8] px-3 py-2">
+                <p className="text-[11px] font-bold text-[#765416]">Warnings</p>
+                <ul className="mt-1 space-y-1 text-[11px] leading-4 text-[#765416]">
+                  {warnings.slice(0, 3).map((warning) => (
+                    <li key={warning}>{warning}</li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+      </section>
+
+      <AITutorSoftWarning>{config.softWarning}</AITutorSoftWarning>
+      <AITutorSoftWarning>AI khong dua khuyen nghi mua, ban hoac nam giu.</AITutorSoftWarning>
     </div>
   );
 }
@@ -314,7 +473,7 @@ function AITutorPanelContent({
       <div className="space-y-4 px-4 py-4">
         <AITutorTabs activeTab={activeTab} onChange={setActiveTab} />
         {activeTab === "guide" ? <AITutorGuideTab config={config} onNavigate={onNavigate} /> : null}
-        {activeTab === "ask" ? <AITutorAskTab config={config} /> : null}
+        {activeTab === "ask" ? <AITutorAskRuntimeTab activeModule={activeModule} config={config} /> : null}
         {activeTab === "learn" ? <AITutorLearnTab config={config} /> : null}
       </div>
     </section>
