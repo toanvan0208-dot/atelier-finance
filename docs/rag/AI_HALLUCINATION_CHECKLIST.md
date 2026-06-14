@@ -284,6 +284,8 @@ Trước khi tạo final answer, AI phải tự kiểm tra các câu hỏi sau:
 8. Có tự suy đoán tin tức hoặc sự kiện không?
 9. Có tự so sánh với ngành khi không có dữ liệu ngành không?
 10. Có tự chọn nguồn dữ liệu khi các nguồn đang mâu thuẫn không?
+11. Có tự tạo EPS, equity, CFO hoặc fair value từ dữ liệu báo cáo tài chính còn thiếu không?
+12. Có tự điền 0 cho dữ liệu thiếu để tính chỉ số hoặc kết luận không?
 
 Nếu câu trả lời là có ở bất kỳ mục nào, AI phải sửa lại.
 
@@ -341,6 +343,10 @@ Risk score là cảnh báo phân tích trong phạm vi dữ liệu hiện có, k
 6. Có bỏ qua thanh khoản khi diễn giải biến động giá không?
 7. Có kết luận cổ phiếu tốt/xấu chỉ từ giá và volume không?
 8. Có biến PVT thành khuyến nghị giao dịch không?
+9. Có tự tạo volume trung bình hoặc average trading value khi context không có không?
+10. Có tự tạo trading value khi thiếu giá hoặc volume không?
+11. Có tự kết luận breakout đã xác nhận không?
+12. Có dự đoán giá từ price/volume không?
 
 Nếu có lỗi, AI phải sửa lại theo hướng:
 

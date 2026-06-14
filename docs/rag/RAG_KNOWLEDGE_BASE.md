@@ -18,7 +18,7 @@ Mục tiêu chính bao gồm:
 ---
 
 ## 2. Bản Đồ Kho Tri Thức Con (Child Knowledge Files)
-Kho tri thức RAG của hệ thống được chia làm 4 tài liệu con chuyên biệt:
+Kho tri thức RAG của hệ thống được chia thành các tài liệu con chuyên biệt và tài liệu quản trị hỗ trợ:
 
 *   [RAG_FINANCIAL_TERMS.md](file:///c:/Users/ADMIN/Documents/Codex/2026-06-03/l-m-th-n-o-c/outputs/docs/rag/RAG_FINANCIAL_TERMS.md)
     *   *Vai trò:* Định nghĩa toàn bộ các thuật ngữ tài chính cơ bản, các tài khoản trên Báo cáo kết quả kinh doanh, Bảng cân đối kế toán và Báo cáo lưu chuyển tiền tệ.
@@ -28,6 +28,18 @@ Kho tri thức RAG của hệ thống được chia làm 4 tài liệu con chuy�
     *   *Vai trò:* Chứa tri thức phân tích rủi ro tài chính, rủi ro chất lượng lợi nhuận (lệch dòng tiền), rủi ro đòn bẩy và rủi ro thanh khoản.
 *   [RAG_CHECKLIST_KNOWLEDGE.md](file:///c:/Users/ADMIN/Documents/Codex/2026-06-03/l-m-th-n-o-c/outputs/docs/rag/RAG_CHECKLIST_KNOWLEDGE.md)
     *   *Vai trò:* Cung cấp bộ khung câu hỏi phản biện, hỗ trợ AI đặt câu hỏi giúp người dùng tự kiểm tra lại các giả định và luận điểm cá nhân.
+*   [RAG_PVT_KNOWLEDGE.md](file:///c:/Users/ADMIN/Documents/Codex/2026-06-03/l-m-th-n-o-c/outputs/docs/rag/RAG_PVT_KNOWLEDGE.md)
+    *   *Purpose:* Explain Price Volume Time, trading value, volume, liquidity, and liquidity risk as market observation.
+    *   *Must not:* Be used for buy/sell/hold, entry/exit signal, or price prediction.
+*   [RAG_FINANCIAL_STATEMENTS_GUIDE.md](file:///c:/Users/ADMIN/Documents/Codex/2026-06-03/l-m-th-n-o-c/outputs/docs/rag/RAG_FINANCIAL_STATEMENTS_GUIDE.md)
+    *   *Purpose:* Explain how to read income statement, balance sheet, and cash flow statement as a connected system.
+    *   *Must not:* Replace metric-specific definitions in [RAG_FINANCIAL_TERMS.md](file:///c:/Users/ADMIN/Documents/Codex/2026-06-03/l-m-th-n-o-c/outputs/docs/rag/RAG_FINANCIAL_TERMS.md).
+*   [RAG_DOCUMENT_TEMPLATE.md](file:///c:/Users/ADMIN/Documents/Codex/2026-06-03/l-m-th-n-o-c/outputs/docs/rag/RAG_DOCUMENT_TEMPLATE.md)
+    *   *Purpose:* Define the standard structure for future RAG documents.
+    *   *Usage:* Used for maintainability, not direct financial explanation.
+*   [RAG_METADATA_STANDARD.md](file:///c:/Users/ADMIN/Documents/Codex/2026-06-03/l-m-th-n-o-c/outputs/docs/rag/RAG_METADATA_STANDARD.md)
+    *   *Purpose:* Define metadata fields for RAG indexing and retrieval.
+    *   *Usage:* Used for retrieval quality and document governance.
 
 ---
 

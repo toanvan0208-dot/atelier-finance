@@ -48,6 +48,61 @@ Trước khi tìm kiếm trong cơ sở dữ liệu Vector, hệ thống phải 
 ### 3.5. Nhận diện rủi ro an toàn (Safety Risk Detection)
 *   Khi phát hiện câu hỏi chứa từ khóa nhạy cảm liên quan đến mua bán, bắt đáy, all-in, hệ thống bắt buộc phải truy xuất tài liệu từ chối khuyến nghị đầu tư để ghim vào context.
 
+### 3.6. Nhận diện Price Volume Time (PVT Intent)
+Khi user hỏi về giá, volume, khối lượng giao dịch, giá trị giao dịch, thanh khoản, breakout, biến động ngắn hạn hoặc hành vi giá theo thời gian:
+
+```text
+Primary retrieval:
+- docs/rag/RAG_PVT_KNOWLEDGE.md
+```
+
+Nếu câu hỏi biến PVT thành tín hiệu mua/bán, điểm vào/ra, xác nhận breakout, dự đoán giá hoặc kết luận cổ phiếu an toàn:
+
+```text
+Additional safety retrieval:
+- docs/ai/AI_GUARDRAILS.md
+- docs/rag/AI_RAG_SYSTEM_PROMPT.md
+- docs/rag/AI_HALLUCINATION_CHECKLIST.md
+```
+
+PVT context chỉ được dùng để giải thích quan sát thị trường. Không dùng PVT để tạo buy/sell/hold, entry/exit signal, hoặc price prediction.
+
+### 3.7. Nhận diện Financial Statements Intent
+Khi user hỏi về doanh thu, lợi nhuận, biên lợi nhuận, dòng tiền, bảng cân đối, tài sản, nợ vay, vốn chủ sở hữu, CFO, hoặc cách đọc báo cáo tài chính:
+
+```text
+Primary retrieval:
+- docs/rag/RAG_FINANCIAL_STATEMENTS_GUIDE.md
+```
+
+Nếu user hỏi định nghĩa hoặc cách tính một chỉ số cụ thể:
+
+```text
+Additional retrieval:
+- docs/rag/RAG_FINANCIAL_TERMS.md
+```
+
+Nếu câu hỏi có nợ vay, dòng tiền âm, vốn chủ âm, EPS âm, denominator không hợp lệ, hoặc sector tài chính:
+
+```text
+Additional safety/risk retrieval:
+- docs/rag/RAG_RISK_KNOWLEDGE.md
+- docs/rag/AI_HALLUCINATION_CHECKLIST.md
+```
+
+Financial statement context phải được đọc như một hệ thống ba báo cáo, không thay thế định nghĩa chỉ số chi tiết trong `RAG_FINANCIAL_TERMS.md`.
+
+### 3.8. Nhận diện maintainer/developer RAG document intent
+Khi user hoặc maintainer yêu cầu tạo, chuẩn hóa, review, hoặc cập nhật file RAG:
+
+```text
+Primary retrieval:
+- docs/rag/RAG_DOCUMENT_TEMPLATE.md
+- docs/rag/RAG_METADATA_STANDARD.md
+```
+
+Hai tài liệu này chủ yếu phục vụ developer/maintainer. Không retrieve `RAG_DOCUMENT_TEMPLATE.md` hoặc `RAG_METADATA_STANDARD.md` cho câu hỏi tài chính thông thường của người dùng cuối, trừ khi câu hỏi trực tiếp liên quan đến cấu trúc tài liệu, metadata, indexing, hoặc governance.
+
 ---
 
 ## 4. Thuật Toán Xếp Hạng & Chọn Lọc Tài Liệu (Ranking & Boosting)
