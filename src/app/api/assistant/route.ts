@@ -1,4 +1,5 @@
 import { runAssistant } from "../../../lib/ai-rag/assistant";
+import { resolveAssistantProvider } from "../../../lib/ai-rag/providers";
 import type { AssistantProvider } from "../../../lib/ai-rag/providers";
 import type { AssistantRuntimeInput } from "../../../lib/ai-rag/runtime";
 import type { AssistantDataQuality, AssistantModuleContext } from "../../../lib/ai-rag/prompts";
@@ -99,7 +100,8 @@ export const createAssistantPostHandler =
 
     const assistantResult = await runAssistant({
       ...runtimeInput,
-      provider: options.provider ?? null,
+      provider:
+        options.provider !== undefined ? options.provider : resolveAssistantProvider(),
     });
 
     return jsonResponse(

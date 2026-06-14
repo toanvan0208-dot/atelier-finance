@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import { MockAssistantProvider } from "../../../../lib/ai-rag/providers";
 import { createAssistantPostHandler, POST } from "../route";
 
@@ -30,7 +30,28 @@ type AssistantApiResponse = {
   refusal?: string | null;
 };
 
+const originalProviderMode = process.env.AI_ASSISTANT_PROVIDER;
+const originalMockAnswer = process.env.AI_ASSISTANT_MOCK_ANSWER;
+
+const restoreEnv = (): void => {
+  if (originalProviderMode === undefined) {
+    delete process.env.AI_ASSISTANT_PROVIDER;
+  } else {
+    process.env.AI_ASSISTANT_PROVIDER = originalProviderMode;
+  }
+
+  if (originalMockAnswer === undefined) {
+    delete process.env.AI_ASSISTANT_MOCK_ANSWER;
+  } else {
+    process.env.AI_ASSISTANT_MOCK_ANSWER = originalMockAnswer;
+  }
+};
+
 describe("POST /api/assistant", () => {
+  afterEach(() => {
+    restoreEnv();
+  });
+
   it("returns ok true for a valid request", async () => {
     const response = await postJson({
       question: "Doanh thu tang thi cong ty tot hon dung khong?",
@@ -84,6 +105,9 @@ describe("POST /api/assistant", () => {
   });
 
   it("always returns answer null and llmStatus not_configured", async () => {
+    delete process.env.AI_ASSISTANT_PROVIDER;
+    delete process.env.AI_ASSISTANT_MOCK_ANSWER;
+
     const response = await postJson({
       question: "Risk thap thi co phieu nay an toan khong?",
       activeModule: "risk",
@@ -93,6 +117,55 @@ describe("POST /api/assistant", () => {
     expect(json.answer).toBeNull();
     expect(json.llmStatus).toBe("not_configured");
     expect(json.message).toContain("no LLM provider is configured");
+  });
+
+  it("falls back to no provider for invalid provider env", async () => {
+    process.env.AI_ASSISTANT_PROVIDER = "bad-provider";
+
+    const response = await postJson({
+      question: "Giai thich giup toi man hinh nay",
+      activeModule: "general",
+    });
+    const json = await readJson<AssistantApiResponse>(response);
+
+    expect(response.status).toBe(200);
+    expect(json.ok).toBe(true);
+    expect(json.answer).toBeNull();
+    expect(json.llmStatus).toBe("not_configured");
+  });
+
+  it("can resolve mock provider from env and validate a safe answer", async () => {
+    process.env.AI_ASSISTANT_PROVIDER = "mock";
+    process.env.AI_ASSISTANT_MOCK_ANSWER =
+      "Khong the khuyen nghi mua ban. Day la cau tra loi mock an toan chi de test.";
+
+    const response = await postJson({
+      question: "Co nen mua khong?",
+      activeModule: "general",
+    });
+    const json = await readJson<AssistantApiResponse>(response);
+
+    expect(response.status).toBe(200);
+    expect(json.ok).toBe(true);
+    expect(json.llmStatus).toBe("completed");
+    expect(json.answer).toContain("mock");
+    expect(json.validation?.isValid).toBe(true);
+  });
+
+  it("openai env mode uses placeholder and does not generate an answer", async () => {
+    process.env.AI_ASSISTANT_PROVIDER = "openai";
+
+    const response = await postJson({
+      question: "Giai thich giup toi",
+      activeModule: "general",
+    });
+    const json = await readJson<AssistantApiResponse>(response);
+
+    expect(response.status).toBe(502);
+    expect(json.ok).toBe(false);
+    expect(json.answer).toBeNull();
+    expect(json.llmStatus).toBe("provider_error");
+    expect(json.message).toContain("not implemented");
   });
 
   it("can use an injected mock provider and return a validated safe answer", async () => {
