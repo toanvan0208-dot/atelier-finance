@@ -497,6 +497,8 @@ export type FinancialConclusionReadiness =
   | "Cần kiểm tra thêm"
   | "Chưa nên định giá";
 
+export type FinancialValuationNavigationStatus = "ready" | "needs_review" | "not_ready";
+
 export type FinancialReadingDeskData = {
   ticker: string;
   companyName: string;
@@ -514,8 +516,12 @@ export type FinancialReadingDeskData = {
   };
   valuationReadiness: {
     status: FinancialConclusionReadiness;
+    logicStatus: FinancialValuationNavigationStatus;
+    canContinue: boolean;
     missing: string[];
     reason: string;
+    nextStepSuggestion: string;
+    usableMethods: string[];
   };
   warnings: FinancialDeskWarning[];
   metrics: FinancialDeskMetric[];

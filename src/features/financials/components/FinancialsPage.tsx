@@ -41,10 +41,12 @@ export function FinancialsPage({ onNavigate }: FinancialsPageProps) {
   return (
     <div className="mx-auto w-full max-w-[1080px] space-y-6">
       <FinancialsHeader
-        canContinueToValuation={false}
+        canContinueToValuation={deskData.valuationReadiness.canContinue}
         data={data.header}
         onNavigate={onNavigate}
         valuationDisabledReason={deskData.valuationReadiness.reason}
+        valuationReadinessCaption={deskData.valuationReadiness.nextStepSuggestion}
+        valuationReadinessStatus={deskData.valuationReadiness.logicStatus}
       />
       <FinancialsOverviewPanel data={deskData} onFocusStep={focusStep} />
       <FinancialReadingJourney

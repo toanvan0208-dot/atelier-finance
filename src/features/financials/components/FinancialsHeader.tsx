@@ -7,6 +7,8 @@ type FinancialsHeaderProps = {
   canContinueToValuation?: boolean;
   onNavigate?: (moduleKey: string) => void;
   valuationDisabledReason?: string;
+  valuationReadinessCaption?: string;
+  valuationReadinessStatus?: "ready" | "needs_review" | "not_ready";
 };
 
 export function FinancialsHeader({
@@ -14,7 +16,16 @@ export function FinancialsHeader({
   data,
   onNavigate,
   valuationDisabledReason,
+  valuationReadinessCaption,
+  valuationReadinessStatus = "not_ready",
 }: FinancialsHeaderProps) {
+  const valuationCaption =
+    !canContinueToValuation && valuationDisabledReason
+      ? valuationDisabledReason
+      : canContinueToValuation && valuationReadinessStatus === "needs_review"
+        ? valuationReadinessCaption
+        : null;
+
   return (
     <Card>
       <CardBody>
@@ -53,6 +64,7 @@ export function FinancialsHeader({
                     key={action.label}
                     disabled={disabled}
                     onClick={() => onNavigate?.(targetModule)}
+                    title={isValuationAction ? valuationCaption ?? undefined : undefined}
                     variant={disabled ? "secondary" : action.variant}
                   >
                     {disabled ? "Hoàn thành kiểm tra BCTC" : action.label}
@@ -60,8 +72,8 @@ export function FinancialsHeader({
                 );
               })}
             </div>
-            {!canContinueToValuation && valuationDisabledReason ? (
-              <p className="mt-2 text-xs leading-5 text-muted lg:text-right">{valuationDisabledReason}</p>
+            {valuationCaption ? (
+              <p className="mt-2 text-xs leading-5 text-muted lg:text-right">{valuationCaption}</p>
             ) : null}
           </div>
         </div>

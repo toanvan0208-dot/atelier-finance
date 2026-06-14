@@ -23,6 +23,10 @@ const snapshot: FinancialsStatementSnapshot = {
   currentLiabilities: 500,
   operatingCashFlow: 90,
   capitalExpenditure: 40,
+  sharesOutstanding: 100,
+  eps: 1,
+  bvps: 12,
+  closePrice: 50,
   sourceName: "Unit test",
   collectedAt: "2026-06-01",
 };
@@ -44,8 +48,12 @@ const baseDeskData: FinancialReadingDeskData = {
   },
   valuationReadiness: {
     status: "Cần kiểm tra thêm",
+    logicStatus: "needs_review",
+    canContinue: true,
     missing: [],
     reason: "Base valuation note",
+    nextStepSuggestion: "Base next step",
+    usableMethods: [],
   },
   warnings: [],
   metrics: [],
@@ -100,5 +108,43 @@ describe("financials logic adapter", () => {
     expect(revenueGrowth?.logicKey).toBe("revenueGrowth");
     expect(freeCashFlow?.value).toBe("50 tỷ VND");
     expect(data.preliminaryConclusion.scoreNote).toMatch(/không phải chỉ dẫn giao dịch/i);
+  });
+
+  it("allows valuation navigation when valuation readiness has enough market and statement data", () => {
+    const data = buildFinancialReadingDeskData(baseDeskData, snapshot);
+
+    expect(data.valuationReadiness.canContinue).toBe(true);
+    expect(data.valuationReadiness.logicStatus).toBe("ready");
+    expect(data.valuationReadiness.status).toBe("Có thể chuyển");
+    expect(data.valuationReadiness.usableMethods).toEqual(expect.arrayContaining(["P/E", "P/B", "P/S"]));
+  });
+
+  it("blocks valuation navigation when close price is missing without treating it as zero", () => {
+    const data = buildFinancialReadingDeskData(baseDeskData, {
+      ...snapshot,
+      closePrice: null,
+    });
+
+    expect(data.valuationReadiness.canContinue).toBe(false);
+    expect(data.valuationReadiness.logicStatus).toBe("not_ready");
+    expect(data.valuationReadiness.missing.join(" ")).toContain("closePrice");
+    expect(data.valuationReadiness.reason).not.toContain("0");
+  });
+
+  it("keeps EPS-negative readiness cautious instead of treating P/E as normal", () => {
+    const data = buildFinancialReadingDeskData(baseDeskData, {
+      ...snapshot,
+      eps: -1,
+      netProfit: null,
+      ebitda: null,
+      totalDebt: null,
+      shortTermDebt: null,
+      longTermDebt: null,
+    });
+
+    expect(data.valuationReadiness.logicStatus).toBe("needs_review");
+    expect(data.valuationReadiness.canContinue).toBe(true);
+    expect(data.valuationReadiness.usableMethods).not.toContain("P/E");
+    expect(data.valuationReadiness.missing.join(" ")).toContain("netProfit");
   });
 });

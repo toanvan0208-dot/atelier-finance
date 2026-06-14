@@ -21,6 +21,8 @@ const baseFinancialReadingDeskData: FinancialReadingDeskData = {
   },
   valuationReadiness: {
     status: "Cần kiểm tra thêm",
+    logicStatus: "needs_review",
+    canContinue: true,
     missing: [
       "Cần đối chiếu CFO với khoản phải thu và tồn kho theo quý.",
       "Cần tách nợ vay ngắn hạn, dài hạn và chi phí lãi vay.",
@@ -28,6 +30,8 @@ const baseFinancialReadingDeskData: FinancialReadingDeskData = {
     ],
     reason:
       "Chưa nên đưa ngay vào mô hình định giá vì chất lượng lợi nhuận và vốn lưu động còn cần xác nhận.",
+    nextStepSuggestion: "Có thể xem định giá sơ bộ, cần kiểm tra thêm trước khi tin vào định giá.",
+    usableMethods: [],
   },
   warnings: [
     {
@@ -410,6 +414,10 @@ const financialsStatementMockSnapshot: FinancialsStatementSnapshot = {
   interestExpense: 1_200,
   ebit: 4_900,
   ebitda: 7_800,
+  sharesOutstanding: 1_463,
+  eps: 2_870,
+  bvps: 20_095,
+  closePrice: 65_000,
 };
 
 export const financialReadingDeskData = buildFinancialReadingDeskData(

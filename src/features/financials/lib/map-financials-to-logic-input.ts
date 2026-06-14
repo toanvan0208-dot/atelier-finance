@@ -36,6 +36,10 @@ export type FinancialsStatementSnapshot = {
   interestExpense?: number | null;
   ebit?: number | null;
   ebitda?: number | null;
+  sharesOutstanding?: number | null;
+  eps?: number | null;
+  bvps?: number | null;
+  closePrice?: number | null;
 };
 
 export const mapFinancialsToLogicInput = (snapshot: FinancialsStatementSnapshot): FinancialStatementInput => ({
@@ -74,4 +78,8 @@ export const mapFinancialsToLogicInput = (snapshot: FinancialsStatementSnapshot)
   interestExpense: snapshot.interestExpense,
   ebit: snapshot.ebit,
   ebitda: snapshot.ebitda,
+  sharesOutstanding: snapshot.sharesOutstanding,
+  eps: snapshot.eps,
+  bvps: snapshot.bvps,
+  closePrice: snapshot.closePrice,
 });

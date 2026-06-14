@@ -10,10 +10,18 @@ import {
   calculateRevenueGrowth,
   calculateRoa,
   calculateRoe,
+  calculateValuationReadiness,
   type FinancialMetricResult,
   type MetricLevel,
+  type ValuationReadinessStatus,
 } from "../../../lib/financial-logic";
-import type { FinancialDeskMetric, FinancialDeskMetricStatus, FinancialReadingDeskData } from "../types";
+import type {
+  FinancialConclusionReadiness,
+  FinancialDeskMetric,
+  FinancialDeskMetricStatus,
+  FinancialReadingDeskData,
+  FinancialValuationNavigationStatus,
+} from "../types";
 import { mapFinancialsToLogicInput, type FinancialsStatementSnapshot } from "./map-financials-to-logic-input";
 
 type MetricPatch = {
@@ -68,6 +76,46 @@ const healthStatusLabel: Record<ReturnType<typeof calculateFinancialHealth>["sta
   unknown: "Chưa đủ dữ liệu",
 };
 
+const valuationNavigationByStatus: Record<
+  ValuationReadinessStatus,
+  {
+    canContinue: boolean;
+    logicStatus: FinancialValuationNavigationStatus;
+    status: FinancialConclusionReadiness;
+    reason: string;
+    nextStepSuggestion: string;
+  }
+> = {
+  ready: {
+    canContinue: true,
+    logicStatus: "ready",
+    status: "Có thể chuyển",
+    reason: "Đủ dữ liệu để xem định giá sơ bộ.",
+    nextStepSuggestion: "Đủ dữ liệu để xem định giá sơ bộ.",
+  },
+  partial: {
+    canContinue: true,
+    logicStatus: "needs_review",
+    status: "Cần kiểm tra thêm",
+    reason: "Có thể xem định giá sơ bộ, nhưng cần kiểm tra thêm trước khi tin vào định giá.",
+    nextStepSuggestion: "Có thể xem định giá sơ bộ, cần kiểm tra thêm trước khi tin vào định giá.",
+  },
+  not_ready: {
+    canContinue: false,
+    logicStatus: "not_ready",
+    status: "Chưa nên định giá",
+    reason: "Chưa đủ dữ liệu để đọc định giá có trách nhiệm.",
+    nextStepSuggestion: "Bổ sung dữ liệu còn thiếu trước khi chuyển sang định giá.",
+  },
+  unknown: {
+    canContinue: false,
+    logicStatus: "not_ready",
+    status: "Chưa nên định giá",
+    reason: "Chưa đủ dữ liệu để đọc định giá có trách nhiệm.",
+    nextStepSuggestion: "Bổ sung dữ liệu còn thiếu trước khi chuyển sang định giá.",
+  },
+};
+
 export const buildFinancialReadingDeskData = (
   baseData: FinancialReadingDeskData,
   snapshot: FinancialsStatementSnapshot
@@ -75,6 +123,12 @@ export const buildFinancialReadingDeskData = (
   const logicInput = mapFinancialsToLogicInput(snapshot);
   const financialHealth = calculateFinancialHealth(logicInput);
   const dataQuality = assessDataQuality(logicInput);
+  const valuationReadiness = calculateValuationReadiness(logicInput);
+  const valuationNavigation = valuationNavigationByStatus[valuationReadiness.status];
+  const valuationReadinessItems =
+    valuationReadiness.warnings.length > 0
+      ? valuationReadiness.warnings
+      : valuationReadiness.missingFields.map((field) => `Thiếu dữ liệu: ${field}.`);
 
   const logicMetrics = [
     toDeskMetric(calculateRevenueGrowth(logicInput), { id: "revenue-growth", label: "Tăng trưởng doanh thu" }),
@@ -129,5 +183,15 @@ export const buildFinancialReadingDeskData = (
     },
     warnings: [...dataQualityWarnings, ...baseData.warnings],
     metrics,
+    valuationReadiness: {
+      ...baseData.valuationReadiness,
+      status: valuationNavigation.status,
+      logicStatus: valuationNavigation.logicStatus,
+      canContinue: valuationNavigation.canContinue,
+      missing: valuationReadinessItems,
+      reason: valuationReadiness.beginnerInterpretation || valuationNavigation.reason,
+      nextStepSuggestion: valuationNavigation.nextStepSuggestion,
+      usableMethods: valuationReadiness.usableMethods,
+    },
   };
 };
