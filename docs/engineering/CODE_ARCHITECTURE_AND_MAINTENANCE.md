@@ -563,30 +563,29 @@ App chính hiện dùng:
 /workspace?module=<moduleKey>
 ```
 
-Không tạo route riêng kiểu:
+Không tạo route riêng theo tên module. Dùng quy ước workspace query:
 
 ```txt
-/overview
-/financials
-/valuation
-/risk
+/workspace?module=overview
+/workspace?module=financials
+/workspace?module=valuation
+/workspace?module=risk
 ```
 
-nếu app hiện tại chưa hỗ trợ route đó.
+Route riêng theo từng module hiện không được hỗ trợ.
 
 Nguyên tắc:
 
 * Sidebar/mobile navigation dùng `onNavigate(moduleKey)`.
 * CTA liên module cũng dùng `onNavigate(moduleKey)`.
-* Không dùng `window.location.href = "/?module=..."`.
+* Không dùng root route query cho module; fallback URL phải trỏ vào `/workspace`.
 * Nếu cần fallback URL, dùng:
 
 ```txt
 /workspace?module=<moduleKey>
 ```
 
-* Nếu module key không hợp lệ, app fallback về overview.
-* Nên xem xét normalize URL sai thành `?module=overview` trong tương lai.
+* Nếu module key không hợp lệ, app fallback về overview và normalize URL thành `/workspace?module=overview`.
 
 Ví dụ đúng:
 
@@ -603,7 +602,7 @@ window.location.href = `/workspace?module=${targetModule}`;
 Ví dụ sai:
 
 ```ts
-window.location.href = `/?module=${targetModule}`;
+window.location.href = `/${targetModule}`;
 ```
 
 ---
@@ -962,7 +961,7 @@ Khi sửa navigation:
 * Kiểm tra CTA liên module.
 * Kiểm tra fallback URL.
 * Không tạo route mới nếu chưa có thiết kế route.
-* Không dùng `/overview`, `/valuation` nếu app đang dùng `/workspace?module=...`.
+* Không dùng route riêng theo tên module nếu app đang dùng `/workspace?module=...`.
 
 Sau khi sửa navigation, nên test:
 

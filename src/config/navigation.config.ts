@@ -14,7 +14,7 @@ export const navigationItems: NavigationItem[] = [
     label: "Tổng quan",
     shortLabel: "Tổng",
     icon: "◇",
-    href: "/overview",
+    href: "/workspace?module=overview",
     group: "Tổng quan",
   },
   {
@@ -22,7 +22,7 @@ export const navigationItems: NavigationItem[] = [
     label: "Học tập",
     shortLabel: "Học",
     icon: "●",
-    href: "/learning",
+    href: "/workspace?module=learning",
     group: "Chuẩn bị",
   },
   {
@@ -30,7 +30,7 @@ export const navigationItems: NavigationItem[] = [
     label: "Vĩ mô",
     shortLabel: "Vĩ mô",
     icon: "◆",
-    href: "/macro",
+    href: "/workspace?module=macro",
     group: "Phân tích",
   },
   {
@@ -38,7 +38,7 @@ export const navigationItems: NavigationItem[] = [
     label: "Ngành",
     shortLabel: "Ngành",
     icon: "▤",
-    href: "/industry",
+    href: "/workspace?module=industry",
     group: "Phân tích",
   },
   {
@@ -46,7 +46,7 @@ export const navigationItems: NavigationItem[] = [
     label: "Lọc cổ phiếu",
     shortLabel: "Lọc",
     icon: "▽",
-    href: "/screening",
+    href: "/workspace?module=screening",
     group: "Phân tích",
   },
   {
@@ -54,7 +54,7 @@ export const navigationItems: NavigationItem[] = [
     label: "Hiểu doanh nghiệp",
     shortLabel: "DN",
     icon: "▣",
-    href: "/business",
+    href: "/workspace?module=business",
     group: "Phân tích",
   },
   {
@@ -62,7 +62,7 @@ export const navigationItems: NavigationItem[] = [
     label: "Báo cáo tài chính",
     shortLabel: "BCTC",
     icon: "▤",
-    href: "/financials",
+    href: "/workspace?module=financials",
     group: "Phân tích",
   },
   {
@@ -70,7 +70,7 @@ export const navigationItems: NavigationItem[] = [
     label: "Định giá",
     shortLabel: "Giá",
     icon: "◇",
-    href: "/valuation",
+    href: "/workspace?module=valuation",
     group: "Phân tích",
   },
   {
@@ -78,7 +78,7 @@ export const navigationItems: NavigationItem[] = [
     label: "Rủi ro & minh bạch",
     shortLabel: "RR",
     icon: "◉",
-    href: "/risk",
+    href: "/workspace?module=risk",
     group: "Phân tích",
   },
   {
@@ -86,7 +86,7 @@ export const navigationItems: NavigationItem[] = [
     label: "Quan sát Giá - Thanh khoản - Thời điểm",
     shortLabel: "PVT",
     icon: "⌁",
-    href: "/technical",
+    href: "/workspace?module=technical",
     group: "Phân tích",
   },
   {
@@ -94,7 +94,7 @@ export const navigationItems: NavigationItem[] = [
     label: "Kiểm tra & luyện tư duy",
     shortLabel: "KT",
     icon: "☷",
-    href: "/checklist",
+    href: "/workspace?module=checklist",
     group: "Thực hành & quyết định",
   },
   {
@@ -102,7 +102,7 @@ export const navigationItems: NavigationItem[] = [
     label: "Mô phỏng",
     shortLabel: "MP",
     icon: "○",
-    href: "/simulation",
+    href: "/workspace?module=simulation",
     group: "Thực hành & quyết định",
   },
   {
@@ -110,7 +110,7 @@ export const navigationItems: NavigationItem[] = [
     label: "Watchlist",
     shortLabel: "WL",
     icon: "▧",
-    href: "/watchlist",
+    href: "/workspace?module=watchlist",
     group: "Thực hành & quyết định",
   },
 ];

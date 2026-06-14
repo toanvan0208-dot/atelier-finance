@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useSyncExternalStore } from "react";
 import { navigationItems } from "@/config/navigation.config";
 import { shellConfig } from "@/config/shell.config";
 import { BusinessPage } from "@/features/business";
@@ -27,6 +27,7 @@ import { MobileNavigation } from "./MobileNavigation";
 import { RightAssistantPanel } from "./RightAssistantPanel";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
+import { resolveActiveModule, shouldNormalizeInvalidModule } from "./app-shell-routing";
 
 const modulesWithInternalProgress = new Set([
   "macro",
@@ -77,8 +78,19 @@ function AppShellContent() {
     },
     () => null
   );
-  const activeModule =
-    (moduleFromUrl && moduleKeys.has(moduleFromUrl) ? moduleFromUrl : shellConfig.defaultModuleKey);
+  const activeModule = resolveActiveModule(moduleFromUrl, moduleKeys, shellConfig.defaultModuleKey);
+
+  useEffect(() => {
+    if (!shouldNormalizeInvalidModule(moduleFromUrl, moduleKeys)) {
+      return;
+    }
+
+    const url = new URL(window.location.href);
+    url.searchParams.set("module", shellConfig.defaultModuleKey);
+    url.hash = "";
+    window.history.replaceState(null, "", url);
+    window.dispatchEvent(new Event(navigationChangeEvent));
+  }, [moduleFromUrl, moduleKeys]);
 
   function handleNavigate(nextModule: string) {
     if (nextModule === "route-config") {
