@@ -79,8 +79,8 @@ export function SimulationReflectionBox({ value, onChange }: SimulationReflectio
       </div>
       <div className="flex flex-wrap gap-2">
         <Button onClick={() => onChange({ ...value, completed: true })}>Đánh dấu đã hậu kiểm</Button>
-        <Button variant="secondary">Xem nhật ký mô phỏng</Button>
-        <Button variant="ghost">Đặt mốc xem lại tiếp theo</Button>
+        <Button disabled title="Sắp có" variant="secondary">Xem nhật ký mô phỏng</Button>
+        <Button disabled title="Sắp có" variant="ghost">Đặt mốc xem lại tiếp theo</Button>
       </div>
     </section>
   );

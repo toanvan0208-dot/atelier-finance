@@ -34,7 +34,11 @@ const moduleKeyMap: Record<string, string> = {
   "Nhật ký": "simulation",
 };
 
-export function LearningPage() {
+type LearningPageProps = {
+  onNavigate?: (moduleKey: string) => void;
+};
+
+export function LearningPage({ onNavigate }: LearningPageProps) {
   const data = learningPageData;
   const [activeTab, setActiveTab] = useState<LearningTabId>("today");
   const [activeStageId, setActiveStageId] = useState(data.stages[0].id);
@@ -146,7 +150,12 @@ export function LearningPage() {
 
   function openModule(moduleName: string) {
     const key = moduleKeyMap[moduleName] ?? "overview";
-    window.location.href = `/?module=${key}`;
+    if (onNavigate) {
+      onNavigate(key);
+      return;
+    }
+
+    window.location.href = `/workspace?module=${key}`;
   }
 
   const quizCount = Object.keys(quizAnswers).length;

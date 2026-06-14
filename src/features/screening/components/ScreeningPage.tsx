@@ -62,7 +62,7 @@ function goToModule(moduleKey: string, onNavigate?: (moduleKey: string) => void,
   const query = new URLSearchParams({ module: moduleKey });
   if (ticker && moduleKey === "business") query.set("ticker", ticker);
 
-  window.location.href = `/?${query.toString()}`;
+  window.location.href = `/workspace?${query.toString()}`;
 }
 
 function readScreeningInputSource(): ScreeningInputSource {

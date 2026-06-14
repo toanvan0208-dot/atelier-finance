@@ -40,7 +40,7 @@ function goToModule(targetModule?: string, onNavigate?: ScreeningNavigate) {
     return;
   }
 
-  window.location.href = `/?module=${targetModule}`;
+  window.location.href = `/workspace?module=${targetModule}`;
 }
 
 function ScreeningActionButton({

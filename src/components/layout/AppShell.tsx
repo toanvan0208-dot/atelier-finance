@@ -144,8 +144,8 @@ function AppShellContent() {
         {activeModule === "macro" ? (
           <MacroPage onNavigate={handleNavigate} />
         ) : null}
-        {activeModule === "learning" ? <LearningPage /> : null}
-        {activeModule === "industry" ? <IndustryPage /> : null}
+        {activeModule === "learning" ? <LearningPage onNavigate={handleNavigate} /> : null}
+        {activeModule === "industry" ? <IndustryPage onNavigate={handleNavigate} /> : null}
         {activeModule === "screening" ? <ScreeningPage onNavigate={handleNavigate} /> : null}
         {activeModule === "business" ? (
           <BusinessPage onNavigate={handleNavigate} />

@@ -43,7 +43,7 @@ function goToModule(targetModule?: string, onNavigate?: IndustryNavigate) {
     return;
   }
 
-  window.location.href = `/?module=${targetModule}`;
+  window.location.href = `/workspace?module=${targetModule}`;
 }
 
 function saveIndustryScreeningSource({

@@ -31,9 +31,11 @@ export function Topbar({ title, brandName, profileAction, actions }: TopbarProps
         {actions.map((action) => (
           <button
             key={action.key}
-            className="grid h-9 w-9 place-items-center rounded-[3px] border border-border-soft bg-surface text-muted transition hover:border-border hover:bg-surface-hover hover:text-ink"
+            className="grid h-9 w-9 place-items-center rounded-[3px] border border-border-soft bg-surface text-muted opacity-60"
             type="button"
-            aria-label={action.label}
+            aria-label={`${action.label}, sắp có`}
+            disabled
+            title="Sắp có"
           >
             {action.icon}
           </button>

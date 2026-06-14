@@ -93,10 +93,22 @@ function AITutorRecommendedLessonCard({
       </p>
       <p className="mt-2 text-xs leading-5 text-muted">{lesson.reason}</p>
       <div className="mt-3 flex gap-2">
-        <button className="rounded-[3px] border-[1.5px] border-border bg-accent px-2.5 py-1 text-[11px] font-bold text-ink shadow-hard-sm" type="button">
+        <button
+          aria-label="Học nhanh, sắp có"
+          className="rounded-[3px] border-[1.5px] border-border bg-accent px-2.5 py-1 text-[11px] font-bold text-ink opacity-60 shadow-hard-sm"
+          disabled
+          title="Sắp có"
+          type="button"
+        >
           Học nhanh
         </button>
-        <button className="rounded-[3px] border border-border-soft bg-surface px-2.5 py-1 text-[11px] font-bold text-muted" type="button">
+        <button
+          aria-label="Để sau, sắp có"
+          className="rounded-[3px] border border-border-soft bg-surface px-2.5 py-1 text-[11px] font-bold text-muted opacity-60"
+          disabled
+          title="Sắp có"
+          type="button"
+        >
           Để sau
         </button>
       </div>
@@ -229,7 +241,9 @@ function AITutorAskTab({ config }: { config: AITutorConfig }) {
           {["Giải thích dễ hơn", "Cho ví dụ", "Liên kết với module khác"].map((label) => (
             <button
               key={label}
-              className="rounded-[3px] border border-border-soft bg-surface-soft px-3 py-2 text-left text-[11px] font-bold text-muted transition hover:border-border hover:bg-surface-hover hover:text-ink"
+              className="rounded-[3px] border border-border-soft bg-surface-soft px-3 py-2 text-left text-[11px] font-bold text-muted opacity-60"
+              disabled
+              title="Sắp có"
               type="button"
             >
               {label}

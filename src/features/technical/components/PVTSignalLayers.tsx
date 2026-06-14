@@ -55,7 +55,7 @@ export function PVTSignalLayers({ layers }: PVTSignalLayersProps) {
           <div className="rounded-[4px] border border-warning bg-warning/10 p-4">
             <p className="text-sm font-bold text-ink">Sai lầm phổ biến</p>
             <p className="mt-2 text-xs leading-5 text-muted">{activeLayer.commonMistake}</p>
-            <Button className="mt-4 w-full" size="sm" variant="secondary">
+            <Button className="mt-4 w-full" disabled size="sm" title="Sắp có" variant="secondary">
               Xem chi tiết
             </Button>
           </div>
