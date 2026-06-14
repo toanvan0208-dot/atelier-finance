@@ -198,7 +198,7 @@ export const buildRiskDeskData = (
       conclusion:
         overallRisk.level === "unknown"
           ? `Chưa đủ dữ liệu để kết luận rủi ro tổng hợp. ${dataQualityWarning}`
-          : `${overallRisk.beginnerInterpretation} ${mainRiskText(overallRisk)} Đây là cảnh báo phân tích, không phải khuyến nghị giao dịch.`,
+          : `${overallRisk.beginnerInterpretation} ${mainRiskText(overallRisk)} Đây là cảnh báo phân tích, không phải tín hiệu giao dịch.`,
     },
     topRisks,
     missingEvidence: missingEvidence.length > 0 ? missingEvidence : ["Không có trường thiếu trọng yếu từ dữ liệu hiện tại."],

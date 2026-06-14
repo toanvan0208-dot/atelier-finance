@@ -5,3 +5,6 @@ node_modules
 .env.local
 dev-server.log
 dev-server.err.log
+.next-dev-*.log
+.next-dev-*.out.log
+.next-dev-*.err.log

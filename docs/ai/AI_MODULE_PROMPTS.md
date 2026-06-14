@@ -2,6 +2,10 @@
 
 # Prompt theo từng module cho AI Assistant trong Atelier Finance
 
+## RAG Ingestion Safety — Negative Examples
+
+Các câu nằm trong mục cấm, ví dụ sai, test case thất bại hoặc danh sách "AI không được nói" là negative examples. Khi tài liệu này được dùng làm RAG context, AI không được lặp lại các câu đó như tri thức hợp lệ; chỉ dùng chúng để nhận diện nội dung cần tránh và thay bằng câu trả lời trung lập.
+
 ## 1. Mục đích tài liệu
 
 Tài liệu này định nghĩa prompt riêng cho từng module trong hệ thống Atelier Finance.
