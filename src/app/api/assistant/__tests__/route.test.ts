@@ -32,6 +32,8 @@ type AssistantApiResponse = {
 
 const originalProviderMode = process.env.AI_ASSISTANT_PROVIDER;
 const originalMockAnswer = process.env.AI_ASSISTANT_MOCK_ANSWER;
+const originalOpenAiApiKey = process.env.OPENAI_API_KEY;
+const originalOpenAiModel = process.env.OPENAI_MODEL;
 
 const restoreEnv = (): void => {
   if (originalProviderMode === undefined) {
@@ -44,6 +46,18 @@ const restoreEnv = (): void => {
     delete process.env.AI_ASSISTANT_MOCK_ANSWER;
   } else {
     process.env.AI_ASSISTANT_MOCK_ANSWER = originalMockAnswer;
+  }
+
+  if (originalOpenAiApiKey === undefined) {
+    delete process.env.OPENAI_API_KEY;
+  } else {
+    process.env.OPENAI_API_KEY = originalOpenAiApiKey;
+  }
+
+  if (originalOpenAiModel === undefined) {
+    delete process.env.OPENAI_MODEL;
+  } else {
+    process.env.OPENAI_MODEL = originalOpenAiModel;
   }
 };
 
@@ -152,8 +166,9 @@ describe("POST /api/assistant", () => {
     expect(json.validation?.isValid).toBe(true);
   });
 
-  it("openai env mode uses placeholder and does not generate an answer", async () => {
+  it("openai env mode without API key is not configured and does not generate an answer", async () => {
     process.env.AI_ASSISTANT_PROVIDER = "openai";
+    delete process.env.OPENAI_API_KEY;
 
     const response = await postJson({
       question: "Giai thich giup toi",
@@ -161,11 +176,11 @@ describe("POST /api/assistant", () => {
     });
     const json = await readJson<AssistantApiResponse>(response);
 
-    expect(response.status).toBe(502);
-    expect(json.ok).toBe(false);
+    expect(response.status).toBe(200);
+    expect(json.ok).toBe(true);
     expect(json.answer).toBeNull();
-    expect(json.llmStatus).toBe("provider_error");
-    expect(json.message).toContain("not implemented");
+    expect(json.llmStatus).toBe("not_configured");
+    expect(json.message).toContain("no LLM provider is configured");
   });
 
   it("can use an injected mock provider and return a validated safe answer", async () => {

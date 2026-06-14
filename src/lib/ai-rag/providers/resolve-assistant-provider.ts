@@ -1,27 +1,15 @@
 import { MockAssistantProvider } from "./mock-provider";
-import type { AssistantProvider, AssistantProviderResponse } from "./types";
+import { OpenAiAssistantProvider } from "./openai-provider";
+import type { AssistantProvider } from "./types";
 
 export type AssistantProviderMode = "none" | "mock" | "openai";
 
 export type AssistantProviderEnv = {
   AI_ASSISTANT_PROVIDER?: string;
   AI_ASSISTANT_MOCK_ANSWER?: string;
+  OPENAI_API_KEY?: string;
+  OPENAI_MODEL?: string;
 };
-
-class OpenAiPlaceholderProvider implements AssistantProvider {
-  readonly id = "openai-placeholder";
-
-  async call(): Promise<AssistantProviderResponse> {
-    return {
-      ok: false,
-      status: "provider_error",
-      answer: null,
-      providerId: this.id,
-      error:
-        "OpenAI assistant provider mode is configured but not implemented in this MVP. No network call was made.",
-    };
-  }
-}
 
 const normalizeMode = (value: string | undefined): AssistantProviderMode => {
   const normalized = value?.trim().toLowerCase();
@@ -46,7 +34,10 @@ export const resolveAssistantProvider = (
           "Mock provider response. This is for local development and tests only.",
       });
     case "openai":
-      return new OpenAiPlaceholderProvider();
+      return new OpenAiAssistantProvider({
+        apiKey: env.OPENAI_API_KEY,
+        model: env.OPENAI_MODEL,
+      });
     case "none":
     default:
       return null;
