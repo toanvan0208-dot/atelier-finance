@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { POST } from "../route";
+import { MockAssistantProvider } from "../../../../lib/ai-rag/providers";
+import { createAssistantPostHandler, POST } from "../route";
 
-const postJson = (body: unknown): Promise<Response> =>
-  POST(
+const postJson = (body: unknown, handler = POST): Promise<Response> =>
+  handler(
     new Request("http://localhost/api/assistant", {
       method: "POST",
       body: JSON.stringify(body),
@@ -24,6 +25,9 @@ type AssistantApiResponse = {
   answer: string | null;
   llmStatus: string;
   message: string;
+  validation?: { isValid: boolean } | null;
+  violations?: Array<{ code: string }>;
+  refusal?: string | null;
 };
 
 describe("POST /api/assistant", () => {
@@ -88,6 +92,54 @@ describe("POST /api/assistant", () => {
 
     expect(json.answer).toBeNull();
     expect(json.llmStatus).toBe("not_configured");
-    expect(json.message).toContain("No LLM is configured or called");
+    expect(json.message).toContain("no LLM provider is configured");
+  });
+
+  it("can use an injected mock provider and return a validated safe answer", async () => {
+    const handler = createAssistantPostHandler({
+      provider: new MockAssistantProvider({
+        answer:
+          "PVT chi la quan sat thi truong. Khong the khuyen nghi mua ban; can kiem tra them thanh khoan, tai chinh va rui ro.",
+      }),
+    });
+    const response = await postJson(
+      {
+        question: "Volume tang co phai tin hieu mua khong?",
+        activeModule: "technical",
+      },
+      handler,
+    );
+    const json = await readJson<AssistantApiResponse>(response);
+
+    expect(response.status).toBe(200);
+    expect(json.ok).toBe(true);
+    expect(json.llmStatus).toBe("completed");
+    expect(json.answer).toContain("PVT");
+    expect(json.validation?.isValid).toBe(true);
+  });
+
+  it("blocks unsafe injected mock provider output with guardrails", async () => {
+    const handler = createAssistantPostHandler({
+      provider: new MockAssistantProvider({
+        answer: "Nen mua co phieu nay vi P/E thap.",
+      }),
+    });
+    const response = await postJson(
+      {
+        question: "Co nen mua co phieu nay khong?",
+        activeModule: "valuation",
+      },
+      handler,
+    );
+    const json = await readJson<AssistantApiResponse>(response);
+
+    expect(response.status).toBe(200);
+    expect(json.ok).toBe(false);
+    expect(json.answer).toBeNull();
+    expect(json.llmStatus).toBe("blocked_by_guardrails");
+    expect(json.refusal).toContain("vi pham guardrails");
+    expect(json.violations?.map((violation) => violation.code)).toContain(
+      "BUY_SELL_HOLD_RECOMMENDATION",
+    );
   });
 });

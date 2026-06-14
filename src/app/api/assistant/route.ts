@@ -1,4 +1,5 @@
-import { buildAssistantRuntime } from "../../../lib/ai-rag/runtime";
+import { runAssistant } from "../../../lib/ai-rag/assistant";
+import type { AssistantProvider } from "../../../lib/ai-rag/providers";
 import type { AssistantRuntimeInput } from "../../../lib/ai-rag/runtime";
 import type { AssistantDataQuality, AssistantModuleContext } from "../../../lib/ai-rag/prompts";
 
@@ -11,6 +12,10 @@ type AssistantApiRequestBody = {
   allowedNumericValues?: unknown;
   source?: unknown;
   timestamp?: unknown;
+};
+
+type AssistantRouteOptions = {
+  provider?: AssistantProvider | null;
 };
 
 const jsonResponse = (body: unknown, status = 200): Response =>
@@ -57,46 +62,50 @@ const buildRuntimeInput = (body: AssistantApiRequestBody): AssistantRuntimeInput
   };
 };
 
-export const POST = async (request: Request): Promise<Response> => {
-  let body: AssistantApiRequestBody;
+export const createAssistantPostHandler =
+  (options: AssistantRouteOptions = {}) =>
+  async (request: Request): Promise<Response> => {
+    let body: AssistantApiRequestBody;
 
-  try {
-    body = (await request.json()) as AssistantApiRequestBody;
-  } catch {
+    try {
+      body = (await request.json()) as AssistantApiRequestBody;
+    } catch {
+      return jsonResponse(
+        {
+          ok: false,
+          runtime: null,
+          answer: null,
+          llmStatus: "not_configured",
+          message: "Invalid JSON body. This endpoint only builds the AI/RAG runtime prompt and does not call an LLM.",
+        },
+        400,
+      );
+    }
+
+    const runtimeInput = buildRuntimeInput(body);
+
+    if (!runtimeInput) {
+      return jsonResponse(
+        {
+          ok: false,
+          runtime: null,
+          answer: null,
+          llmStatus: "not_configured",
+          message: "Missing required field: question. This endpoint only builds the AI/RAG runtime prompt and does not call an LLM.",
+        },
+        400,
+      );
+    }
+
+    const assistantResult = await runAssistant({
+      ...runtimeInput,
+      provider: options.provider ?? null,
+    });
+
     return jsonResponse(
-      {
-        ok: false,
-        runtime: null,
-        answer: null,
-        llmStatus: "not_configured",
-        message: "Invalid JSON body. This endpoint only builds the AI/RAG runtime prompt and does not call an LLM.",
-      },
-      400,
+      assistantResult,
+      assistantResult.llmStatus === "provider_error" ? 502 : 200,
     );
-  }
+  };
 
-  const runtimeInput = buildRuntimeInput(body);
-
-  if (!runtimeInput) {
-    return jsonResponse(
-      {
-        ok: false,
-        runtime: null,
-        answer: null,
-        llmStatus: "not_configured",
-        message: "Missing required field: question. This endpoint only builds the AI/RAG runtime prompt and does not call an LLM.",
-      },
-      400,
-    );
-  }
-
-  const runtime = buildAssistantRuntime(runtimeInput);
-
-  return jsonResponse({
-    ok: true,
-    runtime,
-    answer: null,
-    llmStatus: "not_configured",
-    message: "Assistant endpoint skeleton built the AI/RAG runtime prompt only. No LLM is configured or called, and no answer is generated.",
-  });
-};
+export const POST = createAssistantPostHandler();

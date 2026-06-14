@@ -113,6 +113,6 @@ describe("runAssistant", () => {
     expect(json.ok).toBe(true);
     expect(json.answer).toBeNull();
     expect(json.llmStatus).toBe("not_configured");
-    expect(json.message).toContain("No LLM is configured or called");
+    expect(json.message).toContain("no LLM provider is configured");
   });
 });
