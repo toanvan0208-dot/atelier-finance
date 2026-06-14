@@ -9,6 +9,7 @@ import type {
   RetrievalIntent,
   RetrievalSafetyLevel,
 } from "../retrieval";
+import type { RagDocumentChunk, SelectRetrievedChunksResult } from "../ingestion";
 
 export type AssistantRuntimeInput = {
   question: string;
@@ -23,11 +24,18 @@ export type AssistantRuntimeInput = {
 };
 
 export type AssistantRuntimeDebugInfo = {
-  pipeline: Array<"select_rag_documents" | "pack_retrieval_context" | "build_assistant_prompt">;
+  pipeline: Array<
+    | "select_rag_documents"
+    | "pack_retrieval_context"
+    | "select_retrieved_chunks"
+    | "build_assistant_prompt"
+  >;
   noLlmCall: true;
   noApiCall: true;
   selectedDocumentCount: number;
-  hasActualRetrievedChunks: false;
+  hasActualRetrievedChunks: boolean;
+  retrievedChunkCount: number;
+  excludedChunkCount: number;
   allowedNumericValuesCount: number;
   source?: string | null;
   timestamp?: string | null;
@@ -35,6 +43,8 @@ export type AssistantRuntimeDebugInfo = {
 
 export type AssistantRuntimeOutput = {
   selectedDocuments: RetrievalDocument[];
+  retrievedChunks: RagDocumentChunk[];
+  retrieval: SelectRetrievedChunksResult;
   detectedIntent: RetrievalIntent;
   activeModule: string;
   packedContext: PackedRetrievalContext;

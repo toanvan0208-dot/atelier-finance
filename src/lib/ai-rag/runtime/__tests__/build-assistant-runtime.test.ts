@@ -17,6 +17,10 @@ describe("buildAssistantRuntime", () => {
     expect(selectedIds(result)).toEqual(
       expect.arrayContaining(["rag_pvt_knowledge", "ai_guardrails"]),
     );
+    expect(result.retrievedChunks.map((chunk) => chunk.documentId)).toContain("rag_pvt_knowledge");
+    expect(result.prompt.hasRagContext).toBe(true);
+    expect(result.prompt.usedChunkIds.length).toBeGreaterThan(0);
+    expect(result.prompt.promptText).toContain("docs/rag/RAG_PVT_KNOWLEDGE.md");
     expect(result.prompt.promptText).toContain("PVT is market observation, not a trading signal.");
   });
 
@@ -40,6 +44,9 @@ describe("buildAssistantRuntime", () => {
     expect(selectedIds(result)).toEqual(
       expect.arrayContaining(["rag_financial_statements_guide", "rag_risk_knowledge"]),
     );
+    expect(result.retrievedChunks.map((chunk) => chunk.documentId)).toContain(
+      "rag_financial_statements_guide",
+    );
     expect(result.prompt.promptText).toContain("Missing data must be represented as null/not_available/insufficient_data");
     expect(result.prompt.promptText).toContain("receivables");
   });
@@ -58,6 +65,9 @@ describe("buildAssistantRuntime", () => {
         "ai_guardrails",
       ]),
     );
+    expect(result.retrievedChunks.map((chunk) => chunk.documentId)).toEqual(
+      expect.arrayContaining(["rag_valuation_knowledge"]),
+    );
   });
 
   it("selects template and metadata standard for maintainer RAG document question", () => {
@@ -68,6 +78,9 @@ describe("buildAssistantRuntime", () => {
 
     expect(result.detectedIntent).toBe("maintainer");
     expect(selectedIds(result)).toEqual(["rag_document_template", "rag_metadata_standard"]);
+    expect(result.retrievedChunks.map((chunk) => chunk.documentId)).toEqual(
+      expect.arrayContaining(["rag_document_template", "rag_metadata_standard"]),
+    );
   });
 
   it("does not include maintainer docs for end-user financial question", () => {
@@ -79,20 +92,26 @@ describe("buildAssistantRuntime", () => {
     expect(selectedIds(result)).toContain("rag_financial_statements_guide");
     expect(selectedIds(result)).not.toContain("rag_document_template");
     expect(selectedIds(result)).not.toContain("rag_metadata_standard");
+    expect(result.retrievedChunks.map((chunk) => chunk.documentId)).not.toContain(
+      "rag_document_template",
+    );
+    expect(result.retrievedChunks.map((chunk) => chunk.documentId)).not.toContain(
+      "rag_metadata_standard",
+    );
     expect(result.packedContext.contextText).toContain("rag_document_template");
     expect(result.packedContext.contextText).toContain("Excluded documents");
   });
 
-  it("does not pretend actual RAG chunks exist", () => {
+  it("provides actual RAG chunks when selected documents can be loaded", () => {
     const result = buildAssistantRuntime({
       question: "Giai thich giup toi man hinh nay",
       activeModule: "general",
     });
 
-    expect(result.prompt.hasRagContext).toBe(false);
-    expect(result.prompt.usedChunkIds).toHaveLength(0);
-    expect(result.prompt.promptText).toContain("RAG context: not_available");
-    expect(result.missingContext).toContain("retrievedChunks");
+    expect(result.prompt.hasRagContext).toBe(true);
+    expect(result.prompt.usedChunkIds.length).toBeGreaterThan(0);
+    expect(result.prompt.promptText).toContain("RAG context: available");
+    expect(result.missingContext).not.toContain("retrievedChunks");
   });
 
   it("returns selectedDocuments, intent, packedContext, prompt and messages", () => {
@@ -109,6 +128,7 @@ describe("buildAssistantRuntime", () => {
     expect(result.packedContext.contextText).toContain("Selected documents:");
     expect(result.prompt.messages).toHaveLength(2);
     expect(result.prompt.promptText).toContain("Risk score is not a final safe/bad stock conclusion.");
+    expect(result.retrievedChunks.length).toBeGreaterThan(0);
   });
 
   it("does not perform LLM or API calls", () => {
@@ -119,10 +139,26 @@ describe("buildAssistantRuntime", () => {
 
     expect(result.debug.noLlmCall).toBe(true);
     expect(result.debug.noApiCall).toBe(true);
+    expect(result.debug.hasActualRetrievedChunks).toBe(true);
     expect(result.debug.pipeline).toEqual([
       "select_rag_documents",
       "pack_retrieval_context",
+      "select_retrieved_chunks",
       "build_assistant_prompt",
     ]);
+  });
+
+  it("does not pass forbidden, negative, or test chunks into prompt context", () => {
+    const result = buildAssistantRuntime({
+      question: "EPS am nhung P/E thap thi co re khong?",
+      activeModule: "valuation",
+    });
+
+    expect(
+      result.retrievedChunks.every(
+        (chunk) => !chunk.isForbiddenExample && !chunk.isNegativeExample && !chunk.isTestCase,
+      ),
+    ).toBe(true);
+    expect(result.retrieval.excludedChunks.length).toBeGreaterThan(0);
   });
 });

@@ -1,5 +1,6 @@
 import { buildAssistantPrompt } from "../prompts";
 import type { AssistantUserIntent } from "../prompts";
+import { selectRetrievedChunks } from "../ingestion";
 import { packRetrievalContext, selectRagDocuments } from "../retrieval";
 import type { RetrievalIntent } from "../retrieval";
 import type { AssistantRuntimeInput, AssistantRuntimeOutput } from "./types";
@@ -24,8 +25,10 @@ const mapRetrievalIntentToPromptIntent = (intent: RetrievalIntent): AssistantUse
   }
 };
 
-const buildMissingContext = (input: AssistantRuntimeInput): string[] => {
-  const missing: string[] = ["retrievedChunks"];
+const buildMissingContext = (input: AssistantRuntimeInput, hasRetrievedChunks: boolean): string[] => {
+  const missing: string[] = [];
+
+  if (!hasRetrievedChunks) missing.push("retrievedChunks");
 
   if (!input.moduleContext) missing.push("moduleContext");
   if (!input.dataQuality) missing.push("dataQuality");
@@ -55,10 +58,18 @@ export const buildAssistantRuntime = (input: AssistantRuntimeInput): AssistantRu
     activeModule: input.activeModule,
   });
   const packedContext = packRetrievalContext(selection);
-  const missingContext = buildMissingContext(input);
+  const retrieval = selectRetrievedChunks({
+    selectedDocuments: selection.selectedDocuments,
+    question: input.question,
+    activeModule: input.activeModule,
+    intent: selection.intent,
+    safetyLevel: selection.safetyLevel,
+    maxChunks: 4,
+  });
+  const missingContext = buildMissingContext(input, retrieval.retrievedChunks.length > 0);
   const warnings = [
     ...selection.warnings,
-    "No actual retrieved chunks are provided in Phase 4 runtime; selected documents are references for the future retrieval layer.",
+    ...retrieval.warnings,
   ];
 
   const prompt = buildAssistantPrompt({
@@ -69,11 +80,13 @@ export const buildAssistantRuntime = (input: AssistantRuntimeInput): AssistantRu
     userIntent: mapRetrievalIntentToPromptIntent(selection.intent),
     moduleContext: enrichModuleContext(input),
     dataQuality: input.dataQuality,
-    retrievedChunks: [],
+    retrievedChunks: retrieval.retrievedChunks,
   });
 
   return {
     selectedDocuments: selection.selectedDocuments,
+    retrievedChunks: retrieval.retrievedChunks,
+    retrieval,
     detectedIntent: selection.intent,
     activeModule: input.activeModule,
     packedContext,
@@ -82,11 +95,18 @@ export const buildAssistantRuntime = (input: AssistantRuntimeInput): AssistantRu
     safetyLevel: selection.safetyLevel,
     missingContext,
     debug: {
-      pipeline: ["select_rag_documents", "pack_retrieval_context", "build_assistant_prompt"],
+      pipeline: [
+        "select_rag_documents",
+        "pack_retrieval_context",
+        "select_retrieved_chunks",
+        "build_assistant_prompt",
+      ],
       noLlmCall: true,
       noApiCall: true,
       selectedDocumentCount: selection.selectedDocuments.length,
-      hasActualRetrievedChunks: false,
+      hasActualRetrievedChunks: retrieval.retrievedChunks.length > 0,
+      retrievedChunkCount: retrieval.retrievedChunks.length,
+      excludedChunkCount: retrieval.excludedChunks.length,
       allowedNumericValuesCount: input.allowedNumericValues?.length ?? 0,
       source: input.source ?? null,
       timestamp: input.timestamp ?? null,
