@@ -265,10 +265,27 @@ type AssistantApiDocument = {
   id: string;
   filePath: string;
   title?: string;
+  purpose?: string;
+  audience?: string;
+};
+
+type AssistantApiRetrievedChunk = {
+  chunkId: string;
+  documentId?: string;
+  filePath: string;
+  title?: string;
+  sectionPath?: string[];
+  sectionType?: string;
+};
+
+type AssistantApiViolation = {
+  code: string;
+  message?: string;
 };
 
 type AssistantApiRuntime = {
   selectedDocuments?: AssistantApiDocument[];
+  retrievedChunks?: AssistantApiRetrievedChunk[];
   detectedIntent?: string;
   warnings?: string[];
   safetyLevel?: string;
@@ -284,9 +301,139 @@ type AssistantApiResponse = {
   ok: boolean;
   runtime: AssistantApiRuntime | null;
   answer: string | null;
-  llmStatus: "not_configured" | string;
+  llmStatus: "not_configured" | "completed" | "blocked_by_guardrails" | "provider_error" | string;
   message: string;
+  violations?: AssistantApiViolation[];
+  refusal?: string | null;
 };
+
+const documentLabels: Record<string, string> = {
+  rag_knowledge_base: "Bản đồ tri thức RAG",
+  rag_financial_terms: "Giải thích chỉ số tài chính",
+  rag_valuation_knowledge: "Kiến thức định giá",
+  rag_risk_knowledge: "Kiến thức rủi ro",
+  rag_checklist_knowledge: "Checklist phân tích",
+  rag_pvt_knowledge: "Price Volume Time",
+  rag_financial_statements_guide: "Hướng dẫn đọc báo cáo tài chính",
+  rag_document_template: "Mẫu tài liệu RAG",
+  rag_metadata_standard: "Chuẩn metadata RAG",
+  ai_guardrails: "Nguyên tắc an toàn AI",
+  ai_rag_system_prompt: "Luật dùng RAG an toàn",
+  ai_hallucination_checklist: "Checklist chống bịa dữ liệu",
+};
+
+const statusMessages: Record<string, string> = {
+  not_configured: "AI chưa được cấu hình, hệ thống chỉ mới chuẩn bị ngữ cảnh.",
+  completed: "AI đã trả lời và đã qua kiểm tra an toàn.",
+  blocked_by_guardrails: "Câu trả lời bị chặn vì vi phạm nguyên tắc an toàn.",
+  provider_error: "Nhà cung cấp AI gặp lỗi, hệ thống không hiển thị câu trả lời chưa kiểm chứng.",
+};
+
+const violationLabels: Record<string, string> = {
+  BUY_SELL_HOLD_RECOMMENDATION: "Có dấu hiệu khuyến nghị mua, bán hoặc nắm giữ.",
+  PRICE_PREDICTION: "Có dấu hiệu dự đoán giá hoặc hướng đi chắc chắn.",
+  FAKE_FAIR_VALUE_OR_TARGET_PRICE: "Có dấu hiệu tự tạo fair value hoặc giá mục tiêu ngoài context.",
+  MISSING_DATA_AS_ZERO: "Có dấu hiệu coi dữ liệu thiếu là 0.",
+  FABRICATED_NUMERIC_DATA: "Có số liệu không nằm trong context được phép dùng.",
+  INVALID_PE_INTERPRETATION: "Diễn giải P/E không an toàn khi EPS âm hoặc bằng 0.",
+  INVALID_EQUITY_RATIO_INTERPRETATION: "Diễn giải ROE/P/B không an toàn khi vốn chủ hoặc BVPS không hợp lệ.",
+  PVT_SIGNAL_WORDING: "Biến Price Volume Time thành tín hiệu giao dịch.",
+  RISK_SCORE_OVERREACH: "Biến risk score thành kết luận cổ phiếu an toàn hoặc xấu.",
+  CHECKLIST_RECOMMENDATION: "Biến checklist thành khuyến nghị đầu tư.",
+};
+
+const getDocumentLabel = (document: AssistantApiDocument): string =>
+  documentLabels[document.id] ?? document.title ?? "Tài liệu tham chiếu";
+
+const getStatusMessage = (status?: string): string =>
+  statusMessages[status ?? "not_configured"] ?? "Trạng thái AI chưa xác định, hệ thống không hiển thị câu trả lời chưa kiểm chứng.";
+
+const getViolationLabel = (violation: AssistantApiViolation): string =>
+  violationLabels[violation.code] ?? violation.message ?? "Câu trả lời không đạt kiểm tra an toàn.";
+
+function AssistantEvidencePanel({
+  runtimeResponse,
+}: {
+  runtimeResponse: AssistantApiResponse;
+}) {
+  const runtime = runtimeResponse.runtime;
+  const selectedDocuments = runtime?.selectedDocuments ?? [];
+  const retrievedChunkCount = runtime?.retrievedChunks?.length ?? 0;
+  const warnings = runtime?.warnings ?? [];
+  const violations = runtimeResponse.violations ?? [];
+
+  return (
+    <section className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h3 className="text-xs font-bold text-ink">Minh bạch câu trả lời</h3>
+          <p className="mt-1 text-[11px] leading-4 text-muted">
+            {getStatusMessage(runtimeResponse.llmStatus)}
+          </p>
+        </div>
+        <span className="shrink-0 rounded-[3px] border border-border bg-surface px-2 py-1 text-[10px] font-bold text-muted">
+          {runtimeResponse.llmStatus}
+        </span>
+      </div>
+
+      <div className="mt-3 grid gap-2 text-[11px] leading-4 text-muted">
+        <div className="rounded-[3px] border border-border-soft bg-surface px-3 py-2">
+          <p className="font-bold text-ink">Cơ sở AI đang sử dụng</p>
+          {selectedDocuments.length > 0 ? (
+            <ul className="mt-2 space-y-1">
+              {selectedDocuments.slice(0, 5).map((document) => (
+                <li key={document.id} className="flex gap-2">
+                  <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
+                  <span>
+                    <span className="font-semibold text-ink">{getDocumentLabel(document)}</span>
+                    {document.purpose ? <span className="block">{document.purpose}</span> : null}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-1">Chưa có tài liệu nào được chọn.</p>
+          )}
+        </div>
+
+        <div className="grid grid-cols-2 gap-2">
+          <div className="rounded-[3px] border border-border-soft bg-surface px-3 py-2">
+            <p className="font-bold text-ink">Đoạn RAG tìm thấy</p>
+            <p className="mt-1 text-sm font-bold text-ink">{retrievedChunkCount}</p>
+          </div>
+          <div className="rounded-[3px] border border-border-soft bg-surface px-3 py-2">
+            <p className="font-bold text-ink">Mức an toàn</p>
+            <p className="mt-1 text-sm font-bold text-ink">{runtime?.safetyLevel ?? "unknown"}</p>
+          </div>
+        </div>
+
+        {warnings.length > 0 ? (
+          <div className="rounded-[3px] border border-[#D6B15C] bg-[#FFF6D8] px-3 py-2 text-[#765416]">
+            <p className="font-bold">Lưu ý khi trả lời</p>
+            <ul className="mt-1 space-y-1">
+              {warnings.slice(0, 4).map((warning) => (
+                <li key={warning}>- {warning}</li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+
+        {violations.length > 0 ? (
+          <div className="rounded-[3px] border border-[#C05A4A] bg-[#FFF0EC] px-3 py-2 text-[#8A2E23]">
+            <p className="font-bold">Lý do bị chặn</p>
+            <ul className="mt-1 space-y-1">
+              {violations.map((violation) => (
+                <li key={`${violation.code}-${violation.message ?? ""}`}>
+                  - {getViolationLabel(violation)}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+      </div>
+    </section>
+  );
+}
 
 function AITutorAskRuntimeTab({
   activeModule,
@@ -369,11 +516,23 @@ function AITutorAskRuntimeTab({
               error ??
               "AI runtime da san sang prompt, nhung LLM chua duoc cau hinh."}
         </p>
-        <p className="mt-2 rounded-[3px] border border-border-soft bg-surface-soft px-3 py-2 text-[11px] font-semibold leading-5 text-muted">
+        <p className="hidden">
           LLM status: {runtimeResponse?.llmStatus ?? "not_configured"} Â· Answer: {runtimeResponse?.answer ?? "null"}
         </p>
 
-        {runtimeResponse?.runtime ? (
+        {runtimeResponse?.answer ? (
+          <div className="mt-3 rounded-[3px] border border-border-soft bg-surface-soft px-3 py-2 text-xs leading-5 text-muted">
+            {runtimeResponse.answer}
+          </div>
+        ) : null}
+
+        {runtimeResponse ? (
+          <div className="mt-3">
+            <AssistantEvidencePanel runtimeResponse={runtimeResponse} />
+          </div>
+        ) : null}
+
+        {false && runtimeResponse?.runtime ? (
           <div className="mt-3 space-y-2">
             <div className="rounded-[3px] border border-border-soft bg-surface-soft px-3 py-2 text-[11px] leading-5 text-muted">
               <p className="font-bold text-ink">Runtime</p>
