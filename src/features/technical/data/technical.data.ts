@@ -473,7 +473,7 @@ export const technicalPageData: TechnicalPageData = {
             items: [
               "Nếu chỉ nhìn nến mà không biết sự kiện, người dùng rất dễ hiểu sai.",
               "Giá tăng mạnh trước KQKD có thể là thị trường đang mua kỳ vọng.",
-              "Nếu KQKD ra đúng như kỳ vọng mà giá giảm, đó có thể là sell the news.",
+              "Nếu KQKD ra đúng như kỳ vọng mà giá giảm, cần quan sát phản ứng giá sau sự kiện/tin tức.",
             ],
           },
         ],
@@ -751,7 +751,7 @@ export const technicalPageData: TechnicalPageData = {
   disclaimer: {
     title: "Cảnh báo bắt buộc",
     content:
-      "Phần Phân tích kỹ thuật cơ bản không phải khuyến nghị giao dịch. Mục tiêu của bước này là giúp bạn quan sát giá, khối lượng, thời gian, tin tức và tâm lý thị trường. Biểu đồ không đủ để ra quyết định độc lập. Bạn vẫn cần đối chiếu với doanh nghiệp, báo cáo tài chính, định giá, rủi ro và checklist trước khi ghi nhận quyết định cá nhân.",
+      "Phần Phân tích kỹ thuật cơ bản không phải tín hiệu giao dịch. Mục tiêu của bước này là giúp bạn quan sát giá, khối lượng, thời gian, tin tức và tâm lý thị trường. Biểu đồ không đủ để ra quyết định độc lập. Bạn vẫn cần đối chiếu với doanh nghiệp, báo cáo tài chính, định giá, rủi ro và checklist trước khi ghi nhận quyết định cá nhân.",
   },
   nextActions: {
     title: "Bạn đã hiểu hành vi thị trường hiện tại chưa?",

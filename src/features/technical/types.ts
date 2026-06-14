@@ -416,6 +416,35 @@ export type PVTFomoData = {
   conclusion: string;
 };
 
+export type PVTLogicMetric = {
+  id: string;
+  label: string;
+  value: string;
+  rawValue: number | null;
+  status: PVTStatus;
+  dataQuality: string;
+  warning: string | null;
+  missingFields: string[];
+};
+
+export type PVTLogicSummary = {
+  metrics: PVTLogicMetric[];
+  liquidityRisk: {
+    level: "low" | "medium" | "high" | "critical" | "unknown";
+    score: number | null;
+    warnings: string[];
+    missingFields: string[];
+  };
+  dataQualityRisk: {
+    level: "low" | "medium" | "high" | "critical" | "unknown";
+    score: number | null;
+    warnings: string[];
+    missingFields: string[];
+  };
+  warnings: string[];
+  missingFields: string[];
+};
+
 export type PVTFinalConclusionData = {
   status: string;
   positive: string;
@@ -463,6 +492,7 @@ export type PVTObservationData = {
   scenarios: PVTScenario[];
   riskReward: PVTRiskRewardZoneData;
   fomo: PVTFomoData;
+  logicSummary?: PVTLogicSummary;
   finalConclusion: PVTFinalConclusionData;
   nextActions: PVTNextAction[];
 };

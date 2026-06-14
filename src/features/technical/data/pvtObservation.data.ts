@@ -1,6 +1,8 @@
 import type { PVTObservationData } from "../types";
+import { buildTechnicalDeskData } from "../lib/build-technical-desk-data";
+import type { TechnicalMarketSnapshot } from "../lib/map-technical-to-logic-input";
 
-export const pvtObservationData: PVTObservationData = {
+const basePvtObservationData: PVTObservationData = {
   ticker: "MWG",
   companyName: "CTCP Đầu tư Thế Giới Di Động",
   industry: "Bán lẻ",
@@ -136,7 +138,7 @@ export const pvtObservationData: PVTObservationData = {
         "FOMO ở mức trung bình.",
       ],
       commonMistake:
-        "Tin tốt ra nhưng giá không tăng có thể nghĩa là kỳ vọng đã phản ánh trước.",
+        "Tin tốt ra nhưng giá không tăng cần được quan sát như phản ứng giá sau sự kiện/tin tức.",
     },
   ],
   confirmation: [
@@ -206,3 +208,19 @@ export const pvtObservationData: PVTObservationData = {
     { label: "Kiểm tra FOMO sâu hơn", moduleKey: "checklist" },
   ],
 };
+
+const technicalMarketSnapshot: TechnicalMarketSnapshot = {
+  ticker: "MWG",
+  companyType: "non_financial",
+  industry: "Bán lẻ",
+  period: "Phiên hiện tại",
+  periodType: "unknown",
+  sourceName: "Dữ liệu mẫu nội bộ",
+  collectedAt: "2026-06-01",
+  closePrice: 42_000,
+  previousClosePrice: 42_600,
+  volume: 3_900_000,
+  avgVolume20d: 2_785_714,
+};
+
+export const pvtObservationData = buildTechnicalDeskData(basePvtObservationData, technicalMarketSnapshot);
