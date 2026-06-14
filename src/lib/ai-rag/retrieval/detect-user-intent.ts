@@ -59,7 +59,7 @@ const invalidFinancialPatterns = [
 ];
 
 const riskOverreachPatterns = [
-  /\b(risk\s+(thap|low).{0,30}(an\s+toan|safe)|risk\s+(cao|high).{0,30}(xau|bad)|diem\s+rui\s+ro.{0,30}(an\s+toan|xau))\b/i,
+  /\b(risk\s+(thap|low).{0,30}(an\s+toan|safe)|risk\s+(cao|high).{0,30}(xau|bad)|risk\s+score.{0,50}(an\s+toan|safe|xau|bad)|diem\s+rui\s+ro.{0,30}(an\s+toan|xau))\b/i,
 ];
 
 const checklistRecommendationPatterns = [
