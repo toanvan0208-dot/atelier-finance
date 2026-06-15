@@ -1,4 +1,5 @@
-import { riskRedesignData } from "../data/riskRedesign.data";
+import { DataQualityBanner } from "@/components/shared/DataQualityBanner";
+import { riskDataQuality, riskRedesignData } from "../data/riskRedesign.data";
 import { CriticalRiskCards } from "./CriticalRiskCards";
 import { RiskFinalConclusion } from "./RiskFinalConclusion";
 import { RiskHeroSummary } from "./RiskHeroSummary";
@@ -15,6 +16,7 @@ export function RiskPage({ onNavigate }: RiskPageProps) {
 
   return (
     <div className="mx-auto w-full max-w-[1180px] space-y-5">
+      <DataQualityBanner {...riskDataQuality} />
       <RiskHeroSummary data={data} />
       <CriticalRiskCards risks={data.topRisks} onNavigate={onNavigate} />
       <ThesisBreakerPanel items={data.thesisBreakers} onNavigate={onNavigate} />

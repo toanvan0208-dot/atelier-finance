@@ -1,7 +1,8 @@
 "use client";
 
 import { Button, Card, CardBody, CardHeader, Chip } from "@/components/ui";
-import { overviewCaseData } from "../data/overviewCase.data";
+import { DataQualityBanner } from "@/components/shared/DataQualityBanner";
+import { overviewCaseData, overviewDataQuality } from "../data/overviewCase.data";
 import type {
   OverviewActionStatusData,
   OverviewBottleneck,
@@ -352,6 +353,7 @@ export function OverviewPage({ onNavigate }: OverviewPageProps) {
 
   return (
     <div className="mx-auto w-full max-w-[1180px] space-y-5">
+      <DataQualityBanner {...overviewDataQuality} />
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1.8fr)_minmax(320px,0.9fr)]">
         <CurrentCaseHero data={data.activeCase} />
         <NextBestActionCard data={data.nextBestAction} onNavigate={onNavigate} />

@@ -420,6 +420,19 @@ const financialsStatementMockSnapshot: FinancialsStatementSnapshot = {
   closePrice: 65_000,
 };
 
+export const financialsDataQuality = {
+  source: financialsStatementMockSnapshot.sourceName,
+  asOf: financialsStatementMockSnapshot.collectedAt,
+  isDemoData: true,
+  isStale: false,
+  missingFields: [
+    "Thuyết minh phải thu",
+    "Thuyết minh tồn kho",
+    "Chi tiết nợ vay theo kỳ hạn",
+    "Báo cáo kiểm toán nguồn thật",
+  ],
+};
+
 export const financialReadingDeskData = buildFinancialReadingDeskData(
   baseFinancialReadingDeskData,
   financialsStatementMockSnapshot

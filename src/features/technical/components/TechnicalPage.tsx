@@ -1,4 +1,5 @@
-import { pvtObservationData } from "../data/pvtObservation.data";
+import { DataQualityBanner } from "@/components/shared/DataQualityBanner";
+import { pvtDataQuality, pvtObservationData } from "../data/pvtObservation.data";
 import { PVTConfirmationScenarios } from "./PVTConfirmationScenarios";
 import { PVTFinalConclusion } from "./PVTFinalConclusion";
 import { PVTFomoThermometer } from "./PVTFomoThermometer";
@@ -16,6 +17,7 @@ export function TechnicalPage({ onNavigate }: TechnicalPageProps) {
 
   return (
     <div className="mx-auto w-full max-w-[1180px] space-y-5">
+      <DataQualityBanner {...pvtDataQuality} />
       <PVTHeroStatus data={data} />
       <PVTMainChart
         data={data.chart}

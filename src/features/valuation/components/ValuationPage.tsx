@@ -1,7 +1,8 @@
 "use client";
 
+import { DataQualityBanner } from "@/components/shared/DataQualityBanner";
 import { EmptyState, LoadingState } from "@/components/ui";
-import { valuationRefactoredData } from "../data/valuationRefactored.data";
+import { valuationDataQuality, valuationRefactoredData } from "../data/valuationRefactored.data";
 import { ValuationAssumptionPanel } from "./ValuationAssumptionPanel";
 import { ValuationFinalConclusion } from "./ValuationFinalConclusion";
 import { ValuationMethodSelector } from "./ValuationMethodSelector";
@@ -35,6 +36,7 @@ export function ValuationPage({ onNavigate }: ValuationPageProps) {
 
   return (
     <div className="mx-auto w-full max-w-[1080px] space-y-5">
+      <DataQualityBanner {...valuationDataQuality} />
       <ValuationSummaryHero data={data.summary} />
       <ValuationAssumptionPanel data={data.assumptions} />
       <ValuationUncertaintyPanel data={data.uncertainties} onNavigate={onNavigate} />

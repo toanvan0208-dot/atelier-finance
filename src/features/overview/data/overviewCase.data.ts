@@ -231,6 +231,19 @@ const overviewStatementSnapshot: OverviewStatementSnapshot = {
   dividendPerShare: 500,
 };
 
+export const overviewDataQuality = {
+  source: overviewStatementSnapshot.sourceName,
+  asOf: overviewStatementSnapshot.collectedAt,
+  isDemoData: true,
+  isStale: false,
+  missingFields: [
+    "CFO quý gần nhất",
+    "Thuyết minh tồn kho/phải thu",
+    "Dữ liệu định giá nguồn thật",
+    "Dữ liệu PVT nguồn thật",
+  ],
+};
+
 export const overviewCaseData: OverviewCaseDashboardData = buildOverviewDeskData(
   baseOverviewCaseData,
   overviewStatementSnapshot

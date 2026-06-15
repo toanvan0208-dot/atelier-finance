@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { DataQualityBanner } from "@/components/shared/DataQualityBanner";
 import { EmptyState, LoadingState } from "@/components/ui";
-import { financialReadingDeskData } from "../data/financialReadingDesk.data";
+import { financialReadingDeskData, financialsDataQuality } from "../data/financialReadingDesk.data";
 import { financialsPageData } from "../data/financials.data";
 import { FinancialConclusionPanel } from "./FinancialConclusionPanel";
 import { FinancialReadingJourney } from "./FinancialReadingJourney";
@@ -40,6 +41,7 @@ export function FinancialsPage({ onNavigate }: FinancialsPageProps) {
 
   return (
     <div className="mx-auto w-full max-w-[1080px] space-y-6">
+      <DataQualityBanner {...financialsDataQuality} />
       <FinancialsHeader
         canContinueToValuation={deskData.valuationReadiness.canContinue}
         data={data.header}

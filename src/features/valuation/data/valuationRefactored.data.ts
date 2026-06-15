@@ -242,6 +242,19 @@ const valuationStatementSnapshot: ValuationStatementSnapshot = {
   dividendPerShare: 500,
 };
 
+export const valuationDataQuality = {
+  source: valuationStatementSnapshot.sourceName,
+  asOf: valuationStatementSnapshot.collectedAt,
+  isDemoData: true,
+  isStale: false,
+  missingFields: [
+    "Giả định tăng trưởng từ nguồn thật",
+    "So sánh ngành nguồn thật",
+    "Dữ liệu chi phí vốn",
+    "Kiểm chứng EPS chuẩn hóa",
+  ],
+};
+
 export const valuationRefactoredData: ValuationRefactoredData = buildValuationDeskData(
   baseValuationRefactoredData,
   valuationStatementSnapshot

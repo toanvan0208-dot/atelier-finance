@@ -327,6 +327,19 @@ const riskStatementSnapshot: RiskStatementSnapshot = {
   dividendPerShare: 500,
 };
 
+export const riskDataQuality = {
+  source: riskStatementSnapshot.sourceName,
+  asOf: riskStatementSnapshot.collectedAt,
+  isDemoData: true,
+  isStale: false,
+  missingFields: [
+    "Thuyết minh giao dịch bên liên quan",
+    "Dữ liệu quản trị cập nhật",
+    "Kiểm toán nguồn thật",
+    "Dữ liệu thanh khoản nguồn thật",
+  ],
+};
+
 export const riskRedesignData: RiskRedesignData = buildRiskDeskData(
   baseRiskRedesignData,
   riskStatementSnapshot

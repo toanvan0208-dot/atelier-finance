@@ -223,4 +223,17 @@ const technicalMarketSnapshot: TechnicalMarketSnapshot = {
   avgVolume20d: 2_785_714,
 };
 
+export const pvtDataQuality = {
+  source: technicalMarketSnapshot.sourceName,
+  asOf: technicalMarketSnapshot.collectedAt,
+  isDemoData: true,
+  isStale: false,
+  missingFields: [
+    "Nguồn giá/khối lượng thật",
+    "Trading value bình quân",
+    "Dữ liệu intraday",
+    "Sự kiện thị trường cập nhật",
+  ],
+};
+
 export const pvtObservationData = buildTechnicalDeskData(basePvtObservationData, technicalMarketSnapshot);
