@@ -205,62 +205,6 @@ function AskAIInput({
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function AITutorAskTab({ config }: { config: AITutorConfig }) {
-  const [question, setQuestion] = useState("");
-  const [answer, setAnswer] = useState(
-    "Chọn một câu hỏi gợi ý hoặc nhập câu hỏi. AI sẽ giải thích theo hướng học tập, không đưa ra tín hiệu giao dịch."
-  );
-
-  function submitQuestion() {
-    const trimmed = question.trim();
-
-    setAnswer(
-      trimmed
-        ? `Cách đọc an toàn: "${trimmed}" cần được nối với dữ liệu trong Module ${config.moduleName}. Hãy kiểm tra dữ liệu còn thiếu, rủi ro và giả định trước khi tự kết luận.`
-        : "Hãy nhập câu hỏi cụ thể hơn để AI giải thích theo ngữ cảnh module hiện tại."
-    );
-  }
-
-  function pickQuestion(nextQuestion: string) {
-    setQuestion(nextQuestion);
-    setAnswer(
-      `Gợi ý trả lời: ${nextQuestion} nên được hiểu trong ngữ cảnh Module ${config.moduleName}. AI sẽ giúp giải thích khái niệm và câu hỏi kiểm tra, không kết luận hành động giao dịch.`
-    );
-  }
-
-  return (
-    <div className="space-y-4">
-      <AskAIInput value={question} onChange={setQuestion} onSubmit={submitQuestion} />
-
-      <section className="space-y-2">
-        <h3 className="text-xs font-bold text-ink">Câu hỏi gợi ý</h3>
-        <AITutorQuestionList questions={config.suggestedQuestions} onSelect={pickQuestion} />
-      </section>
-
-      <section className="rounded-[4px] border-[1.5px] border-border bg-surface px-3 py-3 shadow-hard-sm">
-        <h3 className="text-xs font-bold text-ink">AI phản hồi</h3>
-        <p className="mt-2 text-xs leading-5 text-muted">{answer}</p>
-        <div className="mt-3 grid gap-2">
-          {["Giải thích dễ hơn", "Cho ví dụ", "Liên kết với module khác"].map((label) => (
-            <button
-              key={label}
-              className="rounded-[3px] border border-border-soft bg-surface-soft px-3 py-2 text-left text-[11px] font-bold text-muted opacity-60"
-              disabled
-              title="Sắp có"
-              type="button"
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-      </section>
-
-      <AITutorSoftWarning>{config.softWarning}</AITutorSoftWarning>
-    </div>
-  );
-}
-
 type AssistantApiDocument = {
   id: string;
   filePath: string;
@@ -495,9 +439,6 @@ function AITutorAskRuntimeTab({
     setError("Cau hoi da duoc dien. Bam Hoi AI de chuan bi runtime prompt.");
   }
 
-  const selectedDocuments = runtimeResponse?.runtime?.selectedDocuments ?? [];
-  const warnings = runtimeResponse?.runtime?.warnings ?? [];
-
   return (
     <div className="space-y-4">
       <AskAIInput value={question} onChange={setQuestion} onSubmit={submitQuestion} disabled={isLoading} />
@@ -532,41 +473,6 @@ function AITutorAskRuntimeTab({
           </div>
         ) : null}
 
-        {false && runtimeResponse?.runtime ? (
-          <div className="mt-3 space-y-2">
-            <div className="rounded-[3px] border border-border-soft bg-surface-soft px-3 py-2 text-[11px] leading-5 text-muted">
-              <p className="font-bold text-ink">Runtime</p>
-              <p>Intent: {runtimeResponse.runtime.detectedIntent ?? "unknown"}</p>
-              <p>Safety: {runtimeResponse.runtime.safetyLevel ?? "unknown"}</p>
-              <p>Docs: {runtimeResponse.runtime.debug?.selectedDocumentCount ?? selectedDocuments.length}</p>
-            </div>
-
-            {selectedDocuments.length > 0 ? (
-              <div className="rounded-[3px] border border-border-soft bg-surface-soft px-3 py-2">
-                <p className="text-[11px] font-bold text-ink">Selected documents</p>
-                <ul className="mt-1 space-y-1 text-[11px] leading-4 text-muted">
-                  {selectedDocuments.slice(0, 5).map((document) => (
-                    <li key={document.id}>
-                      <span className="font-bold text-ink">{document.id}</span>
-                      <span className="block break-words">{document.filePath}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ) : null}
-
-            {warnings.length > 0 ? (
-              <div className="rounded-[3px] border border-[#D6B15C] bg-[#FFF6D8] px-3 py-2">
-                <p className="text-[11px] font-bold text-[#765416]">Warnings</p>
-                <ul className="mt-1 space-y-1 text-[11px] leading-4 text-[#765416]">
-                  {warnings.slice(0, 3).map((warning) => (
-                    <li key={warning}>{warning}</li>
-                  ))}
-                </ul>
-              </div>
-            ) : null}
-          </div>
-        ) : null}
       </section>
 
       <AITutorSoftWarning>{config.softWarning}</AITutorSoftWarning>
