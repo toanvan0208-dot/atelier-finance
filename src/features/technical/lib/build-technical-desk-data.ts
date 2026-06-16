@@ -68,7 +68,7 @@ const resolveStatus = (
       label: "Biến động cần kiểm tra thêm",
       tone: "caution",
       conclusion:
-        "Giá hoặc thanh khoản đang có biến động đáng chú ý. Đây là dữ liệu quan sát, không phải tín hiệu giao dịch.",
+        "Giá hoặc thanh khoản đang có biến động đáng chú ý. Đây là dữ liệu quan sát, chưa đủ để kết luận hành động.",
     };
   }
 
@@ -191,7 +191,7 @@ export const buildTechnicalDeskData = (
       status: resolveStatus(priceChange, liquidityStatus, missingFields).label,
       caution:
         warnings[0] ??
-        "PVT chỉ phản ánh dữ liệu thị trường tại thời điểm quan sát, không phải tín hiệu giao dịch.",
+        "PVT chỉ phản ánh dữ liệu thị trường tại thời điểm quan sát, không phải kết luận hành động.",
       nextStep:
         missingFields.length > 0
           ? "Bổ sung dữ liệu còn thiếu trước khi dùng PVT để hỗ trợ kiểm tra rủi ro thực thi."

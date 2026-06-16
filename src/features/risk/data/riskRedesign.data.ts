@@ -11,7 +11,7 @@ export const baseRiskRedesignData: RiskRedesignData = {
     score: 64,
     tone: "caution",
     conclusion:
-      "MWG chưa có tín hiệu rủi ro cực đoan, nhưng chưa nên mô phỏng nếu chưa kiểm tra thêm dòng tiền, biên an toàn định giá và minh bạch thuyết minh.",
+      "MWG chưa có dấu hiệu rủi ro cực đoan, nhưng cần kiểm tra thêm dòng tiền, biên an toàn định giá và minh bạch thuyết minh trước khi mô phỏng.",
   },
   topRisks: [
     {
@@ -237,7 +237,7 @@ export const baseRiskRedesignData: RiskRedesignData = {
       status: "Cần theo dõi",
       tone: "caution",
       whyItMatters:
-        "Giao dịch bất thường của người nội bộ có thể là tín hiệu cần kiểm tra thêm, không phải kết luận chắc chắn.",
+        "Giao dịch bất thường của người nội bộ là dữ liệu cần kiểm tra thêm, không phải kết luận chắc chắn.",
       dataToCheck: ["Công bố giao dịch", "Lịch sử sở hữu", "Tin doanh nghiệp"],
     },
   ],

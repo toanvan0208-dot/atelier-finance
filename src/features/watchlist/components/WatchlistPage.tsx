@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { EmptyState, LoadingState } from "@/components/ui";
+import { useLocalStorageState } from "@/lib/use-local-storage-state";
 import { watchlistPageData } from "../data/watchlist.data";
 import type { StockIdea, WatchlistFilterState } from "../types";
 import { StockIdeaGrid } from "./StockIdeaGrid";
@@ -90,19 +91,37 @@ type WatchlistPageProps = {
   onNavigate: (key: string) => void;
 };
 
+type WatchlistPersistentState = {
+  filters: WatchlistFilterState;
+  openTickers: string[];
+};
+
+const watchlistStorageKey = "atelier-finance.watchlist.v1";
+const defaultWatchlistFilters: WatchlistFilterState = {
+  sortBy: "priority",
+  pipelineStatus: "all",
+};
+
 export function WatchlistPage({ onNavigate }: WatchlistPageProps) {
   const data = watchlistPageData;
-  const [filters, setFilters] = useState<WatchlistFilterState>({ sortBy: "priority", pipelineStatus: "all" });
-  const [openTickers, setOpenTickers] = useState<string[]>([data.selectedTicker]);
+  const [persistedState, setPersistedState] = useLocalStorageState<WatchlistPersistentState>(
+    watchlistStorageKey,
+    {
+      filters: defaultWatchlistFilters,
+      openTickers: [data.selectedTicker],
+    }
+  );
+  const { filters, openTickers } = persistedState;
 
   const filteredIdeas = useMemo(() => applyFilters(data.ideas, filters), [data.ideas, filters]);
 
   function handleToggleIdea(ticker: string) {
-    setOpenTickers((current) =>
-      current.includes(ticker)
-        ? current.filter((item) => item !== ticker)
-        : [...current, ticker]
-    );
+    setPersistedState((current) => ({
+      ...current,
+      openTickers: current.openTickers.includes(ticker)
+        ? current.openTickers.filter((item) => item !== ticker)
+        : [...current.openTickers, ticker],
+    }));
   }
 
   if (data.isLoading) {
@@ -129,7 +148,9 @@ export function WatchlistPage({ onNavigate }: WatchlistPageProps) {
             filteredCount={filteredIdeas.length}
             filters={filters}
             ideas={data.ideas}
-            onChange={setFilters}
+            onChange={(nextFilters) =>
+              setPersistedState((current) => ({ ...current, filters: nextFilters }))
+            }
             totalCount={data.ideas.length}
           />
         </aside>

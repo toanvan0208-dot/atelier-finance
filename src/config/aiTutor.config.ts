@@ -45,11 +45,11 @@ export const aiTutorConfig: Record<string, AITutorConfig> = {
     suggestedQuestions: [
       "Tôi nên bắt đầu từ module nào?",
       "Vì sao cần Hồ sơ phân tích?",
-      "Watchlist khác khuyến nghị mua như thế nào?",
+      "Watchlist khác danh sách theo dõi dữ liệu như thế nào?",
     ],
     recommendedLessons: [
       { title: "Lộ trình phân tích cổ phiếu cho người mới", duration: "6 phút", usedIn: "Tổng quan, Hồ sơ phân tích", reason: "Giúp bạn biết thứ tự học, phân tích và kiểm tra." },
-      { title: "Vì sao không nên mua chỉ vì giá tăng?", duration: "4 phút", usedIn: "PVT, Watchlist", reason: "Giúp tránh FOMO khi thấy cổ phiếu tăng nóng." },
+      { title: "Vì sao không nên hành động chỉ vì giá tăng?", duration: "4 phút", usedIn: "PVT, Watchlist", reason: "Giúp tránh FOMO khi thấy cổ phiếu tăng nóng." },
     ],
     nextActions: [
       { label: "Hồ sơ phân tích", moduleKey: "route-config", primary: true },
@@ -84,7 +84,7 @@ export const aiTutorConfig: Record<string, AITutorConfig> = {
     ],
     recommendedLessons: [
       { title: "Lộ trình phân tích cổ phiếu cho người mới", duration: "6 phút", usedIn: "Hồ sơ phân tích, Tổng quan", reason: "Giúp bạn hiểu hệ thống sẽ dẫn bạn đi qua các module nào." },
-      { title: "Vì sao không nên mua chỉ vì giá tăng?", duration: "4 phút", usedIn: "PVT, Watchlist", reason: "Giúp bạn tránh FOMO khi cấu hình có điểm vướng về cảm xúc." },
+      { title: "Vì sao không nên hành động chỉ vì giá tăng?", duration: "4 phút", usedIn: "PVT, Watchlist", reason: "Giúp bạn tránh FOMO khi cấu hình có điểm vướng về cảm xúc." },
       { title: "Thesis đầu tư là gì?", duration: "5 phút", usedIn: "Watchlist, Mô phỏng", reason: "Giúp bạn biết cần viết gì trước khi theo dõi hoặc mô phỏng." },
       { title: "FOMO trong đầu tư là gì?", duration: "4 phút", usedIn: "Checklist, Mô phỏng", reason: "Giúp bạn nhận diện quyết định đến từ dữ liệu hay cảm xúc." },
     ],
@@ -146,7 +146,7 @@ export const aiTutorConfig: Record<string, AITutorConfig> = {
       { label: "Chuyển sang Lọc cổ phiếu", moduleKey: "screening" },
       { label: "Quay lại Vĩ mô", moduleKey: "macro" },
     ],
-    softWarning: "Ngành thuận lợi chỉ là một lớp bối cảnh, không phải danh sách cổ phiếu nên mua.",
+    softWarning: "Ngành thuận lợi chỉ là một lớp bối cảnh, không phải danh sách quyết định đầu tư.",
   },
   screening: {
     moduleId: "stock-filter",
@@ -214,15 +214,15 @@ export const aiTutorConfig: Record<string, AITutorConfig> = {
       { label: "Kiểm tra biên an toàn", moduleKey: "valuation", primary: true },
       { label: "Chuyển sang Rủi ro", moduleKey: "risk" },
     ],
-    softWarning: "Định giá là kiểm tra giả định, không phải tín hiệu mua/bán.",
+    softWarning: "Định giá là kiểm tra giả định, không phải kết luận hành động.",
   },
   technical: {
     moduleId: "pvt",
     moduleName: "Quan sát Giá - Thanh khoản - Thời điểm",
-    currentGoal: "Quan sát giá, khối lượng, thời điểm và sự kiện mà không biến thành tín hiệu mua/bán.",
+    currentGoal: "Quan sát giá, khối lượng, thời điểm và sự kiện như bối cảnh thị trường, không biến thành kết luận hành động.",
     whatThisStepDoes: "PVT giúp bạn đọc hành vi thị trường và rủi ro FOMO trước khi mô phỏng hoặc checklist.",
     questionsToCheck: ["Giá đang thay đổi vì gì?", "Volume có bất thường không?", "So với VN-Index thì cổ phiếu mạnh hay yếu?", "So với ngành thì cổ phiếu có vượt trội không?", "Có sự kiện nào gần đây không?"],
-    commonMistakes: ["Giá tăng mạnh không có nghĩa doanh nghiệp tốt hơn.", "Xem mẫu hình giá là tín hiệu chắc chắn.", "Bỏ qua sự kiện và thanh khoản."],
+    commonMistakes: ["Giá tăng mạnh không có nghĩa doanh nghiệp tốt hơn.", "Xem mẫu hình giá là kết luận chắc chắn.", "Bỏ qua sự kiện và thanh khoản."],
     suggestedQuestions: ["Giá tăng mạnh có phải doanh nghiệp tốt hơn không?", "Volume bất thường nói lên điều gì?", "Tôi có đang FOMO không?"],
     recommendedLessons: [
       { title: "Giá tăng mạnh có phải doanh nghiệp tốt hơn không?", duration: "4 phút", usedIn: "PVT, Rủi ro, Mô phỏng", reason: "Giúp bạn tránh FOMO khi cổ phiếu tăng nóng." },
@@ -231,7 +231,7 @@ export const aiTutorConfig: Record<string, AITutorConfig> = {
       { label: "Kiểm tra sự kiện và volume", moduleKey: "technical", primary: true },
       { label: "Chuyển sang Rủi ro", moduleKey: "risk" },
     ],
-    softWarning: "PVT không phải máy phát tín hiệu mua/bán.",
+    softWarning: "PVT chỉ là quan sát giá/khối lượng/thời điểm, không phải hệ thống kết luận hành động.",
   },
   risk: {
     moduleId: "risk",
@@ -253,10 +253,10 @@ export const aiTutorConfig: Record<string, AITutorConfig> = {
   watchlist: {
     moduleId: "watchlist",
     moduleName: "Watchlist",
-    currentGoal: "Quản lý ý tưởng đầu tư có kỷ luật, không phải danh sách nên mua.",
+    currentGoal: "Quản lý ý tưởng đầu tư có kỷ luật, không phải danh sách quyết định hành động.",
     whatThisStepDoes: "Watchlist giúp lưu ý tưởng, thesis, dữ liệu còn thiếu và bước phân tích tiếp theo.",
     questionsToCheck: ["Mỗi mã có lý do theo dõi chưa?", "Mỗi mã có thesis chưa?", "Mã nào thiếu dữ liệu?", "Mã nào cần kiểm tra rủi ro?", "Mã nào cần mở Checklist trước khi đi tiếp?"],
-    commonMistakes: ["Cổ phiếu nằm trong Watchlist không có nghĩa là nên mua.", "Theo dõi vì tin nóng nhưng không ghi thesis.", "Không cập nhật rủi ro mới."],
+    commonMistakes: ["Cổ phiếu nằm trong Watchlist vẫn cần dữ liệu và luận điểm rõ ràng.", "Theo dõi vì tin nóng nhưng không ghi thesis.", "Không cập nhật rủi ro mới."],
     suggestedQuestions: ["Thesis trong Watchlist nên viết thế nào?", "Khi nào một mã sẵn sàng mô phỏng?", "Thiếu dữ liệu nào là nghiêm trọng?"],
     recommendedLessons: [
       { title: "Viết thesis theo dõi cổ phiếu", duration: "5 phút", usedIn: "Watchlist, Mô phỏng", reason: "Giúp bạn phân biệt lý do theo dõi và cảm xúc." },
@@ -265,7 +265,7 @@ export const aiTutorConfig: Record<string, AITutorConfig> = {
       { label: "Bổ sung thesis Watchlist", moduleKey: "watchlist", primary: true },
       { label: "Mở Checklist", moduleKey: "checklist" },
     ],
-    softWarning: "Watchlist không phải danh sách cổ phiếu nên mua.",
+    softWarning: "Watchlist là danh sách theo dõi dữ liệu và luận điểm, không phải danh sách quyết định đầu tư.",
   },
   checklist: {
     moduleId: "checklist",
@@ -281,7 +281,7 @@ export const aiTutorConfig: Record<string, AITutorConfig> = {
       "Nên mô phỏng, quay lại phân tích, ghi nhật ký hay tạm dừng?",
     ],
     commonMistakes: [
-      "Checklist không phải công cụ khuyến nghị mua/bán.",
+      "Checklist không phải công cụ đưa ra kết luận hành động.",
       "Nếu thiếu dữ liệu, không hành động cũng là một lựa chọn có kỷ luật.",
       "Đừng tích câu hỏi cho xong nếu bạn chưa hiểu dữ liệu phía sau.",
     ],

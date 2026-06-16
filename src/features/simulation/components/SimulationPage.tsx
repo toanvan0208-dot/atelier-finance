@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Card, CardBody, CardHeader, Chip } from "@/components/ui";
+import { useLocalStorageState } from "@/lib/use-local-storage-state";
 import { simulationExperienceData } from "../data/simulation.data";
 import type {
   ClosedSimulatedPosition,
@@ -24,23 +25,123 @@ type CloseDrawerState = {
   position?: SimulatedPosition;
 };
 
+type SimulationPersistentState = {
+  activeMode: SimulationModeId;
+  account: SimulatedAccountSummary;
+  quotes: SimulatedStockQuote[];
+  openPositions: SimulatedPosition[];
+  closedPositions: ClosedSimulatedPosition[];
+  historyEvents: SimulationHistoryEvent[];
+  selectedStockSymbol?: string;
+  selectedPositionId?: string;
+  historicalCaseId: string;
+  historicalDecision: string;
+  historicalReason: string;
+  historicalReflection: string;
+  replayUnlocked: boolean;
+};
+
+type StateUpdate<T> = T | ((current: T) => T);
+
+const simulationStorageKey = "atelier-finance.simulation.v1";
+
 export function SimulationPage() {
   const data = simulationExperienceData;
-  const [activeMode, setActiveMode] = useState<SimulationModeId>("current");
-  const [account, setAccount] = useState<SimulatedAccountSummary>(data.paperTrading.account);
-  const [quotes, setQuotes] = useState(data.paperTrading.quotes);
-  const [openPositions, setOpenPositions] = useState(data.paperTrading.openPositions);
-  const [closedPositions, setClosedPositions] = useState(data.paperTrading.closedPositions);
-  const [, setHistoryEvents] = useState(data.paperTrading.historyEvents);
-  const [selectedStock, setSelectedStock] = useState<SimulatedStockQuote | undefined>(data.paperTrading.quotes[0]);
-  const [selectedPosition, setSelectedPosition] = useState<SimulatedPosition | undefined>(data.paperTrading.openPositions[0]);
   const [closeDrawer, setCloseDrawer] = useState<CloseDrawerState>({ open: false });
+  const [simulationState, setSimulationState] = useLocalStorageState<SimulationPersistentState>(
+    simulationStorageKey,
+    {
+      activeMode: "current",
+      account: data.paperTrading.account,
+      quotes: data.paperTrading.quotes,
+      openPositions: data.paperTrading.openPositions,
+      closedPositions: data.paperTrading.closedPositions,
+      historyEvents: data.paperTrading.historyEvents,
+      selectedStockSymbol: data.paperTrading.quotes[0]?.symbol,
+      selectedPositionId: data.paperTrading.openPositions[0]?.id,
+      historicalCaseId: data.history.cases[0]?.id ?? "steel-cycle",
+      historicalDecision: "",
+      historicalReason: "",
+      historicalReflection: "",
+      replayUnlocked: false,
+    }
+  );
+  const {
+    account,
+    activeMode,
+    closedPositions,
+    historicalCaseId,
+    historicalDecision,
+    historicalReason,
+    historicalReflection,
+    openPositions,
+    quotes,
+    replayUnlocked,
+  } = simulationState;
+  const selectedStock =
+    quotes.find((quote) => quote.symbol === simulationState.selectedStockSymbol) ?? quotes[0];
+  const selectedPosition =
+    openPositions.find((position) => position.id === simulationState.selectedPositionId) ??
+    openPositions.find((position) => position.symbol === selectedStock?.symbol);
 
-  const [historicalCaseId, setHistoricalCaseId] = useState(data.history.cases[0]?.id ?? "steel-cycle");
-  const [historicalDecision, setHistoricalDecision] = useState("");
-  const [historicalReason, setHistoricalReason] = useState("");
-  const [historicalReflection, setHistoricalReflection] = useState("");
-  const [replayUnlocked, setReplayUnlocked] = useState(false);
+  function resolveStateUpdate<T>(current: T, update: StateUpdate<T>): T {
+    return typeof update === "function" ? (update as (current: T) => T)(current) : update;
+  }
+
+  function setActiveMode(update: StateUpdate<SimulationModeId>) {
+    setSimulationState((current) => ({
+      ...current,
+      activeMode: resolveStateUpdate(current.activeMode, update),
+    }));
+  }
+
+  function setAccount(update: StateUpdate<SimulatedAccountSummary>) {
+    setSimulationState((current) => ({
+      ...current,
+      account: resolveStateUpdate(current.account, update),
+    }));
+  }
+
+  function setQuotes(update: StateUpdate<SimulatedStockQuote[]>) {
+    setSimulationState((current) => ({
+      ...current,
+      quotes: resolveStateUpdate(current.quotes, update),
+    }));
+  }
+
+  function setOpenPositions(update: StateUpdate<SimulatedPosition[]>) {
+    setSimulationState((current) => ({
+      ...current,
+      openPositions: resolveStateUpdate(current.openPositions, update),
+    }));
+  }
+
+  function setClosedPositions(update: StateUpdate<ClosedSimulatedPosition[]>) {
+    setSimulationState((current) => ({
+      ...current,
+      closedPositions: resolveStateUpdate(current.closedPositions, update),
+    }));
+  }
+
+  function setHistoricalCaseId(historicalCaseId: string) {
+    setSimulationState((current) => ({ ...current, historicalCaseId }));
+  }
+
+  function setHistoricalDecision(historicalDecision: string) {
+    setSimulationState((current) => ({ ...current, historicalDecision }));
+  }
+
+  function setHistoricalReason(historicalReason: string) {
+    setSimulationState((current) => ({ ...current, historicalReason }));
+  }
+
+  function setHistoricalReflection(historicalReflection: string) {
+    setSimulationState((current) => ({ ...current, historicalReflection }));
+  }
+
+  function setReplayUnlocked(replayUnlocked: boolean) {
+    setSimulationState((current) => ({ ...current, replayUnlocked }));
+  }
 
   const recalculatedAccount = useMemo(
     () => {
@@ -58,19 +159,26 @@ export function SimulationPage() {
   );
 
   function addHistoryEvent(event: Omit<SimulationHistoryEvent, "id" | "timestamp">) {
-    setHistoryEvents((current) => [
-      {
-        ...event,
-        id: `evt-${Date.now()}`,
-        timestamp: getNowLabel(),
-      },
+    setSimulationState((current) => ({
       ...current,
-    ]);
+      historyEvents: [
+        {
+          ...event,
+          id: `evt-${Date.now()}`,
+          timestamp: getNowLabel(),
+        },
+        ...current.historyEvents,
+      ],
+    }));
   }
 
   function handleSelectStock(quote: SimulatedStockQuote) {
-    setSelectedStock(quote);
-    setSelectedPosition(openPositions.find((position) => position.symbol === quote.symbol));
+    const nextPosition = openPositions.find((position) => position.symbol === quote.symbol);
+    setSimulationState((current) => ({
+      ...current,
+      selectedPositionId: nextPosition?.id,
+      selectedStockSymbol: quote.symbol,
+    }));
   }
 
   function handleCreateOrder(order: {
@@ -123,7 +231,7 @@ export function SimulationPage() {
           status: selectedStock.status === "low_liquidity" ? "low_liquidity" : "normal",
           openReason: order.reason,
         };
-        setSelectedPosition(newPosition);
+        setSimulationState((state) => ({ ...state, selectedPositionId: newPosition.id }));
         return [...current, newPosition];
       }
 
@@ -144,7 +252,7 @@ export function SimulationPage() {
         target: order.target ?? existing.target,
         openReason: `${existing.openReason}; ${order.reason}`,
       };
-      setSelectedPosition(updated);
+      setSimulationState((state) => ({ ...state, selectedPositionId: updated.id }));
       return current.map((position) => (position.id === existing.id ? updated : position));
     });
 
@@ -168,8 +276,11 @@ export function SimulationPage() {
   }
 
   function handleClosePosition(position: SimulatedPosition) {
-    setSelectedPosition(position);
-    setSelectedStock(quotes.find((quote) => quote.symbol === position.symbol));
+    setSimulationState((current) => ({
+      ...current,
+      selectedPositionId: position.id,
+      selectedStockSymbol: position.symbol,
+    }));
     setCloseDrawer({ open: true, position });
   }
 
@@ -230,6 +341,14 @@ export function SimulationPage() {
       })
     );
     setCloseDrawer({ open: false });
+    setSimulationState((current) => {
+      const nextSelectedPosition = current.openPositions.find((item) => item.id === position.id);
+      return {
+        ...current,
+        selectedPositionId: nextSelectedPosition?.id,
+        selectedStockSymbol: position.symbol,
+      };
+    });
     addHistoryEvent({
       symbol: position.symbol,
       type: "position_closed",
@@ -239,10 +358,12 @@ export function SimulationPage() {
   }
 
   function handleReviewScenario(position: SimulatedPosition) {
-    setSelectedPosition(position);
-    const quote = quotes.find((item) => item.symbol === position.symbol);
-    setSelectedStock(quote);
-    setActiveMode("scenario");
+    setSimulationState((current) => ({
+      ...current,
+      activeMode: "scenario",
+      selectedPositionId: position.id,
+      selectedStockSymbol: position.symbol,
+    }));
     addHistoryEvent({
       symbol: position.symbol,
       type: "scenario_reviewed",
@@ -325,7 +446,9 @@ export function SimulationPage() {
     setOpenPositions((current) => {
       const updated = current.map((position) => (position.id === id ? { ...position, ...patch } : position));
       const nextSelected = updated.find((position) => position.id === id);
-      if (nextSelected) setSelectedPosition(nextSelected);
+      if (nextSelected) {
+        setSimulationState((state) => ({ ...state, selectedPositionId: nextSelected.id }));
+      }
       return updated;
     });
   }
@@ -369,8 +492,11 @@ export function SimulationPage() {
           selectedStock={selectedStock}
           onClosePosition={handleClosePosition}
           onSelectStockFromPosition={(position) => {
-            setSelectedPosition(position);
-            setSelectedStock(quotes.find((quote) => quote.symbol === position.symbol));
+            setSimulationState((current) => ({
+              ...current,
+              selectedPositionId: position.id,
+              selectedStockSymbol: position.symbol,
+            }));
           }}
           onUpdateStopLoss={handleUpdateStopLoss}
           onUpdateTarget={handleUpdateTarget}

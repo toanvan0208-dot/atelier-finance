@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useLocalStorageState } from "@/lib/use-local-storage-state";
 import { checkThinkingData } from "../data/checkThinking.data";
 import type {
   CheckThinkingMode,
@@ -25,15 +26,39 @@ type ChecklistPageProps = {
   onNavigate: (key: string) => void;
 };
 
+type ChecklistPersistentState = {
+  activeMode: CheckThinkingMode;
+  selectedModuleId: ThinkingModuleId;
+  selectedCount: ThinkingQuestionCount;
+  questionIndexByModule: Partial<Record<ThinkingModuleId, number>>;
+  answersByQuestion: Record<string, string>;
+  selectedTicker: string;
+};
+
+const checklistStorageKey = "atelier-finance.checklist.v1";
+
+const defaultChecklistState: ChecklistPersistentState = {
+  activeMode: "understanding",
+  selectedModuleId: "business",
+  selectedCount: 5,
+  questionIndexByModule: {},
+  answersByQuestion: {},
+  selectedTicker: "MWG",
+};
+
 export function ChecklistPage({ onNavigate }: ChecklistPageProps) {
-  const [activeMode, setActiveMode] = useState<CheckThinkingMode>("understanding");
-  const [selectedModuleId, setSelectedModuleId] = useState<ThinkingModuleId>("business");
-  const [selectedCount, setSelectedCount] = useState<ThinkingQuestionCount>(5);
-  const [questionIndexByModule, setQuestionIndexByModule] = useState<
-    Partial<Record<ThinkingModuleId, number>>
-  >({});
-  const [answersByQuestion, setAnswersByQuestion] = useState<Record<string, string>>({});
-  const [selectedTicker, setSelectedTicker] = useState("MWG");
+  const [persistedState, setPersistedState] = useLocalStorageState(
+    checklistStorageKey,
+    defaultChecklistState
+  );
+  const {
+    activeMode,
+    answersByQuestion,
+    questionIndexByModule,
+    selectedCount,
+    selectedModuleId,
+    selectedTicker,
+  } = persistedState;
 
   const selectedQuestions = useMemo(
     () => checkThinkingData.questionBank[selectedModuleId] ?? [],
@@ -49,20 +74,23 @@ export function ChecklistPage({ onNavigate }: ChecklistPageProps) {
     checkThinkingData.stockReadinessByTicker[0];
 
   function handleSelectModule(moduleId: ThinkingModuleId) {
-    setSelectedModuleId(moduleId);
+    setPersistedState((current) => ({ ...current, selectedModuleId: moduleId }));
   }
 
   function handleQuestionStep(direction: 1 | -1) {
     if (selectedQuestions.length <= 1) return;
 
-    setQuestionIndexByModule((current) => {
-      const currentIndex = current[selectedModuleId] ?? 0;
+    setPersistedState((current) => {
+      const currentIndex = current.questionIndexByModule[selectedModuleId] ?? 0;
       const nextIndex =
         (currentIndex + direction + selectedQuestions.length) % selectedQuestions.length;
 
       return {
         ...current,
-        [selectedModuleId]: nextIndex,
+        questionIndexByModule: {
+          ...current.questionIndexByModule,
+          [selectedModuleId]: nextIndex,
+        },
       };
     });
   }
@@ -72,10 +100,13 @@ export function ChecklistPage({ onNavigate }: ChecklistPageProps) {
       <CheckThinkingHero
         activeMode={activeMode}
         hero={checkThinkingData.hero}
-        onModeChange={setActiveMode}
+        onModeChange={(mode) => setPersistedState((current) => ({ ...current, activeMode: mode }))}
       />
 
-      <CheckModeTabs activeMode={activeMode} onModeChange={setActiveMode} />
+      <CheckModeTabs
+        activeMode={activeMode}
+        onModeChange={(mode) => setPersistedState((current) => ({ ...current, activeMode: mode }))}
+      />
 
       {activeMode === "understanding" ? (
         <div className="space-y-5">
@@ -87,7 +118,7 @@ export function ChecklistPage({ onNavigate }: ChecklistPageProps) {
           <CheckSetupPanel
             options={checkThinkingData.questionCountOptions}
             selectedCount={selectedCount}
-            onSelectCount={setSelectedCount}
+            onSelectCount={(count) => setPersistedState((current) => ({ ...current, selectedCount: count }))}
           />
           {currentQuestion ? (
             <QuestionRunner
@@ -97,9 +128,12 @@ export function ChecklistPage({ onNavigate }: ChecklistPageProps) {
               selectedAnswer={answersByQuestion[currentQuestion.id] ?? null}
               totalAvailable={selectedQuestions.length}
               onAnswer={(answer) =>
-                setAnswersByQuestion((current) => ({
+                setPersistedState((current) => ({
                   ...current,
-                  [currentQuestion.id]: answer,
+                  answersByQuestion: {
+                    ...current.answersByQuestion,
+                    [currentQuestion.id]: answer,
+                  },
                 }))
               }
               onNext={() => handleQuestionStep(1)}
@@ -116,7 +150,7 @@ export function ChecklistPage({ onNavigate }: ChecklistPageProps) {
           <StockSelector
             selectedTicker={selectedTicker}
             stocks={checkThinkingData.stockReadinessByTicker}
-            onSelectTicker={setSelectedTicker}
+            onSelectTicker={(ticker) => setPersistedState((current) => ({ ...current, selectedTicker: ticker }))}
           />
           <ModuleReadinessMap modules={selectedStock.moduleReadiness} onNavigate={onNavigate} />
           <ChecklistLogicPanel

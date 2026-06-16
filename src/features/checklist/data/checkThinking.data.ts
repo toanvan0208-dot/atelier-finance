@@ -93,7 +93,7 @@ export const baseCheckThinkingData: CheckThinkingData = {
       label: moduleLabels.technical,
       shortLabel: "PV",
       description: "Đọc giá, khối lượng, thời gian để tránh FOMO.",
-      competencyFocus: ["Tín hiệu xác nhận", "Kỷ luật thời điểm"],
+      competencyFocus: ["Dữ liệu xác nhận", "Kỷ luật thời điểm"],
       status: "new",
     },
     {

@@ -41,8 +41,8 @@ const unique = (items: string[]): string[] => Array.from(new Set(items.filter(Bo
 
 const sanitizeForChecklist = (text: string): string =>
   text
-    .replace(/khuyến nghị giao dịch/gi, "tín hiệu giao dịch")
-    .replace(/khuyến nghị đầu tư/gi, "tín hiệu đầu tư")
+    .replace(/khuyến nghị giao dịch/gi, "kết luận hành động")
+    .replace(/khuyến nghị đầu tư/gi, "kết luận đầu tư")
     .replace(/khuyến nghị/gi, "gợi ý kiểm tra")
     .replace(/nên mua|nên bán/gi, "cần kiểm tra thêm")
     .replace(/nắm giữ/gi, "tiếp tục theo dõi giả định")
@@ -260,7 +260,7 @@ const buildGroups = (snapshot: ChecklistStatementSnapshot): {
       label: "Valuation confidence đang ở mức nào?",
       status: valuationConfidence === "high" || valuationConfidence === "medium" ? "completed" : valuationConfidence === "unknown" ? "insufficient_data" : "needs_review",
       value: confidenceLabel(valuationConfidence),
-      summary: "Độ tin cậy chỉ nói mức đầy đủ của dữ liệu và phương pháp, không phải tín hiệu giao dịch.",
+      summary: "Độ tin cậy chỉ nói mức đầy đủ của dữ liệu và phương pháp, không phải kết luận hành động.",
       warnings: valuationConfidence === "low" || valuationConfidence === "very_low" ? ["Độ tin cậy thấp, cần kiểm tra thêm giả định và dữ liệu đầu vào."] : [],
       missingFields: valuationReadiness.missingFields,
       targetModule: "valuation",
@@ -398,7 +398,7 @@ const buildFinalReadiness = (
       status: "return_to_analysis",
       label: "Cần kiểm tra thêm",
       tone: "warning",
-      summary: "Checklist có dữ liệu để đọc sơ bộ nhưng còn cảnh báo cần kiểm tra, không phải tín hiệu giao dịch.",
+      summary: "Checklist có dữ liệu để đọc sơ bộ nhưng còn cảnh báo cần kiểm tra, không phải kết luận hành động.",
       reasons: ["Cần đọc cùng dòng tiền, nợ vay, định giá và bối cảnh ngành.", overallRisk.warnings[0] ?? overallRisk.reasons[0] ?? "Có bước cần kiểm tra thêm."],
       nextActions: [
         { label: "Đọc cảnh báo rủi ro", moduleKey: "risk", primary: true },
@@ -412,7 +412,7 @@ const buildFinalReadiness = (
     status: "ready",
     label: "Đã có dữ liệu để đọc tiếp",
     tone: "success",
-    summary: "Checklist đã có dữ liệu để đọc sơ bộ, nhưng kết quả chỉ là tham chiếu và không phải tín hiệu giao dịch.",
+    summary: "Checklist đã có dữ liệu để đọc sơ bộ, nhưng kết quả chỉ là tham chiếu và không phải kết luận hành động.",
     reasons: ["Các nhóm dữ liệu chính không thiếu trường trọng yếu từ financial logic.", "Vẫn cần theo dõi dữ liệu mới và thesis trong Watchlist hoặc Mô phỏng."],
   };
 };

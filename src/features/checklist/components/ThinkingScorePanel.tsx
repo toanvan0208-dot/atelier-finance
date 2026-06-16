@@ -10,7 +10,7 @@ export function ThinkingScorePanel({ score }: ThinkingScorePanelProps) {
     <Card>
       <CardHeader
         title="Phản hồi theo năng lực"
-        description="Điểm số chỉ là tín hiệu, trọng tâm là năng lực cần luyện tiếp."
+        description="Điểm số chỉ là gợi ý học tập, trọng tâm là năng lực cần luyện tiếp."
         chip={<Chip variant="accent">{score.totalScore}/{score.maxScore}</Chip>}
       />
       <CardBody className="space-y-4">

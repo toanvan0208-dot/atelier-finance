@@ -175,7 +175,7 @@ export const baseValuationRefactoredData: ValuationRefactoredData = {
     {
       title: "P/E thấp không có nghĩa là rẻ",
       description:
-        "Nếu lợi nhuận đang ở đỉnh chu kỳ hoặc có khoản bất thường, P/E thấp có thể là tín hiệu giả.",
+        "Nếu lợi nhuận đang ở đỉnh chu kỳ hoặc có khoản bất thường, P/E thấp có thể tạo diễn giải sai.",
     },
     {
       title: "DCF dễ bị làm đẹp bởi giả định",

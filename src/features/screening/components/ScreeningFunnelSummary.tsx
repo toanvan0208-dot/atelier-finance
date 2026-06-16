@@ -52,7 +52,7 @@ export function ScreeningFunnelSummary({ data, mode }: ScreeningFunnelSummaryPro
           })}
         </div>
         <p className="rounded-[4px] border border-border-soft bg-surface px-3 py-2 text-xs font-semibold leading-5 text-muted">
-          Kết quả lọc chỉ tạo danh sách ứng viên, không phải tín hiệu giao dịch.
+          Kết quả lọc chỉ tạo danh sách ứng viên cần kiểm tra thêm.
         </p>
 
         {openGate ? (

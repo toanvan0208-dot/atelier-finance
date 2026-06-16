@@ -16,7 +16,7 @@ export function PVTConfirmationScenarios({
     <Card>
       <CardHeader
         title="Cần quan sát điều gì tiếp theo?"
-        description="Không hỏi hành động ngay; trước hết xác định tín hiệu được xác nhận hay phủ nhận khi nào."
+        description="Không hỏi hành động ngay; trước hết xác định điều kiện quan sát được xác nhận hay phủ nhận khi nào."
       />
       <CardBody className="space-y-4">
         <div className="grid gap-4 lg:grid-cols-3">

@@ -75,7 +75,7 @@ export function StockScreeningExplanationDrawer({
             <Chip variant="accent">{stock.classification}</Chip>
             <p className="mt-2 text-sm leading-6 text-muted">{stock.mainReason}</p>
             <p className="mt-2 text-[11px] font-semibold text-subtle">
-              Đây không phải tín hiệu giao dịch.
+              Đây chỉ là dữ liệu cần kiểm tra thêm.
             </p>
           </div>
 

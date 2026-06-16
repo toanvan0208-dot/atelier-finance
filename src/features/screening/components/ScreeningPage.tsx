@@ -536,7 +536,7 @@ function ScreeningResults({
         <Chip variant="accent">Kết quả sau lọc</Chip>
         <h2 className="mt-2 text-2xl font-bold text-ink">Nhóm cổ phiếu sau khi đối chiếu bộ lọc</h2>
         <p className="mt-1 max-w-3xl text-sm leading-6 text-muted">
-          Nhóm đầu tiên được ưu tiên hiển thị vì đây là các mã đáng phân tích tiếp. Đây không phải khuyến nghị mua bán.
+          Nhóm đầu tiên được ưu tiên hiển thị vì đây là các mã đáng phân tích tiếp. Đây chưa phải kết luận hành động.
         </p>
       </div>
 
@@ -678,7 +678,7 @@ function AnalysisPathDrawer({
             <Chip variant={toneVariant[groupTone[candidate.group]]}>{candidate.groupLabel}</Chip>
             <h2 className="mt-2 text-lg font-bold text-ink">Phân tích {candidate.ticker} theo lộ trình</h2>
             <p className="mt-1 text-xs leading-5 text-muted">
-              Chọn bước tiếp theo để đọc sâu hơn. Kết quả lọc không phải kết luận mua bán.
+              Chọn bước tiếp theo để đọc sâu hơn. Kết quả lọc chưa đủ dữ liệu để kết luận hành động.
             </p>
           </div>
           <Button size="sm" variant="ghost" onClick={onClose}>
@@ -713,7 +713,7 @@ function NextStepPanel() {
             {screeningRedesignData.nextPanel}
           </p>
         </div>
-        <Chip variant="accent">Không đưa ra khuyến nghị mua bán</Chip>
+        <Chip variant="accent">Chỉ tạo danh sách cần kiểm tra thêm</Chip>
       </CardBody>
     </Card>
   );

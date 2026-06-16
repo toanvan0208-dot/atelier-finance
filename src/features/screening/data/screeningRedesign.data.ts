@@ -57,7 +57,7 @@ export const screeningRedesignData = {
       "Lọc cổ phiếu không có nghĩa là tìm mã chắc chắn tăng giá.",
       "Cổ phiếu qua bộ lọc chỉ có nghĩa là đáng phân tích tiếp.",
       "Cổ phiếu bị loại không có nghĩa là doanh nghiệp xấu.",
-      "Không nên mua chỉ vì một mã xuất hiện trong nhóm đáng phân tích tiếp.",
+      "Không đưa ra kết luận hành động chỉ vì một mã xuất hiện trong nhóm đáng phân tích tiếp.",
       "Sau khi lọc cần đi tiếp qua: Hiểu doanh nghiệp, Báo cáo tài chính, Định giá, PVT và Rủi ro.",
     ],
   },
@@ -361,7 +361,7 @@ export const screeningRedesignData = {
     ROE: "Doanh nghiệp tạo ra bao nhiêu lợi nhuận trên vốn chủ sở hữu.",
     "D/E": "Mức độ sử dụng nợ so với vốn chủ sở hữu.",
     CFO: "Dòng tiền từ hoạt động kinh doanh. Nói đơn giản là tiền thật từ hoạt động chính.",
-    "Thanh khoản": "Mức độ dễ mua bán cổ phiếu trên thị trường.",
+    "Thanh khoản": "Mức độ dễ giao dịch cổ phiếu trên thị trường.",
   } satisfies Record<ScreeningMetricKey, string>,
   analysisPath: [
     "Hiểu doanh nghiệp",
@@ -372,7 +372,7 @@ export const screeningRedesignData = {
     "Thêm vào Watchlist",
   ],
   nextPanel:
-    "Bộ lọc đã giúp thu hẹp danh sách. Bước tiếp theo là phân tích từng mã, không ra quyết định mua bán ngay tại đây.",
+    "Bộ lọc đã giúp thu hẹp danh sách. Bước tiếp theo là phân tích từng mã, chưa đủ dữ liệu để kết luận hành động tại đây.",
 };
 
 export const candidatesByTicker = Object.fromEntries(

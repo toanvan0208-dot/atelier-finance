@@ -168,7 +168,7 @@ export function StockIdeaCard({
             <section className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3">
               <div className="mb-3 flex flex-wrap items-center gap-2">
                 <Chip size="sm" variant="accent">Tóm tắt từ financial logic</Chip>
-                <span className="text-[11px] font-semibold text-subtle">Không phải tín hiệu giao dịch</span>
+                <span className="text-[11px] font-semibold text-subtle">Chỉ là ý tưởng cần kiểm tra thêm</span>
               </div>
               <div className="grid gap-2 md:grid-cols-2">
                 <div className="rounded-[3px] border border-border-soft bg-surface px-2 py-2">

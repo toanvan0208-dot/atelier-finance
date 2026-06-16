@@ -8,7 +8,7 @@ const basePvtObservationData: PVTObservationData = {
   industry: "Bán lẻ",
   currentPrice: 42000,
   status: {
-    label: "Có tín hiệu cải thiện nhưng chưa xác nhận đủ mạnh",
+    label: "Có dấu hiệu cải thiện nhưng chưa xác nhận đủ mạnh",
     tone: "caution",
     conclusion:
       "Giá đang tiến gần vùng kháng cự trong khi biên an toàn định giá chưa rõ. Không nên hành động chỉ vì giá đang tăng.",
@@ -92,7 +92,7 @@ const basePvtObservationData: PVTObservationData = {
       evidence: [
         "Volume hiện tại khoảng 1,4 lần trung bình 20 phiên.",
         "Cần xem volume có duy trì sau phiên tăng mạnh không.",
-        "Nếu phiên giảm có volume lớn, tín hiệu sẽ xấu đi nhanh.",
+        "Nếu phiên giảm có volume lớn, bối cảnh giá/khối lượng sẽ cần kiểm tra lại nhanh.",
       ],
       commonMistake:
         "Volume cao không phải lúc nào cũng tốt; giá giảm mạnh kèm volume cao có thể là áp lực bán.",
@@ -194,7 +194,7 @@ const basePvtObservationData: PVTObservationData = {
       "Không nên hành động chỉ vì giá đang chạy. Cần chờ xác nhận hoặc vùng quan sát có tỷ lệ rủi ro/lợi nhuận tốt hơn.",
   },
   finalConclusion: {
-    status: "MWG có tín hiệu cải thiện ngắn hạn nhưng chưa xác nhận đủ mạnh.",
+    status: "MWG có dấu hiệu cải thiện ngắn hạn nhưng chưa xác nhận đủ mạnh.",
     positive: "Giá giữ được vùng hỗ trợ gần và volume bắt đầu cải thiện.",
     caution:
       "Giá đang gần kháng cự, biên an toàn định giá chưa rõ và FOMO ở mức trung bình.",

@@ -17,7 +17,7 @@ export function PVTSignalLayers({ layers }: PVTSignalLayersProps) {
   return (
     <Card>
       <CardHeader
-        title="Đọc tín hiệu theo 5 lớp"
+        title="Đọc quan sát PVT theo 5 lớp"
         description="Đọc theo thứ tự để tránh nhìn chart tùy hứng."
       />
       <CardBody className="space-y-4">

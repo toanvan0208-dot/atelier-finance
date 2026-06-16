@@ -27,8 +27,8 @@ const unique = (items: string[]): string[] => Array.from(new Set(items.filter(Bo
 
 const sanitizeForWatchlist = (text: string): string =>
   text
-    .replace(/khuyến nghị giao dịch/gi, "tín hiệu giao dịch")
-    .replace(/khuyến nghị đầu tư/gi, "tín hiệu đầu tư")
+    .replace(/khuyến nghị giao dịch/gi, "kết luận hành động")
+    .replace(/khuyến nghị đầu tư/gi, "kết luận đầu tư")
     .replace(/khuyến nghị/gi, "gợi ý kiểm tra")
     .replace(/nên mua/gi, "cần kiểm tra thêm")
     .replace(/nên bán/gi, "cần kiểm tra thêm")

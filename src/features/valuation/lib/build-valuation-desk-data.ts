@@ -258,7 +258,7 @@ export const buildValuationDeskData = (
           "Chỉ cần thay đổi WACC hoặc tăng trưởng dài hạn, kết quả có thể biến động mạnh. Vì vậy phần này đang được khóa khi dữ liệu chưa đủ.",
       },
       {
-        title: "Confidence không phải tín hiệu hành động",
+        title: "Confidence không phải kết luận hành động",
         description:
           "Độ tin cậy chỉ nói mức đầy đủ của dữ liệu và phương pháp, không thay thế kiểm tra rủi ro, thanh khoản và bối cảnh ngành.",
       },
@@ -270,7 +270,7 @@ export const buildValuationDeskData = (
           ? `Giá hiện tại là ${currentPrice.toLocaleString("vi-VN")} đồng/cp. Chưa có fair value hợp lệ để so sánh trực tiếp.`
           : "Thiếu giá hiện tại nên chưa thể đặt vị trí giá.",
       marginOfSafety:
-        "Chưa tính margin of safety vì chưa có fair value hợp lệ và độ tin cậy đủ rõ. Không dùng chỉ số này như tín hiệu hành động.",
+        "Chưa tính margin of safety vì chưa có fair value hợp lệ và độ tin cậy đủ rõ. Không dùng chỉ số này như kết luận hành động.",
       keyRisk:
         "Rủi ro lớn nhất là dữ liệu thiếu hoặc yếu khiến các chỉ số tương đối bị đọc quá mức. Cần kiểm tra EPS, BVPS, EBITDA, dòng tiền và nguồn dữ liệu.",
       nextStep:

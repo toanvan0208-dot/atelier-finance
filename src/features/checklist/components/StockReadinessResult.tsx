@@ -18,7 +18,7 @@ export function StockReadinessResult({ onNavigate, result }: StockReadinessResul
     <Card>
       <CardHeader
         title="Kết luận sẵn sàng"
-        description="Kết luận này dùng để chọn bước kiểm tra tiếp theo, không phải tín hiệu giao dịch."
+        description="Kết luận này dùng để chọn bước kiểm tra tiếp theo, không phải kết luận hành động."
         chip={<Chip variant={toneVariant[result.tone]}>{result.label}</Chip>}
       />
       <CardBody className="space-y-4">
