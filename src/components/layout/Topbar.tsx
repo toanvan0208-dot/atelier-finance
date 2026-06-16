@@ -4,14 +4,14 @@ type TopbarProps = {
   title: string;
   brandName: string;
   profileAction?: ReactNode;
-  actions: Array<{
+  actions?: Array<{
     key: string;
     label: string;
     icon: string;
   }>;
 };
 
-export function Topbar({ title, brandName, profileAction, actions }: TopbarProps) {
+export function Topbar({ title, brandName, profileAction }: TopbarProps) {
   return (
     <header className="sticky top-0 z-20 col-span-full grid min-h-14 grid-cols-1 border-b-[1.5px] border-border bg-surface/95 backdrop-blur md:grid-cols-[252px_minmax(0,1fr)_360px]">
       <div className="hidden items-center gap-2 border-r-[1.5px] border-border px-6 font-brand text-[13px] font-bold text-ink md:flex">
@@ -28,18 +28,6 @@ export function Topbar({ title, brandName, profileAction, actions }: TopbarProps
 
       <div className="hidden items-center justify-end gap-2 border-l-[1.5px] border-border px-5 md:flex">
         {profileAction}
-        {actions.map((action) => (
-          <button
-            key={action.key}
-            className="grid h-9 w-9 place-items-center rounded-[3px] border border-border-soft bg-surface text-muted opacity-60"
-            type="button"
-            aria-label={`${action.label}, sắp có`}
-            disabled
-            title="Sắp có"
-          >
-            {action.icon}
-          </button>
-        ))}
       </div>
     </header>
   );

@@ -92,26 +92,6 @@ function AITutorRecommendedLessonCard({
         {lesson.duration} · Dùng trong: {lesson.usedIn}
       </p>
       <p className="mt-2 text-xs leading-5 text-muted">{lesson.reason}</p>
-      <div className="mt-3 flex gap-2">
-        <button
-          aria-label="Học nhanh, sắp có"
-          className="rounded-[3px] border-[1.5px] border-border bg-accent px-2.5 py-1 text-[11px] font-bold text-ink opacity-60 shadow-hard-sm"
-          disabled
-          title="Sắp có"
-          type="button"
-        >
-          Học nhanh
-        </button>
-        <button
-          aria-label="Để sau, sắp có"
-          className="rounded-[3px] border border-border-soft bg-surface px-2.5 py-1 text-[11px] font-bold text-muted opacity-60"
-          disabled
-          title="Sắp có"
-          type="button"
-        >
-          Để sau
-        </button>
-      </div>
     </article>
   );
 }

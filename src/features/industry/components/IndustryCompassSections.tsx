@@ -1,8 +1,6 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Button, Card, CardBody, CardHeader, Chip, SectionHeader } from "@/components/ui";
 import type {
-  IndustryAnalysisCluster,
-  IndustryBlockData,
   IndustryCompassAction,
   IndustryCompassOption,
   IndustryCompassTone,
@@ -552,65 +550,6 @@ export function IndustryCompanyMapSection({
               </article>
             ))}
           </div>
-        </CardBody>
-      </Card>
-    </section>
-  );
-}
-
-export function IndustryAnalysisClusters({
-  blocks,
-  clusters,
-}: {
-  blocks: IndustryBlockData[];
-  clusters: IndustryAnalysisCluster[];
-}) {
-  const groupedBlocks = useMemo(
-    () =>
-      clusters.map((cluster) => ({
-        cluster,
-        steps: blocks.filter(
-          (block) => block.stepNumber >= cluster.stepRange[0] && block.stepNumber <= cluster.stepRange[1]
-        ),
-      })),
-    [blocks, clusters]
-  );
-
-  return (
-    <section>
-      <SectionHeader
-        title="Khung chi tiết đã được gom lại"
-        description="17 bước cũ vẫn được giữ trong data, nhưng giao diện chính chỉ hiện 5 cụm lớn. Mở từng cụm khi cần xem bước nhỏ."
-      />
-      <Card>
-        <CardBody className="space-y-3">
-          {groupedBlocks.map(({ cluster, steps }, index) => (
-            <details
-              key={cluster.title}
-              className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-3"
-              open={index === 0}
-            >
-              <summary className="cursor-pointer list-none">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
-                    <p className="text-sm font-bold text-ink">{cluster.title}</p>
-                    <p className="mt-1 text-xs leading-5 text-muted">{cluster.question}</p>
-                  </div>
-                </div>
-              </summary>
-              <div className="mt-3 border-t border-border-soft pt-3">
-                <p className="text-xs font-semibold leading-5 text-ink">Kết quả cần có: {cluster.output}</p>
-                <div className="mt-3 grid gap-2 md:grid-cols-2">
-                  {steps.map((step) => (
-                    <div key={step.id} className="rounded-[4px] border border-border-soft bg-surface px-3 py-2">
-                      <p className="text-[11px] font-semibold text-subtle">Bước {step.stepNumber}</p>
-                      <p className="mt-1 text-xs font-bold leading-5 text-ink">{step.title}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </details>
-          ))}
         </CardBody>
       </Card>
     </section>

@@ -179,10 +179,6 @@ function SimulationThesisCard({
             <SimulationThesisForm value={thesis} onChange={onThesisChange} />
           </div>
         </details>
-        <div className="flex flex-wrap gap-2">
-          <Button disabled size="sm" title="Sắp có" variant="secondary">Ghi vào Checklist</Button>
-          <Button disabled size="sm" title="Sắp có" variant="ghost">Đặt mốc xem lại</Button>
-        </div>
       </CardBody>
     </Card>
   );

@@ -138,9 +138,6 @@ export function WatchlistActionQueue({ ideas, onOpenIdea }: WatchlistActionQueue
             </Button>
           </div>
         ))}
-        {ideas.length > queue.length ? (
-          <Button size="sm" variant="ghost">Xem tất cả việc cần xử lý</Button>
-        ) : null}
       </CardBody>
     </Card>
   );

@@ -5,7 +5,6 @@ import { EmptyState, LoadingState } from "@/components/ui";
 import { industryPageData } from "../data/industry.data";
 import { industryCompassData } from "../data/industryCompass.data";
 import {
-  IndustryAnalysisClusters,
   IndustryCompanyMapSection,
   IndustryConditionalConclusion,
   IndustryCurrentHeader,
@@ -65,10 +64,6 @@ export function IndustryPage({ onNavigate }: IndustryPageProps) {
       <IndustryDataConfirmationSection
         selectedIndustry={selectedIndustry}
         termTips={industryCompassData.termTips}
-      />
-      <IndustryAnalysisClusters
-        blocks={industryPageData.blocks}
-        clusters={industryCompassData.clusters}
       />
       <IndustryConditionalConclusion
         selectedIndustry={selectedIndustry}

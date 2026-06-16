@@ -77,8 +77,8 @@ export function DataQualityBanner({
             <dd className="text-right">{source || "Chưa có nguồn thật"}</dd>
           </div>
           <div className="flex justify-between gap-3">
-            <dt className="font-bold">Cập nhật</dt>
-            <dd className="text-right">{formattedAsOf || "Chưa có thời điểm"}</dd>
+            <dt className="font-bold">Mốc dữ liệu</dt>
+            <dd className="text-right">{formattedAsOf || "Chưa có mốc dữ liệu"}</dd>
           </div>
         </dl>
       </div>
