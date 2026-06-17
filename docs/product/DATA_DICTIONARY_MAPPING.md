@@ -36,6 +36,27 @@ Core rules:
 
 ## 2. Canonical Field Mapping
 
+### 2.1 Canonical Naming Rules
+
+Use these names in Phase 26C contracts and adapter outputs. Aliases from external sources may be mapped in adapters, but should not leak into the normalized contract.
+
+| Concept | Canonical field | Common aliases to map, not expose | Notes |
+| --- | --- | --- | --- |
+| Revenue | `revenue` | `sales`, `netRevenue`, `doanh_thu_thuan` | For banks/securities/insurance, define the source line explicitly before using this field. |
+| Net income | `netIncome` | `netProfit`, `profitAfterTax`, `lnst`, `net_profit` | `netIncome` is the canonical normalized field. Existing docs/code may still use `netProfit`; Phase 26C should provide a compatibility alias only if needed. |
+| Parent-company net income | `netIncomeToParent` | `netProfitParent`, `lnst_parent` | Prefer for EPS where available. |
+| Operating cash flow | `operatingCashFlow` | `cfo`, `cashFlowFromOperations` | Can be negative; never replace missing with `0`. |
+| Total assets | `totalAssets` | `assets`, `tong_tai_san` | Period-end field unless average assets is explicitly provided. |
+| Equity | `equity` | `totalEquity`, `bookValue`, `shareholdersEquity` | `equity` is canonical. If equity <= 0, ROE/P/B/BVPS normal interpretation is blocked. |
+| EPS | `eps` | `epsBasic`, `basicEPS` | EPS <= 0 blocks normal P/E interpretation. |
+| BVPS | `bvps` | `bookValuePerShare` | Invalid for normal P/B interpretation when equity <= 0. |
+| Close price | `closePrice` | `lastPrice`, `gia_dong_cua_vnd` | Must have `tradingDate` and record-level `asOf`. |
+| Market cap | `marketCap` | `marketCapitalization` | Derive only from valid price and shares. |
+| Volume | `volume` | `tradingVolume`, `khoi_luong_giao_dich_co_phieu` | `0` can be a real no-trade value only when source confirms; otherwise missing remains `null`. |
+| Trading value | `tradingValue` | `turnover`, `matchedValue` | Preferred liquidity input. |
+
+### 2.2 Field Table
+
 | Canonical field | Description | Type | Unit | Nullable | Missing semantics | Modules | Financial notes |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `ticker` | Listed security ticker. | `string` | none | no | `not_available` blocks stock-specific analysis. | all stock modules | Must be normalized uppercase and mapped to exchange. |
@@ -65,14 +86,14 @@ Core rules:
 | `revenue` | Revenue or operating income depending on company type. | `number` | VND | yes | `null` blocks revenue growth and margin calculations. | overview, financials, screening, valuation, risk | For banks, label revenue concept carefully. |
 | `grossProfit` | Gross profit. | `number` | VND | yes | `null` blocks gross margin. | financials, screening, risk | Not always applicable to banks. |
 | `operatingProfit` | Operating profit. | `number` | VND | yes | `null` blocks operating margin and coverage checks. | financials, risk, valuation | Ensure consistent accounting line. |
-| `netProfit` | Net profit after tax. | `number` | VND | yes | `null` blocks ROE, ROA, EPS derivation, earnings quality checks. | overview, financials, valuation, risk, screening | Negative can be valid and must be interpreted carefully. |
-| `netProfitParent` | Profit attributable to parent/common shareholders. | `number` | VND | yes | `null` blocks higher-quality EPS derivation. | financials, valuation | Prefer for EPS where available. |
+| `netIncome` | Net income after tax. | `number` | VND | yes | `null` blocks ROE, ROA, EPS derivation, earnings quality checks. | overview, financials, valuation, risk, screening | Negative can be valid and must be interpreted carefully. |
+| `netIncomeToParent` | Profit attributable to parent/common shareholders. | `number` | VND | yes | `null` blocks higher-quality EPS derivation. | financials, valuation | Prefer for EPS where available. |
 | `eps` | Earnings per share. | `number` | VND/share | yes | `null` blocks P/E. | overview, financials, valuation, risk, AI Assistant | EPS <= 0 makes P/E `not_applicable` for normal cheap/expensive interpretation. |
 | `epsDiluted` | Diluted EPS. | `number` | VND/share | yes | `null` means only basic EPS may be used. | valuation, financials | Use when dilution matters. |
 | `totalAssets` | Total assets. | `number` | VND | yes | `null` blocks ROA and balance sheet checks. | financials, risk, overview | Must align with period end. |
 | `totalLiabilities` | Total liabilities. | `number` | VND | yes | `null` blocks leverage checks. | financials, risk | Must reconcile with assets/equity if available. |
-| `totalEquity` | Total equity/book value. | `number` | VND | yes | `null` blocks ROE, BVPS, P/B. | financials, valuation, risk, overview | Equity <= 0 means ROE/P/B/BVPS cannot be interpreted normally. |
-| `bookValuePerShare` | Book value per share. | `number` | VND/share | yes | `null` blocks direct P/B if not derivable. | valuation, financials | Invalid when equity <= 0. |
+| `equity` | Total equity/book value. | `number` | VND | yes | `null` blocks ROE, BVPS, P/B. | financials, valuation, risk, overview | Equity <= 0 means ROE/P/B/BVPS cannot be interpreted normally. |
+| `bvps` | Book value per share. | `number` | VND/share | yes | `null` blocks direct P/B if not derivable. | valuation, financials | Invalid when equity <= 0. |
 | `shortTermDebt` | Short-term debt. | `number` | VND | yes | `null` lowers debt-risk confidence. | financials, risk | Not mechanical for banks/securities/insurance. |
 | `longTermDebt` | Long-term debt. | `number` | VND | yes | `null` lowers debt-risk confidence. | financials, risk | Combine with short-term debt only when definitions match. |
 | `totalDebt` | Interest-bearing debt. | `number` | VND | yes | `null` may be derived only from valid debt fields. | financials, risk, valuation | Do not equate all liabilities with debt unless documented. |
@@ -87,14 +108,14 @@ Core rules:
 | `capitalExpenditure` | Capital expenditure. | `number` | VND | yes | `null` blocks free-cash-flow calculation. | financials, valuation, risk | Sign convention must be documented. |
 | `freeCashFlow` | Free cash flow. | `number` | VND | yes | `null` blocks DCF/FCF metrics. | valuation, financials, risk | Can be negative; must not be overwritten. |
 | `revenueGrowth` | Revenue growth rate. | `number` | ratio | yes | `null` when prior revenue missing/<=0 or period mismatch. | overview, financials, screening, risk | Do not divide by 0 or interpret one period alone. |
-| `netProfitGrowth` | Net profit growth rate. | `number` | ratio | yes | `null` when prior value missing or denominator invalid. | financials, screening, risk, valuation | Negative prior profit needs caveat. |
+| `netIncomeGrowth` | Net income growth rate. | `number` | ratio | yes | `null` when prior value missing or denominator invalid. | financials, screening, risk, valuation | Negative prior profit needs caveat. |
 | `grossMargin` | Gross profit / revenue. | `number` | ratio | yes | `null` when revenue missing/<=0 or gross profit unavailable. | financials, screening, risk | Not universal across sectors. |
 | `netMargin` | Net profit / revenue. | `number` | ratio | yes | `null` when revenue missing/<=0. | financials, screening, risk | One-metric conclusions forbidden. |
-| `roe` | Net profit / equity. | `number` | ratio | yes | `not_applicable` if equity <= 0. | overview, financials, valuation, risk | High ROE with thin/negative equity can be misleading. |
-| `roa` | Net profit / assets. | `number` | ratio | yes | `null` when assets missing/<=0. | financials, risk | Prefer average assets if available. |
+| `roe` | Net income / equity. | `number` | ratio | yes | `not_applicable` if equity <= 0. | overview, financials, valuation, risk | High ROE with thin/negative equity can be misleading. |
+| `roa` | Net income / assets. | `number` | ratio | yes | `null` when assets missing/<=0. | financials, risk | Prefer average assets if available. |
 | `debtToEquity` | Debt / equity. | `number` | ratio | yes | `not_applicable` if equity <= 0 or company type is financial sector. | financials, risk | Do not apply mechanically to banks/securities/insurance. |
 | `currentRatio` | Current assets / current liabilities. | `number` | ratio | yes | `not_applicable` when denominator <=0 or financial-sector caveat applies. | financials, risk | Not a bank-quality metric. |
-| `cfoToNetProfit` | Operating cash flow / net profit. | `number` | ratio | yes | `null` when CFO or net profit missing/denominator invalid. | financials, risk, valuation | Helps earnings-quality reading; not a standalone conclusion. |
+| `cfoToNetIncome` | Operating cash flow / net income. | `number` | ratio | yes | `null` when CFO or net income missing/denominator invalid. | financials, risk, valuation | Helps earnings-quality reading; not a standalone conclusion. |
 | `peRatio` | Price / EPS. | `number` | x | yes | `not_applicable` when EPS <= 0; `null` when price/EPS missing. | overview, valuation, risk, screening | Low P/E is not automatically cheap. |
 | `pbRatio` | Price / BVPS. | `number` | x | yes | `not_applicable` when BVPS/equity <= 0. | overview, valuation, risk, screening | Must read with ROE and asset quality. |
 | `psRatio` | Market cap / revenue. | `number` | x | yes | `null` when market cap or revenue missing/invalid. | valuation, screening | Can mislead if margins are weak. |
@@ -126,14 +147,14 @@ Core rules:
 
 | Module | Primary canonical fields |
 | --- | --- |
-| Overview | `ticker`, `companyName`, `industry`, `companyType`, `closePrice`, `revenue`, `netProfit`, `totalEquity`, `valuationStatus`, `riskLevel`, `dataQualityStatus`, `sourceName`, `asOf`, `missingFields` |
+| Overview | `ticker`, `companyName`, `industry`, `companyType`, `closePrice`, `revenue`, `netIncome`, `equity`, `valuationStatus`, `riskLevel`, `dataQualityStatus`, `sourceName`, `asOf`, `missingFields` |
 | Macro | `macroIndicatorCode`, `macroValue`, `macroPeriod`, `periodType`, `sourceName`, `asOf`, `dataQualityStatus` |
 | Industry | `industry`, `industryMetricValue`, `macroIndicatorCode`, `peerTickers`, `sourceName`, `asOf`, `missingFields` |
 | Screening | `ticker`, `companyName`, `industry`, `companyType`, `marketCap`, `tradingValue`, `revenueGrowth`, `roe`, `riskLevel`, `dataQualityStatus` |
 | Business | `companyName`, `companyType`, `industry`, `businessDescription`, `revenueSegments`, `sourceName`, `asOf` |
-| Financials | `revenue`, `grossProfit`, `operatingProfit`, `netProfit`, `totalAssets`, `totalLiabilities`, `totalEquity`, `operatingCashFlow`, `inventory`, `accountsReceivable`, `dataQualityStatus` |
-| Valuation | `closePrice`, `eps`, `bookValuePerShare`, `peRatio`, `pbRatio`, `psRatio`, `freeCashFlow`, `valuationConfidence`, `valuationStatus`, `fairValueLow`, `fairValueBase`, `fairValueHigh`, `missingFields` |
-| Risk | `riskScore`, `riskLevel`, `debtToEquity`, `cfoToNetProfit`, `peRatio`, `pbRatio`, `liquidityRiskScore`, `dataQualityStatus`, `warningCodes` |
+| Financials | `revenue`, `grossProfit`, `operatingProfit`, `netIncome`, `totalAssets`, `totalLiabilities`, `equity`, `operatingCashFlow`, `inventory`, `accountsReceivable`, `dataQualityStatus` |
+| Valuation | `closePrice`, `eps`, `bvps`, `peRatio`, `pbRatio`, `psRatio`, `freeCashFlow`, `valuationConfidence`, `valuationStatus`, `fairValueLow`, `fairValueBase`, `fairValueHigh`, `missingFields` |
+| Risk | `riskScore`, `riskLevel`, `debtToEquity`, `cfoToNetIncome`, `peRatio`, `pbRatio`, `liquidityRiskScore`, `dataQualityStatus`, `warningCodes` |
 | Price Volume Time | `tradingDate`, `openPrice`, `highPrice`, `lowPrice`, `closePrice`, `adjustedClosePrice`, `volume`, `tradingValue`, `avgTradingValue20d` |
 | Checklist | `ticker`, `companyName`, `checklistEvidenceStatus`, `missingFields`, `warningCodes`, `dataQualityStatus`, `watchlistNote` |
 | Watchlist | `ticker`, `companyName`, `watchlistNote`, `valuationStatus`, `riskLevel`, `lastReviewedAt`, `dataQualityStatus`, `missingFields` |
@@ -164,3 +185,43 @@ Core rules:
 
 This mapping is conceptual only. No external data is imported in Phase 26B.
 
+## 5. Module Readiness And Required Fields
+
+Field-level nullable status is not enough. Each module also needs a readiness gate. If a required field is missing, the module must enter `insufficient_data` for the affected calculation/view instead of filling fake values.
+
+| Module | Required to render real-data module | Optional/recommended | If required fields are missing |
+| --- | --- | --- | --- |
+| Overview | `ticker`, `companyName`, `companyType`, `dataQualityStatus`, at least one sourced snapshot group | `closePrice`, `revenue`, `netIncome`, `riskLevel`, `valuationStatus` | Render shell with `insufficient_data`; do not show real-data summary claims. |
+| Macro | `macroIndicatorCode`, `macroValue`, `macroPeriod`, `periodType`, record-level source/asOf | `releaseDate`, prior period, source confidence | Mark indicator `insufficient_data`; do not infer missing macro context. |
+| Industry | `industry`, taxonomy/version source, record-level `asOf` | `peerTickers`, industry metrics, industry multiples | Industry comparison is `insufficient_data`; business can still show company-level facts. |
+| Screening | `ticker`, `companyType`, criteria definitions, `dataQualityStatus` | `marketCap`, `tradingValue`, growth, profitability, risk fields | Exclude missing criteria from score or mark result `insufficient_data`; do not rank as if complete. |
+| Business | `companyName`, `companyType`, `businessDescription`, source/asOf | `revenueSegments`, products/customers/geography | Business claims are `insufficient_data`; AI must not invent model/segments. |
+| Financials | `ticker`, `fiscalYear`, `periodType`, source/asOf, at least one statement block | `revenue`, `netIncome`, `equity`, `operatingCashFlow`, working-capital fields | Missing statement block becomes `insufficient_data`; affected metrics return `null`. |
+| Valuation | `closePrice`, `asOf`, `companyType`, valuation method inputs, readiness/confidence | `industryMultiples`, `historicalMultiples`, user assumptions | Method status `not_ready`; fair value fields remain `null`. |
+| Risk | `companyType`, data-quality summary, source/asOf for input groups | financial, valuation, liquidity, transparency components | Component score `null`; overall risk `unknown` or `insufficient_data`. |
+| Price Volume Time | `ticker`, `tradingDate`, `closePrice`, `volume`, source/asOf | `openPrice`, `highPrice`, `lowPrice`, `tradingValue`, averages | PVT view is `insufficient_data`; no liquidity/price observation claim. |
+| Checklist | checklist items, evidence status, `missingFields` | linked module summaries | Item cannot pass evidence-backed state; mark `insufficient_data`. |
+| Watchlist | user item ID, `ticker` or user-entered idea, user note source | latest linked data status | Show user note only; linked data summary `insufficient_data`. |
+| Simulation | simulation mode, user action/input, price source for PnL calculations | volume/liquidity/risk context | Do not compute PnL or price-based outcomes without valid price record. |
+
+## 6. Record-Level Metadata Requirements By Data Type
+
+| Data type | Required record-level metadata | Why it matters |
+| --- | --- | --- |
+| Price/OHLCV | `recordId`, `sourceId`, `sourceName`, `tradingDate`, `asOf`, `collectedAt`, `currency`, `unit`, `isAdjusted` | PVT, valuation, and simulation use different dates and adjusted/unadjusted meanings. |
+| Financial statement | `recordId`, `sourceId`, `sourceName`, `fiscalYear`, `fiscalQuarter`, `periodType`, `reportDate`, `publishedDate`, `asOf`, `collectedAt`, `currency`, `unit` | Financials, valuation, and risk must not mix periods silently. |
+| Macro | `recordId`, `sourceId`, `sourceName`, `indicatorCode`, `country`, `macroPeriod`, `periodType`, `releaseDate`, `asOf`, `collectedAt`, `unit` | Macro data may be monthly, quarterly, yearly, or daily. |
+| Industry taxonomy | `recordId`, `sourceId`, `sourceName`, `industryCode`, `classificationVersion`, `asOf`, `reviewedAt` | Industry mapping can change and affects sector caveats. |
+| Industry metric | `recordId`, `sourceId`, `sourceName`, `metricCode`, `peerSetId`, `period`, `periodType`, `asOf`, `unit` | Peer/multiple comparisons need a defined universe and period. |
+| Derived metric | `recordId`, `inputRecordIds`, `calculationVersion`, `asOf`, `period`, `periodType`, `dataQualityStatus`, `missingFields`, `warningCodes` | Derived metrics inherit input weaknesses and must be reproducible. |
+
+## 7. Company-Type Interpretation Matrix
+
+| Company type | Allowed normal metrics | Metrics requiring caveat or block | Notes |
+| --- | --- | --- | --- |
+| `non_financial` | Revenue growth, margins, ROE, ROA, debt metrics, Current Ratio, CFO/Net Income, P/E, P/B, P/S when inputs valid | None by type, but denominator and data-quality rules still apply | Use sector-specific caveats for retail, steel, real estate, technology, etc. |
+| `real_estate` | Revenue, net income, equity, debt, inventory/project data, P/B with caveats | CFO interpretation may be cycle/project dependent; Current Ratio can mislead | Inventory and customer advances need special reading. |
+| `bank` | P/B, ROE, asset quality, NIM, NPL, LLR, CAR if available | Current Ratio, Debt-to-Equity, generic CFO interpretation, EV/EBITDA | Do not read liabilities/deposits like manufacturing debt. |
+| `securities` | P/B, ROE, brokerage/market-cycle context, capital adequacy if available | Current Ratio, generic Debt-to-Equity, generic CFO interpretation | Earnings are sensitive to market cycle and proprietary investment gains/losses. |
+| `insurance` | P/B, ROE, investment income, reserve quality if available | Current Ratio, generic Debt-to-Equity, generic CFO interpretation | Need insurance reserves and investment portfolio context. |
+| `unknown` | Basic identity and source/data-quality display only | All ratio conclusions requiring company-type context | Ask for/derive company type before normal interpretation. |

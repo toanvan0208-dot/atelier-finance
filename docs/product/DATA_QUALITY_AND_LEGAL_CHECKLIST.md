@@ -19,11 +19,15 @@ This checklist must be completed before Atelier Finance moves any dataset from s
 
 ### Time and period integrity
 
-- [ ] `asOf` is present for displayed data.
+- [ ] Record-level `asOf` is present for displayed data.
 - [ ] `collectedAt` is present for imported data.
+- [ ] Price/OHLCV records have `tradingDate`, source, `asOf`, collected time, currency, unit, and adjusted/unadjusted flag.
 - [ ] Financial statement data has `fiscalYear`, `periodType`, and `fiscalQuarter` when applicable.
+- [ ] Financial statement records have `reportDate`, `publishedDate` when available, source, `asOf`, collected time, currency, and unit.
 - [ ] Market data has `tradingDate`.
-- [ ] Macro data has period and release/as-of date.
+- [ ] Macro records have indicator period, period type, release date when available, source, and `asOf`.
+- [ ] Industry taxonomy records have classification version and review/as-of date.
+- [ ] Industry metric records have peer-set definition, period, source, unit, and `asOf`.
 - [ ] Stale data is detected and marked with `STALE_DATA` or equivalent.
 - [ ] TTM values state their construction method and source periods.
 
@@ -33,6 +37,9 @@ This checklist must be completed before Atelier Finance moves any dataset from s
 - [ ] Missing values are never represented as `0`, `"0"`, `false`, `"none"`, or blank strings in normalized output.
 - [ ] Missing fields are listed in `missingFields`.
 - [ ] Metrics that lack required inputs return `null` or `not_applicable`.
+- [ ] Each module has a readiness gate that lists required fields.
+- [ ] Missing required fields move the affected module/view/calculation to `insufficient_data`.
+- [ ] Optional fields can be missing without blocking the module, but must lower confidence when they affect interpretation.
 - [ ] UI and AI responses explain important missing fields when they affect interpretation.
 
 ### Numeric validity
@@ -65,6 +72,10 @@ This checklist must be completed before Atelier Finance moves any dataset from s
 - [ ] Current Ratio is not interpreted mechanically for banks, securities companies, or insurers.
 - [ ] Debt-to-Equity is not interpreted mechanically for banks, securities companies, or insurers.
 - [ ] CFO can be negative and must not be forced positive or replaced with `0`.
+- [ ] `companyType` is present before applying sector-sensitive ratios.
+- [ ] Banks use bank-specific indicators where available, such as P/B, ROE, NIM, NPL, LLR, and CAR.
+- [ ] Securities companies use cycle/capital-market caveats; generic industrial leverage and CFO reading is blocked.
+- [ ] Insurers use reserve/investment-portfolio caveats; generic industrial leverage and CFO reading is blocked.
 - [ ] Risk scores are not presented as final safe/bad conclusions.
 - [ ] Valuation outputs are not generated when readiness is `not_ready` or confidence is `unknown`.
 - [ ] Fair value ranges are never described as target prices or action instructions.
@@ -169,4 +180,3 @@ This checklist must be completed before Atelier Finance moves any dataset from s
 - Define adapter error taxonomy.
 - Define database/API fields for `dataQuality`, `source`, `asOf`, `missingFields`, and `warnings`.
 - Decide whether user persistence remains local-only or moves to authenticated backend storage in a later phase.
-
