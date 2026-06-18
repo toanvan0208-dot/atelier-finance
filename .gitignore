@@ -9,3 +9,15 @@ dev-server.err.log
 .next-dev-*.out.log
 .next-dev-*.err.log
 src/generated/prisma
+
+# Local Next.js dev logs
+.next-dev.log
+.next-dev.err.log
+
+# Local SQLite / Prisma database files
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+dev.db
+prisma/dev.db
