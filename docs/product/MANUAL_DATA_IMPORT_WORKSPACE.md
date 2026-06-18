@@ -1,6 +1,6 @@
 # Manual Data Import Workspace
 
-Phase 28D added a small UI workspace for manually pasted CSV data. Phase 28E hardens that workspace so users can understand the input format, required fields, validation issues, and preview scope.
+Phase 28D added a small UI workspace for manually pasted CSV data. Phase 28E hardens that workspace so users can understand the input format, required fields, validation issues, and preview scope. Phase 28G positions the workspace as a user-provided source adapter, not the product's main data architecture.
 
 It is a local validation and preview surface only; it does not call APIs, write a database, import external data files, or connect manual upload data to production module runtime.
 
@@ -12,6 +12,21 @@ It is a local validation and preview surface only; it does not call APIs, write 
 - UX hardening doc: `docs/product/MANUAL_IMPORT_UX_HARDENING.md`
 - Product integration doc: `docs/product/MANUAL_IMPORT_PRODUCT_INTEGRATION.md`
 - Discoverability: Overview includes a "Nhập dữ liệu" CTA card that links to `/data-import`.
+- Roadmap context: `docs/product/PRODUCT_ROADMAP.md`
+
+## Product Positioning
+
+Manual Data Import is a secondary user-provided source adapter. It is valuable for local thesis verification, student/project workflows, and checking CSV data owned or supplied by the user.
+
+Manual Data Import is not:
+
+- a production database;
+- the main product data provider;
+- an approved automatic data source;
+- a verified market data feed;
+- a replacement for backend source approval, persistence, auditing, or access control.
+
+After Phase 28F, backend/database work becomes the main productization direction. Manual Import should eventually plug into that backend as a clearly flagged user-provided source path.
 
 ## Pipeline
 
@@ -88,10 +103,14 @@ The workspace renders validation output without crashing when:
 - No production runtime attachment.
 - No generated pricing claim.
 - No transaction instruction.
+- No approved automatic data provider.
+- No verified automatic market data.
 
-## Gaps For Phase 28F / 29
+## Gaps For Phase 29 / 30
 
-- Add richer CSV parsing only after product requirements confirm it is needed.
-- Add file upload once source evidence and local privacy rules are settled.
-- Add save/load workflow only after persistence boundaries are defined.
-- Add production source approval flow before any manual upload is allowed to affect production views.
+- Phase 29A: Backend & Database Architecture.
+- Phase 29B: Database Schema Foundation.
+- Phase 29C: Backend API Foundation.
+- Phase 29D: Manual Import Server-side Persistence.
+- Phase 29E: Frontend Data Fetch Bridge.
+- Phase 30A: Approved Source Adapter Pilot.

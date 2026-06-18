@@ -8,6 +8,8 @@ This phase makes the manual import workspace discoverable from the product while
 
 It does not call real APIs, add a database, add backend endpoints, upload binary/XLSX files, replace module data, or make manual upload a production-approved source.
 
+Phase 28G clarifies that this integration is a secondary user-provided source path. It is not the primary data architecture for Atelier Finance. Backend and database work should become the main productization direction after Phase 28F.
+
 ## Integration Point
 
 The integration is a small CTA card on the Overview page:
@@ -30,6 +32,26 @@ The sidebar/mobile navigation currently uses internal module keys inside `/works
 ## Safety Copy
 
 The Overview CTA states that manual import data is user-provided and not system-verified. The workspace keeps the same warning card and `thesis_verification` runtime mode.
+
+## Roadmap Alignment
+
+Manual Import remains useful because it exercises the data contract, validation report, source metadata, and module bridge. It should eventually be persisted server-side only after backend/database architecture is defined.
+
+Next roadmap:
+
+- Phase 29A: Backend & Database Architecture.
+- Phase 29B: Database Schema Foundation.
+- Phase 29C: Backend API Foundation.
+- Phase 29D: Manual Import Server-side Persistence.
+- Phase 29E: Frontend Data Fetch Bridge.
+- Phase 30A: Approved Source Adapter Pilot.
+
+## Current Non-Claims
+
+- No production backend/database exists yet.
+- No approved automatic data provider exists yet.
+- No verified automatic market data feed exists yet.
+- Manual Import is not a production-approved source.
 
 ## Remaining Gaps
 
