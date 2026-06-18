@@ -1,4 +1,5 @@
 export * from "./adapter-contract";
+export * from "./financials-api-client";
 export * from "./manual-upload-adapter";
 export * from "./manual-import-api-client";
 export * from "./manual-upload-parser";
