@@ -1,12 +1,15 @@
 # Manual Data Import Workspace
 
-Phase 28D adds a small UI workspace for manually pasted CSV data. It is a local validation and preview surface only; it does not call APIs, write a database, import external data files, or connect manual upload data to production module runtime.
+Phase 28D added a small UI workspace for manually pasted CSV data. Phase 28E hardens that workspace so users can understand the input format, required fields, validation issues, and preview scope.
+
+It is a local validation and preview surface only; it does not call APIs, write a database, import external data files, or connect manual upload data to production module runtime.
 
 ## Route
 
 - UI route: `/data-import`
 - Component: `src/components/data-import/ManualDataImportWorkspace.tsx`
 - Default mode: `thesis_verification`
+- UX hardening doc: `docs/product/MANUAL_IMPORT_UX_HARDENING.md`
 
 ## Pipeline
 
@@ -30,6 +33,8 @@ The workspace supports simple CSV only:
 - Quoted CSV, commas inside cells, and complex spreadsheet formats are not supported in this phase.
 - Missing values must remain blank, `null`, `NA`, or `N/A`; missing values must not be replaced with `0`.
 
+The workspace includes a template button. The template numbers are illustrative structure only and are not verified source data.
+
 ## Output
 
 The workspace displays:
@@ -44,6 +49,9 @@ The workspace displays:
 - Module readiness for Financials, Valuation, Risk, PVT, and Overview.
 - Financials preview for `revenue`, `netIncome`, `operatingCashFlow`, `totalAssets`, `equity`, ROA, and CFOA contract metrics.
 - Valuation preview for `closePrice`, `eps`, `bvps`, `sharesOutstanding`, `marketCap`, P/E metric, P/B metric, and BVPS metric.
+- A data source warning card that states manual upload is user-provided, not production-approved, not saved to server storage, and not connected to external APIs.
+- A field guide for required, recommended, and optional/context fields.
+- Empty, error, and record-selection states with user-facing copy.
 
 ## Guardrails
 
@@ -53,6 +61,8 @@ The workspace displays:
 - Equity `<= 0` blocks normal ROE, P/B, and BVPS interpretation.
 - Financial-sector records rely on data-contract warnings for generic ratio caveats.
 - Demo input is marked with `isDemoData: true` in the workspace batch.
+- EPS `<= 0` keeps P/E not applicable.
+- Equity `<= 0` blocks normal interpretation for equity-based ratios.
 
 ## Error Handling
 
@@ -64,6 +74,8 @@ The workspace renders validation output without crashing when:
 - Multiple valid records exist and no target is provided.
 - Required fields are missing.
 - Parser limitations are detected.
+- No valid rows are available.
+- A target ticker/period does not match a record.
 
 ## What This Does Not Do
 
@@ -75,7 +87,7 @@ The workspace renders validation output without crashing when:
 - No generated pricing claim.
 - No transaction instruction.
 
-## Gaps For Phase 28E / 29
+## Gaps For Phase 28F / 29
 
 - Add richer CSV parsing only after product requirements confirm it is needed.
 - Add file upload once source evidence and local privacy rules are settled.

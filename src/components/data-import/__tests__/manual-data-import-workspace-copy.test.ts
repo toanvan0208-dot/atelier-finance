@@ -6,6 +6,7 @@ const root = process.cwd();
 const files = [
   join(root, "src/components/data-import/ManualDataImportWorkspace.tsx"),
   join(root, "docs/product/MANUAL_DATA_IMPORT_WORKSPACE.md"),
+  join(root, "docs/product/MANUAL_IMPORT_UX_HARDENING.md"),
 ];
 
 const forbiddenPhrases = [
