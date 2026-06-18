@@ -1,4 +1,7 @@
 export * from "./adapter-contract";
+export * from "./manual-upload-adapter";
+export * from "./manual-upload-parser";
+export * from "./manual-upload-schema";
 export * from "./mock-source-adapter";
 export * from "./normalization";
 export * from "./source-candidates";
