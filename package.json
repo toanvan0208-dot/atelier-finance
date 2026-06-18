@@ -10,6 +10,9 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
+    "db:migrate": "prisma db execute --file prisma/migrations/20260618162000_phase_29e_local_database_foundation/migration.sql",
+    "db:seed": "prisma db execute --file prisma/seed.sql",
+    "db:reset": "node scripts/reset-local-db.mjs",
     "test": "vitest run",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui"
