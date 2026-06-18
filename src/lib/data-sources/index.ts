@@ -1,5 +1,6 @@
 export * from "./adapter-contract";
 export * from "./manual-upload-adapter";
+export * from "./manual-import-api-client";
 export * from "./manual-upload-parser";
 export * from "./manual-upload-preview-bridge";
 export * from "./manual-upload-report";

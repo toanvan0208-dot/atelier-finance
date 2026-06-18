@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import { Button, Card, CardBody, CardHeader, Chip } from "@/components/ui";
 import {
   buildManualUploadPreview,
+  saveManualImportSession,
+  type ManualImportSaveResult,
   type ManualUploadPreviewResult,
   type ManualUploadPreviewStatus,
 } from "@/lib/data-sources";
@@ -92,7 +94,7 @@ function DataSourceWarningCard() {
     ["Production source", "not approved"],
     ["Server storage", "not saved"],
     ["External API", "not used"],
-    ["Investment recommendation", "no"],
+    ["Investment advice", "none"],
   ];
 
   return (
@@ -207,6 +209,83 @@ function SummaryCards({ result }: { result: ManualUploadPreviewResult }) {
         <p className="mt-1 text-sm font-bold text-ink">{selectedName}</p>
       </div>
     </div>
+  );
+}
+
+type SaveState = "idle" | "saving" | "saved" | "error";
+
+function PersistencePanel({
+  canSave,
+  onSave,
+  saveError,
+  saveState,
+  savedSession,
+}: {
+  canSave: boolean;
+  onSave: () => void;
+  saveError: string | null;
+  saveState: SaveState;
+  savedSession: ManualImportSaveResult | null;
+}) {
+  return (
+    <Card>
+      <CardHeader
+        title="Lưu phiên nhập dữ liệu"
+        description="Lưu audit trail cho dữ liệu do người dùng cung cấp. Phiên này vẫn cần kiểm tra lại và không được coi là nguồn dữ liệu đã duyệt."
+        action={
+          <Button onClick={onSave} disabled={!canSave || saveState === "saving"} isLoading={saveState === "saving"}>
+            {saveState === "saved" ? "Đã lưu phiên" : "Lưu phiên nhập"}
+          </Button>
+        }
+      />
+      <CardBody className="space-y-4">
+        <div className="grid gap-3 text-sm md:grid-cols-4">
+          {[
+            ["Trạng thái", saveState === "idle" ? "chưa lưu" : saveState],
+            ["sourceType", savedSession?.sourceType ?? "user_input"],
+            ["dataMode", savedSession?.dataMode ?? "user_input"],
+            ["productionApproved", String(savedSession?.productionApproved ?? false)],
+          ].map(([label, value]) => (
+            <div key={label} className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-2">
+              <dt className="text-[11px] font-bold uppercase tracking-wide text-muted">{label}</dt>
+              <dd className="mt-1 font-bold text-ink">{value}</dd>
+            </div>
+          ))}
+        </div>
+
+        {savedSession ? (
+          <div className="rounded-[4px] border border-success bg-success/10 px-3 py-3 text-sm text-ink">
+            <p className="font-bold">Session ID: {savedSession.sessionId}</p>
+            <p className="mt-1 text-xs font-bold text-muted">
+              productionApproved: {String(savedSession.productionApproved)}
+            </p>
+            <div className="mt-3 grid gap-2 md:grid-cols-5">
+              {[
+                ["status", savedSession.status],
+                ["readiness", savedSession.readiness],
+                ["totalRows", savedSession.counts.totalRows],
+                ["validRows", savedSession.counts.validRows],
+                ["warningRows", savedSession.counts.warningRows],
+              ].map(([label, value]) => (
+                <div key={label} className="rounded-[3px] border border-border-soft bg-surface px-2 py-2">
+                  <p className="text-[11px] font-bold uppercase text-muted">{label}</p>
+                  <p className="mt-1 font-bold">{value}</p>
+                </div>
+              ))}
+            </div>
+            <p className="mt-3 text-xs leading-5 text-muted">
+              Dữ liệu đã được lưu để audit/preview workflow, không tự động đưa vào module chính.
+            </p>
+          </div>
+        ) : null}
+
+        {saveError ? (
+          <p className="rounded-[4px] border border-danger bg-danger/10 px-3 py-2 text-sm text-danger">
+            {saveError}
+          </p>
+        ) : null}
+      </CardBody>
+    </Card>
   );
 }
 
@@ -533,9 +612,22 @@ export function ManualDataImportWorkspace() {
   const [result, setResult] = useState<ManualUploadPreviewResult | null>(null);
   const [uiError, setUiError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [saveState, setSaveState] = useState<SaveState>("idle");
+  const [savedSession, setSavedSession] = useState<ManualImportSaveResult | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const canRun = useMemo(() => csvText.trim().length > 0 && !isProcessing, [csvText, isProcessing]);
+  const canSave = useMemo(
+    () => Boolean(result) && csvText.trim().length > 0 && saveState !== "saving",
+    [csvText, result, saveState],
+  );
   const rowsEstimate = useMemo(() => lineCount(csvText), [csvText]);
+
+  const resetSaveState = () => {
+    setSaveState("idle");
+    setSavedSession(null);
+    setSaveError(null);
+  };
 
   const useTemplate = () => {
     setCsvText(templateCsv);
@@ -543,6 +635,7 @@ export function ManualDataImportWorkspace() {
     setTargetPeriod("2024Q4");
     setResult(null);
     setUiError(null);
+    resetSaveState();
   };
 
   const clearAll = () => {
@@ -551,10 +644,12 @@ export function ManualDataImportWorkspace() {
     setTargetPeriod("");
     setResult(null);
     setUiError(null);
+    resetSaveState();
   };
 
   const runPreview = (ticker = targetTicker, period = targetPeriod) => {
     setUiError(null);
+    resetSaveState();
     setIsProcessing(true);
     try {
       const preview = buildManualUploadPreview({
@@ -584,6 +679,28 @@ export function ManualDataImportWorkspace() {
     setTargetTicker(ticker);
     setTargetPeriod(period);
     runPreview(ticker, period);
+  };
+
+  const saveSession = async () => {
+    if (!result || !csvText.trim()) return;
+
+    setSaveState("saving");
+    setSaveError(null);
+    try {
+      const session = await saveManualImportSession({
+        csvText,
+        sourceLabel: "manual_upload",
+        fileName: "manual-import.csv",
+        targetTicker: targetTicker.trim() || undefined,
+        targetPeriod: targetPeriod.trim() || undefined,
+      });
+      setSavedSession(session);
+      setSaveState("saved");
+    } catch (error) {
+      setSavedSession(null);
+      setSaveState("error");
+      setSaveError(error instanceof Error ? error.message : "Không thể lưu phiên nhập dữ liệu.");
+    }
   };
 
   return (
@@ -624,6 +741,7 @@ export function ManualDataImportWorkspace() {
                   setCsvText(event.target.value);
                   setResult(null);
                   setUiError(null);
+                  resetSaveState();
                 }}
                 spellCheck={false}
                 placeholder="ticker,period,source,asOf,netIncome,totalAssets,equity,eps,closePrice"
@@ -671,6 +789,13 @@ export function ManualDataImportWorkspace() {
         {result ? (
           <>
             <SummaryCards result={result} />
+            <PersistencePanel
+              canSave={canSave}
+              onSave={saveSession}
+              saveError={saveError}
+              saveState={saveState}
+              savedSession={savedSession}
+            />
             <RecordPicker result={result} onPick={pickRecord} />
             <div className="grid gap-5 lg:grid-cols-2">
               <MetadataPanel result={result} />
