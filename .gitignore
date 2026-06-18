@@ -8,3 +8,4 @@ dev-server.err.log
 .next-dev-*.log
 .next-dev-*.out.log
 .next-dev-*.err.log
+src/generated/prisma

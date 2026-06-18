@@ -1,0 +1,484 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum DataMode {
+  sample
+  demo
+  user_input
+  research_only
+  production_approved
+  blocked
+  unknown
+}
+
+enum SourceType {
+  official
+  exchange
+  licensed_vendor
+  company_disclosure
+  curated_internal
+  user_input
+  unknown
+}
+
+enum SourceUsageStatus {
+  approved
+  needs_legal_review
+  blocked
+  research_only
+  unknown
+}
+
+enum LegalReviewStatus {
+  not_checked
+  needs_review
+  approved
+  rejected
+}
+
+enum SourceAccessMethod {
+  official_api
+  official_download
+  licensed_feed
+  public_file
+  public_web
+  manual_fixture
+  manual_upload
+  scraping
+  scraped
+  private_api
+  undocumented_api
+  private_or_undocumented_api
+  unknown
+}
+
+enum SourceEvidenceStatus {
+  verified
+  partially_verified
+  missing
+  conflicting
+}
+
+enum PermissionFlag {
+  true
+  false
+  unknown
+}
+
+enum CompanyType {
+  non_financial
+  bank
+  securities
+  insurance
+  unknown
+}
+
+enum PeriodType {
+  session
+  day
+  month
+  quarter
+  year
+  ttm
+  manual
+  unknown
+}
+
+enum ReadinessStatus {
+  ready
+  needs_review
+  not_ready
+  insufficient_data
+  unknown
+}
+
+enum QualityStatus {
+  good
+  usable_with_caution
+  partial
+  missing
+  stale
+  sample
+  demo
+  user_input
+  blocked
+  unknown
+}
+
+enum ManualImportStatus {
+  draft
+  validated
+  needs_review
+  failed
+  persisted
+}
+
+enum PaperTradeAction {
+  open_position
+  close_position
+  observe_position
+}
+
+enum PaperTradeStatus {
+  planned
+  open
+  closed
+  cancelled
+}
+
+model User {
+  id                    String                 @id @default(cuid())
+  email                 String?                @unique
+  displayName           String?
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  manualImportSessions  ManualImportSession[]
+  watchlists            Watchlist[]
+  paperTrades           PaperTrade[]
+  assistantInteractions AssistantInteraction[]
+}
+
+model Company {
+  id                    String                 @id @default(cuid())
+  ticker                String
+  exchange              String?
+  companyName           String
+  companyType           CompanyType            @default(unknown)
+  industryCode          String?
+  industryName          String?
+  country               String?
+  currency              String?
+  dataMode              DataMode               @default(unknown)
+  profileSourceId       String?
+  profileAsOf           DateTime?
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  profileSource         DataSource?            @relation("CompanyProfileSource", fields: [profileSourceId], references: [id])
+  financialStatements   FinancialStatement[]
+  marketPrices          MarketPrice[]
+  manualImportRecords   ManualImportRecord[]
+  watchlists            Watchlist[]
+  paperTrades           PaperTrade[]
+  assistantInteractions AssistantInteraction[]
+
+  @@unique([ticker, exchange])
+  @@index([ticker])
+  @@index([companyType])
+  @@index([dataMode])
+}
+
+model FinancialStatement {
+  id                  String                @id @default(cuid())
+  companyId           String
+  ticker              String
+  companyType         CompanyType           @default(unknown)
+  periodType          PeriodType
+  period              String
+  fiscalYear          Int?
+  fiscalQuarter       Int?
+  reportDate          DateTime?
+  publishedDate       DateTime?
+  currency            String?
+  unit                String?
+  revenue             Decimal?
+  grossProfit         Decimal?
+  netIncome           Decimal?
+  operatingCashFlow   Decimal?
+  totalAssets         Decimal?
+  equity              Decimal?
+  totalDebt           Decimal?
+  currentAssets       Decimal?
+  currentLiabilities  Decimal?
+  eps                 Decimal?
+  bvps                Decimal?
+  sharesOutstanding   Decimal?
+  marketCap           Decimal?
+  enterpriseValue     Decimal?
+  sourceId            String
+  sourceLabel         String
+  sourceType          SourceType
+  dataMode            DataMode
+  asOf                DateTime
+  collectedAt         DateTime?
+  qualityStatus       QualityStatus         @default(unknown)
+  readiness           ReadinessStatus       @default(unknown)
+  missingFields       String                @default("[]")
+  warningCodes        String                @default("[]")
+  errorCodes          String                @default("[]")
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  company             Company               @relation(fields: [companyId], references: [id])
+  source              DataSource            @relation(fields: [sourceId], references: [id])
+  manualImportRecords ManualImportRecord[]
+
+  @@index([companyId, period])
+  @@index([ticker, period])
+  @@index([sourceId, asOf])
+  @@index([dataMode])
+  @@index([readiness])
+}
+
+model MarketPrice {
+  id                  String                @id @default(cuid())
+  companyId           String
+  ticker              String
+  tradingDate         DateTime
+  periodType          PeriodType            @default(day)
+  period              String
+  openPrice           Decimal?
+  highPrice           Decimal?
+  lowPrice            Decimal?
+  closePrice          Decimal?
+  previousClose       Decimal?
+  adjustedClosePrice  Decimal?
+  volume              Decimal?
+  tradingValue        Decimal?
+  marketCap           Decimal?
+  currency            String?
+  sourceId            String
+  sourceLabel         String
+  sourceType          SourceType
+  dataMode            DataMode
+  asOf                DateTime
+  collectedAt         DateTime?
+  qualityStatus       QualityStatus         @default(unknown)
+  readiness           ReadinessStatus       @default(unknown)
+  missingFields       String                @default("[]")
+  warningCodes        String                @default("[]")
+  errorCodes          String                @default("[]")
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  company             Company               @relation(fields: [companyId], references: [id])
+  source              DataSource            @relation(fields: [sourceId], references: [id])
+  manualImportRecords ManualImportRecord[]
+
+  @@index([companyId, tradingDate])
+  @@index([ticker, tradingDate])
+  @@index([sourceId, asOf])
+  @@index([dataMode])
+  @@index([readiness])
+}
+
+model DataSource {
+  id                    String                @id @default(cuid())
+  name                  String
+  sourceType            SourceType
+  supportedDataGroups   String                @default("[]")
+  usageStatus           SourceUsageStatus     @default(unknown)
+  licenseStatus         LegalReviewStatus     @default(not_checked)
+  tosStatus             LegalReviewStatus     @default(not_checked)
+  accessMethod          SourceAccessMethod    @default(unknown)
+  cachingAllowed        PermissionFlag        @default(unknown)
+  redistributionAllowed PermissionFlag         @default(unknown)
+  runtimeDisplayAllowed PermissionFlag         @default(unknown)
+  derivedDataAllowed    PermissionFlag        @default(unknown)
+  attributionText       String?
+  notes                 String?
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+  profileCompanies      Company[]             @relation("CompanyProfileSource")
+  financialStatements   FinancialStatement[]
+  marketPrices          MarketPrice[]
+  sourceEvidence        SourceEvidence[]
+
+  @@unique([name, sourceType])
+  @@index([usageStatus])
+  @@index([sourceType])
+}
+
+model SourceEvidence {
+  id                    String               @id @default(cuid())
+  sourceId              String
+  homepageUrl           String?
+  documentationUrl      String?
+  licenseName           String?
+  licenseUrl            String?
+  termsUrl              String?
+  allowsPersonalUse     PermissionFlag       @default(unknown)
+  allowsAcademicUse     PermissionFlag       @default(unknown)
+  allowsCommercialUse   PermissionFlag       @default(unknown)
+  allowsRuntimeDisplay  PermissionFlag       @default(unknown)
+  allowsCaching         PermissionFlag       @default(unknown)
+  allowsRedistribution  PermissionFlag       @default(unknown)
+  allowsDerivedData     PermissionFlag       @default(unknown)
+  requiresAttribution   PermissionFlag       @default(unknown)
+  evidenceStatus        SourceEvidenceStatus @default(missing)
+  reviewedAt            DateTime?
+  reviewedBy            String?
+  reviewNote            String?
+  notes                 String?
+  risks                 String               @default("[]")
+  blockedReason         String?
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+  source                DataSource           @relation(fields: [sourceId], references: [id])
+
+  @@index([sourceId])
+  @@index([evidenceStatus])
+}
+
+model DataQualityReport {
+  id                   String                @id @default(cuid())
+  scopeType            String
+  scopeId              String?
+  status               String
+  readiness            ReadinessStatus       @default(unknown)
+  qualityStatus        QualityStatus         @default(unknown)
+  missingFields        String                @default("[]")
+  warningCodes         String                @default("[]")
+  errorCodes           String                @default("[]")
+  topIssues            String                @default("[]")
+  fieldCoverage        String                @default("[]")
+  safeNextSteps        String                @default("[]")
+  generatedAt          DateTime              @default(now())
+  calculationVersion   String?
+  manualImportSessions ManualImportSession[]
+
+  @@index([scopeType, scopeId])
+  @@index([readiness])
+  @@index([qualityStatus])
+}
+
+model ManualImportSession {
+  id                  String                @id @default(cuid())
+  userId              String?
+  mode                String                @default("thesis_verification")
+  sourceLabel         String                @default("manual_upload")
+  sourceType          SourceType            @default(user_input)
+  dataMode            DataMode              @default(user_input)
+  targetTicker        String?
+  targetPeriod        String?
+  fileName            String?
+  rowCount            Int                   @default(0)
+  validRowCount       Int                   @default(0)
+  warningRowCount     Int                   @default(0)
+  errorRowCount       Int                   @default(0)
+  status              ManualImportStatus    @default(draft)
+  readiness           ReadinessStatus       @default(unknown)
+  dataQualityReportId String?
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  user                User?                 @relation(fields: [userId], references: [id])
+  dataQualityReport   DataQualityReport?    @relation(fields: [dataQualityReportId], references: [id])
+  records             ManualImportRecord[]
+
+  @@index([userId, createdAt])
+  @@index([dataMode])
+  @@index([status])
+  @@index([readiness])
+}
+
+model ManualImportRecord {
+  id                   String              @id @default(cuid())
+  sessionId            String
+  rowIndex             Int
+  rawPayload           String              @default("{}")
+  normalizedPayload    String              @default("{}")
+  ticker               String?
+  period               String?
+  periodType           PeriodType          @default(unknown)
+  asOf                 DateTime?
+  sourceLabel          String              @default("manual_upload")
+  sourceType           SourceType          @default(user_input)
+  dataMode             DataMode            @default(user_input)
+  readiness            ReadinessStatus     @default(unknown)
+  qualityStatus        QualityStatus       @default(user_input)
+  warnings             String              @default("[]")
+  errors               String              @default("[]")
+  warningCodes         String              @default("[]")
+  errorCodes           String              @default("[]")
+  unmappedFields       String              @default("[]")
+  missingFields        String              @default("[]")
+  companyId            String?
+  financialStatementId String?
+  marketPriceId        String?
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+  session              ManualImportSession @relation(fields: [sessionId], references: [id])
+  company              Company?            @relation(fields: [companyId], references: [id])
+  financialStatement   FinancialStatement? @relation(fields: [financialStatementId], references: [id])
+  marketPrice          MarketPrice?        @relation(fields: [marketPriceId], references: [id])
+
+  @@unique([sessionId, rowIndex])
+  @@index([ticker, period])
+  @@index([dataMode])
+  @@index([readiness])
+}
+
+model Watchlist {
+  id            String          @id @default(cuid())
+  userId        String?
+  companyId     String
+  ticker        String
+  status        String          @default("watching")
+  priority      String?
+  notes         String?
+  thesisSummary String?
+  dataMode      DataMode        @default(unknown)
+  readiness     ReadinessStatus @default(unknown)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  user          User?           @relation(fields: [userId], references: [id])
+  company       Company         @relation(fields: [companyId], references: [id])
+
+  @@index([userId, status])
+  @@index([companyId])
+  @@index([dataMode])
+}
+
+model PaperTrade {
+  id             String           @id @default(cuid())
+  userId         String?
+  companyId      String
+  ticker         String
+  action         PaperTradeAction
+  quantity       Decimal?
+  entryPrice     Decimal?
+  exitPrice      Decimal?
+  openedAt       DateTime?
+  closedAt       DateTime?
+  status         PaperTradeStatus @default(planned)
+  thesisSnapshot String?
+  reflection     String?
+  sourceMode     DataMode         @default(unknown)
+  readiness      ReadinessStatus  @default(unknown)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  user           User?            @relation(fields: [userId], references: [id])
+  company        Company          @relation(fields: [companyId], references: [id])
+
+  @@index([userId, status])
+  @@index([companyId])
+  @@index([sourceMode])
+}
+
+model AssistantInteraction {
+  id                   String          @id @default(cuid())
+  userId               String?
+  companyId            String?
+  activeModule         String          @default("overview")
+  ticker               String?
+  question             String
+  answer               String?
+  provider             String?
+  llmStatus            String?
+  moduleContext        String          @default("{}")
+  dataQualityContext   String          @default("{}")
+  allowedNumericValues String          @default("[]")
+  source               String?
+  sourceMode           DataMode        @default(unknown)
+  readiness            ReadinessStatus @default(unknown)
+  createdAt            DateTime        @default(now())
+  user                 User?           @relation(fields: [userId], references: [id])
+  company              Company?        @relation(fields: [companyId], references: [id])
+
+  @@index([userId, createdAt])
+  @@index([ticker, activeModule])
+  @@index([sourceMode])
+}

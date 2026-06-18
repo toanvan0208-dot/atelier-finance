@@ -367,7 +367,7 @@ Suggested fields:
 - `userId`
 - `companyId`
 - `ticker`
-- `side`
+- `action`
 - `quantity`
 - `entryPrice`
 - `exitPrice`
