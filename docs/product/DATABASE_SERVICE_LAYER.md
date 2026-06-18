@@ -21,7 +21,9 @@ The service layer is responsible for:
 
 ## Client Helper
 
-`src/lib/database/client.ts` exports a shared Prisma client instance. In development, it stores the instance on `globalThis` to avoid creating multiple clients during hot reload. It does not hardcode secrets and relies on the Prisma configuration/database URL already defined in Phase 29B.
+`src/lib/database/client.ts` exports a shared Prisma client instance. In development, it stores the instance on `globalThis` to avoid creating multiple clients during hot reload. It does not hardcode secrets and relies on `DATABASE_URL`.
+
+Phase 29F.1 configures the Prisma 7 local runtime with `@prisma/adapter-better-sqlite3` for SQLite `file:` URLs. The helper fails clearly if `DATABASE_URL` is missing or not a local SQLite file URL. This keeps local API routes operational without changing the production target documented for later PostgreSQL work.
 
 The generated Prisma client remains in `src/generated/prisma`, which is ignored by Git. The generated Prisma client is not committed. Developers must run `npm run prisma:generate` after installing dependencies or changing `prisma/schema.prisma`.
 

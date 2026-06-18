@@ -16,6 +16,8 @@ DATABASE_URL="file:./dev.db"
 
 Production target remains PostgreSQL. The SQLite workflow is only a low-friction development path for validating schema, services, and API route shape.
 
+Phase 29F.1 uses Prisma 7 with the official `@prisma/adapter-better-sqlite3` driver adapter for local SQLite runtime access. The API runtime expects a `file:` SQLite `DATABASE_URL` in local development.
+
 ## Local Environment
 
 Create `.env.local` from `.env.example`:
