@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Button, Card, CardBody, CardHeader, Chip } from "@/components/ui";
 import { DataQualityBanner } from "@/components/shared/DataQualityBanner";
 import { overviewCaseData, overviewDataQuality } from "../data/overviewCase.data";
@@ -83,6 +84,31 @@ function CurrentCaseHero({ data }: { data: OverviewCaseData }) {
         </div>
       </div>
     </section>
+  );
+}
+
+function ManualDataImportCta() {
+  return (
+    <Card className="border-warning bg-warning/10">
+      <CardHeader
+        title="Nhập dữ liệu"
+        description="Dán dữ liệu CSV do bạn cung cấp để hệ thống kiểm tra chất lượng dữ liệu và tạo preview Financials/Valuation."
+        chip={<Chip variant="warning">Dữ liệu thủ công</Chip>}
+        action={
+          <Link
+            className="inline-flex h-9 items-center justify-center rounded-[3px] border-[1.5px] border-border bg-surface px-3.5 text-sm font-bold text-ink shadow-hard-sm transition hover:-translate-y-0.5 hover:bg-surface-hover"
+            href="/data-import"
+          >
+            Mở workspace
+          </Link>
+        }
+      />
+      <CardBody>
+        <p className="text-sm leading-6 text-muted">
+          Dữ liệu này do người dùng cung cấp, không phải nguồn dữ liệu hệ thống đã xác minh. Workspace chỉ kiểm tra dữ liệu và preview phân tích, không thay thế dữ liệu module chính.
+        </p>
+      </CardBody>
+    </Card>
   );
 }
 
@@ -354,6 +380,7 @@ export function OverviewPage({ onNavigate }: OverviewPageProps) {
   return (
     <div className="mx-auto w-full max-w-[1180px] space-y-5">
       <DataQualityBanner {...overviewDataQuality} />
+      <ManualDataImportCta />
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1.8fr)_minmax(320px,0.9fr)]">
         <CurrentCaseHero data={data.activeCase} />
         <NextBestActionCard data={data.nextBestAction} onNavigate={onNavigate} />

@@ -10,6 +10,8 @@ It is a local validation and preview surface only; it does not call APIs, write 
 - Component: `src/components/data-import/ManualDataImportWorkspace.tsx`
 - Default mode: `thesis_verification`
 - UX hardening doc: `docs/product/MANUAL_IMPORT_UX_HARDENING.md`
+- Product integration doc: `docs/product/MANUAL_IMPORT_PRODUCT_INTEGRATION.md`
+- Discoverability: Overview includes a "Nhập dữ liệu" CTA card that links to `/data-import`.
 
 ## Pipeline
 
