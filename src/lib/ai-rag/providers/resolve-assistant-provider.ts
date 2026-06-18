@@ -21,8 +21,15 @@ const normalizeMode = (value: string | undefined): AssistantProviderMode => {
   return "none";
 };
 
+const assistantProviderEnvFromProcess = (): AssistantProviderEnv => ({
+  AI_ASSISTANT_PROVIDER: process.env.AI_ASSISTANT_PROVIDER,
+  AI_ASSISTANT_MOCK_ANSWER: process.env.AI_ASSISTANT_MOCK_ANSWER,
+  OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+  OPENAI_MODEL: process.env.OPENAI_MODEL,
+});
+
 export const resolveAssistantProvider = (
-  env: AssistantProviderEnv = process.env,
+  env: AssistantProviderEnv = assistantProviderEnvFromProcess(),
 ): AssistantProvider | null => {
   const mode = normalizeMode(env.AI_ASSISTANT_PROVIDER);
 

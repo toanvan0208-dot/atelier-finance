@@ -101,7 +101,11 @@ export const normalizeCurrencyAmount = ({
     return parsed;
   }
 
-  if (!Number.isFinite(exchangeRateToVnd) || !exchangeRateSource) {
+  if (
+    typeof exchangeRateToVnd !== "number" ||
+    !Number.isFinite(exchangeRateToVnd) ||
+    !exchangeRateSource
+  ) {
     return {
       value: null,
       warnings: [
@@ -160,4 +164,3 @@ export const parseAsOfDate = (
     readiness: "ready",
   };
 };
-

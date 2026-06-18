@@ -2,18 +2,18 @@ import { cn } from "@/lib/cn";
 
 export type DataQualityBannerProps = {
   source?: string | null;
-  asOf?: string | null;
+  asOf?: string | Date | null;
   isDemoData?: boolean;
   isStale?: boolean;
   missingFields?: string[];
   className?: string;
 };
 
-const formatDate = (value?: string | null): string | null => {
+const formatDate = (value?: string | Date | null): string | null => {
   if (!value) return null;
 
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
+  if (Number.isNaN(date.getTime())) return String(value);
 
   return new Intl.DateTimeFormat("vi-VN", {
     day: "2-digit",

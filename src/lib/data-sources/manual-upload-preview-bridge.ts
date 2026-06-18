@@ -242,7 +242,7 @@ const buildFinancialsPreview = (
     statement: row.financialStatement,
     market: row.marketData ?? undefined,
   });
-  const warnings = [...bridge.warnings];
+  const warnings: AdapterWarning[] = [...bridge.warnings];
   const blockedReasons: string[] = [];
 
   if (row.financialStatement.operatingCashFlow === null) {
@@ -279,7 +279,7 @@ const buildValuationPreview = (
     market: row.marketData,
     valuation: row.valuationInput,
   });
-  const warnings = [...bridge.warnings];
+  const warnings: AdapterWarning[] = [...bridge.warnings];
   const blockedReasons: string[] = [];
 
   if (!row.marketData.closePrice || row.marketData.closePrice <= 0) {

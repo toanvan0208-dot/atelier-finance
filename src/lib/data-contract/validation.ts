@@ -18,7 +18,7 @@ export const isUsableNumber = (value: unknown): value is number =>
 export const normalizeOptionalNumber = (value: unknown): number | null =>
   isUsableNumber(value) ? value : null;
 
-export const collectMissingFields = <T extends Record<string, unknown>>(
+export const collectMissingFields = <T extends object>(
   record: T,
   fields: Array<keyof T & string>,
 ): string[] => fields.filter((field) => isMissingValue(record[field]));
@@ -264,4 +264,3 @@ export const deriveMetadataFromInputs = (
     calculationVersion,
   };
 };
-
