@@ -6,6 +6,8 @@ Phase: 30B - Source Evidence Record And Adapter Skeleton
 
 This document records source-evidence candidates used by Atelier Finance before any production source adapter is allowed. It is not a legal approval, does not connect to a live source, does not import real financial data, and does not mark any source as production-approved.
 
+Phase 30C exact-source review is tracked in `EXACT_SOURCE_LEGAL_REVIEW_PACK.md`.
+
 ## 1. Current Source Evidence Record
 
 | Field | Value |
@@ -30,6 +32,7 @@ This document records source-evidence candidates used by Atelier Finance before 
 | External API call | None |
 | Scraping | None |
 | Database write | None |
+| Phase 30C review pack | `docs/product/EXACT_SOURCE_LEGAL_REVIEW_PACK.md` |
 
 The corresponding code registry entry is in `src/lib/data-sources/source-policy.ts` under `official-disclosure-financials-pilot`.
 
@@ -84,7 +87,7 @@ Adapter constraints:
 
 ## 5. Next User Actions
 
-Before Phase 30C or 30D, the user/reviewer must provide:
+Before Phase 30D, the user/reviewer must provide:
 
 1. The exact official disclosure source to evaluate.
 2. Legal/ToS links or a reviewed source-usage statement.
