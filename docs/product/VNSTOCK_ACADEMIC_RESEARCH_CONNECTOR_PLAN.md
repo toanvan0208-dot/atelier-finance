@@ -282,3 +282,7 @@ Phase 31I smoke tests confirm the local npm command runner fails closed for miss
 ## 19. Phase 31J Real Fetcher Feasibility Audit
 
 Phase 31J adds `docs/product/VNSTOCK_REAL_FETCHER_FEASIBILITY_AUDIT.md` as an audit-only review of future real local fetcher options. It adds no real fetcher, dependency, network/data fetch, public trigger, or production source approval. The future fetcher direction remains pending an explicit decision.
+
+## 20. Phase 31K Offline Fetcher Contract
+
+Phase 31K adds `docs/product/VNSTOCK_OFFLINE_FETCHER_CONTRACT.md` and a fake/sample fixture for market price fetcher output. Any future real fetcher must conform to this contract before it can be considered for local research use.

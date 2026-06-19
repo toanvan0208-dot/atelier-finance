@@ -155,6 +155,8 @@ Phase 31I verifies the local Vnstock market price import npm script fails closed
 
 Phase 31J audits real local Vnstock fetcher integration options without adding dependencies, calling data sources, or approving production use.
 
+Phase 31K defines an offline fetcher contract and fake/sample fixture for future Vnstock research market price integration; no real fetcher, network call, DB write, or production approval is added.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot

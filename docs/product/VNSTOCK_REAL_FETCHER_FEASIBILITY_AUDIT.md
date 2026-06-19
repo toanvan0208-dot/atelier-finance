@@ -141,3 +141,7 @@ Phase 31J does not:
 - Modify Prisma schema.
 - Seed real data.
 - Approve any production source.
+
+## 10. Phase 31K Offline Fetcher Contract
+
+Phase 31K defines `docs/product/VNSTOCK_OFFLINE_FETCHER_CONTRACT.md` and a fake/sample fixture before any real fetcher work. It adds no real fetcher, dependency, network call, Vnstock call, raw data download, DB write, or production source approval.

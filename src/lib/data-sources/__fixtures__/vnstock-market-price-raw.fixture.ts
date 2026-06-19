@@ -1,0 +1,37 @@
+export const VNSTOCK_MARKET_PRICE_RAW_FIXTURE = [
+  {
+    ticker: "FPT",
+    date: "2025-01-02",
+    open: "100000",
+    high: "101000",
+    low: "99000",
+    close: "100500",
+    volume: "1234567",
+    tradingValue: "123000000000",
+    source: "fake_fixture",
+    provider: "vnstock",
+    rawSymbol: "FPT",
+    unexpectedField: "ignored",
+  },
+  {
+    ticker: " FPT ",
+    date: "2025-01-03",
+    open: null,
+    high: "",
+    low: "abc",
+    close: "100000",
+    volume: null,
+  },
+  {
+    ticker: "",
+    date: "2025-01-04",
+    close: "100000",
+    volume: "1000",
+  },
+  {
+    ticker: "FPT",
+    date: "invalid-date",
+    close: "100000",
+    volume: "1000",
+  },
+] as const;

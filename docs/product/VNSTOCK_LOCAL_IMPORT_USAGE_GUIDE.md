@@ -359,3 +359,7 @@ Phase 31I verifies the local npm script wiring with safe smoke tests:
 ## 19. Phase 31J Real Fetcher Feasibility Audit
 
 Phase 31J audits future real fetcher options in `docs/product/VNSTOCK_REAL_FETCHER_FEASIBILITY_AUDIT.md`. The current npm import command still has no real fetcher configured and remains fail-closed with `fetcher_not_configured` unless a later reviewed phase explicitly adds a local fetcher path.
+
+## 20. Phase 31K Offline Fetcher Contract
+
+Phase 31K adds `docs/product/VNSTOCK_OFFLINE_FETCHER_CONTRACT.md` and a fake/sample fixture for future fetcher validation. The local npm import command still has no real fetcher configured and remains fail-closed without an injected/local fetcher.
