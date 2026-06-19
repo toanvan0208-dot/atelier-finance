@@ -225,3 +225,18 @@ Phase 31D adds controlled local DB persistence for normalized Vnstock research m
 - Tests use an injected fake DB boundary; no separate integration DB test is added because the repo does not yet have a dedicated test database pattern.
 
 Future Phase 31E may add a local-only import command or script if explicitly approved. Phase 31D does not create that command.
+
+## 14. Phase 31E Local-Only Import Command
+
+Phase 31E adds a local-only command runner for controlled Vnstock research market price imports:
+
+- Adds `src/lib/data-sources/vnstock-market-price-import-command.ts` as a testable runner.
+- Adds `scripts/import-vnstock-market-prices.ts` as a thin local command wrapper.
+- Requires explicit safety flags: `VNSTOCK_RESEARCH_CONNECTOR_ENABLED=true`, `VNSTOCK_RESEARCH_ALLOW_NETWORK=true`, `VNSTOCK_RESEARCH_MODE=local_research`, and `VNSTOCK_RESEARCH_LOCAL_IMPORT_ACK=true`.
+- Requires explicit `--ticker`, `--from`, and `--to` arguments.
+- Defaults to dry-run behavior unless `--write` is explicitly provided to the runner/script.
+- Supports dry-run normalization/reporting without persistence.
+- Uses an injected local research fetcher in tests; it does not add a Vnstock dependency or configure a real network fetcher by default.
+- Does not create a public API route, UI button, cron, scheduler, app-start import, seed path, or production provider resolver.
+- Does not make Vnstock production-approved; `productionApproved:false` remains mandatory.
+- Real Vnstock network fetch remains not configured unless explicitly implemented in a later phase or supplied through an injected local research fetcher.

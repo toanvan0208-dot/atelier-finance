@@ -143,6 +143,8 @@ Phase 31C adds controlled local market price fetch/normalization for Vnstock res
 
 Phase 31D adds controlled local DB persistence for normalized Vnstock research market prices only; it has no automatic fetch, no public runtime import trigger, and no production source approval.
 
+Phase 31E adds a local-only import command/runner for controlled Vnstock research market price imports; it requires explicit safety flags and acknowledgement, supports dry-run, and does not expose public API/UI/cron or production source approval.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot
