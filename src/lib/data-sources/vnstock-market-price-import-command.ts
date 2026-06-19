@@ -7,6 +7,11 @@ import {
   persistVnstockResearchMarketPrices,
   type PersistVnstockResearchMarketPricesResult,
 } from "./vnstock-market-price-persistence";
+import {
+  inferVnstockManualExportFormat,
+  parseVnstockManualExport,
+  type VnstockManualExportFormat,
+} from "./vnstock-manual-export-loader";
 import { VNSTOCK_RESEARCH_SOURCE_POLICY } from "./vnstock-research-connector";
 
 export type VnstockMarketPriceImportCommandEnv = {
@@ -21,6 +26,8 @@ export type VnstockMarketPriceImportCommandArgs = {
   ticker?: string;
   from?: string;
   to?: string;
+  file?: string;
+  format?: VnstockManualExportFormat;
   dryRun: boolean;
 };
 
@@ -30,6 +37,7 @@ export type VnstockMarketPriceImportCommandStatus =
   | "network_not_allowed"
   | "local_import_ack_required"
   | "mode_not_allowed"
+  | "file_validation_failed"
   | "fetcher_not_configured"
   | "unsafe_source_metadata"
   | "dry_run_completed"
@@ -61,12 +69,13 @@ export type VnstockMarketPriceImportCommandDependencies = {
     records: VnstockResearchMarketPriceRecord[];
     sourceMetadata: typeof VNSTOCK_RESEARCH_SOURCE_POLICY;
   }) => Promise<PersistVnstockResearchMarketPricesResult>;
+  readFileText?: (filePath: string) => Promise<string>;
   now?: Date;
   sourceMetadataOverride?: Partial<typeof VNSTOCK_RESEARCH_SOURCE_POLICY>;
 };
 
 const USAGE_WARNING =
-  "Usage: import-vnstock-market-prices --ticker FPT --from YYYY-MM-DD --to YYYY-MM-DD [--dry-run|--write]";
+  "Usage: import-vnstock-market-prices --ticker FPT --from YYYY-MM-DD --to YYYY-MM-DD [--file ./path.csv --format csv] [--dry-run|--write]";
 
 const LOCAL_BOUNDARY_WARNING =
   "Local academic/research use only; Vnstock remains not production-approved.";
@@ -132,6 +141,21 @@ export const parseVnstockMarketPriceImportArgs = (
       continue;
     }
 
+    if (current === "--file" && next) {
+      args.file = next.trim();
+      index += 1;
+      continue;
+    }
+
+    if (current === "--format" && next) {
+      const format = next.trim().toLowerCase();
+      if (format === "csv" || format === "json") {
+        args.format = format;
+      }
+      index += 1;
+      continue;
+    }
+
     if (current === "--dry-run") {
       args.dryRun = true;
       continue;
@@ -159,6 +183,85 @@ const validateUsage = (args: VnstockMarketPriceImportCommandArgs): string[] => {
   if (!isValidDateText(args.to)) errors.push("Missing or invalid required --to date.");
 
   return errors;
+};
+
+const readLocalFileText = async (filePath: string): Promise<string> => {
+  const { readFile } = await import("node:fs/promises");
+  return readFile(filePath, "utf8");
+};
+
+const inRequestedDateRange = (
+  dateText: string | null | undefined,
+  from: string | undefined,
+  to: string | undefined,
+): boolean => {
+  if (!dateText || !from || !to) return true;
+  const time = Date.parse(dateText);
+  const fromTime = Date.parse(from);
+  const toTime = Date.parse(to);
+  if (!Number.isFinite(time) || !Number.isFinite(fromTime) || !Number.isFinite(toTime)) {
+    return true;
+  }
+  return time >= fromTime && time <= toTime;
+};
+
+const manualFileFetcher = async ({
+  args,
+  readFileText,
+}: {
+  args: VnstockMarketPriceImportCommandArgs;
+  readFileText: (filePath: string) => Promise<string>;
+}): Promise<{ fetcher: VnstockResearchMarketPriceFetcher | null; warnings: string[]; errors: string[] }> => {
+  if (!args.file) return { fetcher: null, warnings: [], errors: [] };
+
+  const format = args.format ?? inferVnstockManualExportFormat(args.file);
+  if (!format) {
+    return {
+      fetcher: null,
+      warnings: [],
+      errors: ["Manual export file format could not be inferred; provide --format csv or --format json."],
+    };
+  }
+
+  let content: string;
+  try {
+    content = await readFileText(args.file);
+  } catch {
+    return {
+      fetcher: null,
+      warnings: [],
+      errors: [`Manual export file could not be read: ${args.file}`],
+    };
+  }
+
+  const parsed = parseVnstockManualExport({ content, format });
+  if (parsed.errors.length > 0) {
+    return { fetcher: null, warnings: parsed.warnings, errors: parsed.errors };
+  }
+
+  const ticker = args.ticker?.trim().toUpperCase();
+  const warnings = [...parsed.warnings];
+  const records = parsed.records.filter((record) => {
+    const recordTicker = record.ticker?.trim().toUpperCase() ?? "";
+
+    if (ticker && recordTicker.length > 0 && recordTicker !== ticker) {
+      warnings.push(`Manual export record for ${recordTicker} was skipped because --ticker is ${ticker}.`);
+      return false;
+    }
+
+    if (!inRequestedDateRange(record.date, args.from, args.to)) {
+      warnings.push(`Manual export record for ${recordTicker || "unknown"} ${record.date ?? "unknown date"} was skipped because it is outside the requested date range.`);
+      return false;
+    }
+
+    return true;
+  });
+
+  return {
+    fetcher: async () => records,
+    warnings,
+    errors: [],
+  };
 };
 
 const validateSafetyEnv = (
@@ -252,7 +355,23 @@ export const runVnstockMarketPriceImportCommand = async (
     });
   }
 
-  if (!dependencies.fetchMarketPrices) {
+  const fileFetcher = await manualFileFetcher({
+    args,
+    readFileText: dependencies.readFileText ?? readLocalFileText,
+  });
+  if (fileFetcher.errors.length > 0) {
+    return emptyReport({
+      status: "file_validation_failed",
+      args,
+      env: input.env,
+      warnings: fileFetcher.warnings,
+      errors: fileFetcher.errors,
+    });
+  }
+
+  const fetchMarketPrices = dependencies.fetchMarketPrices ?? fileFetcher.fetcher;
+
+  if (!fetchMarketPrices) {
     return emptyReport({
       status: "fetcher_not_configured",
       args,
@@ -271,7 +390,7 @@ export const runVnstockMarketPriceImportCommand = async (
       enabled: true,
       allowNetwork: true,
       mode: "local_research",
-      fetchMarketPrices: dependencies.fetchMarketPrices,
+      fetchMarketPrices,
       now: dependencies.now,
     },
   );
@@ -281,7 +400,7 @@ export const runVnstockMarketPriceImportCommand = async (
       status: fetched.status === "network_not_allowed" ? "network_not_allowed" : "fetcher_not_configured",
       args,
       env: input.env,
-      warnings: fetched.warnings,
+      warnings: [...fileFetcher.warnings, ...fetched.warnings],
       errors: [`Vnstock research connector returned ${fetched.status}.`],
     });
   }
@@ -292,7 +411,7 @@ export const runVnstockMarketPriceImportCommand = async (
         status: "dry_run_completed",
         args,
         env: input.env,
-        warnings: fetched.warnings,
+        warnings: [...fileFetcher.warnings, ...fetched.warnings],
       }),
       normalizedCount: fetched.data.length,
       rejectedCount: Math.max(0, fetched.warnings.length - 4),
@@ -313,7 +432,7 @@ export const runVnstockMarketPriceImportCommand = async (
       status: "import_completed",
       args,
       env: input.env,
-      warnings: [...fetched.warnings, ...persisted.warnings],
+      warnings: [...fileFetcher.warnings, ...fetched.warnings, ...persisted.warnings],
     }),
     normalizedCount: fetched.data.length,
     insertedCount: persisted.insertedCount,

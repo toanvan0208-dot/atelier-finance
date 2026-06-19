@@ -363,3 +363,37 @@ Phase 31J audits future real fetcher options in `docs/product/VNSTOCK_REAL_FETCH
 ## 20. Phase 31K Offline Fetcher Contract
 
 Phase 31K adds `docs/product/VNSTOCK_OFFLINE_FETCHER_CONTRACT.md` and a fake/sample fixture for future fetcher validation. The local npm import command still has no real fetcher configured and remains fail-closed without an injected/local fetcher.
+
+## 21. Phase 31L Manual Export/Import Bridge
+
+Phase 31L lets a user provide a local CSV or JSON file that was exported outside Atelier Finance. Atelier Finance only reads the local file, validates and normalizes it through the existing Vnstock research market price contract, and keeps dry-run as the default.
+
+- The app does not call Vnstock.
+- The app does not call network, scrape, download, or run a Python bridge.
+- The command still requires env safety flags and `VNSTOCK_RESEARCH_LOCAL_IMPORT_ACK=true`.
+- If no `--file` is provided and no injected fetcher exists, the command remains fail-closed with `fetcher_not_configured`.
+- CSV columns: `ticker,date,open,high,low,close,volume,tradingValue`.
+- JSON input should be an array of objects matching the same raw contract.
+- Missing numeric cells become `null`; invalid numeric values become `null` plus warnings.
+- Records outside `--ticker` or the requested date range are skipped with warnings.
+- Do not commit local CSV/JSON exports, local DB files, raw data, or generated import reports.
+
+Header-only CSV template:
+
+`docs/product/templates/vnstock-market-prices-template.csv`
+
+PowerShell dry-run example:
+
+```powershell
+$env:VNSTOCK_RESEARCH_CONNECTOR_ENABLED = "true"
+$env:VNSTOCK_RESEARCH_ALLOW_NETWORK = "true"
+$env:VNSTOCK_RESEARCH_MODE = "local_research"
+$env:VNSTOCK_RESEARCH_LOCAL_IMPORT_ACK = "true"
+npm run import:market-prices:vnstock:local -- --ticker FPT --from 2025-01-01 --to 2025-01-31 --file .\path\to\fpt-market-prices.csv --format csv
+```
+
+Write example, only after reviewing dry-run output:
+
+```bash
+npm run import:market-prices:vnstock:local -- --ticker FPT --from 2025-01-01 --to 2025-01-31 --file ./path/to/fpt-market-prices.csv --format csv --write
+```

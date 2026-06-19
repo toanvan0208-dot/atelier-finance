@@ -180,6 +180,94 @@ describe("vnstock market price local import command runner", () => {
     expect(persistMarketPrices).not.toHaveBeenCalled();
   });
 
+  it("dry-runs a local CSV manual export file without persisting", async () => {
+    const persistMarketPrices = vi.fn();
+    const readFileText = vi.fn().mockResolvedValue([
+      "ticker,date,open,high,low,close,volume,tradingValue,extra",
+      "FPT,2025-01-02,100000,101000,99000,100500,1234567,123000000000,ignored",
+      "FPT,2025-01-03,,,abc,100000,,",
+    ].join("\n"));
+
+    const report = await runVnstockMarketPriceImportCommand(
+      {
+        argv: [...argv, "--file", "manual-export.csv", "--format", "csv"],
+        env: enabledEnv,
+      },
+      {
+        readFileText,
+        persistMarketPrices,
+        now: new Date("2026-06-19T00:00:00.000Z"),
+      },
+    );
+
+    expect(report.status).toBe("dry_run_completed");
+    expect(readFileText).toHaveBeenCalledWith("manual-export.csv");
+    expect(persistMarketPrices).not.toHaveBeenCalled();
+    expect(report.normalizedCount).toBe(2);
+    expect(report.rejectedCount).toBeGreaterThan(0);
+    expect(report.productionApproved).toBe(false);
+    expect(report.warnings.join(" ")).toContain("ignored unknown column");
+    expect(report.warnings.join(" ")).toContain("low could not be parsed as a number");
+  });
+
+  it("skips manual export records for a different ticker", async () => {
+    const persistMarketPrices = vi.fn();
+    const readFileText = vi.fn().mockResolvedValue([
+      "ticker,date,close",
+      "FPT,2025-01-02,100000",
+      "HPG,2025-01-02,30000",
+    ].join("\n"));
+
+    const report = await runVnstockMarketPriceImportCommand(
+      {
+        argv: [...argv, "--file", "manual-export.csv"],
+        env: enabledEnv,
+      },
+      {
+        readFileText,
+        persistMarketPrices,
+        now: new Date("2026-06-19T00:00:00.000Z"),
+      },
+    );
+
+    expect(report.status).toBe("dry_run_completed");
+    expect(report.normalizedCount).toBe(1);
+    expect(report.warnings.join(" ")).toContain("HPG");
+    expect(report.warnings.join(" ")).toContain("--ticker is FPT");
+    expect(persistMarketPrices).not.toHaveBeenCalled();
+  });
+
+  it("fails closed for unreadable or unknown-format manual export files", async () => {
+    const persistMarketPrices = vi.fn();
+
+    const unknownFormat = await runVnstockMarketPriceImportCommand(
+      {
+        argv: [...argv, "--file", "manual-export.txt"],
+        env: enabledEnv,
+      },
+      { persistMarketPrices },
+    );
+
+    expect(unknownFormat.status).toBe("file_validation_failed");
+    expect(unknownFormat.errors.join(" ")).toContain("--format csv or --format json");
+    expect(persistMarketPrices).not.toHaveBeenCalled();
+
+    const unreadable = await runVnstockMarketPriceImportCommand(
+      {
+        argv: [...argv, "--file", "missing.csv"],
+        env: enabledEnv,
+      },
+      {
+        readFileText: vi.fn().mockRejectedValue(new Error("missing")),
+        persistMarketPrices,
+      },
+    );
+
+    expect(unreadable.status).toBe("file_validation_failed");
+    expect(unreadable.errors.join(" ")).toContain("could not be read");
+    expect(persistMarketPrices).not.toHaveBeenCalled();
+  });
+
   it("fails closed when network is disabled", async () => {
     const fetchMarketPrices = vi.fn();
     const persistMarketPrices = vi.fn();

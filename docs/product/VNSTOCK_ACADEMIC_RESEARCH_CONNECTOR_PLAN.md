@@ -286,3 +286,7 @@ Phase 31J adds `docs/product/VNSTOCK_REAL_FETCHER_FEASIBILITY_AUDIT.md` as an au
 ## 20. Phase 31K Offline Fetcher Contract
 
 Phase 31K adds `docs/product/VNSTOCK_OFFLINE_FETCHER_CONTRACT.md` and a fake/sample fixture for market price fetcher output. Any future real fetcher must conform to this contract before it can be considered for local research use.
+
+## 21. Phase 31L Manual Export/Import Bridge
+
+Phase 31L adds a manual export/import bridge for market prices. It reads user-provided local CSV/JSON files, validates them against the offline contract, and does not call Vnstock directly.

@@ -115,3 +115,7 @@ A future real fetcher can be considered only if it:
 - Enforces source metadata.
 - Never sets production approval to true.
 - Does not commit raw data.
+
+## 8. Phase 31L Manual Export/Import Bridge
+
+The same raw contract applies to manual CSV/JSON file imports added in Phase 31L. Manual exports are user-provided local research files, not app-fetched data. CSV uses the columns `ticker,date,open,high,low,close,volume,tradingValue`; JSON uses an array of objects with the same fields. Extra fields are ignored safely, and recommendation/rating/target/action fields remain out of scope.

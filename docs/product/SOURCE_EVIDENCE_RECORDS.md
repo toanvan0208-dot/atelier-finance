@@ -59,13 +59,15 @@ Phase 30H adds an academic/local/research data boundary for AI disclosure. Curre
 | legalStatus | `needs_review` |
 | productionApproved | `false` |
 | attributionRequired | `true` |
-| runtimeUse | `local_command_only` / `disabled_by_default` |
-| implementationStatus | `offline_fetcher_contract_defined` |
+| runtimeUse | `local_command_only` / `file_import_only` / `disabled_by_default` |
+| implementationStatus | `manual_export_import_bridge` |
 | dataCategories | `market_prices_research_only` |
 | persistence | `local_database_only` |
 | publicRuntime | `not_enabled` |
 | realFetcher | `not_configured` |
 | fixtureData | `fake_sample_only` |
+| dataInputMode | `user_provided_manual_export` |
+| fileImport | `csv_json` |
 | nextDecision | `manual_export_bridge_or_offline_contract_or_python_bridge` |
 | financialStatements | `out_of_scope_for_31E` |
 | Phase 31A plan | `docs/product/VNSTOCK_ACADEMIC_RESEARCH_CONNECTOR_PLAN.md` |

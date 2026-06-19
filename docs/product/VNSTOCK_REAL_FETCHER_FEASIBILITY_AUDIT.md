@@ -145,3 +145,7 @@ Phase 31J does not:
 ## 10. Phase 31K Offline Fetcher Contract
 
 Phase 31K defines `docs/product/VNSTOCK_OFFLINE_FETCHER_CONTRACT.md` and a fake/sample fixture before any real fetcher work. It adds no real fetcher, dependency, network call, Vnstock call, raw data download, DB write, or production source approval.
+
+## 11. Phase 31L Manual Export/Import Bridge
+
+Phase 31L implements the safer manual export/import bridge before any Python bridge or real fetcher. It reads user-provided local CSV/JSON files that conform to the offline contract. The real fetcher remains not configured.

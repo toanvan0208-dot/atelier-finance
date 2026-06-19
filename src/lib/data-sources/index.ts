@@ -18,4 +18,5 @@ export * from "./types";
 export * from "./valuation-api-client";
 export * from "./vnstock-market-price-import-command";
 export * from "./vnstock-market-price-persistence";
+export * from "./vnstock-manual-export-loader";
 export * from "./vnstock-research-connector";
