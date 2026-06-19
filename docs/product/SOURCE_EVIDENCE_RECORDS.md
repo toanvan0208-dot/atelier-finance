@@ -6,7 +6,7 @@ Phase: 30B - Source Evidence Record And Adapter Skeleton
 
 This document records source-evidence candidates used by Atelier Finance before any production source adapter is allowed. It is not a legal approval, does not connect to a live source, does not import real financial data, and does not mark any source as production-approved.
 
-Phase 30C exact-source review is tracked in `EXACT_SOURCE_LEGAL_REVIEW_PACK.md`. Phase 30D Vietnam source selection is tracked in `OFFICIAL_FILING_SOURCE_SELECTION_VIETNAM_PILOT.md`. Phase 30E exact-source evidence approval update is tracked in `EXACT_SOURCE_EVIDENCE_APPROVAL_UPDATE.md`. Phase 30F-A source-owner and Terms evidence collection follow-up is tracked in `SOURCE_OWNER_TERMS_EVIDENCE_FOLLOW_UP.md`. Phase 30G browser-based Terms evidence collection is tracked in `HOSE_FPT_TERMS_EVIDENCE_COLLECTION.md`.
+Phase 30C exact-source review is tracked in `EXACT_SOURCE_LEGAL_REVIEW_PACK.md`. Phase 30D Vietnam source selection is tracked in `OFFICIAL_FILING_SOURCE_SELECTION_VIETNAM_PILOT.md`. Phase 30E exact-source evidence approval update is tracked in `EXACT_SOURCE_EVIDENCE_APPROVAL_UPDATE.md`. Phase 30F-A source-owner and Terms evidence collection follow-up is tracked in `SOURCE_OWNER_TERMS_EVIDENCE_FOLLOW_UP.md`. Phase 30G browser-based Terms evidence collection is tracked in `HOSE_FPT_TERMS_EVIDENCE_COLLECTION.md`. Phase 30H academic/local/non-commercial AI disclosure boundaries are tracked in `ACADEMIC_DATA_BOUNDARY_FOR_AI_DISCLOSURE.md`.
 
 ## 1. Current Source Evidence Record
 
@@ -41,8 +41,28 @@ Phase 30C exact-source review is tracked in `EXACT_SOURCE_LEGAL_REVIEW_PACK.md`.
 | Phase 30E evidence approval update | `docs/product/EXACT_SOURCE_EVIDENCE_APPROVAL_UPDATE.md` |
 | Phase 30F-A source-owner follow-up | `docs/product/SOURCE_OWNER_TERMS_EVIDENCE_FOLLOW_UP.md` |
 | Phase 30G terms evidence collection | `docs/product/HOSE_FPT_TERMS_EVIDENCE_COLLECTION.md` |
+| Phase 30H academic data boundary | `docs/product/ACADEMIC_DATA_BOUNDARY_FOR_AI_DISCLOSURE.md` |
 
 The corresponding code registry entry is in `src/lib/data-sources/source-policy.ts` under `official-disclosure-financials-pilot`. Phase 30E and Phase 30F-A do not change code status because the safe registry state is already conservative: `usageStatus:needs_legal_review`, `evidenceStatus:missing`, and `productionApproved:false` behavior.
+
+Phase 30H adds an academic/local/research data boundary for AI disclosure. Current source candidates remain not production-approved. AI disclosure should rely on backend/source metadata when users ask about data origin, reliability, realtime status, or usage limits.
+
+## 1A. Vnstock Academic Research Connector Candidate
+
+| Field | Value |
+| --- | --- |
+| sourceCandidateId | `vnstock-academic-research-connector` |
+| provider | `vnstock` |
+| sourceType | `third_party_tool` |
+| usageScope | `academic_non_commercial` |
+| reviewStatus | `research_connector_candidate` |
+| legalStatus | `needs_review` |
+| productionApproved | `false` |
+| attributionRequired | `true` |
+| runtimeUse | `not_configured` |
+| implementationStatus | `planning_only` |
+| Phase 31A plan | `docs/product/VNSTOCK_ACADEMIC_RESEARCH_CONNECTOR_PLAN.md` |
+| Notes | Vnstock is planned as a local/academic research connector candidate only; original data rights may belong to upstream providers. |
 
 ## 2. Required Evidence Before Approval
 

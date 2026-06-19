@@ -6,6 +6,8 @@ Phase: 30G - HOSE/FPT Terms Evidence Collection
 
 This document records evidence collected by browser review of HOSE and FPT Corporation pages related to Terms, usage rights, copyright, and legal disclaimers for the FPT Corporation Annual Report 2025 disclosure candidate. It does not download files, parse data, commit raw reports, write to the database, create fixtures, create live adapters, promote `productionApproved`, or change runtime behavior.
 
+Phase 30H academic/local/non-commercial AI disclosure boundaries are tracked in `ACADEMIC_DATA_BOUNDARY_FOR_AI_DISCLOSURE.md`. Phase 30H does not override the findings in this document: HOSE/FPT remains `needs_legal_review`, and Phase 30H only defines how such data should be discussed or bounded in academic/local/non-commercial contexts.
+
 ## 1. Evidence Collection Summary
 
 | Field | Value |

@@ -125,6 +125,18 @@ No. Manual CSV is a user-provided source adapter and audit workflow. It can pers
 
 Not yet. The backend/database and frontend API bridges are productization foundations. Production readiness still requires an approved source adapter, source/legal evidence, production PostgreSQL deployment, monitoring/ops workflow, broader module bridging, and final safety/product QA.
 
+## 7A. Academic/non-commercial data boundary after Phase 30H
+
+Atelier Finance remains a real capstone application, not a demo-only artifact. Data can be used locally for academic validation, manual review, source-evidence checks, and research workflows. External/research data is not approved for deployed commercial production use unless a later evidence record explicitly confirms the required rights.
+
+The main UI should stay user-friendly and avoid heavy legal-warning surfaces. Detailed source, reliability, realtime, and usage-limit explanations should be handled by AI disclosure when the user asks, using backend/source metadata such as provider, source type, usage scope, review status, source URL, `asOf`, and collection time.
+
+## 7B. Vnstock research connector planning after Phase 31A
+
+Vnstock may improve local academic validation by helping plan market, profile, and fundamental data pipeline checks. It is not approved as a commercial production data source. No runtime Vnstock connector exists after Phase 31A.
+
+Any future implementation should be fail-closed, disabled by default, metadata-first, and limited to academic/local research boundaries until explicit review allows more.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot
