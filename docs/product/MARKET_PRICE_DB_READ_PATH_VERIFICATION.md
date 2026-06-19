@@ -90,3 +90,14 @@ Follow-up constraints:
 - Do not add public API/UI/cron/auto import without separate review.
 - UI connection should display source and data-quality context clearly.
 - Source metadata must remain academic/local/research with `productionApproved:false`.
+
+## 6. Phase 31S PVT Adapter Connection
+
+Phase 31S connects this read path to a Technical/PVT adapter-ready layer. The review is recorded in `docs/product/MARKET_PRICE_PVT_ADAPTER_CONNECTION.md`.
+
+Summary:
+
+- `adaptMarketPriceSeriesToPvt()` converts read-service series output into descriptive PVT adapter output.
+- `buildTechnicalFromMarketPriceSeries()` passes adapter output into the existing Technical/PVT builder.
+- Existing UI/static data behavior is unchanged.
+- Optional local DB adapter verification completed with `17` FPT rows and `productionApproved:false`.

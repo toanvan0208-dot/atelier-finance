@@ -59,8 +59,8 @@ Phase 30H adds an academic/local/research data boundary for AI disclosure. Curre
 | legalStatus | `needs_review` |
 | productionApproved | `false` |
 | attributionRequired | `true` |
-| runtimeUse | `local_command_only` / `manual_file_write_verified` / `db_read_path_verified` |
-| implementationStatus | `market_price_db_read_path_verified` |
+| runtimeUse | `local_command_only` / `manual_file_write_verified` / `db_read_path_verified` / `pvt_adapter_ready` |
+| implementationStatus | `market_price_pvt_adapter_connected` |
 | dataCategories | `market_prices_research_only` |
 | persistence | `local_database_only` |
 | publicRuntime | `not_enabled` |
@@ -71,6 +71,7 @@ Phase 30H adds an academic/local/research data boundary for AI disclosure. Curre
 | latestDryRun | `ticker:FPT`, `dateRange:2025-01-01_to_2025-01-31`, `normalizedCount:17`, `rejectedCount:0`, `dbWrite:false` |
 | latestWriteTrial | `ticker:FPT`, `dateRange:2025-01-01_to_2025-01-31`, `normalizedCount:17`, `insertedCount:17`, `updatedCount:0`, `skippedCount:0`, `rejectedCount:0`, `dbWrite:true`, `productionApproved:false` |
 | latestDbReadVerification | `ticker:FPT`, `dateRange:2025-01-01_to_2025-01-31`, `expectedRows:17`, `sourceLabel:vnstock`, `dataMode:research_only`, `productionApproved:false` |
+| latestPvtAdapterVerification | `ticker:FPT`, `sourceLabel:vnstock`, `dataMode:research_only`, `productionApproved:false`, `noInvestmentSignals:true` |
 | realDataCommitAllowed | `false` |
 | nextDecision | `manual_export_bridge_or_offline_contract_or_python_bridge` |
 | financialStatements | `out_of_scope_for_31E` |
@@ -83,6 +84,7 @@ Phase 30H adds an academic/local/research data boundary for AI disclosure. Curre
 | firstLocalDbWriteTrialPlan | `docs/product/VNSTOCK_FIRST_LOCAL_DB_WRITE_TRIAL_PLAN.md` |
 | firstLocalDbWriteTrialReview | `docs/product/VNSTOCK_FIRST_LOCAL_DB_WRITE_TRIAL_REVIEW.md` |
 | marketPriceDbReadPathVerification | `docs/product/MARKET_PRICE_DB_READ_PATH_VERIFICATION.md` |
+| marketPricePvtAdapterConnection | `docs/product/MARKET_PRICE_PVT_ADAPTER_CONNECTION.md` |
 | Notes | Vnstock is planned as a local/academic research connector candidate only; original data rights may belong to upstream providers. |
 
 ## 2. Required Evidence Before Approval

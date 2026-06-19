@@ -464,3 +464,13 @@ Phase 31R adds `docs/product/MARKET_PRICE_DB_READ_PATH_VERIFICATION.md` and veri
 - It preserves `null` numeric values.
 - It keeps `productionApproved:false` at the service output layer.
 - It does not call Vnstock, fetch network data, write DB rows, or add a public trigger.
+
+## 28. Phase 31S Technical/PVT Adapter Connection
+
+Phase 31S adds `docs/product/MARKET_PRICE_PVT_ADAPTER_CONNECTION.md` and verifies module-ready consumption after DB read verification.
+
+- MarketPrice DB read output can be converted into PVT adapter-ready output.
+- The existing Technical/PVT builder can consume the adapter output.
+- Existing UI/static data behavior is unchanged.
+- The path preserves `sourceLabel:vnstock`, `dataMode:research_only`, and `productionApproved:false`.
+- It does not add UI, public API, direct fetcher, DB write, or automatic import behavior.

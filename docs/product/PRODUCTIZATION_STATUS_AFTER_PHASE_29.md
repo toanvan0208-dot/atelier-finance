@@ -171,6 +171,8 @@ Phase 31Q executes the first local DB write trial for reviewed user-provided Vns
 
 Phase 31R verifies a local DB read path for manually imported Vnstock market price data, preserving `research_only`/source metadata and null-safe behavior; it does not add a direct fetcher, public API/UI trigger, DB write, or production approval.
 
+Phase 31S connects the local MarketPrice DB read path to a Technical/PVT adapter-ready layer, preserving `research_only`/source metadata and null-safe behavior; it does not add UI, public API, direct fetcher, DB write, or production approval.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot

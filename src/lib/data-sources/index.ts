@@ -6,6 +6,7 @@ export * from "./manual-upload-parser";
 export * from "./manual-upload-preview-bridge";
 export * from "./manual-upload-report";
 export * from "./manual-upload-schema";
+export * from "./market-price-pvt-adapter";
 export * from "./market-price-read-service";
 export * from "./mock-source-adapter";
 export * from "./normalization";
