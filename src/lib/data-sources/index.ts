@@ -8,6 +8,7 @@ export * from "./manual-upload-report";
 export * from "./manual-upload-schema";
 export * from "./mock-source-adapter";
 export * from "./normalization";
+export * from "./official-disclosure-financials-adapter";
 export * from "./overview-api-client";
 export * from "./source-candidates";
 export * from "./source-evidence";
