@@ -59,8 +59,8 @@ Phase 30H adds an academic/local/research data boundary for AI disclosure. Curre
 | legalStatus | `needs_review` |
 | productionApproved | `false` |
 | attributionRequired | `true` |
-| runtimeUse | `local_command_only` / `planned_manual_file_write` |
-| implementationStatus | `first_local_db_write_trial_planned` |
+| runtimeUse | `local_command_only` / `manual_file_write_verified` |
+| implementationStatus | `first_local_db_write_trial_completed` |
 | dataCategories | `market_prices_research_only` |
 | persistence | `local_database_only` |
 | publicRuntime | `not_enabled` |
@@ -69,7 +69,7 @@ Phase 30H adds an academic/local/research data boundary for AI disclosure. Curre
 | dataInputMode | `user_provided_manual_export` |
 | fileImport | `csv_json` |
 | latestDryRun | `ticker:FPT`, `dateRange:2025-01-01_to_2025-01-31`, `normalizedCount:17`, `rejectedCount:0`, `dbWrite:false` |
-| plannedWrite | `status:planned_not_executed`, `ticker:FPT`, `dateRange:2025-01-01_to_2025-01-31`, `requiresExplicitApproval:true` |
+| latestWriteTrial | `ticker:FPT`, `dateRange:2025-01-01_to_2025-01-31`, `normalizedCount:17`, `insertedCount:17`, `updatedCount:0`, `skippedCount:0`, `rejectedCount:0`, `dbWrite:true`, `productionApproved:false` |
 | realDataCommitAllowed | `false` |
 | nextDecision | `manual_export_bridge_or_offline_contract_or_python_bridge` |
 | financialStatements | `out_of_scope_for_31E` |
@@ -80,6 +80,7 @@ Phase 30H adds an academic/local/research data boundary for AI disclosure. Curre
 | firstRealManualExportTrialGuide | `docs/product/VNSTOCK_FIRST_REAL_MANUAL_EXPORT_TRIAL_GUIDE.md` |
 | firstRealCsvDryRunReview | `docs/product/VNSTOCK_FIRST_REAL_CSV_DRY_RUN_REVIEW.md` |
 | firstLocalDbWriteTrialPlan | `docs/product/VNSTOCK_FIRST_LOCAL_DB_WRITE_TRIAL_PLAN.md` |
+| firstLocalDbWriteTrialReview | `docs/product/VNSTOCK_FIRST_LOCAL_DB_WRITE_TRIAL_REVIEW.md` |
 | Notes | Vnstock is planned as a local/academic research connector candidate only; original data rights may belong to upstream providers. |
 
 ## 2. Required Evidence Before Approval

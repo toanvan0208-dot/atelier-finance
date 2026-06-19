@@ -203,3 +203,19 @@ Phase 31P does not:
 - Commit a DB file.
 - Import financial statements or fundamentals.
 - Add recommendation or signal logic.
+
+## 11. Phase 31Q Execution Review
+
+Phase 31Q executed the planned local DB write trial and recorded the result in `docs/product/VNSTOCK_FIRST_LOCAL_DB_WRITE_TRIAL_REVIEW.md`.
+
+Summary:
+
+- `--write` was executed for `FPT` over `2025-01-01` to `2025-01-31`.
+- The CSV file stayed outside the repo at `D:\fpt-market-prices.csv`.
+- The command returned `import_completed`.
+- `normalizedCount` was `17`.
+- `insertedCount` was `17`.
+- `updatedCount`, `skippedCount`, and `rejectedCount` were `0`.
+- DB verification found `17` FPT `research_only` rows in range and no FPT `research_only` rows outside range.
+- No DB or CSV file was staged or committed.
+- `productionApproved:false` remained in the command result.

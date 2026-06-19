@@ -442,3 +442,15 @@ Phase 31P adds `docs/product/VNSTOCK_FIRST_LOCAL_DB_WRITE_TRIAL_PLAN.md`.
 - DB reset/backup and repo hygiene checks are required before any future write phase.
 - The real CSV must remain outside the repo.
 - `productionApproved:false` remains mandatory.
+
+## 26. Phase 31Q First Local DB Write Trial
+
+Phase 31Q records the first local DB write trial in `docs/product/VNSTOCK_FIRST_LOCAL_DB_WRITE_TRIAL_REVIEW.md`.
+
+- `--write` was executed once successfully on the reviewed `FPT` range.
+- The real CSV stayed outside the repo.
+- The command returned `import_completed`.
+- `17` records were normalized and inserted.
+- DB verification found `17` FPT `research_only` rows in range and no FPT `research_only` rows outside range.
+- No public trigger, real fetcher, or production source approval was added.
+- CSV and DB files were not staged or committed.

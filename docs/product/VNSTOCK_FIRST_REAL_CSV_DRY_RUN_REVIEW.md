@@ -124,3 +124,9 @@ Phase 31O does not:
 ## 10. Phase 31P First Local DB Write Trial Plan
 
 Phase 31P adds `docs/product/VNSTOCK_FIRST_LOCAL_DB_WRITE_TRIAL_PLAN.md` to plan a future first local DB write trial. It documents backup/reset checks, repo hygiene checks, expected output, and Phase 31Q acceptance criteria, but it does not run `--write` or write DB data.
+
+## 11. Phase 31Q First Local DB Write Trial
+
+Phase 31Q followed this dry-run with the first local DB write trial. The write review is recorded in `docs/product/VNSTOCK_FIRST_LOCAL_DB_WRITE_TRIAL_REVIEW.md`.
+
+The write used the same reviewed ticker, date range, and outside-repo CSV path. It returned `import_completed`, inserted `17` local `research_only` rows, did not stage or commit the CSV/DB files, and preserved `productionApproved:false`.
