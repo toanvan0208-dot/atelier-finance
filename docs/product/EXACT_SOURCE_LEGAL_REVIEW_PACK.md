@@ -6,9 +6,11 @@ Phase: 30C - Exact Source Legal/ToS Review Pack
 
 This review pack is a pre-ingestion legal and data-quality checklist for the official disclosure financials pilot. It does not approve any source, call an external API, scrape a website, download a real report, parse real PDF/Excel files, write real financial data to the database, or change runtime behavior.
 
-No exact source URL has been provided in the repo or Phase 30C brief. This document therefore records a review template for the selected source class and keeps the adapter decision at `needs_legal_review`.
+No exact source URL was provided in the repo or Phase 30C brief. This document therefore recorded a review template for the selected source class and kept the adapter decision at `needs_legal_review`.
 
 Phase 30D narrows the Vietnam pilot direction in `OFFICIAL_FILING_SOURCE_SELECTION_VIETNAM_PILOT.md`.
+
+Phase 30E updates the exact-source evidence state in `EXACT_SOURCE_EVIDENCE_APPROVAL_UPDATE.md`. It keeps the candidate at `needs_legal_review` because legal/ToS and permission evidence remains incomplete.
 
 ## 1. Exact Source Identification
 
@@ -17,17 +19,17 @@ Phase 30D narrows the Vietnam pilot direction in `OFFICIAL_FILING_SOURCE_SELECTI
 | Source id | `official-disclosure-financials-pilot` |
 | Source owner | Pending user/reviewer confirmation |
 | Source class | Official company filings / investor relations / official disclosure files |
-| Source URL | Pending user/reviewer confirmation |
-| Report/file URL | Pending user/reviewer confirmation |
+| Source URL | Phase 30D/30E review candidate: `https://www.hsx.vn/en/tin-tuc/fpt-annual-report-2025/2451668` |
+| Report/file URL | pending manual review; not downloaded or committed |
 | Access method | `public_file` or official documented download, pending exact source |
 | Data groups | `financial_statement`, optional `company_profile` |
-| Pilot ticker(s) | Pending user/reviewer confirmation |
-| Pilot period(s) | Pending user/reviewer confirmation |
+| Pilot ticker(s) | `FPT` source-review candidate only; `FPTLAB` remains local sample/lab data |
+| Pilot period(s) | 2025 annual report candidate |
 | Pilot fields | Financial statement snapshot fields already mapped in `DATA_DICTIONARY_MAPPING.md` |
 | Review date | 2026-06-19 |
 | Reviewer | Documentation review by Codex; legal/source-owner review still required |
 
-Exact source selection is intentionally unresolved. Until source owner, official URL, file/report URL, and usage terms are known, the candidate must not be treated as production-ready.
+Exact source selection is partially narrowed to the HOSE-hosted FPT Annual Report 2025 disclosure page, but approval is intentionally unresolved. Until source owner rights, report/file URL, license, Terms, display, storage/cache, derived-data, redistribution, automated access, manual fixture, and attribution evidence are reviewed, the candidate must not be treated as production-ready.
 
 ## 2. Legal/Terms Evidence
 
@@ -43,12 +45,12 @@ Exact source selection is intentionally unresolved. Until source owner, official
 | Redistribution terms | Unknown | No raw/source-equivalent redistribution. |
 | Derived-data terms | Unknown | Do not persist normalized/derived product records from this source. |
 | Attribution requirement | Unknown | Attribution text must be recorded if required. |
-| Notes | Exact source not selected | This pack is a template and blocker list, not a legal approval. |
+| Notes | Exact source candidate selected but not approved | This pack and the Phase 30E update are blocker records, not legal approval. |
 
 Unresolved questions:
 
-- Which exact official source owner will be used?
-- Which exact URL/file/report is in scope?
+- Which exact source-owner terms govern the HOSE-hosted disclosure page?
+- Which exact report/file URL is in scope, if any?
 - Do the source terms allow product runtime display?
 - Do the source terms allow database storage/cache?
 - Do the source terms allow normalized records and derived metrics?
@@ -95,10 +97,12 @@ Decision consequence:
 
 Final Phase 30C decision: `needs_legal_review`.
 
+Phase 30E status update: `needs_legal_review`.
+
 Reason:
 
-- Exact source owner is not selected.
-- Source URL and report/file URL are not provided.
+- Exact source owner and issuer/report-owner rights are not confirmed.
+- Official source URL is identified for review, but report/file URL is not confirmed and was not downloaded or committed.
 - License and Terms are not reviewed.
 - Runtime display rights are unknown.
 - Caching/database storage rights are unknown.

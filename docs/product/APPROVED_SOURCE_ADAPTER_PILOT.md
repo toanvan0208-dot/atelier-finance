@@ -6,7 +6,7 @@ Phase: 30A - Approved Source Adapter Pilot
 
 This document defines the first approved-source adapter pilot direction for Atelier Finance. It is an evaluation and adapter-design document only. It does not call an external API, scrape a website, add real financial data to the database, approve a source for production use, or change frontend behavior.
 
-Phase 30B follow-up artifacts are tracked in `SOURCE_EVIDENCE_RECORDS.md` and `src/lib/data-sources/official-disclosure-financials-adapter.ts`. Phase 30C exact-source legal review is tracked in `EXACT_SOURCE_LEGAL_REVIEW_PACK.md`. Phase 30D Vietnam source selection is tracked in `OFFICIAL_FILING_SOURCE_SELECTION_VIETNAM_PILOT.md`.
+Phase 30B follow-up artifacts are tracked in `SOURCE_EVIDENCE_RECORDS.md` and `src/lib/data-sources/official-disclosure-financials-adapter.ts`. Phase 30C exact-source legal review is tracked in `EXACT_SOURCE_LEGAL_REVIEW_PACK.md`. Phase 30D Vietnam source selection is tracked in `OFFICIAL_FILING_SOURCE_SELECTION_VIETNAM_PILOT.md`. Phase 30E exact-source evidence approval state is tracked in `EXACT_SOURCE_EVIDENCE_APPROVAL_UPDATE.md`.
 
 ## 1. Current State
 

@@ -6,6 +6,8 @@ Phase: 30D - Official Filing Source Selection - Vietnam Pilot
 
 This document narrows the Phase 30A-30C source direction for a Vietnam financial-statement pilot. It does not call a live API, scrape, download a report, parse a real PDF/Excel file, write real financial data to the database, approve a production source, or change runtime behavior.
 
+Phase 30E exact-source evidence and permission state is tracked in `EXACT_SOURCE_EVIDENCE_APPROVAL_UPDATE.md`.
+
 ## 1. Decision Summary
 
 Selected direction:
@@ -50,6 +52,7 @@ Selected review candidate:
 | Access method | Official disclosure page/file, manual review only |
 | Review status | `needs_legal_review` |
 | Production approval | `false` |
+| Phase 30E evidence update | `docs/product/EXACT_SOURCE_EVIDENCE_APPROVAL_UPDATE.md`; no promotion because license, Terms, display, storage/cache, derived-data, redistribution, automated access, manual fixture, and attribution evidence remain unresolved |
 
 Rationale:
 
@@ -76,6 +79,8 @@ The HOSE page and FPT report candidate are not approved for database ingestion o
 | Attribution required? | `unknown` | Attribution text must be confirmed before use. |
 
 Current adapter decision: `needs_legal_review`.
+
+Phase 30E keeps this decision unchanged. The exact HOSE page candidate is known, but the exact report/file URL is still pending manual review and was not downloaded or committed. Legal/ToS and permission evidence remains insufficient for runtime display, database ingestion, persisted normalized records, live adapter/download work, or raw/source-equivalent redistribution.
 
 ## 5. Pilot Scope
 
@@ -155,10 +160,12 @@ The user/reviewer must confirm:
 
 Recommended next phase:
 
-- Phase 30E: Exact Source Evidence Approval Update, if legal/ToS and usage rights are still missing.
+- Phase 30E: Exact Source Evidence Approval Update, completed in `EXACT_SOURCE_EVIDENCE_APPROVAL_UPDATE.md`; status remains `needs_legal_review`.
 
 Alternative:
 
 - Phase 30E: Manual-reviewed Official Filing Fixture Pack, only if the user/reviewer confirms local review rights and supplies an allowed fixture path or manual extracted values.
 
 Do not proceed to ingestion until legal, storage/cache, runtime display, and derived-data rights are clear.
+
+After Phase 30E, the recommended follow-up is Phase 30F - Source Owner/Terms Evidence Collection Follow-up unless the user/reviewer explicitly confirms manual-reviewed local fixture rights.
