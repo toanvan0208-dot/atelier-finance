@@ -173,6 +173,8 @@ Phase 31R verifies a local DB read path for manually imported Vnstock market pri
 
 Phase 31S connects the local MarketPrice DB read path to a Technical/PVT adapter-ready layer, preserving `research_only`/source metadata and null-safe behavior; it does not add UI, public API, direct fetcher, DB write, or production approval.
 
+Phase 31T adds a Technical/PVT module-level loader/helper that can prefer local DB market price rows and falls back safely to existing static/sample data; rendered UI data remains unchanged, and no public API, direct fetcher, network call, DB write, automatic import, or production approval is added.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot

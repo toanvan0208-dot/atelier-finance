@@ -310,3 +310,15 @@ Phase 31P plans the first local DB write trial for the reviewed user-provided CS
 ## 26. Phase 31Q First Local DB Write Trial
 
 Phase 31Q records the first local DB write trial for reviewed manual export data. The real fetcher remains not configured, the app still does not call Vnstock directly, and the write remains local academic/research verification with `productionApproved:false`.
+
+## 27. Phase 31R Market Price DB Read Path Verification
+
+Phase 31R verifies a local DB read service for manually imported market price rows. It keeps source metadata and `productionApproved:false`, preserves missing numeric values, and does not call Vnstock, network, write DB rows, or expose a public trigger.
+
+## 28. Phase 31S Technical/PVT Adapter Connection
+
+Phase 31S connects local MarketPrice read output to a Technical/PVT adapter-ready builder path. It does not change UI data source behavior, call Vnstock, write DB rows, expose public API/UI/cron behavior, or change source approval status.
+
+## 29. Phase 31T Technical/PVT Loader Helper
+
+Phase 31T adds a module-level helper that can prefer local DB-backed Technical/PVT data and otherwise return the existing static/sample fallback. It keeps `productionApproved:false`, leaves rendered UI data unchanged, and adds no network call, DB write, public trigger, automatic import, or real fetcher.

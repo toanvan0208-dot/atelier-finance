@@ -474,3 +474,13 @@ Phase 31S adds `docs/product/MARKET_PRICE_PVT_ADAPTER_CONNECTION.md` and verifie
 - Existing UI/static data behavior is unchanged.
 - The path preserves `sourceLabel:vnstock`, `dataMode:research_only`, and `productionApproved:false`.
 - It does not add UI, public API, direct fetcher, DB write, or automatic import behavior.
+
+## 29. Phase 31T Technical/PVT Loader Helper
+
+Phase 31T adds `docs/product/TECHNICAL_PVT_MODULE_DATA_FLOW_CONNECTION.md` and a module-level helper for Technical/PVT data loading.
+
+- The helper can use local DB MarketPrice rows only when explicitly called with `preferDb:true`.
+- Default behavior remains static/sample fallback.
+- Invalid input, empty DB results, read errors, and builder failures fail safely into fallback when fallback is allowed.
+- The rendered Technical/PVT UI data source is not changed in this phase.
+- The helper does not run imports, write DB rows, call Vnstock, call network, expose a public trigger, or change source approval status.
