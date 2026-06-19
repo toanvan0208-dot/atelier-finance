@@ -240,3 +240,13 @@ Phase 31E adds a local-only command runner for controlled Vnstock research marke
 - Does not create a public API route, UI button, cron, scheduler, app-start import, seed path, or production provider resolver.
 - Does not make Vnstock production-approved; `productionApproved:false` remains mandatory.
 - Real Vnstock network fetch remains not configured unless explicitly implemented in a later phase or supplied through an injected local research fetcher.
+
+## 15. Phase 31F Usage Guide
+
+Phase 31F adds `docs/product/VNSTOCK_LOCAL_IMPORT_USAGE_GUIDE.md` as the local import usage guide:
+
+- Documents dry-run and write workflows for the local command/runner.
+- Documents required safety flags and local import acknowledgement.
+- Documents verification checklists before import, after dry-run, and after write.
+- Documents safe local DB inspection and troubleshooting.
+- Does not add a real fetcher, dependency, public API, UI trigger, cron, app-start import, or production source approval.
