@@ -60,14 +60,16 @@ Phase 30H adds an academic/local/research data boundary for AI disclosure. Curre
 | productionApproved | `false` |
 | attributionRequired | `true` |
 | runtimeUse | `local_command_only` / `disabled_by_default` |
-| implementationStatus | `local_script_runner_smoke_tested` |
+| implementationStatus | `real_fetcher_feasibility_audited` |
 | dataCategories | `market_prices_research_only` |
 | persistence | `local_database_only` |
 | publicRuntime | `not_enabled` |
 | realFetcher | `not_configured` |
+| nextDecision | `manual_export_bridge_or_offline_contract_or_python_bridge` |
 | financialStatements | `out_of_scope_for_31E` |
 | Phase 31A plan | `docs/product/VNSTOCK_ACADEMIC_RESEARCH_CONNECTOR_PLAN.md` |
 | usageGuide | `docs/product/VNSTOCK_LOCAL_IMPORT_USAGE_GUIDE.md` |
+| realFetcherAudit | `docs/product/VNSTOCK_REAL_FETCHER_FEASIBILITY_AUDIT.md` |
 | Notes | Vnstock is planned as a local/academic research connector candidate only; original data rights may belong to upstream providers. |
 
 ## 2. Required Evidence Before Approval

@@ -153,6 +153,8 @@ Phase 31H wires an explicit local TypeScript script runner for the Vnstock resea
 
 Phase 31I verifies the local Vnstock market price import npm script fails closed under safe smoke-test scenarios; no real fetcher, network call, DB write, public trigger, or production approval was added.
 
+Phase 31J audits real local Vnstock fetcher integration options without adding dependencies, calling data sources, or approving production use.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot

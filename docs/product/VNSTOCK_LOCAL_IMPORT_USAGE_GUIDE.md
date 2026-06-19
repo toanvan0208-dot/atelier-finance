@@ -355,3 +355,7 @@ Phase 31I verifies the local npm script wiring with safe smoke tests:
 - No DB write, network/Vnstock call, scrape, download, or raw output file is expected from these checks.
 - No raw output, local DB, generated Prisma, or `tsconfig.tsbuildinfo` file should be committed.
 - `productionApproved:false` remains mandatory.
+
+## 19. Phase 31J Real Fetcher Feasibility Audit
+
+Phase 31J audits future real fetcher options in `docs/product/VNSTOCK_REAL_FETCHER_FEASIBILITY_AUDIT.md`. The current npm import command still has no real fetcher configured and remains fail-closed with `fetcher_not_configured` unless a later reviewed phase explicitly adds a local fetcher path.

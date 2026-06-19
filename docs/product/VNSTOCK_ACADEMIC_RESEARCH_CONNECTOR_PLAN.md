@@ -278,3 +278,7 @@ Phase 31H wires an explicit local TypeScript script runner for the Vnstock resea
 ## 18. Phase 31I Smoke Test Verification
 
 Phase 31I smoke tests confirm the local npm command runner fails closed for missing ACK/env, missing fetcher, and missing required args. No real fetcher, network call, DB write, public trigger, or production source approval is added.
+
+## 19. Phase 31J Real Fetcher Feasibility Audit
+
+Phase 31J adds `docs/product/VNSTOCK_REAL_FETCHER_FEASIBILITY_AUDIT.md` as an audit-only review of future real local fetcher options. It adds no real fetcher, dependency, network/data fetch, public trigger, or production source approval. The future fetcher direction remains pending an explicit decision.
