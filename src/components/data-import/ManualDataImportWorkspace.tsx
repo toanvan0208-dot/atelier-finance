@@ -13,7 +13,7 @@ import type { ManualUploadIssueSeverity } from "@/lib/data-sources/manual-upload
 
 const templateCsv = [
   "ticker,period,revenue,netIncome,operatingCashFlow,totalAssets,equity,eps,bvps,sharesOutstanding,closePrice,volume,tradingValue,source,asOf",
-  "FPT,2024Q4,62000000000000,9300000000000,8500000000000,72000000000000,31000000000000,5200,21000,1000000000,95000,1200000,114000000000,manual_upload,2025-01-31",
+  "FPTLAB,2024Q4,62000000000000,9300000000000,8500000000000,72000000000000,31000000000000,5200,21000,1000000000,95000,1200000,114000000000,manual_upload,2025-01-31",
 ].join("\n");
 
 const statusVariant: Record<ManualUploadPreviewStatus | "pass", "neutral" | "success" | "warning" | "danger"> = {
@@ -92,7 +92,7 @@ function DataSourceWarningCard() {
     ["Source mode", "user-provided / manual_upload"],
     ["Runtime mode", "thesis_verification"],
     ["Production source", "not approved"],
-    ["Server storage", "not saved"],
+    ["Server storage", "manual session audit only"],
     ["External API", "not used"],
     ["Investment advice", "none"],
   ];
