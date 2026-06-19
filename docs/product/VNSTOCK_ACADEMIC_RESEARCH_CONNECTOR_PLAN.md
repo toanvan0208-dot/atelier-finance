@@ -206,3 +206,22 @@ Phase 31C adds controlled local market price/PVT normalization for Vnstock resea
 - Financial statements, fundamentals, external valuation ratios, news, corporate actions, and intraday realtime data remain out of scope.
 
 The connector normalizes only returned mock/injected records in memory. Future Phase 31D should handle controlled local market price import persistence if database writes are ever approved.
+
+## 13. Phase 31D Controlled Local Persistence
+
+Phase 31D adds controlled local DB persistence for normalized Vnstock research market prices only:
+
+- Persists normalized market price records from the Phase 31C record shape only.
+- Does not automatically fetch data.
+- Does not add a Vnstock dependency.
+- Does not add a runtime or public API trigger.
+- Does not change the UI.
+- Does not add a scheduled job or app-start import.
+- Does not commit raw data or `dev.db`.
+- Keeps `productionApproved:false`.
+- Uses the existing `MarketPrice` and `DataSource` schema; no Prisma schema or migration is changed in this phase.
+- Applies service-level duplicate handling for the same ticker, trading date, Vnstock source, and research data mode.
+- Leaves manual/user market price data unchanged; Vnstock research records may be stored separately through source/data-mode metadata.
+- Tests use an injected fake DB boundary; no separate integration DB test is added because the repo does not yet have a dedicated test database pattern.
+
+Future Phase 31E may add a local-only import command or script if explicitly approved. Phase 31D does not create that command.
