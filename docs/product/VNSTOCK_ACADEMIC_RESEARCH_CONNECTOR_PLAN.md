@@ -191,3 +191,18 @@ Phase 31B adds a Vnstock research connector skeleton only:
 - Unit tests verify default disabled behavior, network-disabled behavior, metadata classification, and permanent false production approval.
 
 Future Phase 31C may add controlled local research fetch only after explicit approval.
+
+## 12. Phase 31C Controlled Local Market Price Fetch
+
+Phase 31C adds controlled local market price/PVT normalization for Vnstock research use only:
+
+- Market prices/PVT historical daily data only.
+- Requires explicit local research config: `enabled:true`, `allowNetwork:true`, and `mode:"local_research"`.
+- Disabled by default.
+- Uses an injected fetcher function; it does not automatically import or call Vnstock.
+- No automatic production fetch.
+- No DB persistence in Phase 31C.
+- No production approval.
+- Financial statements, fundamentals, external valuation ratios, news, corporate actions, and intraday realtime data remain out of scope.
+
+The connector normalizes only returned mock/injected records in memory. Future Phase 31D should handle controlled local market price import persistence if database writes are ever approved.

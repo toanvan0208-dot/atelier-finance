@@ -139,6 +139,8 @@ Any future implementation should be fail-closed, disabled by default, metadata-f
 
 Phase 31B adds a fail-closed Vnstock research connector skeleton only; it does not add live data fetch or source approval for deployed product use.
 
+Phase 31C adds controlled local market price fetch/normalization for Vnstock research use only; it has no database persistence, no real-data seed, and no source approval for deployed product use.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot
