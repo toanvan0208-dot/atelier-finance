@@ -8,6 +8,8 @@ This review pack is a pre-ingestion legal and data-quality checklist for the off
 
 No exact source URL has been provided in the repo or Phase 30C brief. This document therefore records a review template for the selected source class and keeps the adapter decision at `needs_legal_review`.
 
+Phase 30D narrows the Vietnam pilot direction in `OFFICIAL_FILING_SOURCE_SELECTION_VIETNAM_PILOT.md`.
+
 ## 1. Exact Source Identification
 
 | Field | Current value |

@@ -6,7 +6,7 @@ Phase: 30B - Source Evidence Record And Adapter Skeleton
 
 This document records source-evidence candidates used by Atelier Finance before any production source adapter is allowed. It is not a legal approval, does not connect to a live source, does not import real financial data, and does not mark any source as production-approved.
 
-Phase 30C exact-source review is tracked in `EXACT_SOURCE_LEGAL_REVIEW_PACK.md`.
+Phase 30C exact-source review is tracked in `EXACT_SOURCE_LEGAL_REVIEW_PACK.md`. Phase 30D Vietnam source selection is tracked in `OFFICIAL_FILING_SOURCE_SELECTION_VIETNAM_PILOT.md`.
 
 ## 1. Current Source Evidence Record
 
@@ -20,7 +20,7 @@ Phase 30C exact-source review is tracked in `EXACT_SOURCE_LEGAL_REVIEW_PACK.md`.
 | Current usage status | `needs_legal_review` |
 | Evidence status | `missing` |
 | Production approved | `false` |
-| Exact source | Not selected; pending user/reviewer confirmation |
+| Exact source | Phase 30D selected review candidate: HOSE-hosted FPT Corporation Annual Report 2025 disclosure page; still pending legal/ToS/rights confirmation and not approved for ingestion/runtime use |
 | License | Not reviewed |
 | Terms of Service | Not reviewed |
 | Runtime display rights | Unknown |
@@ -33,6 +33,7 @@ Phase 30C exact-source review is tracked in `EXACT_SOURCE_LEGAL_REVIEW_PACK.md`.
 | Scraping | None |
 | Database write | None |
 | Phase 30C review pack | `docs/product/EXACT_SOURCE_LEGAL_REVIEW_PACK.md` |
+| Phase 30D Vietnam source selection | `docs/product/OFFICIAL_FILING_SOURCE_SELECTION_VIETNAM_PILOT.md` |
 
 The corresponding code registry entry is in `src/lib/data-sources/source-policy.ts` under `official-disclosure-financials-pilot`.
 
@@ -87,7 +88,7 @@ Adapter constraints:
 
 ## 5. Next User Actions
 
-Before Phase 30D, the user/reviewer must provide:
+Before any Phase 30E fixture, adapter, or ingestion work, the user/reviewer must provide:
 
 1. The exact official disclosure source to evaluate.
 2. Legal/ToS links or a reviewed source-usage statement.
