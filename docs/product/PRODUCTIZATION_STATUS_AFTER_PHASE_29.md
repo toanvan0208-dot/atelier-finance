@@ -147,6 +147,8 @@ Phase 31E adds a local-only import command/runner for controlled Vnstock researc
 
 Phase 31F documents safe local usage, dry-run/write workflows, verification checklists, and troubleshooting for the Vnstock research market price import command; it does not add a real fetcher or production source approval.
 
+Phase 31G audits local script runner wiring for Vnstock research market price import; it does not add a real fetcher, public trigger, dependency, npm script, or production data approval.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot

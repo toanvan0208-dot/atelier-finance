@@ -255,3 +255,36 @@ Option B - Add a real local research fetcher adapter:
 - Must stay disabled by default.
 - Must still require env safety flags and local import acknowledgement.
 - Must keep `productionApproved:false`.
+
+## 16. Phase 31G Script Runner Decision
+
+Phase 31G reviewed whether the local import wrapper should be wired into `package.json`.
+
+Package audit result:
+
+- `package.json` does not include `tsx`.
+- `package.json` does not include `ts-node`.
+- `package.json` does not include another TypeScript script runner for `scripts/*.ts`.
+- Existing script workflow uses Node for `.mjs` database tooling, such as `scripts/reset-local-db.mjs`.
+- Existing npm scripts do not include a comparable local import command.
+- `scripts/import-vnstock-market-prices.ts` exists as a wrapper, but it is not wired to an npm script.
+
+Decision: Option B - runner does not exist.
+
+No npm script was added because the repo does not currently have a TypeScript script runner dependency. Adding a script such as `import:market-prices:vnstock:local` would require calling a tool that is not available in the current package setup. Phase 31G also does not add dependencies.
+
+Current usage remains:
+
+- Use `runVnstockMarketPriceImportCommand` as a testable library boundary.
+- Keep `scripts/import-vnstock-market-prices.ts` as an unwired local wrapper.
+- Do not run real Vnstock fetches by default.
+- Do not expose public API, UI, cron, scheduler, or app-start import.
+- Keep `productionApproved:false`.
+
+A later phase may add npm script wiring only if the repo explicitly chooses a TypeScript script runner. That phase should:
+
+- Add or use a clearly reviewed runner.
+- Use a clear local/research script name.
+- Avoid adding a real fetcher in the same step.
+- Keep all env safety flags and local import acknowledgement.
+- Keep the command out of build, test, dev startup, UI, API, and cron workflows.

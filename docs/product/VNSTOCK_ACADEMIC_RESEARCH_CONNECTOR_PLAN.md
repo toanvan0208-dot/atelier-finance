@@ -250,3 +250,15 @@ Phase 31F adds `docs/product/VNSTOCK_LOCAL_IMPORT_USAGE_GUIDE.md` as the local i
 - Documents verification checklists before import, after dry-run, and after write.
 - Documents safe local DB inspection and troubleshooting.
 - Does not add a real fetcher, dependency, public API, UI trigger, cron, app-start import, or production source approval.
+
+## 16. Phase 31G Script Runner Wiring Review
+
+Phase 31G reviews local script runner wiring for the Vnstock research market price import command:
+
+- `package.json` does not currently include `tsx`, `ts-node`, or another TypeScript script runner for `scripts/*.ts`.
+- No npm import script is added in Phase 31G.
+- The runner remains available as testable library code, and `scripts/import-vnstock-market-prices.ts` remains an unwired local wrapper.
+- No real fetcher is added.
+- No public API, UI trigger, cron, scheduler, or app-start import is added.
+- No production source approval is added; `productionApproved:false` remains mandatory.
+- The local command remains disabled/fail-closed by safety flags and by missing fetcher unless explicitly configured in a later reviewed phase.
