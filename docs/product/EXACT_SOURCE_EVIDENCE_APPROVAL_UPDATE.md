@@ -6,7 +6,7 @@ Phase: 30E - Exact Source Evidence Approval Update
 
 This document updates the exact-source evidence state for the Vietnam official filing pilot. It does not call an external API, scrape a website, download a report, parse a real PDF/Excel file, commit raw/source data, write to the database, approve production use, or change runtime behavior.
 
-Phase 30F-A source-owner and Terms evidence collection follow-up is tracked in `SOURCE_OWNER_TERMS_EVIDENCE_FOLLOW_UP.md`.
+Phase 30F-A source-owner and Terms evidence collection follow-up is tracked in `SOURCE_OWNER_TERMS_EVIDENCE_FOLLOW_UP.md`. Phase 30G browser-based Terms evidence collection is tracked in `HOSE_FPT_TERMS_EVIDENCE_COLLECTION.md`.
 
 ## 1. Phase 30E Summary
 
@@ -45,9 +45,9 @@ Phase 30E does not promote the source status. The existing docs identify an offi
 
 | Evidence item | Status | Notes |
 | --- | --- | --- |
-| License URL | unknown | No reviewed license URL exists in the repo docs for this exact candidate. |
-| Terms URL | unknown | No reviewed HOSE/FPT usage Terms URL exists in the repo docs for this exact candidate. |
-| Copyright notice | unknown | Requires manual review of the official page and report/file. |
+| License URL | unknown | No explicit license URL found. FPT Terms of Use page exists at `https://fpt.com.vn/en/terms-of-use` but does not constitute a data license. |
+| Terms URL | found (FPT only) | FPT Terms of Use found at `https://fpt.com.vn/en/terms-of-use`. HOSE terms not found (JavaScript SPA). See `HOSE_FPT_TERMS_EVIDENCE_COLLECTION.md` Section 2 item #8. |
+| Copyright notice | found (FPT only) | FPT footer: "Copyright © FPT". FPT Terms: "©2015 Copyright by FPT Corp. All rights reserved". See `HOSE_FPT_TERMS_EVIDENCE_COLLECTION.md` Section 2 item #9. |
 | HOSE usage terms | unknown | Requires source-owner or legal review before any runtime, cache, or automation decision. |
 | Issuer/FPT usage terms | unknown | Requires issuer/report usage statement if the report file is used. |
 | Report/file usage statement | pending_user_review | Exact file URL and file usage terms have not been provided or reviewed. |

@@ -6,7 +6,7 @@ Phase: 30B - Source Evidence Record And Adapter Skeleton
 
 This document records source-evidence candidates used by Atelier Finance before any production source adapter is allowed. It is not a legal approval, does not connect to a live source, does not import real financial data, and does not mark any source as production-approved.
 
-Phase 30C exact-source review is tracked in `EXACT_SOURCE_LEGAL_REVIEW_PACK.md`. Phase 30D Vietnam source selection is tracked in `OFFICIAL_FILING_SOURCE_SELECTION_VIETNAM_PILOT.md`. Phase 30E exact-source evidence approval update is tracked in `EXACT_SOURCE_EVIDENCE_APPROVAL_UPDATE.md`. Phase 30F-A source-owner and Terms evidence collection follow-up is tracked in `SOURCE_OWNER_TERMS_EVIDENCE_FOLLOW_UP.md`.
+Phase 30C exact-source review is tracked in `EXACT_SOURCE_LEGAL_REVIEW_PACK.md`. Phase 30D Vietnam source selection is tracked in `OFFICIAL_FILING_SOURCE_SELECTION_VIETNAM_PILOT.md`. Phase 30E exact-source evidence approval update is tracked in `EXACT_SOURCE_EVIDENCE_APPROVAL_UPDATE.md`. Phase 30F-A source-owner and Terms evidence collection follow-up is tracked in `SOURCE_OWNER_TERMS_EVIDENCE_FOLLOW_UP.md`. Phase 30G browser-based Terms evidence collection is tracked in `HOSE_FPT_TERMS_EVIDENCE_COLLECTION.md`.
 
 ## 1. Current Source Evidence Record
 
@@ -22,9 +22,9 @@ Phase 30C exact-source review is tracked in `EXACT_SOURCE_LEGAL_REVIEW_PACK.md`.
 | Production approved | `false` |
 | Exact source | Phase 30D selected review candidate: HOSE-hosted FPT Corporation Annual Report 2025 disclosure page; still pending legal/ToS/rights confirmation and not approved for ingestion/runtime use |
 | Official source URL | `https://www.hsx.vn/en/tin-tuc/fpt-annual-report-2025/2451668` |
-| Report/file URL | pending manual review; not downloaded or committed |
-| License | Not reviewed |
-| Terms of Service | Not reviewed |
+| Report/file URL | Found on FPT IR page: `https://fpt.com.vn/-/media/project/fpt-corporation/fpt/ir/information-disclosures/year-report/2026/april/annual-report-2025.pdf`; not downloaded or committed |
+| License | Not reviewed; no explicit license found; FPT Terms of Use restrict commercial use |
+| Terms of Service | FPT Terms of Use found at `https://fpt.com.vn/en/terms-of-use`; HOSE terms not found (JavaScript SPA); see `HOSE_FPT_TERMS_EVIDENCE_COLLECTION.md` |
 | Runtime display rights | Unknown |
 | Caching/storage rights | Unknown |
 | Redistribution rights | Unknown |
@@ -40,6 +40,7 @@ Phase 30C exact-source review is tracked in `EXACT_SOURCE_LEGAL_REVIEW_PACK.md`.
 | Phase 30D Vietnam source selection | `docs/product/OFFICIAL_FILING_SOURCE_SELECTION_VIETNAM_PILOT.md` |
 | Phase 30E evidence approval update | `docs/product/EXACT_SOURCE_EVIDENCE_APPROVAL_UPDATE.md` |
 | Phase 30F-A source-owner follow-up | `docs/product/SOURCE_OWNER_TERMS_EVIDENCE_FOLLOW_UP.md` |
+| Phase 30G terms evidence collection | `docs/product/HOSE_FPT_TERMS_EVIDENCE_COLLECTION.md` |
 
 The corresponding code registry entry is in `src/lib/data-sources/source-policy.ts` under `official-disclosure-financials-pilot`. Phase 30E and Phase 30F-A do not change code status because the safe registry state is already conservative: `usageStatus:needs_legal_review`, `evidenceStatus:missing`, and `productionApproved:false` behavior.
 

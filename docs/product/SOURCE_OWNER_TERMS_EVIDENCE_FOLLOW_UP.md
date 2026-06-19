@@ -6,6 +6,8 @@ Phase: 30F-A - Source Owner/Terms Evidence Collection Follow-up
 
 This document is a source-owner and reviewer evidence collection pack for the Vietnam official filing pilot. It does not approve, ingest, scrape, download, parse, display, or store real source data. It does not create a fixture, ingestion route, live adapter, Prisma schema change, migration, or runtime behavior.
 
+Phase 30G browser-based Terms evidence collection is recorded in `HOSE_FPT_TERMS_EVIDENCE_COLLECTION.md`. That phase found FPT Terms of Use (restricting commercial use without written agreement), FPT copyright notice, FPT IR report file URLs, and the FPT Digital Annual Report 2025 site. HOSE Terms were not extractable due to JavaScript SPA rendering. Status remains `needs_legal_review`; `productionApproved:false`.
+
 ## 1. Phase 30F-A Summary
 
 Candidate: HOSE-hosted FPT Corporation Annual Report 2025 disclosure page.
