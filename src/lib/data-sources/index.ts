@@ -13,3 +13,4 @@ export * from "./source-evidence";
 export * from "./source-policy";
 export * from "./stale-thresholds";
 export * from "./types";
+export * from "./valuation-api-client";

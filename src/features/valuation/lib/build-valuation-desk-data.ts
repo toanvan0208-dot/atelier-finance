@@ -23,6 +23,14 @@ const metricDisplay = (metric: FinancialMetricResult): string => {
   return missingValueLabel;
 };
 
+const valuationMetricDisplay = (
+  metric: FinancialMetricResult,
+  requiredValue?: number | null,
+): string => {
+  if (requiredValue === null || requiredValue === undefined) return missingValueLabel;
+  return metricDisplay(metric);
+};
+
 const compactMissingFields = (fields: string[]): string => (fields.length > 0 ? fields.join(", ") : "không có");
 
 const confidenceLabel = (confidence: CoreValuationConfidence): "Cao" | "Trung bình" | "Thấp" => {
@@ -58,6 +66,7 @@ export const buildValuationDeskData = (
   const enterpriseValue = calculateEnterpriseValue(logicInput);
   const evToEbitda = calculateEvToEbitda(logicInput);
   const bvps = calculateBvps(logicInput);
+  const peDisplay = valuationMetricDisplay(peRatio, logicInput.eps);
 
   const readinessWarnings = [
     ...summary.readiness.warnings,
@@ -144,7 +153,7 @@ export const buildValuationDeskData = (
       {
         name: "P/E",
         role: "Chính",
-        explanation: `${metricDisplay(peRatio)}. ${firstWarning(peRatio, "P/E chỉ là chỉ số so sánh, không tự tạo kết luận hành động.")}`,
+        explanation: `${peDisplay}. ${firstWarning(peRatio, "P/E chỉ là chỉ số so sánh, không tự tạo kết luận hành động.")}`,
         confidence: peRatio.value === null ? "Thấp" : confidenceLabel(adjustedConfidence),
       },
       {
@@ -178,7 +187,7 @@ export const buildValuationDeskData = (
         {
           method: "P/E",
           keyAssumption: firstWarning(peRatio, "Chỉ đọc khi EPS dương và lợi nhuận không bị bóp méo bởi yếu tố bất thường."),
-          range: metricDisplay(peRatio),
+          range: peDisplay,
           confidence: peRatio.value === null ? "Thấp" : confidenceLabel(adjustedConfidence),
           risk: `Thiếu hoặc yếu: ${compactMissingFields(peRatio.missingFields)}.`,
         },
