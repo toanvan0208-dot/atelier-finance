@@ -161,6 +161,8 @@ Phase 31L adds a manual Vnstock export-to-local-import bridge for market price r
 
 Phase 31M verifies the manual Vnstock export/import bridge end-to-end with fake CSV dry-run only; no real data, DB write, network call, public trigger, or production approval is added.
 
+Phase 31N adds a first real manual export trial guide for dry-run-only validation of user-provided Vnstock CSV/JSON outside the repo; it does not add a fetcher, run `--write`, write DB data, or approve production use.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot

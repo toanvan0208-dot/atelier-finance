@@ -294,3 +294,7 @@ Phase 31L adds a manual export/import bridge for market prices. It reads user-pr
 ## 22. Phase 31M Manual Import E2E Verification
 
 Phase 31M verifies the manual file import path end to end in dry-run mode with fake CSV data. It adds no real data source, DB write, direct Vnstock call, public trigger, or production source approval.
+
+## 23. Phase 31N First Real Manual Export Trial Guide
+
+Phase 31N documents the first real local manual export trial process. The app still does not call Vnstock directly, real data files must not be committed, and the trial remains dry-run only.

@@ -123,3 +123,7 @@ The same raw contract applies to manual CSV/JSON file imports added in Phase 31L
 ## 9. Phase 31M Local Dry-Run Verification
 
 Phase 31M verified the manual file import path against this contract using fake sample CSV data only. The dry-run covered valid rows, missing numeric values, invalid numeric values, wrong ticker filtering, and invalid date rejection without a real fetcher, network call, or DB write.
+
+## 10. Phase 31N First Real Manual Export Trial
+
+The first user-provided real CSV/JSON dry-run must conform to this contract before any future write phase is considered. Real exports remain outside committed source and are treated as user-provided local research data.

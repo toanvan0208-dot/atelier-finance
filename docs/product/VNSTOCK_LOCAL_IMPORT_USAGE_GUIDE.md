@@ -415,3 +415,7 @@ Phase 31M verifies the manual export/import bridge end to end with a fake CSV sa
 - Repo hygiene stayed clean except for intentional docs/sample changes.
 
 Before using a real user-provided CSV/JSON export, run dry-run first, review warnings/counts, and do not commit the CSV/JSON export, local DB, or generated output. Use `--write` only after the dry-run is understood and the source boundary is acceptable for local academic research.
+
+## 23. Phase 31N First Real Manual Export Trial Guide
+
+Phase 31N adds `docs/product/VNSTOCK_FIRST_REAL_MANUAL_EXPORT_TRIAL_GUIDE.md` for the first user-provided real CSV/JSON trial. Real export files should stay outside the repo, dry-run is required first, `--write` is not used in this phase, no DB write is performed, and `productionApproved:false` remains mandatory.
