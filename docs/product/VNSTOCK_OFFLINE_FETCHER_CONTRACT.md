@@ -127,3 +127,7 @@ Phase 31M verified the manual file import path against this contract using fake 
 ## 10. Phase 31N First Real Manual Export Trial
 
 The first user-provided real CSV/JSON dry-run must conform to this contract before any future write phase is considered. Real exports remain outside committed source and are treated as user-provided local research data.
+
+## 11. Phase 31O First Real CSV Dry-Run Review
+
+The first real user-provided CSV dry-run conformed to this contract enough to normalize `17` FPT rows with `0` rejected rows. This is still local academic/research validation only and does not approve any production source.

@@ -175,3 +175,17 @@ Phase 31N does not:
 - Add UI, API, cron, or scheduler behavior.
 - Approve any production source.
 - Commit real data.
+
+## 12. Phase 31O First Real CSV Dry-Run Review
+
+The first real user-provided CSV dry-run is recorded in `docs/product/VNSTOCK_FIRST_REAL_CSV_DRY_RUN_REVIEW.md`.
+
+Summary:
+
+- Ticker `FPT`, requested range `2025-01-01` to `2025-01-31`.
+- Real CSV file stayed outside the repo at `D:\fpt-market-prices.csv`.
+- `normalizedCount` was `17`.
+- `rejectedCount` was `0`.
+- No DB rows were written.
+- `--write` was not used.
+- `productionApproved:false` remained in the command result.

@@ -60,7 +60,7 @@ Phase 30H adds an academic/local/research data boundary for AI disclosure. Curre
 | productionApproved | `false` |
 | attributionRequired | `true` |
 | runtimeUse | `local_command_only` / `dry_run_manual_file_import` |
-| implementationStatus | `first_real_manual_export_trial_guided` |
+| implementationStatus | `first_real_csv_dry_run_reviewed` |
 | dataCategories | `market_prices_research_only` |
 | persistence | `local_database_only` |
 | publicRuntime | `not_enabled` |
@@ -68,6 +68,7 @@ Phase 30H adds an academic/local/research data boundary for AI disclosure. Curre
 | fixtureData | `fake_sample_only` |
 | dataInputMode | `user_provided_manual_export` |
 | fileImport | `csv_json` |
+| firstRealDryRun | `ticker:FPT`, `dateRange:2025-01-01_to_2025-01-31`, `normalizedCount:17`, `rejectedCount:0`, `dbWrite:false` |
 | realDataCommitAllowed | `false` |
 | nextDecision | `manual_export_bridge_or_offline_contract_or_python_bridge` |
 | financialStatements | `out_of_scope_for_31E` |
@@ -76,6 +77,7 @@ Phase 30H adds an academic/local/research data boundary for AI disclosure. Curre
 | realFetcherAudit | `docs/product/VNSTOCK_REAL_FETCHER_FEASIBILITY_AUDIT.md` |
 | offlineContract | `docs/product/VNSTOCK_OFFLINE_FETCHER_CONTRACT.md` |
 | firstRealManualExportTrialGuide | `docs/product/VNSTOCK_FIRST_REAL_MANUAL_EXPORT_TRIAL_GUIDE.md` |
+| firstRealCsvDryRunReview | `docs/product/VNSTOCK_FIRST_REAL_CSV_DRY_RUN_REVIEW.md` |
 | Notes | Vnstock is planned as a local/academic research connector candidate only; original data rights may belong to upstream providers. |
 
 ## 2. Required Evidence Before Approval

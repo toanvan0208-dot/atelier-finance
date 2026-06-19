@@ -419,3 +419,15 @@ Before using a real user-provided CSV/JSON export, run dry-run first, review war
 ## 23. Phase 31N First Real Manual Export Trial Guide
 
 Phase 31N adds `docs/product/VNSTOCK_FIRST_REAL_MANUAL_EXPORT_TRIAL_GUIDE.md` for the first user-provided real CSV/JSON trial. Real export files should stay outside the repo, dry-run is required first, `--write` is not used in this phase, no DB write is performed, and `productionApproved:false` remains mandatory.
+
+## 24. Phase 31O First Real CSV Dry-Run Review
+
+Phase 31O records the first real user-provided CSV dry-run review in `docs/product/VNSTOCK_FIRST_REAL_CSV_DRY_RUN_REVIEW.md`.
+
+- A real user-provided CSV outside the repo was dry-run successfully for `FPT`.
+- The requested range was `2025-01-01` to `2025-01-31`.
+- The command normalized `17` records and rejected `0` records.
+- `--write` was not used.
+- No DB write occurred.
+- Out-of-range December 2024 rows were skipped correctly.
+- Future `--write` requires a separate reviewed phase.

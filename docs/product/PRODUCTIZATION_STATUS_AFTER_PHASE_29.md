@@ -163,6 +163,8 @@ Phase 31M verifies the manual Vnstock export/import bridge end-to-end with fake 
 
 Phase 31N adds a first real manual export trial guide for dry-run-only validation of user-provided Vnstock CSV/JSON outside the repo; it does not add a fetcher, run `--write`, write DB data, or approve production use.
 
+Phase 31O records the first real user-provided Vnstock CSV dry-run for FPT over `2025-01-01` to `2025-01-31`; `17` records normalized, `0` rejected, no DB write, no `--write`, no direct Vnstock fetcher, and `productionApproved` remains `false`.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot

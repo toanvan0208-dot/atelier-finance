@@ -298,3 +298,7 @@ Phase 31M verifies the manual file import path end to end in dry-run mode with f
 ## 23. Phase 31N First Real Manual Export Trial Guide
 
 Phase 31N documents the first real local manual export trial process. The app still does not call Vnstock directly, real data files must not be committed, and the trial remains dry-run only.
+
+## 24. Phase 31O First Real CSV Dry-Run Review
+
+Phase 31O records the first real user-provided CSV dry-run review. The app still does not call Vnstock directly, the real fetcher remains not configured, and source metadata remains academic/local research with `productionApproved:false`.
