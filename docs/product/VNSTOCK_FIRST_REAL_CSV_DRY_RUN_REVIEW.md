@@ -120,3 +120,7 @@ Phase 31O does not:
 - Commit a real CSV file.
 - Commit raw data.
 - Add recommendation or signal logic.
+
+## 10. Phase 31P First Local DB Write Trial Plan
+
+Phase 31P adds `docs/product/VNSTOCK_FIRST_LOCAL_DB_WRITE_TRIAL_PLAN.md` to plan a future first local DB write trial. It documents backup/reset checks, repo hygiene checks, expected output, and Phase 31Q acceptance criteria, but it does not run `--write` or write DB data.

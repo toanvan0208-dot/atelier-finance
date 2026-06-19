@@ -431,3 +431,14 @@ Phase 31O records the first real user-provided CSV dry-run review in `docs/produ
 - No DB write occurred.
 - Out-of-range December 2024 rows were skipped correctly.
 - Future `--write` requires a separate reviewed phase.
+
+## 25. Phase 31P First Local DB Write Trial Plan
+
+Phase 31P adds `docs/product/VNSTOCK_FIRST_LOCAL_DB_WRITE_TRIAL_PLAN.md`.
+
+- `--write` is documented only as a future candidate command.
+- Phase 31P does not run write mode.
+- Phase 31P does not write DB data.
+- DB reset/backup and repo hygiene checks are required before any future write phase.
+- The real CSV must remain outside the repo.
+- `productionApproved:false` remains mandatory.

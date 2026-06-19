@@ -302,3 +302,7 @@ Phase 31N documents the first real local manual export trial process. The app st
 ## 24. Phase 31O First Real CSV Dry-Run Review
 
 Phase 31O records the first real user-provided CSV dry-run review. The app still does not call Vnstock directly, the real fetcher remains not configured, and source metadata remains academic/local research with `productionApproved:false`.
+
+## 25. Phase 31P First Local DB Write Trial Plan
+
+Phase 31P plans the first local DB write trial for the reviewed user-provided CSV. It does not run `--write`, the real fetcher remains not configured, and the app still does not call Vnstock directly.
