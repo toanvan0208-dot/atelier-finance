@@ -16,3 +16,4 @@ export * from "./source-policy";
 export * from "./stale-thresholds";
 export * from "./types";
 export * from "./valuation-api-client";
+export * from "./vnstock-research-connector";

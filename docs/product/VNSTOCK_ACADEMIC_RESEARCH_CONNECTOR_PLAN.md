@@ -177,3 +177,17 @@ Phase 31A is complete when:
 ## 10. Relationship To Phase 30H
 
 This plan follows `docs/product/ACADEMIC_DATA_BOUNDARY_FOR_AI_DISCLOSURE.md`. Vnstock is treated as an academic/research connector candidate under the Phase 30H boundary. It must be described as a third-party tool for local academic validation, not as a source approved for deployed commercial product data.
+
+## 11. Phase 31B Implementation Status
+
+Phase 31B adds a Vnstock research connector skeleton only:
+
+- Skeleton added in `src/lib/data-sources/vnstock-research-connector.ts`.
+- Fail-closed by default.
+- Network/data fetch disabled.
+- No Vnstock dependency.
+- No runtime ingestion.
+- No production approval.
+- Unit tests verify default disabled behavior, network-disabled behavior, metadata classification, and permanent false production approval.
+
+Future Phase 31C may add controlled local research fetch only after explicit approval.

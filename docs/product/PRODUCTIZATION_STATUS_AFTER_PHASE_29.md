@@ -137,6 +137,8 @@ Vnstock may improve local academic validation by helping plan market, profile, a
 
 Any future implementation should be fail-closed, disabled by default, metadata-first, and limited to academic/local research boundaries until explicit review allows more.
 
+Phase 31B adds a fail-closed Vnstock research connector skeleton only; it does not add live data fetch or source approval for deployed product use.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot
