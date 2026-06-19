@@ -274,3 +274,7 @@ Phase 31H wires an explicit local TypeScript script runner for the Vnstock resea
 - No public API, UI trigger, cron, scheduler, or app-start import is added.
 - No production source approval is added; `productionApproved:false` remains mandatory.
 - The command remains safety-flag gated and fails closed without a configured fetcher.
+
+## 18. Phase 31I Smoke Test Verification
+
+Phase 31I smoke tests confirm the local npm command runner fails closed for missing ACK/env, missing fetcher, and missing required args. No real fetcher, network call, DB write, public trigger, or production source approval is added.

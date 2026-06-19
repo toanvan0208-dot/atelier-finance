@@ -342,3 +342,16 @@ Remove-Item Env:VNSTOCK_RESEARCH_ALLOW_NETWORK
 Remove-Item Env:VNSTOCK_RESEARCH_MODE
 Remove-Item Env:VNSTOCK_RESEARCH_LOCAL_IMPORT_ACK
 ```
+
+## 18. Phase 31I Smoke Test Results
+
+Phase 31I verifies the local npm script wiring with safe smoke tests:
+
+- The npm script executes successfully and reaches the local command runner.
+- Missing env/ACK fails closed with `local_import_ack_required`.
+- ACK plus local research env, but no injected fetcher, fails closed with `fetcher_not_configured`.
+- Missing required args fails usage validation before any fetch or persistence path.
+- Dry-run remains the default; `--write` was not used in smoke tests.
+- No DB write, network/Vnstock call, scrape, download, or raw output file is expected from these checks.
+- No raw output, local DB, generated Prisma, or `tsconfig.tsbuildinfo` file should be committed.
+- `productionApproved:false` remains mandatory.
