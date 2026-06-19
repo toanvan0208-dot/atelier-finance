@@ -59,8 +59,8 @@ Phase 30H adds an academic/local/research data boundary for AI disclosure. Curre
 | legalStatus | `needs_review` |
 | productionApproved | `false` |
 | attributionRequired | `true` |
-| runtimeUse | `local_command_only` / `file_import_only` / `disabled_by_default` |
-| implementationStatus | `manual_export_import_bridge` |
+| runtimeUse | `local_command_only` / `file_import_dry_run_verified` |
+| implementationStatus | `manual_export_import_dry_run_verified` |
 | dataCategories | `market_prices_research_only` |
 | persistence | `local_database_only` |
 | publicRuntime | `not_enabled` |

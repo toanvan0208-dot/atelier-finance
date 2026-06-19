@@ -159,6 +159,8 @@ Phase 31K defines an offline fetcher contract and fake/sample fixture for future
 
 Phase 31L adds a manual Vnstock export-to-local-import bridge for market price research data; it reads user-provided local CSV/JSON files, keeps dry-run default, and does not add a real fetcher, network call, public trigger, or production approval.
 
+Phase 31M verifies the manual Vnstock export/import bridge end-to-end with fake CSV dry-run only; no real data, DB write, network call, public trigger, or production approval is added.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot

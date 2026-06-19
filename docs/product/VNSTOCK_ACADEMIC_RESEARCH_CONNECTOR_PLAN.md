@@ -290,3 +290,7 @@ Phase 31K adds `docs/product/VNSTOCK_OFFLINE_FETCHER_CONTRACT.md` and a fake/sam
 ## 21. Phase 31L Manual Export/Import Bridge
 
 Phase 31L adds a manual export/import bridge for market prices. It reads user-provided local CSV/JSON files, validates them against the offline contract, and does not call Vnstock directly.
+
+## 22. Phase 31M Manual Import E2E Verification
+
+Phase 31M verifies the manual file import path end to end in dry-run mode with fake CSV data. It adds no real data source, DB write, direct Vnstock call, public trigger, or production source approval.

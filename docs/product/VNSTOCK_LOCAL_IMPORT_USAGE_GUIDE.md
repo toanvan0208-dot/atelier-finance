@@ -397,3 +397,21 @@ Write example, only after reviewing dry-run output:
 ```bash
 npm run import:market-prices:vnstock:local -- --ticker FPT --from 2025-01-01 --to 2025-01-31 --file ./path/to/fpt-market-prices.csv --format csv --write
 ```
+
+## 22. Phase 31M End-To-End Local Dry-Run Verification
+
+Phase 31M verifies the manual export/import bridge end to end with a fake CSV sample:
+
+- Fake sample file: `docs/product/templates/vnstock-market-prices-sample.fake.csv`.
+- Command ran through the npm local import script with safety env flags and local import acknowledgement.
+- `--write` was not used.
+- The report returned `dryRun:true` and `productionApproved:false`.
+- Valid FPT rows normalized.
+- Missing numeric values stayed `null`.
+- Invalid numeric value `low=abc` produced a warning and normalized to `null`.
+- Wrong ticker `HPG` was skipped with a warning when `--ticker FPT` was requested.
+- Invalid date was rejected with a warning.
+- No DB write, network/Vnstock call, scrape, download, raw output file, public trigger, or production approval was added.
+- Repo hygiene stayed clean except for intentional docs/sample changes.
+
+Before using a real user-provided CSV/JSON export, run dry-run first, review warnings/counts, and do not commit the CSV/JSON export, local DB, or generated output. Use `--write` only after the dry-run is understood and the source boundary is acceptable for local academic research.

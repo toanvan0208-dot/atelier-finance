@@ -119,3 +119,7 @@ A future real fetcher can be considered only if it:
 ## 8. Phase 31L Manual Export/Import Bridge
 
 The same raw contract applies to manual CSV/JSON file imports added in Phase 31L. Manual exports are user-provided local research files, not app-fetched data. CSV uses the columns `ticker,date,open,high,low,close,volume,tradingValue`; JSON uses an array of objects with the same fields. Extra fields are ignored safely, and recommendation/rating/target/action fields remain out of scope.
+
+## 9. Phase 31M Local Dry-Run Verification
+
+Phase 31M verified the manual file import path against this contract using fake sample CSV data only. The dry-run covered valid rows, missing numeric values, invalid numeric values, wrong ticker filtering, and invalid date rejection without a real fetcher, network call, or DB write.
