@@ -6,6 +6,8 @@ Phase: 30E - Exact Source Evidence Approval Update
 
 This document updates the exact-source evidence state for the Vietnam official filing pilot. It does not call an external API, scrape a website, download a report, parse a real PDF/Excel file, commit raw/source data, write to the database, approve production use, or change runtime behavior.
 
+Phase 30F-A source-owner and Terms evidence collection follow-up is tracked in `SOURCE_OWNER_TERMS_EVIDENCE_FOLLOW_UP.md`.
+
 ## 1. Phase 30E Summary
 
 Candidate: HOSE-hosted FPT Corporation Annual Report 2025 disclosure page.
@@ -126,6 +128,8 @@ The user or legal/source reviewer must provide or confirm:
 Recommended next phase: Phase 30F - Source Owner/Terms Evidence Collection Follow-up.
 
 This is the safest next phase because legal, display, storage/cache, derived-data, redistribution, automated access, manual fixture, and attribution evidence are still missing. Do not proceed to ingestion while those rights remain unknown.
+
+Phase 30F-A implements this follow-up as a docs-only evidence tracker in `SOURCE_OWNER_TERMS_EVIDENCE_FOLLOW_UP.md`. It does not change the final status from `needs_legal_review`.
 
 Alternative Phase 30F paths are conditional only:
 

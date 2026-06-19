@@ -6,7 +6,7 @@ Phase: 30D - Official Filing Source Selection - Vietnam Pilot
 
 This document narrows the Phase 30A-30C source direction for a Vietnam financial-statement pilot. It does not call a live API, scrape, download a report, parse a real PDF/Excel file, write real financial data to the database, approve a production source, or change runtime behavior.
 
-Phase 30E exact-source evidence and permission state is tracked in `EXACT_SOURCE_EVIDENCE_APPROVAL_UPDATE.md`.
+Phase 30E exact-source evidence and permission state is tracked in `EXACT_SOURCE_EVIDENCE_APPROVAL_UPDATE.md`. Phase 30F-A source-owner and Terms evidence collection follow-up is tracked in `SOURCE_OWNER_TERMS_EVIDENCE_FOLLOW_UP.md`.
 
 ## 1. Decision Summary
 
@@ -53,6 +53,7 @@ Selected review candidate:
 | Review status | `needs_legal_review` |
 | Production approval | `false` |
 | Phase 30E evidence update | `docs/product/EXACT_SOURCE_EVIDENCE_APPROVAL_UPDATE.md`; no promotion because license, Terms, display, storage/cache, derived-data, redistribution, automated access, manual fixture, and attribution evidence remain unresolved |
+| Phase 30F-A evidence follow-up | `docs/product/SOURCE_OWNER_TERMS_EVIDENCE_FOLLOW_UP.md`; docs-only tracker for HOSE/FPT questions and reviewer sign-off |
 
 Rationale:
 
@@ -169,3 +170,5 @@ Alternative:
 Do not proceed to ingestion until legal, storage/cache, runtime display, and derived-data rights are clear.
 
 After Phase 30E, the recommended follow-up is Phase 30F - Source Owner/Terms Evidence Collection Follow-up unless the user/reviewer explicitly confirms manual-reviewed local fixture rights.
+
+Phase 30F-A creates the source-owner/Terms evidence tracker and keeps the candidate at `needs_legal_review`.
