@@ -169,6 +169,8 @@ Phase 31P plans the first local DB write trial for the reviewed FPT CSV dry-run,
 
 Phase 31Q executes the first local DB write trial for reviewed user-provided Vnstock CSV data, limited to FPT over `2025-01-01` to `2025-01-31`; DB write counts are verified locally, CSV/DB files are not committed, no direct fetcher/public trigger is added, and `productionApproved` remains `false`.
 
+Phase 31R verifies a local DB read path for manually imported Vnstock market price data, preserving `research_only`/source metadata and null-safe behavior; it does not add a direct fetcher, public API/UI trigger, DB write, or production approval.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot

@@ -454,3 +454,13 @@ Phase 31Q records the first local DB write trial in `docs/product/VNSTOCK_FIRST_
 - DB verification found `17` FPT `research_only` rows in range and no FPT `research_only` rows outside range.
 - No public trigger, real fetcher, or production source approval was added.
 - CSV and DB files were not staged or committed.
+
+## 27. Phase 31R Market Price DB Read Path Verification
+
+Phase 31R adds `docs/product/MARKET_PRICE_DB_READ_PATH_VERIFICATION.md` and verifies a local DB read service for manually imported market price rows.
+
+- Use the read path/service verification before connecting imported data to UI.
+- The service reads `MarketPrice` rows by ticker/date/source/data mode.
+- It preserves `null` numeric values.
+- It keeps `productionApproved:false` at the service output layer.
+- It does not call Vnstock, fetch network data, write DB rows, or add a public trigger.

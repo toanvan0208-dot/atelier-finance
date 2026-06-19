@@ -112,3 +112,14 @@ Phase 31Q did not:
 - Import all-market data.
 - Import financial statements or fundamentals.
 - Add recommendation or signal logic.
+
+## 8. Phase 31R Market Price DB Read Path Verification
+
+Phase 31R verifies the DB read path after the first local write. The verification is recorded in `docs/product/MARKET_PRICE_DB_READ_PATH_VERIFICATION.md`.
+
+Summary:
+
+- A read service can query FPT `research_only` market price rows from the local DB.
+- The service filters by ticker, date range, `sourceLabel`, and `dataMode`.
+- The service preserves `null` values and keeps `productionApproved:false` at the output layer.
+- Optional local DB verification read `17` FPT rows for the reviewed range without writing DB data.
