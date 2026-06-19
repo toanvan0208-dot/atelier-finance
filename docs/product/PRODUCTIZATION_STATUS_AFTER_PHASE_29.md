@@ -149,6 +149,8 @@ Phase 31F documents safe local usage, dry-run/write workflows, verification chec
 
 Phase 31G audits local script runner wiring for Vnstock research market price import; it does not add a real fetcher, public trigger, dependency, npm script, or production data approval.
 
+Phase 31H wires an explicit local TypeScript script runner for the Vnstock research market price import command; it does not add a real fetcher, public trigger, automatic import, or production data approval.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot

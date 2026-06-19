@@ -13,6 +13,7 @@
     "db:migrate": "prisma db execute --file prisma/migrations/20260618162000_phase_29e_local_database_foundation/migration.sql",
     "db:seed": "prisma db execute --file prisma/seed.sql",
     "db:reset": "node scripts/reset-local-db.mjs",
+    "import:market-prices:vnstock:local": "tsx scripts/import-vnstock-market-prices.ts",
     "test": "vitest run",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui"
@@ -35,6 +36,7 @@
     "postcss": "8.5.4",
     "prisma": "^7.8.0",
     "tailwindcss": "3.4.17",
+    "tsx": "^4.22.4",
     "typescript": "5.8.3",
     "vitest": "^4.1.8"
   }

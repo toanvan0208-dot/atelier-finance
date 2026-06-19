@@ -4,7 +4,7 @@ Date: 2026-06-19
 
 Phase: 31F - Local Import Usage Guide And Verification Checklist
 
-This document explains how to use the local-only Vnstock research market price import command safely. It is documentation only. It does not add a real fetcher, install a dependency, change runtime code, expose an API, add a UI trigger, create a cron job, seed real data, or approve any production source.
+This document explains how to use the local-only Vnstock research market price import command safely. It documents the Phase 31H local runner wiring. It does not add a real fetcher, change runtime code, expose an API, add a UI trigger, create a cron job, seed real data, or approve any production source.
 
 ## 1. Purpose
 
@@ -74,29 +74,29 @@ If any variable is missing or different, the command must fail closed and must n
 
 ## 5. Command Usage
 
-`package.json` does not currently include an import npm script because the repo does not have a TypeScript script runner dependency such as `tsx` or `ts-node`. Phase 31F does not add such a dependency.
+`package.json` includes a local-only import npm script after Phase 31H:
 
 Current state:
 
 - The repo has a script wrapper: `scripts/import-vnstock-market-prices.ts`.
-- No npm command is wired for this wrapper yet.
-- Do not run `npm install` just to execute this script unless a later phase explicitly chooses that tooling.
-- Direct script execution depends on tooling available in a developer's local environment.
-- If a later phase adds script runner wiring, it should use a clear local/research npm script name and should not add a fetcher by accident.
+- The repo uses `tsx` as a dev-only TypeScript script runner.
+- The local npm script is `import:market-prices:vnstock:local`.
+- The script only runs the local command wrapper; it does not add a real fetcher.
+- The script is not part of `dev`, `build`, `test`, `lint`, `postinstall`, or seed workflows.
 
-Conceptual dry-run usage:
-
-```bash
-node/tsx equivalent scripts/import-vnstock-market-prices.ts --ticker FPT --from 2025-01-01 --to 2025-01-31
-```
-
-Conceptual write usage:
+Dry-run usage:
 
 ```bash
-node/tsx equivalent scripts/import-vnstock-market-prices.ts --ticker FPT --from 2025-01-01 --to 2025-01-31 --write
+npm run import:market-prices:vnstock:local -- --ticker FPT --from 2025-01-01 --to 2025-01-31
 ```
 
-The exact command depends on the script runner chosen by the repo. Do not add a new dependency casually.
+Write usage:
+
+```bash
+npm run import:market-prices:vnstock:local -- --ticker FPT --from 2025-01-01 --to 2025-01-31 --write
+```
+
+Dry-run remains the default. `--write` must be explicit.
 
 ## 6. Dry-Run Workflow
 
@@ -221,7 +221,7 @@ The AI must not turn PVT or imported market prices into a trading instruction.
 | Missing `--ticker`, `--from`, or `--to` | Re-run with one specific ticker and explicit date range. |
 | `dev.db` locked by dev server | Stop the dev server before database reset or write import work. |
 | `db:reset` changes local data | This is expected; it resets local SQLite state. Do not use it when local records must be preserved. |
-| Command runner unavailable | No `tsx`/`ts-node` script is configured in `package.json`; choose script runner wiring in a later phase. |
+| Command runner unavailable | After Phase 31H, `tsx` should be available through the local npm script. If unavailable, reinstall dependencies from the npm lockfile before running local checks. |
 | Unexpected DB/generated files in `git status` | Restore or exclude generated/local artifacts before final review; do not commit them. |
 
 ## 14. What Phase 31F Does Not Do
@@ -239,9 +239,9 @@ Phase 31F does not:
 - Process financial statements or fundamentals.
 - Seed real data.
 
-## 15. Next Phase Proposal
+## 15. Historical Next Phase Proposal
 
-Recommended next phase: Phase 31G - Local Script Runner Wiring Or Real Fetcher Decision.
+At the end of Phase 31F, the recommended next phase was Phase 31G - Local Script Runner Wiring Or Real Fetcher Decision.
 
 Option A - Add script runner wiring:
 
@@ -260,31 +260,85 @@ Option B - Add a real local research fetcher adapter:
 
 Phase 31G reviewed whether the local import wrapper should be wired into `package.json`.
 
-Package audit result:
+Package audit result at the time of Phase 31G:
 
 - `package.json` does not include `tsx`.
 - `package.json` does not include `ts-node`.
 - `package.json` does not include another TypeScript script runner for `scripts/*.ts`.
 - Existing script workflow uses Node for `.mjs` database tooling, such as `scripts/reset-local-db.mjs`.
 - Existing npm scripts do not include a comparable local import command.
-- `scripts/import-vnstock-market-prices.ts` exists as a wrapper, but it is not wired to an npm script.
+- At that time, `scripts/import-vnstock-market-prices.ts` existed as a wrapper, but it was not wired to an npm script.
 
-Decision: Option B - runner does not exist.
+Decision at the time: Option B - runner does not exist.
 
-No npm script was added because the repo does not currently have a TypeScript script runner dependency. Adding a script such as `import:market-prices:vnstock:local` would require calling a tool that is not available in the current package setup. Phase 31G also does not add dependencies.
+No npm script was added in Phase 31G because the repo did not yet have a TypeScript script runner dependency. Adding a script such as `import:market-prices:vnstock:local` required a later reviewed dependency decision. Phase 31G also did not add dependencies.
 
-Current usage remains:
+Usage after Phase 31G remained:
 
 - Use `runVnstockMarketPriceImportCommand` as a testable library boundary.
-- Keep `scripts/import-vnstock-market-prices.ts` as an unwired local wrapper.
+- Keep `scripts/import-vnstock-market-prices.ts` as an unwired local wrapper until runner wiring is chosen. Phase 31H later chose npm/`tsx` runner wiring.
 - Do not run real Vnstock fetches by default.
 - Do not expose public API, UI, cron, scheduler, or app-start import.
 - Keep `productionApproved:false`.
 
-A later phase may add npm script wiring only if the repo explicitly chooses a TypeScript script runner. That phase should:
+Phase 31H later chose npm/`tsx` wiring. The follow-up requirements were:
 
 - Add or use a clearly reviewed runner.
 - Use a clear local/research script name.
 - Avoid adding a real fetcher in the same step.
 - Keep all env safety flags and local import acknowledgement.
 - Keep the command out of build, test, dev startup, UI, API, and cron workflows.
+
+## 17. Phase 31H Local Script Runner
+
+Phase 31H adds explicit local script runner wiring:
+
+- `tsx` is added as a dev-only script runner.
+- `package.json` includes `import:market-prices:vnstock:local`.
+- The script only helps run the local command wrapper.
+- The script does not add a real Vnstock fetcher.
+- Dry-run remains the default.
+- `--write` remains explicit.
+- Env safety flags and local import acknowledgement remain required.
+- Without an injected/local fetcher, the command still fails closed with `fetcher_not_configured`.
+- There is no public API, UI button, cron job, scheduler, or app-start import.
+- There is no production source approval; `productionApproved:false` remains mandatory.
+
+Bash-style dry-run example:
+
+```bash
+VNSTOCK_RESEARCH_CONNECTOR_ENABLED=true
+VNSTOCK_RESEARCH_ALLOW_NETWORK=true
+VNSTOCK_RESEARCH_MODE=local_research
+VNSTOCK_RESEARCH_LOCAL_IMPORT_ACK=true
+npm run import:market-prices:vnstock:local -- --ticker FPT --from 2025-01-01 --to 2025-01-31
+```
+
+Bash-style write example:
+
+```bash
+VNSTOCK_RESEARCH_CONNECTOR_ENABLED=true
+VNSTOCK_RESEARCH_ALLOW_NETWORK=true
+VNSTOCK_RESEARCH_MODE=local_research
+VNSTOCK_RESEARCH_LOCAL_IMPORT_ACK=true
+npm run import:market-prices:vnstock:local -- --ticker FPT --from 2025-01-01 --to 2025-01-31 --write
+```
+
+PowerShell dry-run example:
+
+```powershell
+$env:VNSTOCK_RESEARCH_CONNECTOR_ENABLED = "true"
+$env:VNSTOCK_RESEARCH_ALLOW_NETWORK = "true"
+$env:VNSTOCK_RESEARCH_MODE = "local_research"
+$env:VNSTOCK_RESEARCH_LOCAL_IMPORT_ACK = "true"
+npm run import:market-prices:vnstock:local -- --ticker FPT --from 2025-01-01 --to 2025-01-31
+```
+
+PowerShell env cleanup:
+
+```powershell
+Remove-Item Env:VNSTOCK_RESEARCH_CONNECTOR_ENABLED
+Remove-Item Env:VNSTOCK_RESEARCH_ALLOW_NETWORK
+Remove-Item Env:VNSTOCK_RESEARCH_MODE
+Remove-Item Env:VNSTOCK_RESEARCH_LOCAL_IMPORT_ACK
+```
