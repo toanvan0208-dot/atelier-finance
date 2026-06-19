@@ -1,13 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { Button, Card, CardBody, CardHeader, Chip } from "@/components/ui";
+import { FormEvent, useEffect, useMemo, useState } from "react";
+import { Button, Card, CardBody, CardHeader, Chip, EmptyState, LoadingState } from "@/components/ui";
 import { DataQualityBanner } from "@/components/shared/DataQualityBanner";
-import { overviewCaseData, overviewDataQuality } from "../data/overviewCase.data";
+import {
+  fetchOverviewInputsByTicker,
+  OverviewApiError,
+  type OverviewApiInputs,
+} from "@/lib/data-sources/overview-api-client";
+import { baseOverviewCaseData } from "../data/overviewCase.data";
+import { buildOverviewDeskData } from "../lib/build-overview-desk-data";
 import type {
   OverviewActionStatusData,
   OverviewBottleneck,
   OverviewCaseData,
+  OverviewCaseDashboardData,
   OverviewNextBestAction,
   OverviewProgressMapItem,
   OverviewProgressStatus,
@@ -19,6 +27,13 @@ type OverviewPageProps = {
   onNavigate: (key: string) => void;
 };
 
+type OverviewBridgeState =
+  | { status: "loading" }
+  | { status: "ready"; result: OverviewApiInputs; data: OverviewCaseDashboardData }
+  | { status: "insufficient"; result: OverviewApiInputs; data: OverviewCaseDashboardData }
+  | { status: "empty"; ticker: string; missingReasons: string[] }
+  | { status: "error"; ticker: string; message: string };
+
 const progressTone: Record<OverviewProgressStatus, "success" | "warning" | "neutral" | "accent"> = {
   "Hoàn thành sơ bộ": "success",
   "Đang làm": "accent",
@@ -26,6 +41,61 @@ const progressTone: Record<OverviewProgressStatus, "success" | "warning" | "neut
   "Chưa làm": "neutral",
   "Cần quay lại": "warning",
   "Khóa/chưa đủ điều kiện": "neutral",
+};
+
+const metadataLabel = (value: string): string => value.replace(/_/g, " ");
+
+const buildBridgeData = (result: OverviewApiInputs): OverviewCaseDashboardData => {
+  const data = buildOverviewDeskData(baseOverviewCaseData, result.snapshot);
+  const ticker = result.snapshot.ticker ?? result.ticker;
+
+  return {
+    ...data,
+    activeCase: {
+      ...data.activeCase,
+      ticker,
+      companyName: result.companyName,
+      industry: result.industry,
+      temporaryThesis:
+        "Overview dang tong hop trang thai du lieu hien co tu database local, gom ho so cong ty, BCTC moi nhat va gia thi truong moi nhat.",
+      mainWarning:
+        result.missingReasons.length > 0
+          ? `Con thieu du lieu: ${result.missingReasons.join(", ")}.`
+          : "Du lieu hien co van can kiem tra nguon, moc thoi gian va trang thai readiness.",
+    },
+    progressMap: data.progressMap.map((item) => ({
+      ...item,
+      summary:
+        item.id === "financials"
+          ? "Doc tu API financials latest."
+          : item.id === "valuation"
+            ? "Doc tu financials latest va market-prices latest."
+            : item.id === "risk" || item.id === "technical" || item.id === "checklist"
+              ? "Chua noi API trong phase nay."
+              : "Chua doi nguon du lieu trong phase nay.",
+    })),
+    support: {
+      watchlist: [
+        {
+          ticker,
+          status: metadataLabel(result.metadata.readiness),
+          note: "Du lieu local can duoc xem cung metadata nguon.",
+        },
+      ],
+      learning: [
+        {
+          title: "Kiem tra nguon va moc du lieu",
+          reason: "Overview dang uu tien doc metadata truoc khi mo module chi tiet.",
+          moduleKey: "learning",
+        },
+      ],
+      profile: {
+        status: "needs_review",
+        message: "Ho so phan tich khong duoc dung de thay the source/readiness cua du lieu.",
+        moduleKey: "route-config",
+      },
+    },
+  };
 };
 
 function CurrentCaseHero({ data }: { data: OverviewCaseData }) {
@@ -375,24 +445,141 @@ function OverviewSupportPanel({
 }
 
 export function OverviewPage({ onNavigate }: OverviewPageProps) {
-  const data = overviewCaseData;
+  const [tickerInput, setTickerInput] = useState("FPTLAB");
+  const [request, setRequest] = useState({ ticker: "FPTLAB", id: 0 });
+  const [bridgeState, setBridgeState] = useState<OverviewBridgeState>({ status: "loading" });
+  const activeTicker = request.ticker;
+
+  useEffect(() => {
+    let isActive = true;
+
+    fetchOverviewInputsByTicker({ ticker: activeTicker })
+      .then((result) => {
+        if (!isActive) return;
+        if (result.missingReasons.includes("company")) {
+          setBridgeState({ status: "empty", ticker: activeTicker, missingReasons: result.missingReasons });
+          return;
+        }
+
+        const data = buildBridgeData(result);
+        setBridgeState({
+          status: result.status === "ready" ? "ready" : "insufficient",
+          result,
+          data,
+        });
+      })
+      .catch((error: unknown) => {
+        if (!isActive) return;
+        const message =
+          error instanceof OverviewApiError
+            ? error.message
+            : "Unable to load overview inputs from persisted data.";
+        setBridgeState({ status: "error", ticker: activeTicker, message });
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, [activeTicker, request.id]);
+
+  const metadataChips = useMemo(() => {
+    if (bridgeState.status !== "ready" && bridgeState.status !== "insufficient") return [];
+    const { metadata } = bridgeState.result;
+    return [
+      `dataMode: ${metadataLabel(metadata.dataMode)}`,
+      `sourceType: ${metadataLabel(metadata.sourceType)}`,
+      `quality: ${metadataLabel(metadata.qualityStatus)}`,
+      `readiness: ${metadataLabel(metadata.readiness)}`,
+      `fallback: ${String(metadata.fallback)}`,
+    ];
+  }, [bridgeState]);
+
+  const submitTicker = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const nextTicker = tickerInput.trim().toUpperCase();
+    if (!nextTicker) return;
+    setBridgeState({ status: "loading" });
+    setRequest((current) => ({ ticker: nextTicker, id: current.id + 1 }));
+  };
 
   return (
     <div className="mx-auto w-full max-w-[1180px] space-y-5">
-      <DataQualityBanner {...overviewDataQuality} />
-      <ManualDataImportCta />
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.8fr)_minmax(320px,0.9fr)]">
-        <CurrentCaseHero data={data.activeCase} />
-        <NextBestActionCard data={data.nextBestAction} onNavigate={onNavigate} />
-      </div>
-      <OverviewSummaryCards data={data.summaryCards} onNavigate={onNavigate} />
-      <MissingDataBottlenecks data={data.missingData} onNavigate={onNavigate} />
-      <AnalysisProgressMap data={data.progressMap} onNavigate={onNavigate} />
-      <CurrentActionStatus data={data.actionStatus} />
-      <OverviewSupportPanel data={data.support} onNavigate={onNavigate} />
-      <p className="rounded-[4px] border border-border-soft bg-surface px-4 py-3 text-sm leading-6 text-muted">
-        {data.disclaimer}
-      </p>
+      <Card>
+        <CardBody>
+          <form className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between" onSubmit={submitTicker}>
+            <div>
+              <p className="text-xs font-bold uppercase text-muted">Overview API bridge</p>
+              <label className="mt-2 block text-sm font-extrabold text-ink" htmlFor="overview-ticker-input">
+                Ticker local
+              </label>
+              <input
+                className="mt-2 h-9 w-full rounded-[3px] border border-border bg-surface px-3 text-sm font-semibold text-ink outline-none focus:border-accent sm:w-[180px]"
+                id="overview-ticker-input"
+                value={tickerInput}
+                onChange={(event) => setTickerInput(event.target.value)}
+              />
+            </div>
+            <Button isLoading={bridgeState.status === "loading"} type="submit" variant="secondary">
+              Tải từ API
+            </Button>
+          </form>
+        </CardBody>
+      </Card>
+
+      {bridgeState.status === "loading" ? (
+        <LoadingState
+          description={`Dang doc du lieu tong quan da persist cho ${activeTicker}.`}
+          title="Dang tai Overview tu API"
+        />
+      ) : null}
+
+      {bridgeState.status === "empty" ? (
+        <EmptyState
+          description={`Thieu ${bridgeState.missingReasons.join(", ")} cho ${bridgeState.ticker}. Khong dung du lieu mock de thay the.`}
+          icon="O"
+          title="Chua co du lieu nen cho Overview"
+        />
+      ) : null}
+
+      {bridgeState.status === "error" ? (
+        <EmptyState
+          description={`${bridgeState.message} Khong dung du lieu mock de thay the.`}
+          icon="!"
+          title={`Khong tai duoc Overview cho ${bridgeState.ticker}`}
+        />
+      ) : null}
+
+      {bridgeState.status === "ready" || bridgeState.status === "insufficient" ? (
+        <>
+          <DataQualityBanner {...bridgeState.result.dataQuality} />
+          <div className="flex flex-wrap gap-2">
+            {metadataChips.map((chip) => (
+              <Chip key={chip} variant="neutral">
+                {chip}
+              </Chip>
+            ))}
+          </div>
+          {bridgeState.status === "insufficient" ? (
+            <section className="rounded-[4px] border border-warning bg-warning/15 px-4 py-3 text-sm font-bold leading-6 text-ink">
+              Du lieu chua du de tong hop day du Overview: {bridgeState.result.missingReasons.join(", ")}.
+              Cac phan phu thuoc du lieu thieu se o trang thai can kiem tra them.
+            </section>
+          ) : null}
+          <ManualDataImportCta />
+          <div className="grid gap-5 xl:grid-cols-[minmax(0,1.8fr)_minmax(320px,0.9fr)]">
+            <CurrentCaseHero data={bridgeState.data.activeCase} />
+            <NextBestActionCard data={bridgeState.data.nextBestAction} onNavigate={onNavigate} />
+          </div>
+          <OverviewSummaryCards data={bridgeState.data.summaryCards} onNavigate={onNavigate} />
+          <MissingDataBottlenecks data={bridgeState.data.missingData} onNavigate={onNavigate} />
+          <AnalysisProgressMap data={bridgeState.data.progressMap} onNavigate={onNavigate} />
+          <CurrentActionStatus data={bridgeState.data.actionStatus} />
+          <OverviewSupportPanel data={bridgeState.data.support} onNavigate={onNavigate} />
+          <p className="rounded-[4px] border border-border-soft bg-surface px-4 py-3 text-sm leading-6 text-muted">
+            {bridgeState.data.disclaimer}
+          </p>
+        </>
+      ) : null}
     </div>
   );
 }
