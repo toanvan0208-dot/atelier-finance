@@ -100,3 +100,9 @@ Phase 31T did not:
 Phase 31U is tracked in `docs/product/TECHNICAL_PVT_RUNTIME_DATA_FLOW_WIRING.md`.
 
 It adds a server-side runtime wrapper and routes the `/workspace` Technical/PVT initial data through the safe loader path. DB-backed mode remains disabled by default and can only be enabled explicitly. The client Technical/PVT components receive serialized data through props and do not import DB/server loader code.
+
+## 9. Phase 32 UI Verification
+
+Phase 32 is tracked in `docs/product/TECHNICAL_PVT_DB_BACKED_UI_VERIFICATION.md`.
+
+It adds minimal Technical/PVT source transparency for sample fallback and local DB manual import modes, while keeping DB-backed mode explicit/default-off.

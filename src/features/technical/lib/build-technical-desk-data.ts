@@ -147,6 +147,11 @@ export const buildTechnicalDeskData = (
 
   return {
     ...baseData,
+    ticker: snapshot.ticker ?? baseData.ticker,
+    companyName:
+      snapshot.ticker && snapshot.ticker !== baseData.ticker
+        ? snapshot.ticker
+        : baseData.companyName,
     currentPrice: snapshot.closePrice ?? baseData.currentPrice,
     status: resolveStatus(priceChange, liquidityStatus, missingFields),
     volume: {

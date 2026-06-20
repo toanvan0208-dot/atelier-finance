@@ -495,3 +495,13 @@ Phase 31U adds `docs/product/TECHNICAL_PVT_RUNTIME_DATA_FLOW_WIRING.md` and rout
 - Technical client components do not import DB read services or Prisma code.
 - Static/sample fallback remains available and is used by default.
 - The phase does not run imports, write DB rows, call Vnstock, call network, expose a public trigger, or change source approval status.
+
+## 31. Phase 32 Technical/PVT UI Verification
+
+Phase 32 adds `docs/product/TECHNICAL_PVT_DB_BACKED_UI_VERIFICATION.md` and a small Technical/PVT source transparency strip.
+
+- Default mode remains sample/static fallback.
+- Explicit DB-backed mode requires `ATELIER_TECHNICAL_PVT_DB_SOURCE=enabled`.
+- UI source transparency can show local DB manual import, `vnstock`, `research_only`, and `productionApproved:false`.
+- If DB evidence is missing or the flag is off, source transparency shows sample/static fallback and `productionApproved:false`.
+- The phase does not run imports, write DB rows, call Vnstock, call network, expose a public trigger, or change source approval status.

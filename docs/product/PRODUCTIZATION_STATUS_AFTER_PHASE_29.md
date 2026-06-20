@@ -177,6 +177,8 @@ Phase 31T adds a Technical/PVT module-level loader/helper that can prefer local 
 
 Phase 31U wires `/workspace` initial Technical/PVT data through a server-side runtime wrapper and passes the serialized result to the client shell; DB-backed mode remains explicit/default-off, static fallback is preserved, and no public API, direct fetcher, network call, DB write, automatic import, or production approval is added.
 
+Phase 32 adds Technical/PVT source transparency for fallback and local DB manual import modes, plus tests/docs for explicit DB-backed UI verification; it does not add a fetcher, network call, DB write, public trigger, automatic import, or production approval.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot

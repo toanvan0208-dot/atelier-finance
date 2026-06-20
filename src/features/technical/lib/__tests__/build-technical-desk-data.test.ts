@@ -114,8 +114,20 @@ describe("technical PVT builder", () => {
     const data = buildTechnicalDeskData(baseData, completeSnapshot);
     const priceChange = getMetric(data, "priceChangePct");
 
+    expect(data.ticker).toBe("ABC");
     expect(priceChange.rawValue).toBeCloseTo(0.041666, 5);
     expect(priceChange.value).toBe("4.2%");
+  });
+
+  it("uses the market snapshot ticker when it differs from the sample base data", () => {
+    const data = buildTechnicalDeskData(baseData, {
+      ...completeSnapshot,
+      ticker: "FPT",
+    });
+
+    expect(data.ticker).toBe("FPT");
+    expect(data.companyName).toBe("FPT");
+    expect(data.currentPrice).toBe(50_000);
   });
 
   it("keeps price change unavailable when previousClosePrice is missing", () => {
