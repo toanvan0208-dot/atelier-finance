@@ -165,3 +165,7 @@ Phase 58 adds `CONTROLLED_VALUATION_CALCULATION_WIRING_READINESS_PLAN.md`. It tr
 ## 18. Phase 59 Follow-up
 
 Phase 59 adds `CONTROLLED_VALUATION_CALCULATION_HELPER.md`. The new helper is pure and not wired into the Phase 53 UI boundary. Valuation still renders the same mixed-source/controlled partial note, while the helper provides tested metric readiness behavior for a later integration boundary.
+
+## 19. Phase 60 Follow-up
+
+Phase 60 adds `CONTROLLED_VALUATION_HELPER_INTEGRATION_BOUNDARY.md`. It provides a pure integration wrapper around the Phase 59 helper, but does not wire that wrapper into the Phase 53 Valuation UI note or displayed metric cards.

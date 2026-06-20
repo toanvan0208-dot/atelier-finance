@@ -155,3 +155,7 @@ Maximum safe Phase 60 scope:
 - keep `ValuationPage` output unchanged unless a separate UI verification plan is included;
 - preserve mixed-source labeling and `canClaimValuationDbBacked:false`;
 - browser-verify if any UI or displayed calculation changes.
+
+## 11. Phase 60 Follow-up
+
+Phase 60 adds `CONTROLLED_VALUATION_HELPER_INTEGRATION_BOUNDARY.md` and the pure `buildControlledValuationIntegrationBoundary` wrapper. It selects Financials runtime and persisted bridge inputs, calls `buildControlledValuationCalculation`, and returns source provenance while keeping `ValuationPage` output unchanged.

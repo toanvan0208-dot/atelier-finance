@@ -264,6 +264,8 @@ Phase 58 records the controlled Valuation calculation wiring readiness plan in `
 
 Phase 59 adds a pure controlled Valuation calculation helper in `CONTROLLED_VALUATION_CALCULATION_HELPER.md`. The helper calculates only narrow valid-input metrics and keeps EV, EV/EBITDA, DCF/WACC, and fair value range blocked. It is not wired into UI and does not change the persisted-bridge calculation path.
 
+Phase 60 adds a pure controlled Valuation helper integration boundary in `CONTROLLED_VALUATION_HELPER_INTEGRATION_BOUNDARY.md`. The boundary selects Financials runtime and persisted bridge inputs with provenance tracking, calls the Phase 59 helper, and keeps UI output unchanged.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot

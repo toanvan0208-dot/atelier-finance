@@ -200,3 +200,5 @@ Phase 57 records cross-module runtime consumption browser verification in `CROSS
 Phase 58 records the controlled Valuation calculation wiring readiness plan in `CONTROLLED_VALUATION_CALCULATION_WIRING_READINESS_PLAN.md`. The plan confirms that Financials runtime fields are not enough to grant a full Valuation source claim: market price, shares, EV inputs, EBITDA, and source evidence remain separately owned or blocked, and local/research/sample data remains `productionApproved:false`.
 
 Phase 59 records the pure controlled Valuation calculation helper in `CONTROLLED_VALUATION_CALCULATION_HELPER.md`. The helper preserves `productionApproved:false`, blocks full Valuation DB-backed claims, and emits mixed/fallback source warnings without approving any data source.
+
+Phase 60 records the controlled Valuation helper integration boundary in `CONTROLLED_VALUATION_HELPER_INTEGRATION_BOUNDARY.md`. The boundary can combine Financials runtime and persisted bridge inputs, but keeps `productionApproved:false`, records mixed-source warnings, and does not approve any source.

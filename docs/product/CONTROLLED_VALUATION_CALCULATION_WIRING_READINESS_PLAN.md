@@ -236,3 +236,7 @@ If Phase 59 cannot preserve mixed-source labeling, unavailable states, and `prod
 ## 12. Phase 59 Follow-up
 
 Phase 59 adds `CONTROLLED_VALUATION_CALCULATION_HELPER.md` and the pure `buildControlledValuationCalculation` helper. The helper calculates only marketCap, P/E, BVPS, P/B, and P/S when inputs are valid; it keeps EV, EV/EBITDA, DCF/WACC, and fair value range blocked. It is not wired into Valuation UI or the existing Valuation calculation path.
+
+## 13. Phase 60 Follow-up
+
+Phase 60 adds `CONTROLLED_VALUATION_HELPER_INTEGRATION_BOUNDARY.md`. It integrates the Phase 59 helper behind a pure boundary that selects Financials runtime and persisted bridge inputs with provenance tracking. No UI output or displayed Valuation metric changes are made.
