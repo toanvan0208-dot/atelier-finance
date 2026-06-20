@@ -2,6 +2,7 @@ export * from "./adapter-contract";
 export * from "./financials-api-client";
 export * from "./financial-statement-file-parser";
 export * from "./financial-statement-import-contract";
+export * from "./financial-statement-local-file-dry-run";
 export * from "./financial-statement-read-service";
 export * from "./issuer-metadata-service";
 export * from "./manual-upload-adapter";

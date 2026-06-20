@@ -44,6 +44,8 @@ Supported options:
 
 The bridge accepts CSV text only. It does not read local files, parse Excel/PDF, fetch URLs, or persist anything.
 
+Phase 41 adds a local file-reader dry-run wrapper in `FINANCIAL_STATEMENTS_LOCAL_FILE_READER_DRY_RUN_WRAPPER.md`. It validates a caller-provided local `.csv`/`.txt` path, reads UTF-8 text, and then calls this Phase 40 parser bridge; it still does not write DB rows, import real BCTC data, fetch URLs, parse Excel/PDF, or wire Financials UI runtime behavior.
+
 ## 4. Supported Headers
 
 Exact case-insensitive headers supported:
@@ -208,6 +210,7 @@ Phase 40 does not:
 - No persistence behavior exists.
 - No source/legal review is completed for a production provider.
 - Financials UI runtime is unchanged.
+- Phase 41 adds local file reading only as a dry-run wrapper and keeps this parser bridge plus the Phase 39 contract as the parsing/validation boundary.
 
 ## 15. Files Changed
 
