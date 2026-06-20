@@ -145,3 +145,7 @@ Priority checks:
 - keep mixed-source warnings visible when persisted bridge values supplement runtime data;
 - keep `productionApproved:false` until source evidence is approved;
 - keep blocked metrics locked until explicit source-owned inputs exist.
+
+## 11. Phase 62 Follow-up
+
+Phase 62 adds `VALUATION_CONTROLLED_DISPLAY_EVIDENCE_HARDENING.md`. It re-audits the Phase 61 read-only panel in fallback and local DB-backed Financials modes, confirms browser-visible source boundary flags remain clear, records runtime-missing persisted-bridge warnings, and finds no UI/source overclaim issue.

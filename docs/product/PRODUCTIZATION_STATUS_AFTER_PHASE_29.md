@@ -268,6 +268,8 @@ Phase 60 adds a pure controlled Valuation helper integration boundary in `CONTRO
 
 Phase 61 adds a controlled Valuation UI read-only display boundary in `CONTROLLED_VALUATION_UI_READ_ONLY_DISPLAY_BOUNDARY.md`. The Valuation UI now shows helper readiness/status for marketCap, P/E, BVPS, P/B, and P/S while keeping EV, EV/EBITDA, DCF, and fair value range blocked. It still displays `productionApproved:false` and `canClaimValuationDbBacked:false`, and browser verification covered fallback plus local DB-backed Financials modes.
 
+Phase 62 adds a controlled Valuation display evidence hardening pass in `VALUATION_CONTROLLED_DISPLAY_EVIDENCE_HARDENING.md`. It re-audits fallback and local DB-backed Financials Valuation routes with the in-app Browser plugin, confirms no UI/source overclaim issue, and keeps the implementation docs-only.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot

@@ -163,3 +163,7 @@ Phase 60 adds `CONTROLLED_VALUATION_HELPER_INTEGRATION_BOUNDARY.md` and the pure
 ## 12. Phase 61 Follow-up
 
 Phase 61 adds `CONTROLLED_VALUATION_UI_READ_ONLY_DISPLAY_BOUNDARY.md`. The Phase 59 helper output is now displayed only through the Phase 60 boundary as read-only readiness/status. The UI still blocks EV, EV/EBITDA, DCF, and fair value range, and it still keeps `productionApproved:false` and `canClaimValuationDbBacked:false`.
+
+## 13. Phase 62 Follow-up
+
+Phase 62 adds `VALUATION_CONTROLLED_DISPLAY_EVIDENCE_HARDENING.md`. The helper was not changed; the evidence pass confirms browser-visible UI still treats helper output as read-only status and keeps blocked metrics locked.

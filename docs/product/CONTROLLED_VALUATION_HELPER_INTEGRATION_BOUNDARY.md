@@ -156,3 +156,7 @@ Maximum safe Phase 61 scope:
 ## 11. Phase 61 Follow-up
 
 Phase 61 adds `CONTROLLED_VALUATION_UI_READ_ONLY_DISPLAY_BOUNDARY.md` and wires this boundary into Valuation UI as a read-only status panel. It displays source mode, `productionApproved:false`, `canClaimValuationDbBacked:false`, allowed metric readiness, and blocked EV/EV/EBITDA/DCF/fair-value-range states without adding investment interpretation.
+
+## 12. Phase 62 Follow-up
+
+Phase 62 adds `VALUATION_CONTROLLED_DISPLAY_EVIDENCE_HARDENING.md`. The integration boundary remains unchanged; browser evidence confirms the UI still displays mixed-source and persisted-bridge warnings instead of claiming full Valuation DB-backed or production-approved status.
