@@ -232,3 +232,7 @@ The maximum safe Phase 59 scope is:
 - keep DCF/WACC/fair value range locked.
 
 If Phase 59 cannot preserve mixed-source labeling, unavailable states, and `productionApproved:false`, it should remain blocked.
+
+## 12. Phase 59 Follow-up
+
+Phase 59 adds `CONTROLLED_VALUATION_CALCULATION_HELPER.md` and the pure `buildControlledValuationCalculation` helper. The helper calculates only marketCap, P/E, BVPS, P/B, and P/S when inputs are valid; it keeps EV, EV/EBITDA, DCF/WACC, and fair value range blocked. It is not wired into Valuation UI or the existing Valuation calculation path.

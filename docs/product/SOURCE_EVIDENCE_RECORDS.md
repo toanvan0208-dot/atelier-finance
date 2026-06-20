@@ -198,3 +198,5 @@ Phase 56 records controlled Risk runtime consumption in `CONTROLLED_RISK_RUNTIME
 Phase 57 records cross-module runtime consumption browser verification in `CROSS_MODULE_RUNTIME_CONSUMPTION_BROWSER_VERIFICATION.md`. Fallback and local DB-backed Financials modes were checked across Financials, Overview, Valuation, and Risk after the Risk UI note was added. No unsafe source overclaim was found; local DB data remained `research_only` with `productionApproved:false`.
 
 Phase 58 records the controlled Valuation calculation wiring readiness plan in `CONTROLLED_VALUATION_CALCULATION_WIRING_READINESS_PLAN.md`. The plan confirms that Financials runtime fields are not enough to grant a full Valuation source claim: market price, shares, EV inputs, EBITDA, and source evidence remain separately owned or blocked, and local/research/sample data remains `productionApproved:false`.
+
+Phase 59 records the pure controlled Valuation calculation helper in `CONTROLLED_VALUATION_CALCULATION_HELPER.md`. The helper preserves `productionApproved:false`, blocks full Valuation DB-backed claims, and emits mixed/fallback source warnings without approving any data source.

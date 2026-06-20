@@ -161,3 +161,7 @@ Phase 57 adds `CROSS_MODULE_RUNTIME_CONSUMPTION_BROWSER_VERIFICATION.md`. Browse
 ## 17. Phase 58 Follow-up
 
 Phase 58 adds `CONTROLLED_VALUATION_CALCULATION_WIRING_READINESS_PLAN.md`. It translates the Phase 53 controlled-consumption boundary into a metric-by-metric readiness plan for a later narrow wiring phase. The plan does not change the Phase 53 runtime behavior: Valuation still consumes Financials runtime metadata/safe fields only, and calculations still use the persisted bridge.
+
+## 18. Phase 59 Follow-up
+
+Phase 59 adds `CONTROLLED_VALUATION_CALCULATION_HELPER.md`. The new helper is pure and not wired into the Phase 53 UI boundary. Valuation still renders the same mixed-source/controlled partial note, while the helper provides tested metric readiness behavior for a later integration boundary.

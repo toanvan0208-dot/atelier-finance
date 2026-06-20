@@ -262,6 +262,8 @@ Phase 57 records cross-module runtime consumption browser verification in `CROSS
 
 Phase 58 records the controlled Valuation calculation wiring readiness plan in `CONTROLLED_VALUATION_CALCULATION_WIRING_READINESS_PLAN.md`. It audits the current Valuation calculation path, maps metric input ownership, and locks Phase 59 guardrails while keeping calculations on the persisted bridge and preserving `canClaimValuationDbBacked:false` and `productionApproved:false`.
 
+Phase 59 adds a pure controlled Valuation calculation helper in `CONTROLLED_VALUATION_CALCULATION_HELPER.md`. The helper calculates only narrow valid-input metrics and keeps EV, EV/EBITDA, DCF/WACC, and fair value range blocked. It is not wired into UI and does not change the persisted-bridge calculation path.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot
