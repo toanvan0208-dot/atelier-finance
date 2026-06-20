@@ -135,3 +135,9 @@ Phase 32 did not add:
 - Cron or scheduler behavior.
 - `productionApproved:true`.
 - Recommendation, rating, target-price, or trading-action fields.
+
+## 8. Phase 33 Browser Verification
+
+Phase 33 is tracked in `docs/product/TECHNICAL_PVT_BROWSER_VERIFICATION_RECORD.md`.
+
+It verifies through local browser/dev-server checks that explicit DB-backed mode renders FPT local DB data with `Local DB manual import`, `research_only`, and `productionApproved:false`, and that fallback mode renders `Sample/static fallback` with `productionApproved:false`.
