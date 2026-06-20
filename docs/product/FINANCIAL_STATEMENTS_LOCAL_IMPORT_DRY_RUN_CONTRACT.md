@@ -53,6 +53,8 @@ Phase 41 adds a local file-reader dry-run wrapper in `FINANCIAL_STATEMENTS_LOCAL
 
 Phase 42 adds a dry-run-only CLI runner in `FINANCIAL_STATEMENTS_LOCAL_DRY_RUN_CLI_RUNNER.md`. It passes CLI options into the Phase 41 wrapper and ultimately into this contract; it still does not add a write flag, write DB rows, import real BCTC data, approve a provider, or wire Financials UI runtime behavior.
 
+Phase 43 records synthetic CLI verification evidence in `FINANCIAL_STATEMENTS_CLI_DRY_RUN_VERIFICATION_EVIDENCE.md`. The evidence confirms this contract reports accepted, rejected, skipped, missing-value, and production approval attempt cases through the CLI path while preserving `productionApproved:false` and no DB write behavior.
+
 ## 4. Input Row Shape
 
 Accepted input keys include:
@@ -261,6 +263,7 @@ Phase 39 does not:
 - Phase 40 adds CSV text parsing only as a dry-run bridge and keeps this contract as the validation boundary.
 - Phase 41 adds local file reading only as a dry-run wrapper and keeps this contract as the validation boundary.
 - Phase 42 adds CLI access only as a dry-run runner and keeps this contract as the validation boundary.
+- Phase 43 records CLI verification evidence only and keeps this contract as the validation boundary.
 
 ## 14. Files Changed
 

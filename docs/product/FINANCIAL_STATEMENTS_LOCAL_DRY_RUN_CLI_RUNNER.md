@@ -46,6 +46,8 @@ npm run financials:dry-run -- --file ./local/financials.csv --json
 
 The CLI is dry-run-only. It has no write mode.
 
+Phase 43 records synthetic local CLI verification evidence in `FINANCIAL_STATEMENTS_CLI_DRY_RUN_VERIFICATION_EVIDENCE.md`. That evidence covers summary output, JSON output, duplicate/rejected/missing-value handling, production approval blocking, and write-flag rejection without committing raw CSV or JSON artifacts.
+
 ## 4. Supported Options
 
 Required:
@@ -204,6 +206,7 @@ Phase 42 does not:
 - No real financial statement file is imported.
 - No persistence behavior exists.
 - Financials UI runtime is unchanged.
+- Phase 43 records CLI verification evidence only. It does not add persistence, a write flag, a public upload API, real BCTC import, or Financials UI runtime behavior.
 
 ## 13. Files Changed
 

@@ -22,6 +22,7 @@ Atelier Finance now has a real backend/database foundation for local productizat
 - Financial statements now have a CSV/text parser dry-run bridge that maps supported headers into the Phase 39 dry-run contract without writing DB rows.
 - Financial statements now have a local file-reader dry-run wrapper that validates local `.csv`/`.txt` files before passing UTF-8 text into the Phase 40/39 dry-run chain.
 - Financial statements now have a dry-run-only CLI runner for local `.csv`/`.txt` checks from terminal without DB writes.
+- Financial statements now have synthetic CLI dry-run verification evidence showing accepted/rejected/skipped handling, missing-value preservation, production approval blocking, and write-flag rejection without committing raw CSV or JSON output.
 - Technical/PVT can read local DB-backed market prices in explicit research mode and now separates market price source lineage from company/issuer metadata status.
 - Technical/PVT has a local/research-only issuer metadata foundation for safe source transparency; it is not official or production-approved metadata.
 - Technical/PVT now prevents static/sample-derived support/resistance, volume ratio, and FOMO values from leaking into DB-backed mode.
@@ -74,6 +75,7 @@ This is not yet a production data product. The current database can store local 
 - Phase 40 adds a financial statement CSV/text parser dry-run bridge, but does not read files from disk, parse Excel/PDF, import real BCTC data, write DB rows, approve a financial data source, or wire Financials UI runtime behavior. See `FINANCIAL_STATEMENTS_LOCAL_FILE_PARSER_DRY_RUN_BRIDGE.md`.
 - Phase 41 adds a financial statement local file-reader dry-run wrapper, but does not fetch URLs, parse Excel/PDF, import real BCTC data, write DB rows, approve a financial data source, add a public upload API, or wire Financials UI runtime behavior. See `FINANCIAL_STATEMENTS_LOCAL_FILE_READER_DRY_RUN_WRAPPER.md`.
 - Phase 42 adds a financial statement local dry-run CLI runner, but does not add a write flag, write DB rows, import real BCTC data, approve a financial data source, add a public upload API, or wire Financials UI runtime behavior. See `FINANCIAL_STATEMENTS_LOCAL_DRY_RUN_CLI_RUNNER.md`.
+- Phase 43 records synthetic financial statement CLI dry-run verification evidence, but does not write DB rows, import real BCTC data, commit raw CSV/JSON output, approve a financial data source, add a public upload API, or wire Financials UI runtime behavior. See `FINANCIAL_STATEMENTS_CLI_DRY_RUN_VERIFICATION_EVIDENCE.md`.
 - Technical/PVT company/issuer metadata is not production verified; Phase 34 prevents static sample metadata reuse, and Phase 35 only adds a local/research-only seed foundation. Phase 36 prevents sample-derived PVT metrics from leaking into DB-backed mode. Phase 37 prevents sample chart series from leaking into DB-backed mode. These phases do not implement full technical analysis. See `TECHNICAL_PVT_COMPANY_METADATA_BOUNDARY.md`, `COMPANY_ISSUER_METADATA_FOUNDATION.md`, `TECHNICAL_PVT_DERIVED_METRICS_BOUNDARY.md`, and `TECHNICAL_PVT_CHART_SERIES_BOUNDARY.md`.
 - No authenticated multi-user workspace layer exists yet.
 - No production monitoring, jobs, queues, cache policy, or provider retry policy exists yet.
@@ -215,6 +217,8 @@ Phase 40 adds a Financial Statements CSV/text parser dry-run bridge. It parses C
 Phase 41 adds a Financial Statements local file-reader dry-run wrapper. It validates caller-provided local `.csv`/`.txt` paths, rejects remote URLs and unsupported file types, checks size before reading, passes UTF-8 text into the Phase 40 parser bridge, keeps `productionApproved:false`, and has no DB write path, public upload API, or UI runtime wiring.
 
 Phase 42 adds a Financial Statements local dry-run CLI runner. It exposes `npm run financials:dry-run -- --file <path>`, rejects write-like flags, prints a safe summary or JSON report, keeps `productionApproved:false`, and has no DB write path, public upload API, or UI runtime wiring.
+
+Phase 43 records Financial Statements CLI dry-run verification evidence. A temporary synthetic CSV outside the repo produced `acceptedCount:3`, `rejectedCount:1`, `skippedCount:1`, `dryRun:true`, `writePlanned:false`, `noDbWrite:true`, and `productionApproved:false`; `--write` was rejected with `write_not_supported`. No raw CSV or JSON report was committed.
 
 ## 8. Roadmap After Phase 29
 

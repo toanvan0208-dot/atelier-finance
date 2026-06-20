@@ -48,6 +48,8 @@ Phase 41 adds a local file-reader dry-run wrapper in `FINANCIAL_STATEMENTS_LOCAL
 
 Phase 42 adds a dry-run-only CLI runner in `FINANCIAL_STATEMENTS_LOCAL_DRY_RUN_CLI_RUNNER.md`. It uses the Phase 41 wrapper and this parser bridge through the existing dry-run chain; it still does not add a write flag, write DB rows, import real BCTC data, fetch URLs, parse Excel/PDF, or wire Financials UI runtime behavior.
 
+Phase 43 records synthetic CLI verification evidence in `FINANCIAL_STATEMENTS_CLI_DRY_RUN_VERIFICATION_EVIDENCE.md`. The evidence confirms the parser bridge participates in the CLI dry-run path for accepted, rejected, skipped, missing-value, and production approval attempt cases without committing raw CSV or JSON artifacts.
+
 ## 4. Supported Headers
 
 Exact case-insensitive headers supported:
@@ -214,6 +216,7 @@ Phase 40 does not:
 - Financials UI runtime is unchanged.
 - Phase 41 adds local file reading only as a dry-run wrapper and keeps this parser bridge plus the Phase 39 contract as the parsing/validation boundary.
 - Phase 42 adds CLI access only as a dry-run runner and keeps this parser bridge plus the Phase 39 contract as the parsing/validation boundary.
+- Phase 43 records CLI verification evidence only and keeps this parser bridge plus the Phase 39 contract as the parsing/validation boundary.
 
 ## 15. Files Changed
 

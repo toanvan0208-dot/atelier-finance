@@ -50,6 +50,8 @@ The wrapper is intended for Node/server-side local research workflows only.
 
 Phase 42 adds a dry-run-only CLI runner in `FINANCIAL_STATEMENTS_LOCAL_DRY_RUN_CLI_RUNNER.md`. The CLI passes local file options into this wrapper and prints a safe summary or JSON report; it still does not write DB rows, add a write flag, add a public upload API, import real BCTC data, or wire Financials UI runtime behavior.
 
+Phase 43 records synthetic CLI verification evidence in `FINANCIAL_STATEMENTS_CLI_DRY_RUN_VERIFICATION_EVIDENCE.md`. The evidence confirms this wrapper can be reached through the CLI dry-run path while preserving `dryRun:true`, `writePlanned:false`, `noDbWrite:true`, and `productionApproved:false`.
+
 ## 4. File Safety Rules
 
 Path handling:
@@ -183,6 +185,7 @@ Phase 41 does not:
 - No source/legal review is completed for a production provider.
 - Financials UI runtime is unchanged.
 - Phase 42 adds a dry-run CLI runner only. It does not add a write flag, output report files by default, public upload APIs, DB writes, or UI runtime behavior.
+- Phase 43 records CLI verification evidence only. It does not add persistence, a write flag, a public upload API, real BCTC import, or Financials UI runtime behavior.
 
 ## 12. Files Changed
 
