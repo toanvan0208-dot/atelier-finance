@@ -1,5 +1,7 @@
 import {
+  getIssuerMetadata,
   getMarketPriceSeries,
+  type IssuerMetadataRecord,
   type MarketPriceSeriesResult,
 } from "../../../lib/data-sources";
 import { pvtDataQuality, pvtObservationData } from "../data/pvtObservation.data";
@@ -43,6 +45,7 @@ export type LoadTechnicalDeskDataResult = {
 
 export type LoadTechnicalDeskDataDependencies = {
   readMarketPriceSeries?: typeof getMarketPriceSeries;
+  readIssuerMetadata?: typeof getIssuerMetadata;
   buildFromMarketPriceSeries?: (
     baseData: PVTObservationData,
     series: MarketPriceSeriesResult,
@@ -95,6 +98,20 @@ const unavailableIssuerMetadata = (ticker: string): TechnicalIssuerMetadata => (
     "Sample company, industry, and sector metadata were not reused because the ticker differs from the sample base ticker.",
   ],
   warnings: ["Issuer metadata has not been verified for this market price ticker."],
+});
+
+const toTechnicalIssuerMetadata = (metadata: IssuerMetadataRecord): TechnicalIssuerMetadata => ({
+  ticker: metadata.ticker,
+  displayName: metadata.displayName,
+  issuerName: metadata.issuerName ?? metadata.companyName,
+  industry: metadata.industry,
+  sector: metadata.sector,
+  sourceLabel: metadata.sourceLabel,
+  dataMode: metadata.dataMode,
+  productionApproved: false,
+  verificationStatus: metadata.verificationStatus,
+  limitations: metadata.limitations,
+  warnings: metadata.warnings,
 });
 
 const fallbackMarketDataSource = (
@@ -251,6 +268,7 @@ export const loadTechnicalDeskData = async (
   }
 
   const readMarketPriceSeries = dependencies.readMarketPriceSeries ?? getMarketPriceSeries;
+  const readIssuerMetadata = dependencies.readIssuerMetadata ?? getIssuerMetadata;
   const buildFromMarketPriceSeries =
     dependencies.buildFromMarketPriceSeries ?? buildTechnicalFromMarketPriceSeries;
   const series = await readMarketPriceSeries({
@@ -303,6 +321,8 @@ export const loadTechnicalDeskData = async (
     });
   }
 
+  const issuerMetadata = toTechnicalIssuerMetadata(readIssuerMetadata(series.ticker ?? input.ticker));
+
   return {
     ok: true,
     data: built.data,
@@ -320,9 +340,14 @@ export const loadTechnicalDeskData = async (
       productionApproved: false,
     },
     marketDataSource: dbMarketDataSource(series),
-    issuerMetadata: built.data.issuerMetadata ?? unavailableIssuerMetadata(series.ticker ?? input.ticker),
+    issuerMetadata,
     fallbackUsed: false,
-    warnings: [LOCAL_RESEARCH_WARNING, ...series.warnings, ...built.adapter.warnings],
+    warnings: [
+      LOCAL_RESEARCH_WARNING,
+      ...series.warnings,
+      ...built.adapter.warnings,
+      ...issuerMetadata.warnings,
+    ],
     errors: built.adapter.errors,
   };
 };

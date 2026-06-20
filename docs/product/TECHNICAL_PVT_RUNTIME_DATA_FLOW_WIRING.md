@@ -58,6 +58,8 @@ Phase 34 adds a serializable metadata boundary to this runtime result; see `TECH
 - `issuerMetadata` describes company/industry/sector metadata status.
 - When the DB-backed ticker differs from the static sample ticker and no issuer metadata source exists, sample issuer metadata is not reused and `issuerMetadata.verificationStatus` remains unavailable/unknown.
 
+Phase 35 adds `getIssuerMetadata(ticker)` as a local/research-only issuer metadata foundation; see `COMPANY_ISSUER_METADATA_FOUNDATION.md`. In DB-backed mode, Technical/PVT keeps `marketDataSource` on local DB / `vnstock` / `research_only` while `issuerMetadata` can come from `local_issuer_metadata_seed` or remain unavailable.
+
 ## 4. Fallback Behavior
 
 Fallback remains mandatory for runtime safety.

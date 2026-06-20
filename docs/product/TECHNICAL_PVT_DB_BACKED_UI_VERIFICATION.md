@@ -57,6 +57,27 @@ Manual browser verification on 2026-06-20 confirmed:
 
 This evidence does not verify FPT issuer metadata. It verifies only the UI/source-boundary behavior.
 
+## 3B. Phase 35 Metadata Foundation
+
+Phase 35 adds a local/research-only issuer metadata service behind the Phase 34 boundary; see `COMPANY_ISSUER_METADATA_FOUNDATION.md`.
+
+In DB-backed mode, the UI can now show issuer metadata source as `local_issuer_metadata_seed` with `verificationStatus:local_research_seed` when a local seed exists. This remains `productionApproved:false`, is not official metadata, and does not fill industry/sector unless source evidence exists.
+
+Manual browser verification on 2026-06-20 confirmed DB-backed FPT rendering after Phase 35:
+
+- Page rendered at `http://localhost:3000/workspace?module=technical` with `DATABASE_URL=file:./dev.db` and `ATELIER_TECHNICAL_PVT_DB_SOURCE=enabled`.
+- FPT market price rendered from local DB / `vnstock` / `research_only`.
+- Source transparency separated price/volume source from issuer metadata source.
+- Price/volume source displayed as local DB manual import / `vnstock` / `research_only`.
+- Issuer metadata displayed as local research seed.
+- Industry and sector displayed as unavailable/not verified.
+- `productionApproved:false` remained visible.
+- Header did not reuse sample industry/sector for FPT.
+- No official/realtime/production metadata claim was observed.
+- No recommendation or trading-signal wording was observed.
+
+Later-phase review note: the browser UI still shows support/resistance style PVT derived levels while the current DB-backed price is `129.12`. This was not changed in Phase 35 and should be reviewed separately as a possible PVT derived-metrics/sample-boundary issue.
+
 ## 4. Client/Server Boundary
 
 Server-side loader path:

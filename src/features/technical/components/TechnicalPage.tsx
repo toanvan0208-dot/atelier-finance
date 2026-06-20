@@ -135,9 +135,12 @@ function SourceTransparencyStrip({
     issuerMetadata.verificationStatus === "unknown";
   const industryText = issuerMetadata.industry ?? "chua co du lieu xac minh";
   const sectorText = issuerMetadata.sector ?? "chua co du lieu xac minh";
-  const metadataText = metadataUnavailable
-    ? "Metadata doanh nghiệp/ngành chưa được xác minh"
-    : "Metadata sample/static, productionApproved:false";
+  const metadataText =
+    issuerMetadata.verificationStatus === "local_research_seed"
+      ? "Metadata doanh nghiep: local research seed"
+      : metadataUnavailable
+        ? "Metadata doanh nghiep/nganh chua duoc xac minh"
+        : "Metadata sample/static, productionApproved:false";
 
   return (
     <section
@@ -159,6 +162,9 @@ function SourceTransparencyStrip({
           <p>
             Metadata: {issuerMetadata.verificationStatus} · Industry: {industryText} · Sector: {sectorText}
           </p>
+          {issuerMetadata.verificationStatus === "local_research_seed" ? (
+            <p>Chi dung cho academic/local research; productionApproved:false</p>
+          ) : null}
         </div>
         <div className="flex flex-wrap gap-2 lg:col-span-2">
           <span className="rounded-[3px] border border-ink/10 bg-muted/10 px-2 py-1 font-bold text-ink">

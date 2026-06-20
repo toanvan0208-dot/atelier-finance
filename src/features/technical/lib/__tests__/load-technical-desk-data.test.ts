@@ -162,15 +162,57 @@ describe("loadTechnicalDeskData", () => {
     });
     expect(result.issuerMetadata).toMatchObject({
       ticker: "FPT",
+      displayName: "FPT",
+      industry: null,
+      sector: null,
+      sourceLabel: "local_issuer_metadata_seed",
+      dataMode: "research_only",
+      productionApproved: false,
+      verificationStatus: "local_research_seed",
+    });
+    expect(result.issuerMetadata.sourceLabel).not.toBe(result.marketDataSource.sourceLabel);
+    expect(result.warnings.join(" ")).toContain("local academic/research");
+  });
+
+  it("keeps DB-backed market source separate when issuer metadata is unavailable", async () => {
+    const readMarketPriceSeries = vi.fn().mockResolvedValue(
+      series(
+        [
+          row({ ticker: "XYZ", date: "2025-01-02", close: 100, volume: 1000, tradingValue: 100000 }),
+          row({ ticker: "XYZ", date: "2025-01-03", close: 110, volume: 2000, tradingValue: 220000 }),
+        ],
+        { ticker: "XYZ" },
+      ),
+    );
+
+    const result = await loadTechnicalDeskData(
+      { ticker: "XYZ", from: "2025-01-01", to: "2025-01-31", preferDb: true },
+      {
+        readMarketPriceSeries,
+        fallbackData: baseData,
+        fallbackDataQuality,
+      },
+    );
+
+    expect(result.ok).toBe(true);
+    expect(result.fallbackUsed).toBe(false);
+    expect(result.marketDataSource).toMatchObject({
+      sourceLabel: "vnstock",
+      dataMode: "research_only",
+      productionApproved: false,
+      ticker: "XYZ",
+    });
+    expect(result.issuerMetadata).toMatchObject({
+      ticker: "XYZ",
       displayName: null,
       industry: null,
       sector: null,
       sourceLabel: "unavailable",
-      dataMode: "unknown",
-      productionApproved: false,
+      dataMode: "unavailable",
       verificationStatus: "unavailable",
+      productionApproved: false,
     });
-    expect(result.warnings.join(" ")).toContain("local academic/research");
+    expect(result.data?.industry).not.toBe("Ban le");
   });
 
   it("falls back safely when the DB read returns no usable rows", async () => {

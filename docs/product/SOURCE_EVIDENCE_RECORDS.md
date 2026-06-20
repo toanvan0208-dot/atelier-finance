@@ -59,8 +59,8 @@ Phase 30H adds an academic/local/research data boundary for AI disclosure. Curre
 | legalStatus | `needs_review` |
 | productionApproved | `false` |
 | attributionRequired | `true` |
-| runtimeUse | `local_command_only` / `manual_file_write_verified` / `db_read_path_verified` / `pvt_adapter_ready` / `technical_helper_available` / `technical_runtime_wrapper_default_off` / `technical_source_transparency_visible` / `technical_browser_verified_local` / `technical_metadata_boundary_added` |
-| implementationStatus | `technical_pvt_browser_verified_local_with_metadata_boundary` |
+| runtimeUse | `local_command_only` / `manual_file_write_verified` / `db_read_path_verified` / `pvt_adapter_ready` / `technical_helper_available` / `technical_runtime_wrapper_default_off` / `technical_source_transparency_visible` / `technical_browser_verified_local` / `technical_metadata_boundary_added` / `technical_local_issuer_seed_foundation` |
+| implementationStatus | `technical_pvt_browser_verified_local_with_metadata_boundary_and_local_seed_foundation` |
 | dataCategories | `market_prices_research_only` |
 | persistence | `local_database_only` |
 | publicRuntime | `not_enabled` |
@@ -75,6 +75,9 @@ Phase 30H adds an academic/local/research data boundary for AI disclosure. Curre
 | latestTechnicalMetadataBoundary | DB-backed FPT market prices do not reuse static sample issuer industry/sector when issuer metadata is unavailable; FPT issuer profile remains not verified |
 | latestTechnicalMetadataBoundaryBrowserVerification | `2026-06-20`, DB-backed FPT rendered local DB / `vnstock` / `research_only` market price with issuer metadata unavailable/not verified; fallback rendered `static_sample`; `productionApproved:false`; no recommendation/trading-signal wording |
 | Phase 34 metadata boundary | `docs/product/TECHNICAL_PVT_COMPANY_METADATA_BOUNDARY.md` |
+| Phase 35 issuer metadata foundation | `docs/product/COMPANY_ISSUER_METADATA_FOUNDATION.md`; local/research-only seed labels for FPT/MWG/VCB, industry/sector null, `productionApproved:false`, not official metadata |
+| latestPhase35BrowserVerification | `2026-06-20`, DB-backed FPT rendered local DB / `vnstock` / `research_only` market price; source transparency separated price/volume source from issuer metadata source; issuer metadata displayed as local research seed; industry/sector unavailable; `productionApproved:false`; no official/realtime/production metadata claim; no recommendation/trading-signal wording |
+| latestPhase35LaterReviewNote | Support/resistance style PVT derived levels appeared while DB-backed current price was `129.12`; review later as possible PVT derived-metrics/sample-boundary issue; no behavior changed in Phase 35 |
 | realDataCommitAllowed | `false` |
 | nextDecision | `manual_export_bridge_or_offline_contract_or_python_bridge` |
 | financialStatements | `out_of_scope_for_31E` |

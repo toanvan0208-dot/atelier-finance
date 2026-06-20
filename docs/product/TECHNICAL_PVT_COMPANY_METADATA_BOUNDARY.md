@@ -44,7 +44,9 @@ Technical/PVT runtime data now distinguishes two layers:
    - limitations/warnings
    - `productionApproved:false`
 
-Issuer metadata verification status can be `verified`, `static_sample`, `limited`, `unavailable`, or `unknown`.
+Issuer metadata verification status can be `verified`, `local_research_seed`, `static_sample`, `limited`, `unavailable`, or `unknown`.
+
+Phase 35 adds the first local/research-only issuer metadata foundation behind this boundary. See `COMPANY_ISSUER_METADATA_FOUNDATION.md`. The Phase 35 foundation does not make issuer metadata official or production-approved.
 
 ## 4. DB-backed Behavior
 

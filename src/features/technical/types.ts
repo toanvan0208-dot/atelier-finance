@@ -460,6 +460,7 @@ export type PVTNextAction = {
 
 export type TechnicalIssuerMetadataVerificationStatus =
   | "verified"
+  | "local_research_seed"
   | "static_sample"
   | "limited"
   | "unavailable"

@@ -18,6 +18,7 @@ Atelier Finance now has a real backend/database foundation for local productizat
 - `/data-import` can save manual sessions server-side.
 - Financials, Valuation, and Overview can read from API/database-backed records.
 - Technical/PVT can read local DB-backed market prices in explicit research mode and now separates market price source lineage from company/issuer metadata status.
+- Technical/PVT has a local/research-only issuer metadata foundation for safe source transparency; it is not official or production-approved metadata.
 - Bridged modules do not silently fall back to legacy mock/static records when API data is missing.
 
 This is not yet a production data product. The current database can store local sample/lab data and user-provided manual upload evidence, but there is no production-approved real data source, no external source adapter, and no production database/cloud deployment confirmed in the repo.
@@ -61,7 +62,7 @@ This is not yet a production data product. The current database can store local 
 - Manual CSV is not promoted into canonical production data.
 - Manual import persistence does not replace source-provider ingestion.
 - Risk, Technical/PVT, Checklist, Watchlist, Simulation, and broader AI data context are not fully bridged to database-backed product data.
-- Technical/PVT company/issuer metadata is not verified; Phase 34 only prevents static sample metadata from being reused for a DB-backed ticker when no verified metadata source exists. See `TECHNICAL_PVT_COMPANY_METADATA_BOUNDARY.md`.
+- Technical/PVT company/issuer metadata is not production verified; Phase 34 prevents static sample metadata reuse, and Phase 35 only adds a local/research-only seed foundation. See `TECHNICAL_PVT_COMPANY_METADATA_BOUNDARY.md` and `COMPANY_ISSUER_METADATA_FOUNDATION.md`.
 - No authenticated multi-user workspace layer exists yet.
 - No production monitoring, jobs, queues, cache policy, or provider retry policy exists yet.
 
