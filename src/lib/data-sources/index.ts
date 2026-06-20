@@ -1,5 +1,6 @@
 export * from "./adapter-contract";
 export * from "./financials-api-client";
+export * from "./financial-statement-read-service";
 export * from "./issuer-metadata-service";
 export * from "./manual-upload-adapter";
 export * from "./manual-import-api-client";

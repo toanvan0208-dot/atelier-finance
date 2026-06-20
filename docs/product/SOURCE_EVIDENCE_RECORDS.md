@@ -42,6 +42,7 @@ Phase 30C exact-source review is tracked in `EXACT_SOURCE_LEGAL_REVIEW_PACK.md`.
 | Phase 30F-A source-owner follow-up | `docs/product/SOURCE_OWNER_TERMS_EVIDENCE_FOLLOW_UP.md` |
 | Phase 30G terms evidence collection | `docs/product/HOSE_FPT_TERMS_EVIDENCE_COLLECTION.md` |
 | Phase 30H academic data boundary | `docs/product/ACADEMIC_DATA_BOUNDARY_FOR_AI_DISCLOSURE.md` |
+| Phase 38 financial statement local data foundation | `docs/product/FINANCIAL_STATEMENTS_LOCAL_DATA_FOUNDATION.md`; adds local/research-only read-service and adapter foundation, reuses existing `FinancialStatement` model, preserves missing values as `null`, and keeps `productionApproved:false`; no real BCTC import, external API, DB write, UI wiring, or production source approval |
 
 The corresponding code registry entry is in `src/lib/data-sources/source-policy.ts` under `official-disclosure-financials-pilot`. Phase 30E and Phase 30F-A do not change code status because the safe registry state is already conservative: `usageStatus:needs_legal_review`, `evidenceStatus:missing`, and `productionApproved:false` behavior.
 
