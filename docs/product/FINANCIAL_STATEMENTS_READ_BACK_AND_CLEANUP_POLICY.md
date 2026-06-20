@@ -20,6 +20,8 @@ Phase 46 verifies the downstream read path:
 
 The goal is to prove the written synthetic rows remain source-scoped, research-only, null-safe, and unapproved when read back.
 
+Phase 47 adds a Financials DB-backed runtime boundary in `FINANCIALS_DB_BACKED_RUNTIME_BOUNDARY.md`. It wraps this read path behind explicit `preferDb`/environment gating without wiring the Financials UI.
+
 ## 3. Read-back Verification Setup
 
 Environment:
@@ -172,6 +174,7 @@ Phase 46 did not:
 - No Financials UI runtime behavior was changed.
 - No production database or production provider is involved.
 - Cleanup policy is documented, but cleanup was not executed.
+- Phase 47 adds runtime loader boundary only. It does not cleanup/delete rows or claim Financials UI browser verification.
 
 ## 12. Files Changed
 

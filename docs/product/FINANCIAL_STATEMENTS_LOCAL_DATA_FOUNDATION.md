@@ -28,6 +28,8 @@ Phase 45 adds the first controlled local DB write trial in `FINANCIAL_STATEMENTS
 
 Phase 46 records read-back evidence and cleanup policy in `FINANCIAL_STATEMENTS_READ_BACK_AND_CLEANUP_POLICY.md`. It verifies the Phase 45 synthetic rows through the local read service and adapter while keeping UI runtime unchanged.
 
+Phase 47 adds a Financials DB-backed runtime boundary in `FINANCIALS_DB_BACKED_RUNTIME_BOUNDARY.md`. It keeps default behavior on sample/static fallback and requires explicit `preferDb` or `ATELIER_FINANCIALS_DB_SOURCE=enabled` for local DB reads.
+
 ## 2. Why This Follows Technical/PVT DB-backed Work
 
 Technical/PVT now has a local DB-backed market-price path with explicit source boundaries:
@@ -206,6 +208,7 @@ Phase 38 did not:
 - Phase 44 records controlled local write trial policy only. It does not add persistence, write flags, URL fetching, Excel/PDF parsing, public upload APIs, or a real file import workflow.
 - Phase 45 adds a controlled local DB write trial for synthetic accepted rows only. It does not add URL fetching, Excel/PDF parsing, public upload APIs, real BCTC import, or Financials UI runtime behavior.
 - Phase 46 adds read-back and cleanup policy only. It does not delete rows, add public cleanup behavior, import real BCTC data, or change Financials UI runtime behavior.
+- Phase 47 adds runtime loader boundary only. It does not wire Financials UI, import real BCTC data, or approve a production provider.
 
 ## 12. Files Changed
 

@@ -26,6 +26,7 @@ Atelier Finance now has a real backend/database foundation for local productizat
 - Financial statements now have a controlled local write trial plan that defines future eligibility, confirmation flags, verification, and rollback policy before any local DB write trial.
 - Financial statements now have a first controlled local DB write trial for synthetic accepted dry-run rows only, guarded by local DB checks and explicit confirmations.
 - Financial statements now have read-back evidence and cleanup policy for the synthetic local write rows, including read-service and adapter verification.
+- Financials now has a DB-backed runtime loader boundary that is default-off and only reads local DB rows when explicitly enabled.
 - Technical/PVT can read local DB-backed market prices in explicit research mode and now separates market price source lineage from company/issuer metadata status.
 - Technical/PVT has a local/research-only issuer metadata foundation for safe source transparency; it is not official or production-approved metadata.
 - Technical/PVT now prevents static/sample-derived support/resistance, volume ratio, and FOMO values from leaking into DB-backed mode.
@@ -82,6 +83,7 @@ This is not yet a production data product. The current database can store local 
 - Phase 44 records a controlled local write trial plan, but does not enable a write flag, write DB rows, import real BCTC data, commit raw CSV/JSON output, approve a financial data source, add a public upload API, or wire Financials UI runtime behavior. See `FINANCIAL_STATEMENTS_CONTROLLED_LOCAL_WRITE_TRIAL_PLAN.md`.
 - Phase 45 adds a controlled local financial statement DB write trial for synthetic accepted dry-run rows only, but does not import real BCTC data, commit DB/CSV/JSON output, approve a financial data source, add a public upload API, or wire Financials UI runtime behavior. See `FINANCIAL_STATEMENTS_FIRST_LOCAL_DB_WRITE_TRIAL.md`.
 - Phase 46 records read-back evidence and cleanup policy for Phase 45 synthetic rows, but does not write new DB rows, delete rows, import real BCTC data, approve a financial data source, add a public upload API, or wire Financials UI runtime behavior. See `FINANCIAL_STATEMENTS_READ_BACK_AND_CLEANUP_POLICY.md`.
+- Phase 47 adds a Financials DB-backed runtime boundary, but does not wire the Financials UI, run browser verification, write DB rows, delete rows, import real BCTC data, approve a financial data source, or claim production data. See `FINANCIALS_DB_BACKED_RUNTIME_BOUNDARY.md`.
 - Technical/PVT company/issuer metadata is not production verified; Phase 34 prevents static sample metadata reuse, and Phase 35 only adds a local/research-only seed foundation. Phase 36 prevents sample-derived PVT metrics from leaking into DB-backed mode. Phase 37 prevents sample chart series from leaking into DB-backed mode. These phases do not implement full technical analysis. See `TECHNICAL_PVT_COMPANY_METADATA_BOUNDARY.md`, `COMPANY_ISSUER_METADATA_FOUNDATION.md`, `TECHNICAL_PVT_DERIVED_METRICS_BOUNDARY.md`, and `TECHNICAL_PVT_CHART_SERIES_BOUNDARY.md`.
 - No authenticated multi-user workspace layer exists yet.
 - No production monitoring, jobs, queues, cache policy, or provider retry policy exists yet.
@@ -231,6 +233,8 @@ Phase 44 records the Financial Statements controlled local write trial plan. It 
 Phase 45 adds the first controlled Financial Statements local DB write trial. It writes `3` synthetic accepted dry-run rows to local SQLite/dev DB with `sourceLabel:phase45_synthetic_financial_statement_local_write`, `dataMode:research_only`, duplicate skip protection, null preservation, and no rejected/skipped row writes. No raw CSV, JSON report, or DB file is committed.
 
 Phase 46 records Financial Statements read-back evidence and cleanup policy. The Phase 45 synthetic rows read back as `FPT`, `MWG`, and `VCB`; MWG missing values remain `null`; source metadata remains `research_only`; adapter output remains unapproved and does not use fallback. Cleanup is documented as sourceLabel-scoped only and is not run by default.
+
+Phase 47 adds a Financials DB-backed runtime boundary. Default runtime stays on sample/static fallback; DB-backed reads require `preferDb:true` or `ATELIER_FINANCIALS_DB_SOURCE=enabled`. Read-only verification confirmed FPT/MWG/VCB synthetic rows return `runtimeStatus:db_backed`, `readPath:local_db`, `fallbackUsed:false`, and `productionApproved:false`.
 
 ## 8. Roadmap After Phase 29
 
