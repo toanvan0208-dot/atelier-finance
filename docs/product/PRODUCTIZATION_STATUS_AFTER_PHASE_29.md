@@ -274,6 +274,8 @@ Phase 63 adds controlled Valuation input unit and provenance normalization in `V
 
 Phase 64 adds a Financials import unit metadata contract in `FINANCIALS_IMPORT_UNIT_METADATA_CONTRACT.md`. Financials runtime snapshots now include a unit metadata sidecar for import-owned fields, and Valuation receives the relevant units through its controlled boundary. Current local/research/sample Financials values without explicit source units remain unknown-unit and do not unlock scale-sensitive metrics.
 
+Phase 65 adds source-specific Financials import unit capture in `SOURCE_SPECIFIC_FINANCIALS_IMPORT_UNIT_CAPTURE.md`. CSV dry-run/import rows can now include explicit unit columns that populate accepted row metadata; invalid explicit units reject rows, missing units remain unknown, and DB/runtime persistence of unit metadata is deferred.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot

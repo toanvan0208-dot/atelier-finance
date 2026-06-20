@@ -168,3 +168,7 @@ Phase 63 adds `VALUATION_INPUT_UNIT_PROVENANCE_NORMALIZATION.md` and updates the
 ## 14. Phase 64 Follow-up
 
 Phase 64 adds `FINANCIALS_IMPORT_UNIT_METADATA_CONTRACT.md`. Financials runtime now provides unit metadata for import-owned fields, and `ValuationPage` forwards the relevant units into this integration boundary. Unknown Financials units remain unknown and continue to normalize to `null` before reaching the calculation helper.
+
+## 15. Phase 65 Follow-up
+
+Phase 65 adds `SOURCE_SPECIFIC_FINANCIALS_IMPORT_UNIT_CAPTURE.md`. The CSV dry-run/import contract can now capture explicit Financials units, and tests prove those units can be supplied to this integration boundary. Market inputs remain persisted/PVT-owned, and unknown Financials units still block scale-sensitive calculations.

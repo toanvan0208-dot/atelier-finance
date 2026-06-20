@@ -116,6 +116,127 @@ describe("financial statement CSV dry-run bridge", () => {
     expect(JSON.stringify(report)).not.toContain('"productionApproved":true');
   });
 
+  it("parses canonical CSV unit columns into accepted row metadata", () => {
+    const report = buildFinancialStatementCsvDryRun([
+      [
+        "ticker",
+        "fiscalYear",
+        "periodType",
+        "revenue",
+        "revenue_unit",
+        "netIncome",
+        "net_income_unit",
+        "operatingCashFlow",
+        "operating_cash_flow_unit",
+        "totalAssets",
+        "total_assets_unit",
+        "totalDebt",
+        "total_debt_unit",
+        "totalEquity",
+        "equity_unit",
+        "currentAssets",
+        "current_assets_unit",
+        "currentLiabilities",
+        "current_liabilities_unit",
+        "eps",
+        "eps_unit",
+        "sharesOutstanding",
+        "shares_outstanding_unit",
+      ].join(","),
+      [
+        "FPT",
+        "2024",
+        "annual",
+        "100",
+        "million_vnd",
+        "10",
+        "million_vnd",
+        "15",
+        "million_vnd",
+        "200",
+        "million_vnd",
+        "50",
+        "million_vnd",
+        "80",
+        "million_vnd",
+        "70",
+        "million_vnd",
+        "30",
+        "million_vnd",
+        "1000",
+        "vnd_per_share",
+        "10",
+        "million_shares",
+      ].join(","),
+    ].join("\n"));
+
+    const row = report.importDryRun.acceptedRows[0];
+
+    expect(report.importDryRun.acceptedCount).toBe(1);
+    expect(row.unitMetadata.revenue.status).toBe("explicit");
+    expect(row.unitMetadata.netIncome.unit).toBe("million_vnd");
+    expect(row.unitMetadata.operatingCashFlow.unit).toBe("million_vnd");
+    expect(row.unitMetadata.totalAssets.unit).toBe("million_vnd");
+    expect(row.unitMetadata.totalDebt.unit).toBe("million_vnd");
+    expect(row.unitMetadata.equity.unit).toBe("million_vnd");
+    expect(row.unitMetadata.currentAssets.unit).toBe("million_vnd");
+    expect(row.unitMetadata.currentLiabilities.unit).toBe("million_vnd");
+    expect(row.unitMetadata.eps.unit).toBe("vnd_per_share");
+    expect(row.unitMetadata.sharesOutstanding.unit).toBe("million_shares");
+  });
+
+  it("parses selected unit aliases without broad guessing", () => {
+    const report = buildFinancialStatementCsvDryRun([
+      "ticker,fiscalYear,periodType,revenue,revenueUnit,totalEquity,unit_equity,sharesOutstanding,sharesOutstanding_unit",
+      "FPT,2024,annual,100,billion_vnd,200,billion_vnd,10,shares",
+    ].join("\n"));
+
+    expect(report.importDryRun.acceptedCount).toBe(1);
+    expect(report.importDryRun.acceptedRows[0].unitMetadata.revenue.unit).toBe("billion_vnd");
+    expect(report.importDryRun.acceptedRows[0].unitMetadata.equity.unit).toBe("billion_vnd");
+    expect(report.importDryRun.acceptedRows[0].unitMetadata.sharesOutstanding.unit).toBe("shares");
+  });
+
+  it("rejects invalid CSV unit columns while keeping dry-run write flags false", () => {
+    const report = buildFinancialStatementCsvDryRun([
+      "ticker,fiscalYear,periodType,revenue,revenue_unit,eps,eps_unit,sharesOutstanding,shares_outstanding_unit",
+      "FPT,2024,annual,100,usd,1000,million_vnd,10,vnd",
+    ].join("\n"));
+
+    expect(report.status).toBe("failed");
+    expect(report.importDryRun.acceptedCount).toBe(0);
+    expect(report.importDryRun.rejectedCount).toBe(1);
+    expect(report.importDryRun.rejectedRows[0].invalidFields).toEqual(
+      expect.arrayContaining(["revenueUnit", "epsUnit", "sharesOutstandingUnit"]),
+    );
+    expect(report.noDbWrite).toBe(true);
+    expect(report.writePlanned).toBe(false);
+  });
+
+  it("keeps missing CSV units as unknown metadata and preserves large values without guessing", () => {
+    const report = buildFinancialStatementCsvDryRun([
+      "ticker,fiscalYear,periodType,revenue,totalEquity",
+      "FPT,2024,annual,1000000000000,200000000000",
+    ].join("\n"));
+    const row = report.importDryRun.acceptedRows[0];
+
+    expect(row.unitMetadata.revenue.status).toBe("unknown_unit");
+    expect(row.unitMetadata.revenue.unit).toBe("unknown");
+    expect(row.unitMetadata.revenue.unit).not.toBe("billion_vnd");
+    expect(row.revenue).toBe(1_000_000_000_000);
+  });
+
+  it("prints unit metadata in JSON-shaped dry-run results", () => {
+    const report = buildFinancialStatementCsvDryRun([
+      "ticker,fiscalYear,periodType,revenue,revenue_unit",
+      "FPT,2024,annual,100,million_vnd",
+    ].join("\n"));
+    const parsed = JSON.parse(JSON.stringify(report)) as typeof report;
+
+    expect(parsed.importDryRun.acceptedRows[0].unitMetadata.revenue.unit).toBe("million_vnd");
+    expect(parsed.importDryRun.acceptedRows[0].unitMetadata.revenue.productionApproved).toBe(false);
+  });
+
   it("keeps quoted delimiter text intact in mapped source labels", () => {
     const report = buildFinancialStatementCsvDryRun([
       "ticker,fiscalYear,periodType,revenue,totalAssets,totalEquity,operatingCashFlow,sourceLabel",

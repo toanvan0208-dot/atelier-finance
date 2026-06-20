@@ -211,3 +211,7 @@ Maximum safe scope:
 ## 13. Phase 64 Follow-up
 
 Phase 64 adds `FINANCIALS_IMPORT_UNIT_METADATA_CONTRACT.md`. Financials runtime data now carries a `unitMetadata` sidecar for the import-owned numeric fields. Current local/research/sample values without explicit source units remain `unit:"unknown"`, so the Phase 63 Valuation normalization boundary continues to block scale-sensitive metrics instead of guessing magnitude.
+
+## 14. Phase 65 Follow-up
+
+Phase 65 adds `SOURCE_SPECIFIC_FINANCIALS_IMPORT_UNIT_CAPTURE.md`. CSV dry-run rows can now carry explicit import units into accepted row metadata, and pure tests confirm those units can be handed to the Valuation integration boundary. Unknown units still normalize to `null`; DB/runtime persistence of the import sidecar is deferred.

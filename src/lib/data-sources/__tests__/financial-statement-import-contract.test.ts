@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { buildFinancialStatementImportDryRun } from "../financial-statement-import-contract";
+import { buildControlledValuationIntegrationBoundary } from "@/features/valuation/lib/controlled-valuation-integration-boundary";
 
 describe("financial statement import dry-run contract", () => {
   it("normalizes valid rows without planning any write", () => {
@@ -84,6 +85,158 @@ describe("financial statement import dry-run contract", () => {
     expect(report.acceptedRows[0].missingFields).toEqual(["revenue", "operatingCashFlow"]);
     expect(report.acceptedRows[0].revenue).not.toBe(0);
     expect(report.acceptedRows[0].operatingCashFlow).not.toBe(0);
+  });
+
+  it("captures valid explicit unit metadata for import-owned fields", () => {
+    const report = buildFinancialStatementImportDryRun([
+      {
+        ticker: "FPT",
+        fiscalYear: 2025,
+        periodType: "annual",
+        revenue: "100",
+        revenueUnit: "million_vnd",
+        netIncome: "10",
+        netIncomeUnit: "million_vnd",
+        operatingCashFlow: "15",
+        operatingCashFlowUnit: "million_vnd",
+        totalAssets: "200",
+        totalAssetsUnit: "million_vnd",
+        totalDebt: "50",
+        totalDebtUnit: "million_vnd",
+        totalEquity: "80",
+        equityUnit: "million_vnd",
+        currentAssets: "70",
+        currentAssetsUnit: "million_vnd",
+        currentLiabilities: "30",
+        currentLiabilitiesUnit: "million_vnd",
+        eps: "1000",
+        epsUnit: "vnd_per_share",
+        sharesOutstanding: "100",
+        sharesOutstandingUnit: "million_shares",
+      },
+    ]);
+
+    expect(report.acceptedCount).toBe(1);
+    expect(report.rejectedCount).toBe(0);
+    expect(report.acceptedRows[0].unitMetadata.revenue).toMatchObject({
+      productionApproved: false,
+      status: "explicit",
+      unit: "million_vnd",
+    });
+    expect(report.acceptedRows[0].unitMetadata.eps.unit).toBe("vnd_per_share");
+    expect(report.acceptedRows[0].unitMetadata.sharesOutstanding.unit).toBe("million_shares");
+    expect(report.acceptedRows[0].unitMetadata.totalDebt.status).toBe("explicit");
+    expect(report.productionApproved).toBe(false);
+  });
+
+  it("rejects rows with invalid explicit unit metadata", () => {
+    const report = buildFinancialStatementImportDryRun([
+      { ticker: "FPT", fiscalYear: 2025, periodType: "annual", revenue: "100", revenueUnit: "usd" },
+      { ticker: "MWG", fiscalYear: 2025, periodType: "annual", eps: "1000", epsUnit: "million_vnd" },
+      {
+        ticker: "VCB",
+        fiscalYear: 2025,
+        periodType: "annual",
+        sharesOutstanding: "100",
+        sharesOutstandingUnit: "vnd",
+      },
+    ]);
+
+    expect(report.acceptedCount).toBe(0);
+    expect(report.rejectedCount).toBe(3);
+    expect(report.rejectedRows[0].invalidFields).toContain("revenueUnit");
+    expect(report.rejectedRows[1].invalidFields).toContain("epsUnit");
+    expect(report.rejectedRows[2].invalidFields).toContain("sharesOutstandingUnit");
+    expect(report.errors.join(" ")).toContain("not accepted by the Financials unit contract");
+  });
+
+  it("keeps present values with missing units as unknown without guessing magnitude", () => {
+    const report = buildFinancialStatementImportDryRun([
+      {
+        ticker: "FPT",
+        fiscalYear: 2025,
+        periodType: "annual",
+        revenue: "1000000000000",
+        totalEquity: "200",
+      },
+    ]);
+
+    expect(report.acceptedCount).toBe(1);
+    expect(report.acceptedRows[0].unitMetadata.revenue).toMatchObject({
+      status: "unknown_unit",
+      unit: "unknown",
+      warnings: ["revenue_financials_unit_metadata_missing"],
+    });
+    expect(report.acceptedRows[0].unitMetadata.equity.status).toBe("unknown_unit");
+    expect(report.acceptedRows[0].unitMetadata.revenue.unit).not.toBe("billion_vnd");
+    expect(report.warnings.join(" ")).toContain("revenue_financials_unit_metadata_missing");
+  });
+
+  it("keeps missing value null when a unit is provided for that field", () => {
+    const report = buildFinancialStatementImportDryRun([
+      {
+        ticker: "FPT",
+        fiscalYear: 2025,
+        periodType: "annual",
+        revenue: "",
+        revenueUnit: "million_vnd",
+      },
+    ]);
+
+    expect(report.acceptedCount).toBe(1);
+    expect(report.acceptedRows[0].revenue).toBeNull();
+    expect(report.acceptedRows[0].revenue).not.toBe(0);
+    expect(report.acceptedRows[0].unitMetadata.revenue.status).toBe("missing");
+    expect(report.acceptedRows[0].warnings).toContain("revenue_unit_provided_for_missing_value");
+  });
+
+  it("can hand explicit import units to Valuation while unknown units remain blocked", () => {
+    const explicit = buildFinancialStatementImportDryRun([
+      {
+        ticker: "FPT",
+        fiscalYear: 2025,
+        periodType: "annual",
+        revenue: "100",
+        revenueUnit: "million_vnd",
+        totalEquity: "200",
+        equityUnit: "million_vnd",
+        eps: "1000",
+        epsUnit: "vnd_per_share",
+        sharesOutstanding: "10",
+        sharesOutstandingUnit: "million_shares",
+      },
+    ]).acceptedRows[0];
+    const explicitValuation = buildControlledValuationIntegrationBoundary({
+      financialsRuntimeSnapshot: {
+        equity: explicit.totalEquity,
+        eps: explicit.eps,
+        revenue: explicit.revenue,
+        sharesOutstanding: explicit.sharesOutstanding,
+        units: {
+          equity: explicit.unitMetadata.equity.unit,
+          eps: explicit.unitMetadata.eps.unit,
+          revenue: explicit.unitMetadata.revenue.unit,
+          sharesOutstanding: explicit.unitMetadata.sharesOutstanding.unit,
+        },
+      },
+      persistedValuationInputs: { marketPrice: 50_000, units: { marketPrice: "vnd_per_share" } },
+    });
+    const unknown = buildFinancialStatementImportDryRun([
+      { ticker: "FPT", fiscalYear: 2025, periodType: "annual", totalEquity: "200" },
+    ]).acceptedRows[0];
+    const unknownValuation = buildControlledValuationIntegrationBoundary({
+      financialsRuntimeSnapshot: {
+        equity: unknown.totalEquity,
+        units: { equity: unknown.unitMetadata.equity.unit },
+      },
+      persistedValuationInputs: { marketPrice: 50_000, units: { marketPrice: "vnd_per_share" } },
+    });
+
+    expect(explicitValuation.selectedInputs.equity.normalizationStatus).toBe("ready");
+    expect(explicitValuation.calculation.metrics.pe.status).toBe("ready");
+    expect(explicitValuation.calculation.metrics.bvps.status).toBe("ready");
+    expect(unknownValuation.selectedInputs.equity.normalizationStatus).toBe("unknown_unit");
+    expect(unknownValuation.calculation.metrics.bvps.status).toBe("insufficient_data");
   });
 
   it("rejects invalid ticker and fiscal year without accepting the rows", () => {

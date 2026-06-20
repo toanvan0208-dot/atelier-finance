@@ -216,3 +216,7 @@ Phase 63 implements the recommended unit/provenance normalization step in `VALUA
 ## 15. Phase 64 Follow-up
 
 Phase 64 adds `FINANCIALS_IMPORT_UNIT_METADATA_CONTRACT.md`. The Financials runtime sidecar now records missing, unknown, explicit, or invalid units for import-owned fields and passes the Valuation-relevant units into the controlled Valuation boundary. Existing local/research/sample data still has unknown units unless explicitly supplied by a source, so prior browser evidence remains directionally unchanged for visible Valuation output.
+
+## 16. Phase 65 Follow-up
+
+Phase 65 adds `SOURCE_SPECIFIC_FINANCIALS_IMPORT_UNIT_CAPTURE.md`. Browser evidence is not refreshed because Phase 65 only changes parser/import dry-run contracts and tests; runtime DB persistence and visible Valuation output remain unchanged.

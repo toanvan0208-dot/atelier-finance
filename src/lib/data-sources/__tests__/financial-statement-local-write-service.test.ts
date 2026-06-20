@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 
 import type { NormalizedFinancialStatementImportRow } from "../financial-statement-import-contract";
+import { buildFinancialsUnitMetadata } from "@/features/financials/lib/financials-unit-metadata-contract";
 import {
   runFinancialStatementLocalWriteTrial,
   type FinancialStatementLocalWriteDb,
@@ -130,6 +131,7 @@ const acceptedRow = (
   netIncome: 100,
   totalAssets: 5000,
   totalLiabilities: null,
+  totalDebt: null,
   totalEquity: 2000,
   currentAssets: null,
   currentLiabilities: null,
@@ -141,6 +143,7 @@ const acceptedRow = (
   sourceLabel: "phase45_test",
   dataMode: "research_only",
   productionApproved: false,
+  unitMetadata: buildFinancialsUnitMetadata(),
   missingFields: [],
   warnings: [],
   rowIndex: 0,

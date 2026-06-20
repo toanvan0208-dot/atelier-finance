@@ -1,3 +1,12 @@
+import {
+  buildFinancialsUnitMetadata,
+  type FinancialsNumericField,
+  type FinancialsUnitMetadataMap,
+  isFinancialsUnitAccepted,
+} from "@/features/financials/lib/financials-unit-metadata-contract";
+import type { FinancialsStatementSnapshot } from "@/features/financials/lib/map-financials-to-logic-input";
+import type { ValuationUnit } from "@/features/valuation/lib/valuation-input-unit-provenance";
+
 export type FinancialStatementImportPeriodType = "annual" | "quarterly" | "unknown";
 
 export type FinancialStatementImportRow = {
@@ -13,6 +22,7 @@ export type FinancialStatementImportRow = {
   netIncome?: unknown;
   totalAssets?: unknown;
   totalLiabilities?: unknown;
+  totalDebt?: unknown;
   totalEquity?: unknown;
   equity?: unknown;
   currentAssets?: unknown;
@@ -22,6 +32,16 @@ export type FinancialStatementImportRow = {
   capitalExpenditure?: unknown;
   sharesOutstanding?: unknown;
   eps?: unknown;
+  revenueUnit?: unknown;
+  netIncomeUnit?: unknown;
+  operatingCashFlowUnit?: unknown;
+  totalAssetsUnit?: unknown;
+  equityUnit?: unknown;
+  totalDebtUnit?: unknown;
+  currentAssetsUnit?: unknown;
+  currentLiabilitiesUnit?: unknown;
+  epsUnit?: unknown;
+  sharesOutstandingUnit?: unknown;
   sourceLabel?: unknown;
   dataMode?: unknown;
   productionApproved?: unknown;
@@ -34,6 +54,7 @@ export type FinancialStatementImportNumericField =
   | "netIncome"
   | "totalAssets"
   | "totalLiabilities"
+  | "totalDebt"
   | "totalEquity"
   | "currentAssets"
   | "currentLiabilities"
@@ -56,6 +77,7 @@ export type NormalizedFinancialStatementImportRow = {
   netIncome: number | null;
   totalAssets: number | null;
   totalLiabilities: number | null;
+  totalDebt: number | null;
   totalEquity: number | null;
   currentAssets: number | null;
   currentLiabilities: number | null;
@@ -67,6 +89,7 @@ export type NormalizedFinancialStatementImportRow = {
   sourceLabel: string;
   dataMode: string;
   productionApproved: false;
+  unitMetadata: FinancialsUnitMetadataMap;
   missingFields: string[];
   warnings: string[];
   rowIndex: number;
@@ -133,6 +156,7 @@ const NUMERIC_FIELDS: FinancialStatementImportNumericField[] = [
   "netIncome",
   "totalAssets",
   "totalLiabilities",
+  "totalDebt",
   "totalEquity",
   "currentAssets",
   "currentLiabilities",
@@ -154,8 +178,22 @@ const REQUIRED_REVIEW_FIELDS: FinancialStatementImportNumericField[] = [
 const NON_NEGATIVE_FIELDS = new Set<FinancialStatementImportNumericField>([
   "totalAssets",
   "totalLiabilities",
+  "totalDebt",
   "sharesOutstanding",
 ]);
+
+const UNIT_FIELDS: Record<FinancialsNumericField, keyof FinancialStatementImportRow> = {
+  currentAssets: "currentAssetsUnit",
+  currentLiabilities: "currentLiabilitiesUnit",
+  eps: "epsUnit",
+  equity: "equityUnit",
+  netIncome: "netIncomeUnit",
+  operatingCashFlow: "operatingCashFlowUnit",
+  revenue: "revenueUnit",
+  sharesOutstanding: "sharesOutstandingUnit",
+  totalAssets: "totalAssetsUnit",
+  totalDebt: "totalDebtUnit",
+};
 
 const isBlank = (value: unknown): boolean =>
   value === null || value === undefined || (typeof value === "string" && value.trim() === "");
@@ -163,6 +201,11 @@ const isBlank = (value: unknown): boolean =>
 const normalizeText = (value: unknown): string | null => {
   if (isBlank(value)) return null;
   return String(value).trim();
+};
+
+const normalizeUnit = (value: unknown): ValuationUnit | null => {
+  const unit = normalizeText(value)?.toLowerCase();
+  return unit ? (unit as ValuationUnit) : null;
 };
 
 const normalizeTicker = (value: unknown): { value: string | null; error?: string } => {
@@ -243,6 +286,80 @@ const readNumericInput = (
 ): unknown => {
   if (field === "totalEquity" && row.totalEquity === undefined) return row.equity;
   return row[field];
+};
+
+const valueForFinancialsUnitField = (
+  field: FinancialsNumericField,
+  values: Record<FinancialStatementImportNumericField, number | null>,
+): number | null => {
+  if (field === "equity") return values.totalEquity;
+  if (field === "netIncome") return values.netIncome;
+  return values[field];
+};
+
+const financialsSnapshotFromValues = (
+  row: FinancialStatementImportRow,
+  values: Record<FinancialStatementImportNumericField, number | null>,
+): FinancialsStatementSnapshot => ({
+  currentAssets: values.currentAssets,
+  currentLiabilities: values.currentLiabilities,
+  eps: values.eps,
+  netProfit: values.netIncome,
+  operatingCashFlow: values.operatingCashFlow,
+  revenue: values.revenue,
+  sharesOutstanding: values.sharesOutstanding,
+  sourceName: normalizeText(row.sourceLabel),
+  totalAssets: values.totalAssets,
+  totalDebt: values.totalDebt,
+  totalEquity: values.totalEquity,
+});
+
+const buildUnitMetadataForRow = ({
+  dataMode,
+  row,
+  rowErrors,
+  rowWarnings,
+  sourceLabel,
+  values,
+}: {
+  row: FinancialStatementImportRow;
+  values: Record<FinancialStatementImportNumericField, number | null>;
+  sourceLabel: string;
+  dataMode: string;
+  rowWarnings: string[];
+  rowErrors: string[];
+}): { unitMetadata: FinancialsUnitMetadataMap; invalidFields: string[] } => {
+  const explicitUnits: Partial<Record<FinancialsNumericField, ValuationUnit | null>> = {};
+  const invalidFields: string[] = [];
+
+  for (const [field, unitField] of Object.entries(UNIT_FIELDS) as Array<
+    [FinancialsNumericField, keyof FinancialStatementImportRow]
+  >) {
+    const unit = normalizeUnit(row[unitField]);
+    const value = valueForFinancialsUnitField(field, values);
+
+    if (!unit) continue;
+    if (value === null) {
+      rowWarnings.push(`${field}_unit_provided_for_missing_value`);
+      continue;
+    }
+    if (!isFinancialsUnitAccepted(field, unit)) {
+      rowErrors.push(`${field} unit ${unit} is not accepted by the Financials unit contract.`);
+      invalidFields.push(String(unitField));
+      continue;
+    }
+    explicitUnits[field] = unit;
+  }
+
+  const unitMetadata = buildFinancialsUnitMetadata({
+    dataMode,
+    explicitUnits,
+    snapshot: financialsSnapshotFromValues(row, values),
+    sourceLabel,
+  });
+  rowWarnings.push(...Object.values(unitMetadata).flatMap((metadata) => metadata.warnings));
+
+  return { invalidFields, unitMetadata };
 };
 
 const duplicateKeyFor = (row: NormalizedFinancialStatementImportRow): string =>
@@ -327,6 +444,18 @@ export const buildFinancialStatementImportDryRun = (
       }
     }
 
+    const rowSourceLabel = normalizeText(row.sourceLabel) ?? sourceLabel;
+    const rowDataMode = normalizeText(row.dataMode) ?? dataMode;
+    const unitResult = buildUnitMetadataForRow({
+      dataMode: rowDataMode,
+      row,
+      rowErrors,
+      rowWarnings,
+      sourceLabel: rowSourceLabel,
+      values,
+    });
+    invalidFields.push(...unitResult.invalidFields);
+
     if (isProductionApprovalAttempt(row.productionApproved)) {
       rowWarnings.push("Input production approval was ignored; dry-run output remains unapproved.");
     }
@@ -362,6 +491,7 @@ export const buildFinancialStatementImportDryRun = (
       netIncome: values.netIncome,
       totalAssets: values.totalAssets,
       totalLiabilities: values.totalLiabilities,
+      totalDebt: values.totalDebt,
       totalEquity: values.totalEquity,
       currentAssets: values.currentAssets,
       currentLiabilities: values.currentLiabilities,
@@ -370,9 +500,10 @@ export const buildFinancialStatementImportDryRun = (
       capitalExpenditure: values.capitalExpenditure,
       sharesOutstanding: values.sharesOutstanding,
       eps: values.eps,
-      sourceLabel: normalizeText(row.sourceLabel) ?? sourceLabel,
-      dataMode: normalizeText(row.dataMode) ?? dataMode,
+      sourceLabel: rowSourceLabel,
+      dataMode: rowDataMode,
       productionApproved: false,
+      unitMetadata: unitResult.unitMetadata,
       missingFields,
       warnings: rowWarnings,
       rowIndex,

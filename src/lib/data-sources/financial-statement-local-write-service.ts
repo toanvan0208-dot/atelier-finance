@@ -162,7 +162,7 @@ const statementData = ({
     operatingCashFlow: row.operatingCashFlow,
     totalAssets: row.totalAssets,
     equity: row.totalEquity,
-    totalDebt: row.totalLiabilities,
+    totalDebt: row.totalDebt ?? row.totalLiabilities,
     currentAssets: row.currentAssets,
     currentLiabilities: row.currentLiabilities,
     eps: row.eps,

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { buildFinancialsUnitMetadata } from "@/features/financials/lib/financials-unit-metadata-contract";
 import type { NormalizedFinancialStatementImportRow } from "../financial-statement-import-contract";
 import type { FinancialStatementLocalFileDryRunReport } from "../financial-statement-local-file-dry-run";
 import type { FinancialStatementLocalWriteTrialReport } from "../financial-statement-local-write-service";
@@ -22,6 +23,7 @@ const acceptedRow = (): NormalizedFinancialStatementImportRow => ({
   netIncome: 100,
   totalAssets: 5000,
   totalLiabilities: null,
+  totalDebt: null,
   totalEquity: 2000,
   currentAssets: null,
   currentLiabilities: null,
@@ -33,6 +35,7 @@ const acceptedRow = (): NormalizedFinancialStatementImportRow => ({
   sourceLabel: "phase45_cli_test",
   dataMode: "research_only",
   productionApproved: false,
+  unitMetadata: buildFinancialsUnitMetadata(),
   missingFields: [],
   warnings: [],
   rowIndex: 0,

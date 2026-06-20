@@ -118,3 +118,7 @@ Maximum safe scope:
 - keep `productionApproved:false`;
 - add tests for one source-specific local/research fixture;
 - do not approve any source or expand Valuation metrics.
+
+## 10. Phase 65 Follow-up
+
+Phase 65 adds `SOURCE_SPECIFIC_FINANCIALS_IMPORT_UNIT_CAPTURE.md`. The local CSV dry-run/import contract can now capture explicit unit columns into accepted row `unitMetadata`, reject invalid explicit units, and keep missing units as `unknown_unit`. Runtime DB persistence of the sidecar remains deferred.

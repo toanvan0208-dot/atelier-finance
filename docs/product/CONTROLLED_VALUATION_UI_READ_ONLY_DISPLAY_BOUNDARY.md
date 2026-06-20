@@ -157,3 +157,7 @@ Phase 63 adds `VALUATION_INPUT_UNIT_PROVENANCE_NORMALIZATION.md`. The read-only 
 ## 13. Phase 64 Follow-up
 
 Phase 64 adds `FINANCIALS_IMPORT_UNIT_METADATA_CONTRACT.md`. The Valuation page now passes Financials runtime unit metadata into the controlled boundary, but current Financials local/research/sample data remains unknown-unit unless a source explicitly supplies units. The read-only panel behavior therefore stays conservative: unavailable/insufficient-data is preferred over scale inference.
+
+## 14. Phase 65 Follow-up
+
+Phase 65 adds `SOURCE_SPECIFIC_FINANCIALS_IMPORT_UNIT_CAPTURE.md`. This is parser/import dry-run work only; it does not change the visible Valuation panel. Explicit units captured during dry-run become eligible for future runtime handoff, while unknown units remain blocked by the existing read-only boundary.

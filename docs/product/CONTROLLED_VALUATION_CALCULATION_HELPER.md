@@ -175,3 +175,7 @@ Phase 63 adds `VALUATION_INPUT_UNIT_PROVENANCE_NORMALIZATION.md`. The pure calcu
 ## 15. Phase 64 Follow-up
 
 Phase 64 adds `FINANCIALS_IMPORT_UNIT_METADATA_CONTRACT.md`. Financials runtime now attaches unit metadata before Valuation integration. The pure calculation helper remains unchanged; it only receives values after the integration boundary has accepted explicit units or converted unknown/incompatible inputs to `null`.
+
+## 16. Phase 65 Follow-up
+
+Phase 65 adds `SOURCE_SPECIFIC_FINANCIALS_IMPORT_UNIT_CAPTURE.md`. The calculation helper remains unchanged. Source-specific CSV units are captured before integration, and the integration boundary still decides whether normalized values can reach the helper.
