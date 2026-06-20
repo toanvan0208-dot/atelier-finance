@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
+import { DataQualityBanner } from "@/components/shared/DataQualityBanner";
 import { FinancialsPage } from "../FinancialsPage";
 import { FinancialsSourceTransparency } from "../FinancialsSourceTransparency";
 import type { FinancialsRuntimeData } from "../../lib/financials-runtime-types";
@@ -109,7 +110,25 @@ describe("Financials runtime UI boundary", () => {
     expect(html).toContain("fallbackUsed");
     expect(html).toContain("false");
     expect(html).toContain("productionApproved:false");
-    expect(html).toContain("local research / synthetic");
+    expect(html).toContain("local DB phuc vu nghien cuu");
+    expect(html).toContain("Boundary nay chi ap dung cho module Financials");
+    expect(html).toContain("khong tu dong tro thanh DB-backed");
+  });
+
+  it("renders research-only data quality wording without overclaiming the source", () => {
+    const html = renderToStaticMarkup(
+      createElement(DataQualityBanner, {
+        source: "phase45_synthetic_financial_statement_local_write",
+        isResearchOnly: true,
+        missingFields: ["revenue"],
+      }),
+    );
+
+    expect(html).toContain("Du lieu local research-only");
+    expect(html).toContain("productionApproved:false");
+    expect(html).toContain("source transparency");
+    expect(html).toContain("revenue");
+    expect(html).not.toContain("Du lieu co metadata nguon");
   });
 
   it("keeps partial missing fields visible instead of rendering them as zero", () => {
@@ -143,6 +162,27 @@ describe("Financials runtime UI boundary", () => {
       const source = readFileSync(join(repoRoot, file), "utf8");
       for (const forbiddenImport of forbiddenImports) {
         expect(source).not.toContain(forbiddenImport);
+      }
+    }
+  });
+
+  it("keeps Overview, Valuation, and Risk from claiming the Financials DB-backed boundary", () => {
+    const moduleFiles = [
+      "src/features/overview/components/OverviewPage.tsx",
+      "src/features/valuation/components/ValuationPage.tsx",
+      "src/features/risk/components/RiskPage.tsx",
+    ];
+    const financialsOnlyClaims = [
+      "phase45_synthetic_financial_statement_local_write",
+      "db_backed",
+      "local_db",
+      "FinancialsSourceTransparency",
+    ];
+
+    for (const file of moduleFiles) {
+      const source = readFileSync(join(repoRoot, file), "utf8");
+      for (const claim of financialsOnlyClaims) {
+        expect(source).not.toContain(claim);
       }
     }
   });

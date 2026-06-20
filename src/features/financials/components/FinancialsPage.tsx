@@ -364,6 +364,10 @@ export function FinancialsPage({ initialRuntimeData, onNavigate }: FinancialsPag
           <DataQualityBanner
             asOf={bridgeState.runtimeData.source.asOf}
             isDemoData={bridgeState.runtimeData.runtimeStatus !== "db_backed"}
+            isResearchOnly={
+              bridgeState.runtimeData.source.readPath === "local_db" ||
+              bridgeState.runtimeData.source.dataMode === "research_only"
+            }
             isStale={false}
             missingFields={bridgeState.runtimeData.dataQuality.missingFields}
             source={bridgeState.runtimeData.source.sourceLabel}

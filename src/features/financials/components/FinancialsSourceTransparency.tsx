@@ -11,16 +11,25 @@ const labelValue = (value: string | number | boolean | null | undefined): string
 };
 
 const sourceNote = (runtimeData: FinancialsRuntimeData): string => {
-  if (runtimeData.source.sourceLabel === "phase45_synthetic_financial_statement_local_write") {
-    return "Du lieu local research / synthetic, chi dung cho kiem thu do an. Chua phai BCTC chinh thuc.";
+  if (runtimeData.source.readPath === "local_db") {
+    return "Du lieu local DB phuc vu nghien cuu / synthetic evidence. Chua phai BCTC chinh thuc hay nguon production-approved.";
   }
 
   if (runtimeData.runtimeStatus === "sample_fallback") {
-    return "Dang dung sample fallback. DB-backed financials chi bat khi ATELIER_FINANCIALS_DB_SOURCE=enabled.";
+    return "Du lieu mau tinh (static sample). Fallback dang bat; DB-backed financials chi bat khi ATELIER_FINANCIALS_DB_SOURCE=enabled.";
   }
 
   return "Nguon du lieu chua duoc phe duyet production; can doc kem pham vi va thoi diem cap nhat.";
 };
+
+const readPathLabel = (runtimeData: FinancialsRuntimeData): string => {
+  if (runtimeData.source.readPath === "local_db") return "local DB research-only";
+  if (runtimeData.source.readPath === "sample_static") return "static sample fallback";
+  return runtimeData.source.readPath;
+};
+
+const fallbackLabel = (runtimeData: FinancialsRuntimeData): string =>
+  runtimeData.source.fallbackUsed ? "Fallback dang bat" : "Fallback khong dung";
 
 export function FinancialsSourceTransparency({ runtimeData }: FinancialsSourceTransparencyProps) {
   const hasMissingFields = runtimeData.dataQuality.missingFields.length > 0;
@@ -51,12 +60,18 @@ export function FinancialsSourceTransparency({ runtimeData }: FinancialsSourceTr
           <div className="flex flex-wrap gap-2">
             <Chip variant="neutral">source transparency</Chip>
             <Chip variant="neutral">{runtimeData.runtimeStatus}</Chip>
+            <Chip variant="neutral">{readPathLabel(runtimeData)}</Chip>
+            <Chip variant="neutral">{fallbackLabel(runtimeData)}</Chip>
             <Chip variant="neutral">productionApproved:false</Chip>
             {hasMissingFields ? <Chip variant="neutral">partial/missing</Chip> : null}
           </div>
           <p className="mt-3 font-semibold">{sourceNote(runtimeData)}</p>
           <p className="mt-1">
             Chua duoc phe duyet production. Du lieu thieu duoc giu la null/unavailable, khong thay bang 0.
+          </p>
+          <p className="mt-1">
+            Boundary nay chi ap dung cho module Financials; Overview, Valuation va Risk co metadata rieng va khong tu
+            dong tro thanh DB-backed theo Financials.
           </p>
           {hasMissingFields ? (
             <p className="mt-2">

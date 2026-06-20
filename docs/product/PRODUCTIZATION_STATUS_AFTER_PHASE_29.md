@@ -28,6 +28,7 @@ Atelier Finance now has a real backend/database foundation for local productizat
 - Financial statements now have read-back evidence and cleanup policy for the synthetic local write rows, including read-service and adapter verification.
 - Financials now has a DB-backed runtime loader boundary that is default-off and only reads local DB rows when explicitly enabled.
 - Financials now wires that runtime loader into the UI through a server boundary, keeps default sample fallback, and shows source transparency for fallback/local research modes.
+- Financials now has hardened UI evidence wording and module-boundary tests so local DB research-only Financials status is not confused with approved source data or inherited by Overview/Valuation/Risk.
 - Technical/PVT can read local DB-backed market prices in explicit research mode and now separates market price source lineage from company/issuer metadata status.
 - Technical/PVT has a local/research-only issuer metadata foundation for safe source transparency; it is not official or production-approved metadata.
 - Technical/PVT now prevents static/sample-derived support/resistance, volume ratio, and FOMO values from leaking into DB-backed mode.
@@ -86,6 +87,7 @@ This is not yet a production data product. The current database can store local 
 - Phase 46 records read-back evidence and cleanup policy for Phase 45 synthetic rows, but does not write new DB rows, delete rows, import real BCTC data, approve a financial data source, add a public upload API, or wire Financials UI runtime behavior. See `FINANCIAL_STATEMENTS_READ_BACK_AND_CLEANUP_POLICY.md`.
 - Phase 47 adds a Financials DB-backed runtime boundary, but does not wire the Financials UI, run browser verification, write DB rows, delete rows, import real BCTC data, approve a financial data source, or claim production data. See `FINANCIALS_DB_BACKED_RUNTIME_BOUNDARY.md`.
 - Phase 48 wires the Financials runtime boundary into the UI, but keeps DB-backed mode default-off and explicit, does not write/delete DB rows, import real BCTC data, approve a financial data source, call external APIs, or claim production data. See `FINANCIALS_UI_RUNTIME_WIRING_BOUNDARY.md`.
+- Phase 49 hardens Financials UI evidence wording and module consistency, but does not run browser verification, write/delete DB rows, import real BCTC data, approve a financial data source, call external APIs, or make Overview/Valuation/Risk inherit Financials DB-backed status. See `FINANCIALS_UI_EVIDENCE_HARDENING_AND_MODULE_CONSISTENCY.md`.
 - Technical/PVT company/issuer metadata is not production verified; Phase 34 prevents static sample metadata reuse, and Phase 35 only adds a local/research-only seed foundation. Phase 36 prevents sample-derived PVT metrics from leaking into DB-backed mode. Phase 37 prevents sample chart series from leaking into DB-backed mode. These phases do not implement full technical analysis. See `TECHNICAL_PVT_COMPANY_METADATA_BOUNDARY.md`, `COMPANY_ISSUER_METADATA_FOUNDATION.md`, `TECHNICAL_PVT_DERIVED_METRICS_BOUNDARY.md`, and `TECHNICAL_PVT_CHART_SERIES_BOUNDARY.md`.
 - No authenticated multi-user workspace layer exists yet.
 - No production monitoring, jobs, queues, cache policy, or provider retry policy exists yet.
@@ -239,6 +241,8 @@ Phase 46 records Financial Statements read-back evidence and cleanup policy. The
 Phase 47 adds a Financials DB-backed runtime boundary. Default runtime stays on sample/static fallback; DB-backed reads require `preferDb:true` or `ATELIER_FINANCIALS_DB_SOURCE=enabled`. Read-only verification confirmed FPT/MWG/VCB synthetic rows return `runtimeStatus:db_backed`, `readPath:local_db`, `fallbackUsed:false`, and `productionApproved:false`.
 
 Phase 48 wires the Phase 47 Financials runtime boundary into `/workspace?module=financials`. The server page loads serialized runtime data, the client UI renders source transparency, default mode remains `sample_fallback`, and DB-backed UI rendering requires `ATELIER_FINANCIALS_DB_SOURCE=enabled`. Browser verification confirmed fallback source transparency and DB-backed `research_only` rendering, including MWG partial missing fields remaining unavailable instead of zero-filled. The phase does not write/delete DB rows, import real BCTC data, approve a source, or add recommendation/trading-signal wording.
+
+Phase 49 hardens Financials UI evidence wording and module consistency. `DataQualityBanner` now has a local research-only path, Financials source transparency states that the boundary is Financials-only, and tests guard Overview/Valuation/Risk from claiming Financials DB-backed status. Browser verification was not run in Phase 49 because the in-app Browser plugin rejected localhost inspection under its URL policy.
 
 ## 8. Roadmap After Phase 29
 
