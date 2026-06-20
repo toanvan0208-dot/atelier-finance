@@ -59,8 +59,8 @@ Phase 30H adds an academic/local/research data boundary for AI disclosure. Curre
 | legalStatus | `needs_review` |
 | productionApproved | `false` |
 | attributionRequired | `true` |
-| runtimeUse | `local_command_only` / `manual_file_write_verified` / `db_read_path_verified` / `pvt_adapter_ready` / `technical_helper_available` / `technical_runtime_wrapper_default_off` / `technical_source_transparency_visible` / `technical_browser_verified_local` / `technical_metadata_boundary_added` / `technical_local_issuer_seed_foundation` / `technical_derived_metrics_boundary_added` |
-| implementationStatus | `technical_pvt_browser_verified_local_with_metadata_boundary_local_seed_and_derived_metrics_boundary_browser_verified` |
+| runtimeUse | `local_command_only` / `manual_file_write_verified` / `db_read_path_verified` / `pvt_adapter_ready` / `technical_helper_available` / `technical_runtime_wrapper_default_off` / `technical_source_transparency_visible` / `technical_browser_verified_local` / `technical_metadata_boundary_added` / `technical_local_issuer_seed_foundation` / `technical_derived_metrics_boundary_added` / `technical_chart_series_boundary_added` |
+| implementationStatus | `technical_pvt_browser_verified_local_with_metadata_boundary_local_seed_derived_metrics_and_chart_series_boundary` |
 | dataCategories | `market_prices_research_only` |
 | persistence | `local_database_only` |
 | publicRuntime | `not_enabled` |
@@ -81,6 +81,10 @@ Phase 30H adds an academic/local/research data boundary for AI disclosure. Curre
 | Phase 36 derived metrics boundary | `docs/product/TECHNICAL_PVT_DERIVED_METRICS_BOUNDARY.md`; DB-backed PVT derived metrics must be computed from active market price series or marked insufficient/unavailable; sample support/resistance, volume ratio, and FOMO must not leak into DB-backed mode |
 | latestPhase36BrowserVerification | `2026-06-20`, DB-backed FPT rendered current price `129.12` from local DB / `vnstock` / `research_only`; `derived:insufficient_data`; sample support `38.000 - 40.000`, resistance `44.000 - 46.000`, volume `1.4x TB20`, and FOMO `Trung bình, 3/6` were not shown; support/resistance, volume, FOMO, and risk/reward rendered insufficient/unavailable states; `productionApproved:false`; no recommendation/trading-signal wording |
 | latestPhase36Limitation | Chart can still display presentation/sample chart points, MA lines, volume bars, and annotations such as `KQKD` / `Ngành`; defer to Phase 37 - PVT Chart Series Boundary |
+| Phase 37 chart series boundary | `docs/product/TECHNICAL_PVT_CHART_SERIES_BOUNDARY.md`; DB-backed PVT chart points must come from the active local DB market price series or render unavailable/insufficient; sample chart points, MA lines, volume bars, and annotations must not leak into DB-backed mode |
+| latestPhase37Validation | DB-backed 17-observation FPT series builds 17 chart points from active DB rows; MA20/MA50 remain insufficient; annotations unavailable; `productionApproved:false`; no recommendation/trading-signal wording |
+| latestPhase37BrowserVerification | `2026-06-20`, DB-backed FPT rendered current price `129.12` from local DB / `vnstock` / `research_only`; source transparency and chart section displayed `chart:computed_from_market_price_series`; chart note said it uses the active local DB market price series; sample annotations `KQKD` / `Ngành` were not shown; MA20/MA50 hidden for 17 observations; support/resistance/FOMO/volume remained unavailable/insufficient; `productionApproved:false`; no recommendation/trading-signal wording |
+| latestPhase37FallbackNote | Fallback mode was not re-verified in the Phase 37 browser pass; automated tests cover sample fallback chart `static_sample` behavior |
 | realDataCommitAllowed | `false` |
 | nextDecision | `manual_export_bridge_or_offline_contract_or_python_bridge` |
 | financialStatements | `out_of_scope_for_31E` |

@@ -168,6 +168,8 @@ Phase 36 did not:
 - Existing chart price/volume points, MA lines, volume bars, and annotations such as `KQKD` / `Ngành` can still come from sample chart presentation until a later phase wires full DB-backed chart points.
 - Phase 37 should handle the PVT Chart Series Boundary so DB-backed mode no longer mixes DB-backed price transparency with presentation/sample chart series.
 
+Phase 37 addresses this chart-series limitation by adding `pvtChartSeries` source/status metadata and preventing sample chart points, MA lines, volume bars, and annotations from rendering in DB-backed mode. See `TECHNICAL_PVT_CHART_SERIES_BOUNDARY.md`.
+
 ## 12. Files Changed
 
 - `src/features/technical/types.ts`

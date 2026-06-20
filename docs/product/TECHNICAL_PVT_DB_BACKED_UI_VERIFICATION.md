@@ -104,6 +104,29 @@ Phase 36 addresses the later-phase review note by adding `pvtDerivedMetrics` sta
 
 When DB-backed derived metrics are insufficient or unavailable, the UI shows labels such as `Chưa đủ dữ liệu`, `Chưa đủ 20 phiên`, and `Không khả dụng` instead of sample ranges or sample FOMO score.
 
+## 3D. Phase 37 Chart Series Boundary
+
+Phase 37 addresses the chart limitation by adding `pvtChartSeries` status/source metadata. In DB-backed mode, chart points must come from the active local DB market price series or the chart must render unavailable/insufficient instead of using sample presentation data.
+
+For the 17-observation FPT local DB series, the chart points are built from active DB rows, MA20/MA50 remain insufficient, annotations remain unavailable, and `productionApproved:false` remains unchanged. See `TECHNICAL_PVT_CHART_SERIES_BOUNDARY.md`.
+
+Manual browser verification on 2026-06-20 confirmed DB-backed FPT rendering after Phase 37:
+
+- Page rendered at `http://localhost:3000/workspace?module=technical` with `DATABASE_URL=file:./dev.db` and `ATELIER_TECHNICAL_PVT_DB_SOURCE=enabled`.
+- FPT current price rendered from local DB / `vnstock` / `research_only` as `129.12`.
+- Price/volume source displayed as Local DB manual import / `vnstock` / `research_only`.
+- `productionApproved:false` remained visible.
+- Source transparency displayed `chart:computed_from_market_price_series`.
+- Chart section displayed `computed_from_market_price_series`.
+- Chart displayed a note that it uses the active local DB market price series.
+- DB-backed chart no longer displayed sample annotations such as `KQKD` / `Ngành`.
+- MA20/MA50 were hidden because they were not computed from the same series/source and the active DB-backed series has only 17 observations.
+- Sample support/resistance/FOMO/volume values remained unavailable or `insufficient_data` in DB-backed mode.
+- Support/resistance labels on the chart were shown only as unavailable/insufficient-data placeholders, not as computed technical levels.
+- No recommendation or trading-signal wording was observed.
+
+Fallback mode was not re-verified in this pass. Existing automated tests cover sample fallback chart `static_sample` behavior.
+
 ## 4. Client/Server Boundary
 
 Server-side loader path:

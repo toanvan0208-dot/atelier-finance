@@ -62,6 +62,10 @@ Phase 35 adds `getIssuerMetadata(ticker)` as a local/research-only issuer metada
 
 Phase 36 adds `pvtDerivedMetrics` to keep support/resistance, volume ratio, and FOMO source/status separate from both market price source and issuer metadata. In DB-backed mode, derived PVT metrics must come from the active market price series or render as insufficient/unavailable. See `TECHNICAL_PVT_DERIVED_METRICS_BOUNDARY.md`.
 
+Phase 37 adds `pvtChartSeries` to keep chart points, volume bars, moving averages, and annotations source/status separate from sample presentation data. In DB-backed mode, chart points must come from the active local DB market price series or render as unavailable/insufficient. See `TECHNICAL_PVT_CHART_SERIES_BOUNDARY.md`.
+
+Manual browser verification on 2026-06-20 confirmed DB-backed FPT renders `chart:computed_from_market_price_series`, displays the active local DB market price series note, hides sample annotations, and keeps MA20/MA50 hidden for the 17-observation local DB series.
+
 ## 4. Fallback Behavior
 
 Fallback remains mandatory for runtime safety.

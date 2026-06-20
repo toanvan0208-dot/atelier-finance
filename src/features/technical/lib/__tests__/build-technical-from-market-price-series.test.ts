@@ -25,8 +25,24 @@ const baseData: PVTObservationData = {
   },
   chart: {
     title: "PVT",
-    points: [],
-    events: [],
+    points: [
+      { label: "Sample-1", price: 38, volume: 1.4, ma20: 39, ma50: 40 },
+      { label: "Sample-2", price: 45, volume: 1.6, ma20: 40, ma50: 41 },
+    ],
+    events: [
+      {
+        label: "KQKD",
+        title: "Sample earnings event",
+        pointIndex: 0,
+        note: "Sample event",
+      },
+      {
+        label: "Ngành",
+        title: "Sample industry event",
+        pointIndex: 1,
+        note: "Sample event",
+      },
+    ],
     quickRead: [],
   },
   signalLayers: [
@@ -124,6 +140,44 @@ describe("buildTechnicalFromMarketPriceSeries", () => {
     expect(result.adapter.dataMode).toBe("research_only");
     expect(result.data?.ticker).toBe("FPT");
     expect(result.data?.currentPrice).toBe(110);
+    expect(result.data?.chart.points).toHaveLength(2);
+    expect(result.data?.chart.points[0]).toMatchObject({
+      label: "2025-01-02",
+      price: 100,
+      volume: 1000,
+    });
+    expect(result.data?.chart.points[1]).toMatchObject({
+      label: "2025-01-03",
+      price: 110,
+      volume: 2000,
+    });
+    expect(result.data?.chart.points.map((point) => point.price)).not.toEqual([38, 45]);
+    expect(result.data?.chart.points.some((point) => point.ma20 !== undefined || point.ma50 !== undefined)).toBe(false);
+    expect(result.data?.chart.events).toEqual([]);
+    expect(JSON.stringify(result.data?.chart)).not.toMatch(/KQKD|Ngành/);
+    expect(result.data?.pvtChartSeries).toMatchObject({
+      sourceLabel: "vnstock",
+      dataMode: "research_only",
+      productionApproved: false,
+      status: "computed_from_market_price_series",
+      availableObservations: 2,
+      points: {
+        count: 2,
+        status: "computed_from_market_price_series",
+      },
+      movingAverages: {
+        ma20: {
+          status: "insufficient_data",
+        },
+        ma50: {
+          status: "insufficient_data",
+        },
+      },
+      annotations: {
+        count: 0,
+        status: "unavailable",
+      },
+    });
     expect(result.data?.keyLevels.support).not.toBe("38.000 - 40.000");
     expect(result.data?.keyLevels.resistance).not.toBe("44.000 - 46.000");
     expect(result.data?.pvtDerivedMetrics).toMatchObject({
@@ -192,6 +246,37 @@ describe("buildTechnicalFromMarketPriceSeries", () => {
     );
 
     expect(result.ok).toBe(true);
+    expect(result.data?.chart.points).toHaveLength(17);
+    expect(result.data?.chart.points.at(-1)).toMatchObject({
+      label: "2025-01-17",
+      price: 116,
+      volume: 1016,
+    });
+    expect(result.data?.chart.points.some((point) => point.ma20 !== undefined || point.ma50 !== undefined)).toBe(false);
+    expect(result.data?.chart.events).toEqual([]);
+    expect(result.data?.pvtChartSeries).toMatchObject({
+      sourceLabel: "vnstock",
+      dataMode: "research_only",
+      productionApproved: false,
+      status: "computed_from_market_price_series",
+      availableObservations: 17,
+      points: {
+        count: 17,
+        status: "computed_from_market_price_series",
+      },
+      movingAverages: {
+        ma20: {
+          status: "insufficient_data",
+        },
+        ma50: {
+          status: "insufficient_data",
+        },
+      },
+      annotations: {
+        count: 0,
+        status: "unavailable",
+      },
+    });
     expect(result.data?.pvtDerivedMetrics?.availableObservations).toBe(17);
     expect(result.data?.pvtDerivedMetrics?.volumeRatio).toMatchObject({
       value: null,
@@ -228,5 +313,19 @@ describe("buildTechnicalFromMarketPriceSeries", () => {
     expect(output).not.toContain("sellsignal");
     expect(output).not.toContain("holdsignal");
     expect(output).not.toContain("advice");
+  });
+
+  it("keeps sample fallback chart marked static sample when the base builder is used without DB series", () => {
+    const result = buildTechnicalFromMarketPriceSeries(
+      baseData,
+      series([], {
+        ok: false,
+        status: "not_found",
+        count: 0,
+        rows: [],
+      }),
+    );
+
+    expect(result.data).toBeNull();
   });
 });

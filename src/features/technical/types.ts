@@ -364,9 +364,9 @@ export type PVTStatusTone = "positive" | "caution" | "risk" | "neutral";
 export type PVTObservationPoint = {
   label: string;
   price: number;
-  volume: number;
-  ma20: number;
-  ma50: number;
+  volume: number | null;
+  ma20?: number | null;
+  ma50?: number | null;
 };
 
 export type PVTObservationEvent = {
@@ -493,6 +493,48 @@ export type PVTDerivedMetrics = {
   warnings: string[];
 };
 
+export type PVTChartSeriesStatus =
+  | "computed_from_market_price_series"
+  | "insufficient_data"
+  | "unavailable"
+  | "static_sample"
+  | "presentation_only"
+  | "unknown";
+
+export type PVTChartSeries = {
+  sourceLabel: string;
+  dataMode: string;
+  productionApproved: false;
+  status: PVTChartSeriesStatus;
+  ticker: string | null;
+  availableObservations: number;
+  requiredObservations: number;
+  points: {
+    count: number;
+    status: PVTChartSeriesStatus;
+  };
+  volume: {
+    count: number;
+    status: PVTChartSeriesStatus;
+  };
+  movingAverages: {
+    ma20: {
+      status: PVTChartSeriesStatus;
+      requiredObservations: number;
+    };
+    ma50: {
+      status: PVTChartSeriesStatus;
+      requiredObservations: number;
+    };
+  };
+  annotations: {
+    count: number;
+    status: PVTChartSeriesStatus;
+  };
+  limitations: string[];
+  warnings: string[];
+};
+
 export type TechnicalIssuerMetadataVerificationStatus =
   | "verified"
   | "local_research_seed"
@@ -566,6 +608,7 @@ export type PVTObservationData = {
   riskReward: PVTRiskRewardZoneData;
   fomo: PVTFomoData;
   pvtDerivedMetrics?: PVTDerivedMetrics;
+  pvtChartSeries?: PVTChartSeries;
   logicSummary?: PVTLogicSummary;
   finalConclusion: PVTFinalConclusionData;
   nextActions: PVTNextAction[];

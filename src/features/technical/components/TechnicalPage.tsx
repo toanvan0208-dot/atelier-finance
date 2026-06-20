@@ -92,11 +92,13 @@ export function TechnicalPage({ initialRuntimeData, onNavigate }: TechnicalPageP
       <SourceTransparencyStrip
         issuerMetadata={issuerMetadata}
         marketDataSource={marketDataSource}
+        pvtChartSeries={data.pvtChartSeries}
         pvtDerivedMetrics={data.pvtDerivedMetrics}
       />
       <PVTHeroStatus data={data} />
       <PVTMainChart
         data={data.chart}
+        chartSeries={data.pvtChartSeries}
         supportLabel={data.keyLevels.support}
         resistanceLabel={data.keyLevels.resistance}
       />
@@ -123,10 +125,12 @@ function SourceTransparencyStrip({
   issuerMetadata,
   marketDataSource,
   pvtDerivedMetrics,
+  pvtChartSeries,
 }: {
   issuerMetadata: TechnicalIssuerMetadata;
   marketDataSource: TechnicalMarketDataSource;
   pvtDerivedMetrics: PVTObservationData["pvtDerivedMetrics"];
+  pvtChartSeries: PVTObservationData["pvtChartSeries"];
 }) {
   const sourceText =
     marketDataSource.sourceType === "local_db_manual_import"
@@ -184,9 +188,17 @@ function SourceTransparencyStrip({
               derived:{pvtDerivedMetrics.dataStatus}
             </span>
           ) : null}
+          {pvtChartSeries ? (
+            <span className="rounded-[3px] border border-ink/10 bg-muted/10 px-2 py-1 font-bold text-ink">
+              chart:{pvtChartSeries.status}
+            </span>
+          ) : null}
         </div>
         <p className="lg:col-span-2">
           Derived PVT metrics are computed only from the active market price series; unavailable when insufficient.
+        </p>
+        <p className="lg:col-span-2">
+          Chart series must come from the active market price series or stay clearly marked as unavailable/static_sample/presentation_only.
         </p>
       </div>
     </section>

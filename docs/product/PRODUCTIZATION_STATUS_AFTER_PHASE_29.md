@@ -20,6 +20,7 @@ Atelier Finance now has a real backend/database foundation for local productizat
 - Technical/PVT can read local DB-backed market prices in explicit research mode and now separates market price source lineage from company/issuer metadata status.
 - Technical/PVT has a local/research-only issuer metadata foundation for safe source transparency; it is not official or production-approved metadata.
 - Technical/PVT now prevents static/sample-derived support/resistance, volume ratio, and FOMO values from leaking into DB-backed mode.
+- Technical/PVT now prevents presentation/sample chart series, MA lines, volume bars, and annotations from leaking into DB-backed mode.
 - Bridged modules do not silently fall back to legacy mock/static records when API data is missing.
 
 This is not yet a production data product. The current database can store local sample/lab data and user-provided manual upload evidence, but there is no production-approved real data source, no external source adapter, and no production database/cloud deployment confirmed in the repo.
@@ -63,7 +64,7 @@ This is not yet a production data product. The current database can store local 
 - Manual CSV is not promoted into canonical production data.
 - Manual import persistence does not replace source-provider ingestion.
 - Risk, Technical/PVT, Checklist, Watchlist, Simulation, and broader AI data context are not fully bridged to database-backed product data.
-- Technical/PVT company/issuer metadata is not production verified; Phase 34 prevents static sample metadata reuse, and Phase 35 only adds a local/research-only seed foundation. Phase 36 prevents sample-derived PVT metrics from leaking into DB-backed mode, but does not implement full technical analysis. See `TECHNICAL_PVT_COMPANY_METADATA_BOUNDARY.md`, `COMPANY_ISSUER_METADATA_FOUNDATION.md`, and `TECHNICAL_PVT_DERIVED_METRICS_BOUNDARY.md`.
+- Technical/PVT company/issuer metadata is not production verified; Phase 34 prevents static sample metadata reuse, and Phase 35 only adds a local/research-only seed foundation. Phase 36 prevents sample-derived PVT metrics from leaking into DB-backed mode. Phase 37 prevents sample chart series from leaking into DB-backed mode. These phases do not implement full technical analysis. See `TECHNICAL_PVT_COMPANY_METADATA_BOUNDARY.md`, `COMPANY_ISSUER_METADATA_FOUNDATION.md`, `TECHNICAL_PVT_DERIVED_METRICS_BOUNDARY.md`, and `TECHNICAL_PVT_CHART_SERIES_BOUNDARY.md`.
 - No authenticated multi-user workspace layer exists yet.
 - No production monitoring, jobs, queues, cache policy, or provider retry policy exists yet.
 
@@ -189,7 +190,11 @@ Phase 34 adds a Technical/PVT company/issuer metadata boundary so DB-backed mark
 
 Phase 35 adds a local/research-only issuer metadata foundation for source transparency. It remains `productionApproved:false`, is not official metadata, and does not fill industry/sector unless source evidence exists.
 
-Phase 36 adds and browser-verifies the PVT derived metrics boundary. DB-backed FPT mode now renders `derived:insufficient_data`, does not show sample support `38.000 - 40.000`, sample resistance `44.000 - 46.000`, sample volume `1.4x TB20`, or sample FOMO `Trung bình, 3/6`, and displays insufficient/unavailable states instead. Chart series/sample presentation points remain a known limitation for Phase 37.
+Phase 36 adds and browser-verifies the PVT derived metrics boundary. DB-backed FPT mode now renders `derived:insufficient_data`, does not show sample support `38.000 - 40.000`, sample resistance `44.000 - 46.000`, sample volume `1.4x TB20`, or sample FOMO `Trung bình, 3/6`, and displays insufficient/unavailable states instead. Chart series/sample presentation points were deferred to Phase 37.
+
+Phase 37 adds the PVT chart series boundary. DB-backed chart points are built from the active local DB market price series when available; sample chart points, sample MA20/MA50, sample volume bars, and sample annotations such as `KQKD` / `Ngành` are not reused. For the 17-observation FPT series, MA20/MA50 remain insufficient and annotations remain unavailable.
+
+Phase 37 browser verification on 2026-06-20 confirmed DB-backed FPT renders `chart:computed_from_market_price_series`, shows the active local DB market price series note, hides sample annotations such as `KQKD` / `Ngành`, hides MA20/MA50 for the 17-observation series, keeps support/resistance/FOMO/volume unavailable or insufficient, and keeps `productionApproved:false`. Fallback mode was not re-verified in that browser pass; automated tests cover sample fallback chart `static_sample` behavior.
 
 ## 8. Roadmap After Phase 29
 

@@ -21,20 +21,30 @@ const dbRuntimeBase = {
     industry: "Chua co du lieu xac minh",
     currentPrice: 129.12,
     keyLevels: {
-      support: "Chưa đủ dữ liệu",
-      resistance: "Chưa đủ dữ liệu",
+      support: "Chua du du lieu",
+      resistance: "Chua du du lieu",
     },
     volume: {
       ...pvtObservationData.volume,
       currentVsAvg20: null,
-      label: "Chưa đủ 20 phiên",
+      label: "Chua du 20 phien",
     },
     chart: {
-      ...pvtObservationData.chart,
+      title: pvtObservationData.chart.title,
+      points: Array.from({ length: 17 }, (_, index) => ({
+        label: `2025-01-${String(index + 1).padStart(2, "0")}`,
+        price: 100 + index,
+        volume: 1000 + index,
+      })),
+      events: [],
       quickRead: [
         {
-          question: "Dữ liệu derived có đủ không?",
-          answer: "Chưa đủ dữ liệu để tính vùng hỗ trợ/kháng cự từ chuỗi DB-backed.",
+          question: "Chart dung nguon nao?",
+          answer: "Chart uses active local DB market price series; sample chart points and sample annotations are not reused.",
+        },
+        {
+          question: "Du lieu derived co du khong?",
+          answer: "Chua du du lieu de tinh vung ho tro/khang cu tu chuoi DB-backed.",
         },
       ],
     },
@@ -43,15 +53,15 @@ const dbRuntimeBase = {
       currentPrice: 129.12,
       supportPrice: null,
       resistancePrice: null,
-      upside: "Không khả dụng",
-      downside: "Không khả dụng",
-      conclusion: "Chưa đủ dữ liệu để tính vùng hỗ trợ/kháng cự từ chuỗi DB-backed.",
+      upside: "Khong kha dung",
+      downside: "Khong kha dung",
+      conclusion: "Chua du du lieu de tinh vung ho tro/khang cu tu chuoi DB-backed.",
     },
     fomo: {
       ...pvtObservationData.fomo,
       score: null,
-      signs: ["FOMO chưa khả dụng cho dữ liệu DB-backed."],
-      conclusion: "FOMO chưa khả dụng vì chưa được tính từ cùng chuỗi DB-backed.",
+      signs: ["FOMO chua kha dung cho du lieu DB-backed."],
+      conclusion: "FOMO chua kha dung vi chua duoc tinh tu cung chuoi DB-backed.",
     },
     pvtDerivedMetrics: {
       sourceLabel: "vnstock",
@@ -80,13 +90,46 @@ const dbRuntimeBase = {
       limitations: ["Derived metrics require the active DB-backed series."],
       warnings: [],
     },
-    confirmation: ["Chưa đủ dữ liệu để xác định điều kiện xác nhận từ chuỗi DB-backed."],
-    invalidation: ["Chưa đủ dữ liệu để xác định điều kiện phủ nhận từ chuỗi DB-backed."],
+    pvtChartSeries: {
+      sourceLabel: "vnstock",
+      dataMode: "research_only",
+      productionApproved: false as const,
+      status: "computed_from_market_price_series" as const,
+      ticker: "FPT",
+      availableObservations: 17,
+      requiredObservations: 2,
+      points: {
+        count: 17,
+        status: "computed_from_market_price_series" as const,
+      },
+      volume: {
+        count: 17,
+        status: "computed_from_market_price_series" as const,
+      },
+      movingAverages: {
+        ma20: {
+          status: "insufficient_data" as const,
+          requiredObservations: 20,
+        },
+        ma50: {
+          status: "insufficient_data" as const,
+          requiredObservations: 50,
+        },
+      },
+      annotations: {
+        count: 0,
+        status: "unavailable" as const,
+      },
+      limitations: ["Chart points are built from the active local DB market price series."],
+      warnings: [],
+    },
+    confirmation: ["Chua du du lieu de xac dinh dieu kien xac nhan tu chuoi DB-backed."],
+    invalidation: ["Chua du du lieu de xac dinh dieu kien phu nhan tu chuoi DB-backed."],
     scenarios: [
       {
         name: "Derived metrics unavailable",
-        condition: "Chuỗi DB-backed chưa đủ cơ sở để tính vùng kỹ thuật.",
-        meaning: "Không sử dụng kịch bản sample cho dữ liệu DB-backed.",
+        condition: "Chuoi DB-backed chua du co so de tinh vung ky thuat.",
+        meaning: "Khong su dung kich ban sample cho du lieu DB-backed.",
       },
     ],
   },
@@ -143,9 +186,10 @@ describe("TechnicalPage source transparency", () => {
     expect(html).toContain("sampleFallback");
     expect(html).toContain("metadata:static_sample");
     expect(html).toContain("derived:static_sample");
+    expect(html).toContain("chart:static_sample");
   });
 
-  it("displays DB-backed source transparency and issuer metadata limitation without client DB imports", () => {
+  it("displays DB-backed source transparency and chart boundary without client DB imports", () => {
     const html = renderPage({
       ...dbRuntimeBase,
       issuerMetadata: {
@@ -171,17 +215,23 @@ describe("TechnicalPage source transparency", () => {
     expect(html).toContain("Metadata doanh nghiep/nganh chua duoc xac minh");
     expect(html).toContain("metadata:unavailable");
     expect(html).toContain("derived:insufficient_data");
+    expect(html).toContain("chart:computed_from_market_price_series");
+    expect(html).toContain("Chart uses active local DB market price series");
+    expect(html).toContain("Chart series must come from the active market price series");
     expect(html).toContain("Derived PVT metrics are computed only from the active market price series");
-    expect(html).toContain("Chưa đủ dữ liệu");
-    expect(html).toContain("Chưa đủ 20 phiên");
-    expect(html).toContain("Không khả dụng");
-    expect(html).toContain("FOMO chưa khả dụng");
+    expect(html).toContain("Chua du du lieu");
+    expect(html).toContain("Chua du 20 phien");
+    expect(html).toContain("Khong kha dung");
+    expect(html).toContain("FOMO chua kha dung");
     expect(html).toContain("Industry: chua co du lieu xac minh");
     expect(html).not.toContain("Ban le");
     expect(html).not.toContain("38.000 - 40.000");
     expect(html).not.toContain("44.000 - 46.000");
     expect(html).not.toContain("1.4x TB20");
     expect(html).not.toContain("3/6");
+    expect(html).not.toContain("KQKD");
+    expect(html).not.toContain("Ngành");
+    expect(html).not.toContain("MA20 · MA50");
   });
 
   it("displays local research seed issuer metadata without claiming official metadata", () => {

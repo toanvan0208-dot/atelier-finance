@@ -1,4 +1,5 @@
 import type { FinancialStatementInput } from "../../../lib/financial-logic";
+import type { MarketPriceSeriesRow } from "../../../lib/data-sources";
 
 export type TechnicalMarketSnapshot = {
   ticker?: string;
@@ -16,6 +17,7 @@ export type TechnicalMarketSnapshot = {
   avgTradingValue20d?: number | null;
   availableObservations?: number;
   sourceKind?: "market_price_series" | "sample_static";
+  sourceRows?: MarketPriceSeriesRow[];
 };
 
 export const mapTechnicalToLogicInput = (snapshot: TechnicalMarketSnapshot): FinancialStatementInput => ({

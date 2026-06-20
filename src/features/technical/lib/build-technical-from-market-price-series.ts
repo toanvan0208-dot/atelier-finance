@@ -43,6 +43,7 @@ export const buildTechnicalFromMarketPriceSeries = (
     avgTradingValue20d: adapter.pvtInput.avgTradingValue20d,
     availableObservations: adapter.count,
     sourceKind: "market_price_series",
+    sourceRows: series.rows,
   };
 
   return {

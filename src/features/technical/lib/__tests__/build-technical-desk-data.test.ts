@@ -156,6 +156,46 @@ describe("technical PVT builder", () => {
       productionApproved: false,
       verificationStatus: "static_sample",
     });
+    expect(data.pvtChartSeries).toMatchObject({
+      sourceLabel: "sample_static_fallback",
+      dataMode: "sample",
+      productionApproved: false,
+      status: "static_sample",
+      points: {
+        count: 2,
+        status: "static_sample",
+      },
+    });
+    expect(data.chart.points).toEqual(baseData.chart.points);
+  });
+
+  it("marks DB-backed chart unavailable instead of reusing sample chart when source rows are missing", () => {
+    const data = buildTechnicalDeskData(baseData, {
+      ...completeSnapshot,
+      ticker: "FPT",
+      sourceName: "vnstock",
+      dataMode: "research_only",
+      availableObservations: 0,
+      sourceKind: "market_price_series",
+      sourceRows: [],
+    });
+
+    expect(data.chart.points).toEqual([]);
+    expect(data.chart.events).toEqual([]);
+    expect(data.pvtChartSeries).toMatchObject({
+      sourceLabel: "vnstock",
+      dataMode: "research_only",
+      productionApproved: false,
+      status: "insufficient_data",
+      points: {
+        count: 0,
+        status: "insufficient_data",
+      },
+      annotations: {
+        count: 0,
+        status: "unavailable",
+      },
+    });
   });
 
   it("does not output prohibited Vietnamese recommendation wording", () => {

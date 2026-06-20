@@ -9,13 +9,24 @@ import {
   type MetricLevel,
   type RiskLevel,
 } from "../../../lib/financial-logic";
-import type { PVTDerivedMetrics, PVTLogicMetric, PVTObservationData, PVTStatus } from "../types";
+import type {
+  PVTChartSeries,
+  PVTChartSeriesStatus,
+  PVTDerivedMetrics,
+  PVTLogicMetric,
+  PVTObservationData,
+  PVTObservationPoint,
+  PVTStatus,
+} from "../types";
 import { mapTechnicalToLogicInput, type TechnicalMarketSnapshot } from "./map-technical-to-logic-input";
 
 const UNVERIFIED_METADATA_LABEL = "Chua co du lieu xac minh";
 const DERIVED_UNAVAILABLE_LABEL = "Chưa đủ dữ liệu";
 const DERIVED_NOT_AVAILABLE_LABEL = "Không khả dụng";
 const REQUIRED_TB20_OBSERVATIONS = 20;
+const REQUIRED_MA20_OBSERVATIONS = 20;
+const REQUIRED_MA50_OBSERVATIONS = 50;
+const REQUIRED_BASIC_CHART_OBSERVATIONS = 2;
 
 const levelToPvtStatus = (level: MetricLevel): PVTStatus => {
   if (level === "good") return "aligned";
@@ -260,6 +271,240 @@ const buildDerivedMetrics = ({
   };
 };
 
+const averageNullable = (values: Array<number | null>): number | null => {
+  if (values.some((value) => value === null)) return null;
+  if (values.length === 0) return null;
+  const numericValues = values.filter((value): value is number => value !== null);
+  return numericValues.reduce((sum, value) => sum + value, 0) / numericValues.length;
+};
+
+const movingAverageAt = (
+  values: Array<number | null>,
+  index: number,
+  windowSize: number,
+): number | null => {
+  if (index + 1 < windowSize) return null;
+  return averageNullable(values.slice(index + 1 - windowSize, index + 1));
+};
+
+const buildChartMetadata = ({
+  sourceLabel,
+  dataMode,
+  ticker,
+  availableObservations,
+  pointsCount,
+  volumeCount,
+  status,
+  pointsStatus,
+  volumeStatus,
+  ma20Status,
+  ma50Status,
+  annotationsStatus,
+  annotationsCount,
+  limitations,
+  warnings,
+}: {
+  sourceLabel: string;
+  dataMode: string;
+  ticker: string | null;
+  availableObservations: number;
+  pointsCount: number;
+  volumeCount: number;
+  status: PVTChartSeriesStatus;
+  pointsStatus: PVTChartSeriesStatus;
+  volumeStatus: PVTChartSeriesStatus;
+  ma20Status: PVTChartSeriesStatus;
+  ma50Status: PVTChartSeriesStatus;
+  annotationsStatus: PVTChartSeriesStatus;
+  annotationsCount: number;
+  limitations: string[];
+  warnings: string[];
+}): PVTChartSeries => ({
+  sourceLabel,
+  dataMode,
+  productionApproved: false,
+  status,
+  ticker,
+  availableObservations,
+  requiredObservations: REQUIRED_BASIC_CHART_OBSERVATIONS,
+  points: {
+    count: pointsCount,
+    status: pointsStatus,
+  },
+  volume: {
+    count: volumeCount,
+    status: volumeStatus,
+  },
+  movingAverages: {
+    ma20: {
+      status: ma20Status,
+      requiredObservations: REQUIRED_MA20_OBSERVATIONS,
+    },
+    ma50: {
+      status: ma50Status,
+      requiredObservations: REQUIRED_MA50_OBSERVATIONS,
+    },
+  },
+  annotations: {
+    count: annotationsCount,
+    status: annotationsStatus,
+  },
+  limitations,
+  warnings,
+});
+
+const buildChartSeries = ({
+  baseData,
+  isMarketPriceSeries,
+  snapshot,
+}: {
+  baseData: PVTObservationData;
+  isMarketPriceSeries: boolean;
+  snapshot: TechnicalMarketSnapshot;
+}): {
+  chart: PVTObservationData["chart"];
+  pvtChartSeries: PVTChartSeries;
+} => {
+  if (!isMarketPriceSeries) {
+    return {
+      chart: baseData.chart,
+      pvtChartSeries: buildChartMetadata({
+        sourceLabel: "sample_static_fallback",
+        dataMode: "sample",
+        ticker: normalizeTicker(baseData.ticker),
+        availableObservations: baseData.chart.points.length,
+        pointsCount: baseData.chart.points.length,
+        volumeCount: baseData.chart.points.filter((point) => point.volume !== null).length,
+        status: "static_sample",
+        pointsStatus: "static_sample",
+        volumeStatus: "static_sample",
+        ma20Status: "static_sample",
+        ma50Status: "static_sample",
+        annotationsStatus: baseData.chart.events.length > 0 ? "presentation_only" : "static_sample",
+        annotationsCount: baseData.chart.events.length,
+        limitations: [
+          "Static sample chart series is for local product behavior checks only.",
+          "It is not production-approved market chart data.",
+        ],
+        warnings: ["Sample/static chart series must not be reused in DB-backed mode."],
+      }),
+    };
+  }
+
+  const sourceRows = [...(snapshot.sourceRows ?? [])].sort(
+    (left, right) => Date.parse(left.date) - Date.parse(right.date),
+  );
+  const closeValues = sourceRows.map((row) => row.close);
+  const validCloseRows = sourceRows.filter((row) => row.close !== null);
+  const availableObservations = snapshot.availableObservations ?? sourceRows.length;
+  const sourceLabel = snapshot.sourceName ?? "market_price_series";
+  const dataMode = snapshot.dataMode ?? "research_only";
+  const ticker = normalizeTicker(snapshot.ticker);
+
+  if (validCloseRows.length < REQUIRED_BASIC_CHART_OBSERVATIONS) {
+    return {
+      chart: {
+        ...baseData.chart,
+        points: [],
+        events: [],
+        quickRead: [
+          {
+            question: "Chart co du du lieu DB-backed khong?",
+            answer: "Chart chua kha dung cho du lieu DB-backed vi chua du close price de ve tu chuoi hien tai.",
+          },
+        ],
+      },
+      pvtChartSeries: buildChartMetadata({
+        sourceLabel,
+        dataMode,
+        ticker,
+        availableObservations,
+        pointsCount: validCloseRows.length,
+        volumeCount: validCloseRows.filter((row) => row.volume !== null).length,
+        status: "insufficient_data",
+        pointsStatus: "insufficient_data",
+        volumeStatus: "insufficient_data",
+        ma20Status: "insufficient_data",
+        ma50Status: "insufficient_data",
+        annotationsStatus: "unavailable",
+        annotationsCount: 0,
+        limitations: [
+          "Chart needs at least two close-price observations from the active market price series.",
+          "Sample chart points, moving averages, volume bars, and annotations were not reused.",
+        ],
+        warnings: ["DB-backed chart series is unavailable because active close-price observations are insufficient."],
+      }),
+    };
+  }
+
+  const points = sourceRows.reduce<PVTObservationPoint[]>((items, row, index) => {
+      if (row.close === null) return items;
+      const ma20 = movingAverageAt(closeValues, index, REQUIRED_MA20_OBSERVATIONS);
+      const ma50 = movingAverageAt(closeValues, index, REQUIRED_MA50_OBSERVATIONS);
+
+      items.push({
+        label: row.date,
+        price: row.close,
+        volume: row.volume,
+        ...(ma20 === null ? {} : { ma20 }),
+        ...(ma50 === null ? {} : { ma50 }),
+      });
+      return items;
+    }, []);
+  const volumeCount = points.filter((point) => point.volume !== null).length;
+  const ma20Status =
+    availableObservations >= REQUIRED_MA20_OBSERVATIONS && points.some((point) => point.ma20 !== null && point.ma20 !== undefined)
+      ? "computed_from_market_price_series"
+      : "insufficient_data";
+  const ma50Status =
+    availableObservations >= REQUIRED_MA50_OBSERVATIONS && points.some((point) => point.ma50 !== null && point.ma50 !== undefined)
+      ? "computed_from_market_price_series"
+      : "insufficient_data";
+
+  return {
+    chart: {
+      ...baseData.chart,
+      points,
+      events: [],
+      quickRead: [
+        {
+          question: "Chart dung nguon nao?",
+          answer: "Chart uses active local DB market price series; sample chart points and sample annotations are not reused.",
+        },
+        {
+          question: "MA20/MA50 co hien thi khong?",
+          answer: "MA20/MA50 chi hien thi khi co du observations tu cung chuoi DB-backed.",
+        },
+        {
+          question: "Co su kien tren chart khong?",
+          answer: "Annotations are unavailable because no event source is connected to this DB-backed chart series.",
+        },
+      ],
+    },
+    pvtChartSeries: buildChartMetadata({
+      sourceLabel,
+      dataMode,
+      ticker,
+      availableObservations,
+      pointsCount: points.length,
+      volumeCount,
+      status: "computed_from_market_price_series",
+      pointsStatus: "computed_from_market_price_series",
+      volumeStatus: volumeCount > 0 ? "computed_from_market_price_series" : "unavailable",
+      ma20Status,
+      ma50Status,
+      annotationsStatus: "unavailable",
+      annotationsCount: 0,
+      limitations: [
+        "Chart points are built from the active local DB market price series.",
+        "MA20 requires 20 observations and MA50 requires 50 observations from the same active series.",
+        "Annotations are unavailable until an event source is connected.",
+      ],
+      warnings: ["Sample chart points, sample MA lines, sample volume bars, and sample annotations were not reused."],
+    }),
+  };
+};
+
 export const buildTechnicalDeskData = (
   baseData: PVTObservationData,
   snapshot: TechnicalMarketSnapshot
@@ -295,6 +540,11 @@ export const buildTechnicalDeskData = (
     snapshot,
     volumeRatio: liquidityStatus.value,
   });
+  const { chart, pvtChartSeries } = buildChartSeries({
+    baseData,
+    isMarketPriceSeries,
+    snapshot,
+  });
 
   return {
     ...baseData,
@@ -306,6 +556,7 @@ export const buildTechnicalDeskData = (
     industry: tickerChanged ? UNVERIFIED_METADATA_LABEL : baseData.industry,
     issuerMetadata,
     pvtDerivedMetrics,
+    pvtChartSeries,
     currentPrice: snapshot.closePrice ?? baseData.currentPrice,
     status: resolveStatus(priceChange, liquidityStatus, missingFields),
     keyLevels: isMarketPriceSeries
@@ -324,8 +575,9 @@ export const buildTechnicalDeskData = (
           : `${liquidityStatus.beginnerInterpretation} Giá trị giao dịch hiện tại: ${metricValueLabel(tradingValue)}.`,
     },
     chart: {
-      ...baseData.chart,
+      ...chart,
       quickRead: [
+        ...(isMarketPriceSeries ? chart.quickRead : []),
         {
           question: "Giá thay đổi thế nào?",
           answer:
