@@ -22,6 +22,8 @@ Phase 42 added:
 
 Phase 43 verifies that CLI boundary with a temporary synthetic file outside the repo and records only summarized evidence.
 
+Phase 44 adds a controlled local write trial plan in `FINANCIAL_STATEMENTS_CONTROLLED_LOCAL_WRITE_TRIAL_PLAN.md`. That plan defines future write eligibility, confirmation flags, verification, and rollback policy only; it does not enable writes or change the current CLI behavior.
+
 ## 3. Synthetic Verification Setup
 
 Temporary file:
@@ -143,6 +145,7 @@ Phase 43 verification did not:
 - No public upload/API route was added.
 - No Financials UI runtime path was changed.
 - This evidence does not promote local/research-only data to production use.
+- Phase 44 adds planning policy only. The current CLI still rejects write-like flags and no DB write behavior exists in this financial statement dry-run path.
 
 ## 10. Files Changed
 

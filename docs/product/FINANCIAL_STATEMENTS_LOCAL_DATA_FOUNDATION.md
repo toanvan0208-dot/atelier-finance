@@ -22,6 +22,8 @@ Phase 42 adds a dry-run-only CLI runner in `FINANCIAL_STATEMENTS_LOCAL_DRY_RUN_C
 
 Phase 43 records synthetic CLI verification evidence in `FINANCIAL_STATEMENTS_CLI_DRY_RUN_VERIFICATION_EVIDENCE.md`. It verifies the terminal dry-run path with a temporary synthetic CSV outside the repo; it still does not import real BCTC data, write DB rows, commit raw CSV/JSON artifacts, approve a provider, parse Excel/PDF, fetch URLs, or change UI behavior.
 
+Phase 44 adds a controlled local write trial plan in `FINANCIAL_STATEMENTS_CONTROLLED_LOCAL_WRITE_TRIAL_PLAN.md`. It defines future write eligibility, confirmations, verification, and recovery policy only; it still does not import real BCTC data, write DB rows, approve a provider, parse Excel/PDF, fetch URLs, or change UI behavior.
+
 ## 2. Why This Follows Technical/PVT DB-backed Work
 
 Technical/PVT now has a local DB-backed market-price path with explicit source boundaries:
@@ -197,6 +199,7 @@ Phase 38 did not:
 - Phase 41 adds a local file-reader dry-run wrapper only. It does not add persistence, URL fetching, Excel/PDF parsing, public upload APIs, or a real file import workflow.
 - Phase 42 adds a dry-run CLI runner only. It does not add persistence, write flags, URL fetching, Excel/PDF parsing, public upload APIs, or a real file import workflow.
 - Phase 43 records CLI verification evidence only. It does not add persistence, write flags, URL fetching, Excel/PDF parsing, public upload APIs, or a real file import workflow.
+- Phase 44 records controlled local write trial policy only. It does not add persistence, write flags, URL fetching, Excel/PDF parsing, public upload APIs, or a real file import workflow.
 
 ## 12. Files Changed
 

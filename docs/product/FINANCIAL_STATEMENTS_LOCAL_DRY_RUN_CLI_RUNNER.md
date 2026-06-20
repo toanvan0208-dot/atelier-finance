@@ -48,6 +48,8 @@ The CLI is dry-run-only. It has no write mode.
 
 Phase 43 records synthetic local CLI verification evidence in `FINANCIAL_STATEMENTS_CLI_DRY_RUN_VERIFICATION_EVIDENCE.md`. That evidence covers summary output, JSON output, duplicate/rejected/missing-value handling, production approval blocking, and write-flag rejection without committing raw CSV or JSON artifacts.
 
+Phase 44 adds a controlled local write trial plan in `FINANCIAL_STATEMENTS_CONTROLLED_LOCAL_WRITE_TRIAL_PLAN.md`. The plan documents future write prerequisites and confirmation flags only; the Phase 42 CLI still rejects `--write` with `write_not_supported`.
+
 ## 4. Supported Options
 
 Required:
@@ -207,6 +209,7 @@ Phase 42 does not:
 - No persistence behavior exists.
 - Financials UI runtime is unchanged.
 - Phase 43 records CLI verification evidence only. It does not add persistence, a write flag, a public upload API, real BCTC import, or Financials UI runtime behavior.
+- Phase 44 records controlled local write trial policy only. It does not enable a write flag, add persistence, add a public upload API, import real BCTC data, or change Financials UI runtime behavior.
 
 ## 13. Files Changed
 
