@@ -59,8 +59,8 @@ Phase 30H adds an academic/local/research data boundary for AI disclosure. Curre
 | legalStatus | `needs_review` |
 | productionApproved | `false` |
 | attributionRequired | `true` |
-| runtimeUse | `local_command_only` / `manual_file_write_verified` / `db_read_path_verified` / `pvt_adapter_ready` / `technical_helper_available` / `technical_runtime_wrapper_default_off` / `technical_source_transparency_visible` |
-| implementationStatus | `technical_pvt_source_transparency_added_browser_verification_pending` |
+| runtimeUse | `local_command_only` / `manual_file_write_verified` / `db_read_path_verified` / `pvt_adapter_ready` / `technical_helper_available` / `technical_runtime_wrapper_default_off` / `technical_source_transparency_visible` / `technical_browser_verified_local` |
+| implementationStatus | `technical_pvt_browser_verified_local_with_metadata_limitation` |
 | dataCategories | `market_prices_research_only` |
 | persistence | `local_database_only` |
 | publicRuntime | `not_enabled` |
@@ -88,6 +88,7 @@ Phase 30H adds an academic/local/research data boundary for AI disclosure. Curre
 | technicalPvtDataFlowConnection | `docs/product/TECHNICAL_PVT_MODULE_DATA_FLOW_CONNECTION.md` |
 | technicalPvtRuntimeDataFlowWiring | `docs/product/TECHNICAL_PVT_RUNTIME_DATA_FLOW_WIRING.md` |
 | technicalPvtDbBackedUiVerification | `docs/product/TECHNICAL_PVT_DB_BACKED_UI_VERIFICATION.md` |
+| technicalPvtBrowserVerification | `docs/product/TECHNICAL_PVT_BROWSER_VERIFICATION_RECORD.md` |
 | Notes | Vnstock is planned as a local/academic research connector candidate only; original data rights may belong to upstream providers. |
 
 ## 2. Required Evidence Before Approval

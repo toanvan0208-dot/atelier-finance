@@ -109,4 +109,4 @@ Phase 32 is tracked in `docs/product/TECHNICAL_PVT_DB_BACKED_UI_VERIFICATION.md`
 
 It adds a small Technical/PVT source transparency strip and verifies, through runtime/test evidence, that both sample fallback and DB-backed metadata can carry `productionApproved:false`. DB-backed mode remains explicit and default-off.
 
-Phase 33 browser verification is pending/planned, not completed. Manual browser verification has not been confirmed yet.
+Phase 33 browser verification is tracked in `docs/product/TECHNICAL_PVT_BROWSER_VERIFICATION_RECORD.md`.

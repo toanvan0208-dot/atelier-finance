@@ -138,6 +138,6 @@ Phase 32 did not add:
 
 ## 8. Phase 33 Browser Verification Status
 
-Phase 33 is pending/planned, not completed.
+Phase 33 is tracked in `docs/product/TECHNICAL_PVT_BROWSER_VERIFICATION_RECORD.md`.
 
-Manual browser verification has not been confirmed yet. Phase 32 provides runtime/test evidence only; it does not provide manual browser evidence that the Technical/PVT UI rendered DB-backed FPT data in a local browser session.
+Phase 33 records local browser/dev-server verification evidence for Technical/PVT DB-backed and fallback rendering. It confirms the source transparency strip renders in both modes, with the known limitation that DB-backed company/industry metadata is still limited and not a reviewed company-profile source.
