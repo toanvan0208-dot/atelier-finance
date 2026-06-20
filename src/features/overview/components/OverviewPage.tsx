@@ -9,8 +9,13 @@ import {
   OverviewApiError,
   type OverviewApiInputs,
 } from "@/lib/data-sources/overview-api-client";
+import type { FinancialsRuntimeData } from "@/features/financials/lib/financials-runtime-types";
 import { baseOverviewCaseData } from "../data/overviewCase.data";
 import { buildOverviewDeskData } from "../lib/build-overview-desk-data";
+import {
+  buildOverviewFinancialsRuntimeBoundary,
+  type OverviewFinancialsRuntimeBoundary,
+} from "../lib/overview-financials-runtime-boundary";
 import type {
   OverviewActionStatusData,
   OverviewBottleneck,
@@ -24,6 +29,7 @@ import type {
 } from "../types";
 
 type OverviewPageProps = {
+  initialFinancialsRuntimeData?: FinancialsRuntimeData;
   onNavigate: (key: string) => void;
 };
 
@@ -44,6 +50,11 @@ const progressTone: Record<OverviewProgressStatus, "success" | "warning" | "neut
 };
 
 const metadataLabel = (value: string): string => value.replace(/_/g, " ");
+
+const boundaryValue = (value: string | number | boolean | null | undefined): string => {
+  if (value === null || value === undefined || value === "") return "unavailable";
+  return String(value);
+};
 
 const buildBridgeData = (result: OverviewApiInputs): OverviewCaseDashboardData => {
   const data = buildOverviewDeskData(baseOverviewCaseData, result.snapshot);
@@ -179,6 +190,74 @@ function ManualDataImportCta() {
         </p>
       </CardBody>
     </Card>
+  );
+}
+
+function OverviewFinancialsRuntimeNote({ boundary }: { boundary: OverviewFinancialsRuntimeBoundary }) {
+  const fields = [
+    ["overviewRuntimeStatus", boundary.overviewRuntimeStatus],
+    ["financialsRuntimeStatus", boundary.financialsRuntimeStatus],
+    ["financialsReadPath", boundary.financialsReadPath],
+    ["sourceLabel", boundary.sourceLabel],
+    ["dataMode", boundary.dataMode],
+    ["fallbackUsed", boundary.fallbackUsed],
+    ["productionApproved", boundary.productionApproved],
+    ["canClaimOverviewDbBacked", boundary.canClaimOverviewDbBacked],
+  ] as const;
+  const snapshotFields = [
+    ["ticker", boundary.snapshotFields.ticker],
+    ["period", boundary.snapshotFields.period],
+    ["revenue", boundary.snapshotFields.revenue],
+    ["netIncome", boundary.snapshotFields.netIncome],
+    ["operatingCashFlow", boundary.snapshotFields.operatingCashFlow],
+    ["totalAssets", boundary.snapshotFields.totalAssets],
+    ["equity", boundary.snapshotFields.equity],
+  ] as const;
+
+  return (
+    <section className="rounded-[4px] border border-[#D6B15C] bg-[#FFF8E5] px-4 py-4 text-sm text-[#765416]">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div className="min-w-0">
+          <div className="flex flex-wrap gap-2">
+            <Chip variant="neutral">overview runtime boundary</Chip>
+            <Chip variant="neutral">{boundary.overviewRuntimeStatus}</Chip>
+            <Chip variant="neutral">productionApproved:false</Chip>
+            <Chip variant="neutral">partial financials runtime</Chip>
+          </div>
+          <p className="mt-3 font-semibold">{boundary.boundaryNote}</p>
+          <p className="mt-1">
+            Overview dang dung nguon hon hop: API bridge rieng, cac phan ho tro hien co, va Financials runtime metadata neu co.
+          </p>
+          <p className="mt-1">
+            Financials local research data khong phai nguon production-approved. Gia tri thieu giu la null/unavailable, khong thay bang 0.
+          </p>
+          {boundary.missingFields.length > 0 ? (
+            <p className="mt-2">Financials missing fields: {boundary.missingFields.join(", ")}.</p>
+          ) : null}
+          {boundary.warnings.length > 0 ? (
+            <p className="mt-2">Boundary warnings: {boundary.warnings.slice(0, 4).join(" | ")}</p>
+          ) : null}
+        </div>
+        <div className="grid min-w-0 gap-3 text-xs lg:min-w-[360px]">
+          <dl className="grid gap-2">
+            {fields.map(([label, value]) => (
+              <div className="grid grid-cols-[170px_1fr] gap-3" key={label}>
+                <dt className="font-bold">{label}</dt>
+                <dd className="min-w-0 break-words text-right">{boundaryValue(value)}</dd>
+              </div>
+            ))}
+          </dl>
+          <dl className="grid gap-2 border-t border-[#E8CC82] pt-3">
+            {snapshotFields.map(([label, value]) => (
+              <div className="grid grid-cols-[170px_1fr] gap-3" key={label}>
+                <dt className="font-bold">{label}</dt>
+                <dd className="min-w-0 break-words text-right">{boundaryValue(value)}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -444,11 +523,15 @@ function OverviewSupportPanel({
   );
 }
 
-export function OverviewPage({ onNavigate }: OverviewPageProps) {
+export function OverviewPage({ initialFinancialsRuntimeData, onNavigate }: OverviewPageProps) {
   const [tickerInput, setTickerInput] = useState("FPTLAB");
   const [request, setRequest] = useState({ ticker: "FPTLAB", id: 0 });
   const [bridgeState, setBridgeState] = useState<OverviewBridgeState>({ status: "loading" });
   const activeTicker = request.ticker;
+  const financialsRuntimeBoundary = useMemo(
+    () => buildOverviewFinancialsRuntimeBoundary(initialFinancialsRuntimeData),
+    [initialFinancialsRuntimeData],
+  );
 
   useEffect(() => {
     let isActive = true;
@@ -552,6 +635,7 @@ export function OverviewPage({ onNavigate }: OverviewPageProps) {
       {bridgeState.status === "ready" || bridgeState.status === "insufficient" ? (
         <>
           <DataQualityBanner {...bridgeState.result.dataQuality} />
+          <OverviewFinancialsRuntimeNote boundary={financialsRuntimeBoundary} />
           <div className="flex flex-wrap gap-2">
             {metadataChips.map((chip) => (
               <Chip key={chip} variant="neutral">

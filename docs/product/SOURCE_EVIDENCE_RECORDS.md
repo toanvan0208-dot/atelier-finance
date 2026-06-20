@@ -182,3 +182,5 @@ Until those actions are complete, this source remains a candidate only.
 Phase 30F-A provides the collection tracker and reviewer template for these actions in `SOURCE_OWNER_TERMS_EVIDENCE_FOLLOW_UP.md`.
 
 Phase 50 records the downstream Financials-derived readiness boundary in `FINANCIALS_DERIVED_MODULE_READINESS_BOUNDARY.md`. Overview, Valuation, and Risk may receive Financials runtime metadata in the future, but current local/research-only/sample data remains `productionApproved:false` and does not grant those modules a DB-backed, official, realtime, or production-approved claim.
+
+Phase 51 records the first Overview consumption boundary in `OVERVIEW_FINANCIALS_RUNTIME_CONSUMPTION_BOUNDARY.md`. Overview can display Financials runtime metadata as partial/mixed-source evidence only; local/research-only/sample data remains `productionApproved:false`, and Valuation/Risk do not inherit the status.

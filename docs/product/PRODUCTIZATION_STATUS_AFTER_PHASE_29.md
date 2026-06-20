@@ -246,6 +246,8 @@ Phase 49 hardens Financials UI evidence wording and module consistency. `DataQua
 
 Phase 50 adds a Financials-derived module readiness contract for Overview, Valuation, and Risk. The contract records whether each module consumes Financials runtime snapshots, keeps current downstream module DB-backed claims blocked, preserves `productionApproved:false` for local/research-only/sample data, and documents null/missing-data guardrails for EPS, equity, P/E, ROE, P/B, and BVPS. It does not wire Overview/Valuation/Risk to Financials runtime data.
 
+Phase 51 connects Overview to Financials runtime metadata as a partial/mixed-source boundary. `AppShell` passes the server-loaded Financials runtime into Overview, Overview renders source transparency with `canClaimOverviewDbBacked:false`, and Valuation/Risk remain unwired. The phase keeps local/research-only/sample data unapproved and does not make Overview fully DB-backed.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot

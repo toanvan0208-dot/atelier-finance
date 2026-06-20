@@ -125,3 +125,7 @@ Browser verification was not run for Phase 50. This phase adds a pure contract/h
 ## 11. Next Recommended Phase
 
 The next safe phase is controlled runtime wiring design for Overview, Valuation, and Risk. That phase should decide whether each module consumes Financials runtime snapshots directly, consumes its own API bridge metadata, or remains static/sample until real source planning is complete.
+
+## 12. Phase 51 Follow-up
+
+Phase 51 implements the first Overview-specific follow-up in `OVERVIEW_FINANCIALS_RUNTIME_CONSUMPTION_BOUNDARY.md`. Overview now receives Financials runtime metadata and safe snapshot fields as a partial/mixed-source boundary with `canClaimOverviewDbBacked:false`. Valuation and Risk remain outside that wiring.

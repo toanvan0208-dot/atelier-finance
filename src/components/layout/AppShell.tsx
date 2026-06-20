@@ -161,7 +161,10 @@ function AppShellContent({ initialFinancialsRuntimeData, initialTechnicalData }:
         }
       >
         {activeModule === "overview" ? (
-          <OverviewPage onNavigate={handleNavigate} />
+          <OverviewPage
+            initialFinancialsRuntimeData={initialFinancialsRuntimeData}
+            onNavigate={handleNavigate}
+          />
         ) : null}
         {activeModule === "macro" ? (
           <MacroPage onNavigate={handleNavigate} />
