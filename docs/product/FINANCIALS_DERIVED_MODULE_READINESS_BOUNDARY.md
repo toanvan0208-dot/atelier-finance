@@ -145,3 +145,7 @@ Phase 54 implements the Risk readiness follow-up in `RISK_FINANCIALS_RUNTIME_REA
 ## 16. Phase 55 Follow-up
 
 Phase 55 records browser verification in `CROSS_MODULE_RUNTIME_SOURCE_TRANSPARENCY_BROWSER_VERIFICATION.md`. The sweep verified fallback and local DB-backed Financials modes across Financials, Overview, Valuation, and Risk, confirming derived-module claims remain mixed/partial/readiness-only rather than fully DB-backed.
+
+## 17. Phase 56 Follow-up
+
+Phase 56 adds `CONTROLLED_RISK_RUNTIME_CONSUMPTION_BOUNDARY.md`. Risk now receives Financials runtime metadata and available snapshot fields for source transparency, but its cards remain static/sample and derived-module claims stay blocked from full database-backed status.

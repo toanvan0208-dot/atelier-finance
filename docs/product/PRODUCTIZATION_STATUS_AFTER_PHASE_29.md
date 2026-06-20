@@ -256,6 +256,8 @@ Phase 54 adds a Risk Financials runtime readiness boundary. Risk still uses its 
 
 Phase 55 records cross-module browser verification in `CROSS_MODULE_RUNTIME_SOURCE_TRANSPARENCY_BROWSER_VERIFICATION.md`. Fallback and local DB-backed Financials modes were checked with Playwright across Financials, Overview, Valuation, and Risk; no UI/source overclaim issue was found, MWG partial missing fields remained unavailable instead of zero-filled, and Risk stayed static/sample without a DB-backed claim.
 
+Phase 56 adds controlled Risk runtime consumption in `CONTROLLED_RISK_RUNTIME_CONSUMPTION_BOUNDARY.md`. Risk now receives Financials runtime metadata and available snapshot fields for a source transparency note, while existing Risk cards remain static/sample. The Risk source state is `sample_fallback` or `mixed_source`, with `canClaimRiskDbBacked:false` and `productionApproved:false`.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot

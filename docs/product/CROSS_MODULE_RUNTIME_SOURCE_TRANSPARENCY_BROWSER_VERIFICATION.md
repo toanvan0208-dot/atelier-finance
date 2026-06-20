@@ -176,3 +176,7 @@ Result: pass for the browser routes and modes checked.
 Partial note: the in-app Browser plugin path was unavailable, so Playwright was used as a browser fallback. DB-backed mode was run successfully with the local synthetic `dev.db`.
 
 Recommended next phase: Phase 56 can add a Controlled Risk Runtime Consumption Boundary design. That phase should still keep Risk DB-backed claims blocked until Risk actually consumes Financials runtime data and the UI source transition is explicit.
+
+## 14. Phase 56 Follow-up
+
+Phase 56 is recorded in `CONTROLLED_RISK_RUNTIME_CONSUMPTION_BOUNDARY.md`. Risk now renders its own controlled runtime source note. A follow-up browser sweep should re-check the full Financials, Overview, Valuation, and Risk set after this UI addition.

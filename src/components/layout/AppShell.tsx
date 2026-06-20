@@ -193,7 +193,12 @@ function AppShellContent({ initialFinancialsRuntimeData, initialTechnicalData }:
             onNavigate={handleNavigate}
           />
         ) : null}
-        {activeModule === "risk" ? <RiskPage onNavigate={handleNavigate} /> : null}
+        {activeModule === "risk" ? (
+          <RiskPage
+            initialFinancialsRuntimeData={initialFinancialsRuntimeData}
+            onNavigate={handleNavigate}
+          />
+        ) : null}
         {activeModule === "simulation" ? <SimulationPage /> : null}
         {activeModule === "watchlist" ? <WatchlistPage onNavigate={handleNavigate} /> : null}
         {activeModule === "checklist" ? (

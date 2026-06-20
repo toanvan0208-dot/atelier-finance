@@ -145,3 +145,7 @@ Phase 54 adds `RISK_FINANCIALS_RUNTIME_READINESS_BOUNDARY.md`. Risk remains read
 ## 15. Phase 55 Follow-up
 
 Phase 55 browser verification is recorded in `CROSS_MODULE_RUNTIME_SOURCE_TRANSPARENCY_BROWSER_VERIFICATION.md`. Playwright confirmed Overview renders `sample_fallback` in fallback mode and `mixed_source` with Financials `db_backed/local_db/research_only` metadata in DB-backed mode, while still stating that Overview is not fully DB-backed.
+
+## 16. Phase 56 Follow-up
+
+Phase 56 adds `CONTROLLED_RISK_RUNTIME_CONSUMPTION_BOUNDARY.md`. Risk now follows the same source-transparency pattern at a controlled partial level, without inheriting Overview or Financials runtime status as a full database-backed claim.
