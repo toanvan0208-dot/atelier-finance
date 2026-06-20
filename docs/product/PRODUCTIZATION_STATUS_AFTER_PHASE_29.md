@@ -18,6 +18,7 @@ Atelier Finance now has a real backend/database foundation for local productizat
 - `/data-import` can save manual sessions server-side.
 - Financials, Valuation, and Overview can read from API/database-backed records.
 - Financial statements now have a local/research-only read-service and adapter foundation for future safe DB-backed financials work.
+- Financial statements now also have a local import dry-run contract that validates parsed rows, preserves missing values as `null`, reports duplicates, and keeps `productionApproved:false` without writing DB rows.
 - Technical/PVT can read local DB-backed market prices in explicit research mode and now separates market price source lineage from company/issuer metadata status.
 - Technical/PVT has a local/research-only issuer metadata foundation for safe source transparency; it is not official or production-approved metadata.
 - Technical/PVT now prevents static/sample-derived support/resistance, volume ratio, and FOMO values from leaking into DB-backed mode.
@@ -66,6 +67,7 @@ This is not yet a production data product. The current database can store local 
 - Manual import persistence does not replace source-provider ingestion.
 - Risk, Technical/PVT, Checklist, Watchlist, Simulation, and broader AI data context are not fully bridged to database-backed product data.
 - Phase 38 adds a local/research-only financial statement read/adapter foundation, but does not import real BCTC data, approve a financial data source, or complete Financials DB-backed UI wiring. See `FINANCIAL_STATEMENTS_LOCAL_DATA_FOUNDATION.md`.
+- Phase 39 adds a financial statement local import dry-run contract, but does not parse raw CSV text, import real BCTC data, write DB rows, approve a financial data source, or wire Financials UI runtime behavior. See `FINANCIAL_STATEMENTS_LOCAL_IMPORT_DRY_RUN_CONTRACT.md`.
 - Technical/PVT company/issuer metadata is not production verified; Phase 34 prevents static sample metadata reuse, and Phase 35 only adds a local/research-only seed foundation. Phase 36 prevents sample-derived PVT metrics from leaking into DB-backed mode. Phase 37 prevents sample chart series from leaking into DB-backed mode. These phases do not implement full technical analysis. See `TECHNICAL_PVT_COMPANY_METADATA_BOUNDARY.md`, `COMPANY_ISSUER_METADATA_FOUNDATION.md`, `TECHNICAL_PVT_DERIVED_METRICS_BOUNDARY.md`, and `TECHNICAL_PVT_CHART_SERIES_BOUNDARY.md`.
 - No authenticated multi-user workspace layer exists yet.
 - No production monitoring, jobs, queues, cache policy, or provider retry policy exists yet.
@@ -199,6 +201,8 @@ Phase 37 adds the PVT chart series boundary. DB-backed chart points are built fr
 Phase 37 browser verification on 2026-06-20 confirmed DB-backed FPT renders `chart:computed_from_market_price_series`, shows the active local DB market price series note, hides sample annotations such as `KQKD` / `Ngành`, hides MA20/MA50 for the 17-observation series, keeps support/resistance/FOMO/volume unavailable or insufficient, and keeps `productionApproved:false`. Fallback mode was not re-verified in that browser pass; automated tests cover sample fallback chart `static_sample` behavior.
 
 Phase 38 adds a Financial Statements local data foundation. It reuses the existing Prisma `FinancialStatement` model, adds a local/research-only read service, adds a Financials adapter foundation, preserves missing values as `null`, keeps `productionApproved:false`, and does not import real financial statement data or change UI behavior.
+
+Phase 39 adds a Financial Statements local import dry-run contract. It accepts parsed object rows, validates ticker/year/period/numeric fields, preserves missing values as `null`, reports duplicates as skipped rows, keeps `productionApproved:false`, and has no DB write path or UI runtime wiring.
 
 ## 8. Roadmap After Phase 29
 

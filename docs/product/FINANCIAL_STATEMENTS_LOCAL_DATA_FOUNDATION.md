@@ -12,6 +12,8 @@ The goal is to let the repo read and normalize local financial statement records
 
 This phase does not wire a full Financials UI runtime path and does not import real financial statement data.
 
+Phase 39 extends this foundation with a local import dry-run contract in `FINANCIAL_STATEMENTS_LOCAL_IMPORT_DRY_RUN_CONTRACT.md`. That later phase validates and normalizes parsed object rows for review only; it still does not import real BCTC data, write DB rows, approve a provider, or change UI behavior.
+
 ## 2. Why This Follows Technical/PVT DB-backed Work
 
 Technical/PVT now has a local DB-backed market-price path with explicit source boundaries:
@@ -182,6 +184,7 @@ Phase 38 did not:
 - No browser verification was run because no UI behavior was intentionally changed.
 - Current Prisma model does not include every normalized field in the Phase 38 contract; unsupported fields remain `null`.
 - Full UI runtime wiring can be handled in a later phase after source/file evidence is explicit.
+- Phase 39 adds a dry-run validation/normalization contract only. It does not add persistence or a real file import workflow.
 
 ## 12. Files Changed
 
