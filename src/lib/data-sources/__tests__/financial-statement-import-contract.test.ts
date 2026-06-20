@@ -114,7 +114,7 @@ describe("financial statement import dry-run contract", () => {
         totalAssets: "200",
         totalEquity: "80",
         operatingCashFlow: "15",
-        [approvalFlag]: true,
+        [approvalFlag]: "true",
       },
     ]);
 

@@ -47,6 +47,8 @@ Contract guarantees:
 
 The input is an array of parsed object rows. CSV parsing and real file ingestion remain later-phase work.
 
+Phase 40 adds a CSV/text parser dry-run bridge in `FINANCIAL_STATEMENTS_LOCAL_FILE_PARSER_DRY_RUN_BRIDGE.md`. It parses CSV text into object rows and then calls this Phase 39 contract; it still does not import real BCTC data, write DB rows, approve a provider, or wire Financials UI runtime behavior.
+
 ## 4. Input Row Shape
 
 Accepted input keys include:
@@ -252,6 +254,7 @@ Phase 39 does not:
 - No source/legal review is completed for a production provider.
 - Financials UI runtime is unchanged.
 - Future phases still need reviewed source evidence before any write/import workflow can be promoted.
+- Phase 40 adds CSV text parsing only as a dry-run bridge and keeps this contract as the validation boundary.
 
 ## 14. Files Changed
 

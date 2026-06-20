@@ -253,6 +253,12 @@ const sanitizeRawRow = (row: FinancialStatementImportRow): FinancialStatementImp
   productionApproved: false,
 });
 
+const isProductionApprovalAttempt = (value: unknown): boolean => {
+  if (value === true) return true;
+  if (typeof value !== "string") return false;
+  return ["true", "1", "yes", "approved"].includes(value.trim().toLowerCase());
+};
+
 const unique = <T>(values: T[]): T[] => Array.from(new Set(values));
 
 const buildStatus = (
@@ -321,7 +327,7 @@ export const buildFinancialStatementImportDryRun = (
       }
     }
 
-    if (row.productionApproved === true) {
+    if (isProductionApprovalAttempt(row.productionApproved)) {
       rowWarnings.push("Input production approval was ignored; dry-run output remains unapproved.");
     }
 

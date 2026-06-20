@@ -14,6 +14,8 @@ This phase does not wire a full Financials UI runtime path and does not import r
 
 Phase 39 extends this foundation with a local import dry-run contract in `FINANCIAL_STATEMENTS_LOCAL_IMPORT_DRY_RUN_CONTRACT.md`. That later phase validates and normalizes parsed object rows for review only; it still does not import real BCTC data, write DB rows, approve a provider, or change UI behavior.
 
+Phase 40 adds a CSV/text parser dry-run bridge in `FINANCIAL_STATEMENTS_LOCAL_FILE_PARSER_DRY_RUN_BRIDGE.md`. It converts CSV text into Phase 39 dry-run rows only; it still does not import real BCTC data, write DB rows, approve a provider, or change UI behavior.
+
 ## 2. Why This Follows Technical/PVT DB-backed Work
 
 Technical/PVT now has a local DB-backed market-price path with explicit source boundaries:
@@ -185,6 +187,7 @@ Phase 38 did not:
 - Current Prisma model does not include every normalized field in the Phase 38 contract; unsupported fields remain `null`.
 - Full UI runtime wiring can be handled in a later phase after source/file evidence is explicit.
 - Phase 39 adds a dry-run validation/normalization contract only. It does not add persistence or a real file import workflow.
+- Phase 40 adds a CSV/text parser dry-run bridge only. It does not add persistence, file-system reading, Excel/PDF parsing, or a real file import workflow.
 
 ## 12. Files Changed
 
