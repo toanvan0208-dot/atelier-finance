@@ -9,6 +9,7 @@ type MainContentProps = {
   status: string;
   description: string;
   journey?: JourneyHeaderData;
+  surveyBanner?: ReactNode;
   children?: ReactNode;
 };
 
@@ -20,9 +21,11 @@ export function MainContent({
   status,
   description,
   journey,
+  surveyBanner,
 }: MainContentProps) {
   return (
     <main className="min-h-[calc(100dvh-56px)] overflow-y-auto px-5 pb-28 pt-9 md:px-10 md:pb-12">
+      {surveyBanner}
       {children ? (
         <div className="module-content mx-auto w-full max-w-[1180px]">
           {journey ? <JourneyHeader activeLabel={activeLabel} data={journey} /> : null}

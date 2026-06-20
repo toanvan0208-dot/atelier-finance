@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useSyncExternalStore } from "react";
 import { navigationItems } from "@/config/navigation.config";
 import { shellConfig } from "@/config/shell.config";
+import { SurveyModeBanner } from "@/components/layout/SurveyModeBanner";
 import { BusinessPage } from "@/features/business";
 import { ChecklistPage } from "@/features/checklist";
 import { FinancialsPage } from "@/features/financials";
@@ -79,6 +80,9 @@ function AppShellContent() {
     () => null
   );
   const activeModule = resolveActiveModule(moduleFromUrl, moduleKeys, shellConfig.defaultModuleKey);
+  const isSurveyMode =
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).get("survey") === "1";
 
   useEffect(() => {
     if (!shouldNormalizeInvalidModule(moduleFromUrl, moduleKeys)) {
@@ -146,6 +150,7 @@ function AppShellContent() {
         kicker={shellConfig.mainContent.kicker}
         status={shellConfig.mainContent.status}
         title={shellConfig.mainContent.title}
+        surveyBanner={<SurveyModeBanner isVisible={isSurveyMode} />}
         journey={
           modulesWithInternalProgress.has(activeModule) ? undefined : activeJourney
         }
