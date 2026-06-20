@@ -5,7 +5,7 @@ import { navigationItems } from "@/config/navigation.config";
 import { shellConfig } from "@/config/shell.config";
 import { BusinessPage } from "@/features/business";
 import { ChecklistPage } from "@/features/checklist";
-import { FinancialsPage } from "@/features/financials";
+import { FinancialsPage } from "@/features/financials/components/FinancialsPage";
 import { IndustryPage } from "@/features/industry";
 import { LearningPage } from "@/features/learning";
 import { MacroPage } from "@/features/macro";
@@ -28,6 +28,7 @@ import { RightAssistantPanel } from "./RightAssistantPanel";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
 import { resolveActiveModule, shouldNormalizeInvalidModule } from "./app-shell-routing";
+import type { FinancialsRuntimeData } from "@/features/financials/lib/financials-runtime-types";
 import type { TechnicalPageRuntimeData } from "@/features/technical";
 
 const modulesWithInternalProgress = new Set([
@@ -46,18 +47,22 @@ const modulesWithInternalProgress = new Set([
 const navigationChangeEvent = "app:navigation";
 
 type AppShellProps = {
+  initialFinancialsRuntimeData?: FinancialsRuntimeData;
   initialTechnicalData?: TechnicalPageRuntimeData;
 };
 
-export function AppShell({ initialTechnicalData }: AppShellProps) {
+export function AppShell({ initialFinancialsRuntimeData, initialTechnicalData }: AppShellProps) {
   return (
     <PersonalAnalysisProfileProvider>
-      <AppShellContent initialTechnicalData={initialTechnicalData} />
+      <AppShellContent
+        initialFinancialsRuntimeData={initialFinancialsRuntimeData}
+        initialTechnicalData={initialTechnicalData}
+      />
     </PersonalAnalysisProfileProvider>
   );
 }
 
-function AppShellContent({ initialTechnicalData }: AppShellProps) {
+function AppShellContent({ initialFinancialsRuntimeData, initialTechnicalData }: AppShellProps) {
   const { openDrawer } = usePersonalAnalysisProfile();
   const moduleKeys = useMemo(
     () => new Set(navigationItems.map((item) => item.key)),
@@ -167,7 +172,12 @@ function AppShellContent({ initialTechnicalData }: AppShellProps) {
         {activeModule === "business" ? (
           <BusinessPage onNavigate={handleNavigate} />
         ) : null}
-        {activeModule === "financials" ? <FinancialsPage onNavigate={handleNavigate} /> : null}
+        {activeModule === "financials" ? (
+          <FinancialsPage
+            initialRuntimeData={initialFinancialsRuntimeData}
+            onNavigate={handleNavigate}
+          />
+        ) : null}
         {activeModule === "valuation" ? <ValuationPage onNavigate={handleNavigate} /> : null}
         {activeModule === "technical" ? (
           <TechnicalPage

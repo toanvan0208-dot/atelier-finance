@@ -30,6 +30,8 @@ Phase 46 records read-back evidence and cleanup policy in `FINANCIAL_STATEMENTS_
 
 Phase 47 adds a Financials DB-backed runtime boundary in `FINANCIALS_DB_BACKED_RUNTIME_BOUNDARY.md`. It uses explicit gating for local DB reads and keeps default runtime behavior on sample/static fallback.
 
+Phase 48 wires the Phase 47 runtime boundary into the Financials UI in `FINANCIALS_UI_RUNTIME_WIRING_BOUNDARY.md`. It preserves the controlled write policy: no new DB write, no cleanup/delete, no real BCTC import, and no production source approval.
+
 ## 3. Write Eligibility Criteria
 
 A future financial statement local write trial may be considered only when all conditions are true:
@@ -180,6 +182,7 @@ Phase 44 does not:
 - Phase 45 implements a controlled local write trial using this policy. It remains synthetic/local research only and does not approve a production source or import real BCTC data.
 - Phase 46 adds read-back and cleanup policy only. It does not run cleanup/delete commands by default.
 - Phase 47 adds runtime boundary only. It does not change the controlled write policy or add any row-removal path.
+- Phase 48 adds UI runtime wiring/browser verification only. It does not change write eligibility, add cleanup behavior, or make local research rows production-approved.
 
 ## 12. Files Changed
 

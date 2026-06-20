@@ -10,6 +10,8 @@ Phase 47 adds a Financials runtime loader boundary that can read local DB-backed
 
 This phase does not wire the Financials UI runtime, does not run browser verification, does not write DB rows, does not cleanup/delete rows, does not import real BCTC data, and does not approve any production source.
 
+Phase 48 follows this boundary in `FINANCIALS_UI_RUNTIME_WIRING_BOUNDARY.md`: it wires the loader into `/workspace?module=financials` through a server boundary, keeps the default UI on sample fallback, and enables DB-backed UI rendering only when `ATELIER_FINANCIALS_DB_SOURCE=enabled`.
+
 ## 2. Why This Follows Phase 46
 
 Phase 46 verified that Phase 45 synthetic rows can be read back through:
@@ -132,7 +134,7 @@ The loader does not compute ratios, fair values, investment actions, or trading 
 
 The runtime loader dynamically imports the DB read service only in DB-backed mode.
 
-Client components should not import Prisma, database client modules, Node `fs`, or call this loader directly unless a future server boundary wires serialized data into the UI. Phase 47 does not wire Financials UI runtime and does not claim browser verification.
+Client components should not import Prisma, database client modules, Node `fs`, or call this loader directly. Phase 48 implements the future server boundary by passing serialized runtime data into the client UI; the client still does not import the DB read path or runtime loader.
 
 ## 10. Tests
 
@@ -211,6 +213,7 @@ Phase 47 did not:
 - No real financial statement source was reviewed or approved.
 - No production database or production provider is involved.
 - Future UI wiring must preserve this source boundary and be verified in a separate browser/UI phase.
+- Phase 48 is that UI/browser phase. It remains default-off for DB-backed reads and does not promote the synthetic/local research rows into production data.
 
 ## 14. Files Changed
 

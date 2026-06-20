@@ -1,3 +1,5 @@
+"use client";
+
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { DataQualityBanner } from "@/components/shared/DataQualityBanner";
 import { Button, Card, CardBody, Chip, EmptyState, LoadingState } from "@/components/ui";
@@ -9,18 +11,29 @@ import {
 import { financialReadingDeskData } from "../data/financialReadingDesk.data";
 import { financialsPageData } from "../data/financials.data";
 import { buildFinancialReadingDeskData } from "../lib/build-financial-reading-desk-data";
+import type { FinancialsRuntimeData } from "../lib/financials-runtime-types";
 import type { FinancialReadingDeskData, FinancialsPageData } from "../types";
 import { FinancialReadingJourney } from "./FinancialReadingJourney";
 import { FinancialsDisclaimer } from "./FinancialsDisclaimer";
 import { FinancialsHeader } from "./FinancialsHeader";
 import { FinancialsOverviewPanel } from "./FinancialsOverviewPanel";
+import { FinancialsSourceTransparency } from "./FinancialsSourceTransparency";
 
 type FinancialsPageProps = {
+  initialRuntimeData?: FinancialsRuntimeData;
   onNavigate?: (moduleKey: string) => void;
 };
 
+type RuntimeReadyState = {
+  status: "runtime";
+  runtimeData: FinancialsRuntimeData;
+  deskData: FinancialReadingDeskData | null;
+  pageData: FinancialsPageData | null;
+};
+
 type FinancialsBridgeState =
-  | { status: "loading" }
+  | { status: "loading"; ticker: string }
+  | RuntimeReadyState
   | { status: "ready"; statement: FinancialsApiStatement; deskData: FinancialReadingDeskData; pageData: FinancialsPageData }
   | { status: "empty"; ticker: string }
   | { status: "error"; ticker: string; message: string };
@@ -41,28 +54,60 @@ const logicMetricIds = new Set([
 const metadataLabel = (value: string): string => value.replace(/_/g, " ");
 
 const readinessToHeaderStatus = (readiness: FinancialsApiStatement["metadata"]["readiness"]) => {
-  if (readiness === "ready") return "Đầy đủ";
-  if (readiness === "not_ready" || readiness === "insufficient_data") return "Thiếu dữ liệu";
-  return "Cần kiểm tra thêm";
+  if (readiness === "ready") return "Day du" as FinancialsPageData["header"]["dataStatus"];
+  if (readiness === "not_ready" || readiness === "insufficient_data") {
+    return "Thieu du lieu" as FinancialsPageData["header"]["dataStatus"];
+  }
+  return "Can kiem tra them" as FinancialsPageData["header"]["dataStatus"];
+};
+
+const runtimeStatusToHeaderStatus = (status: FinancialsRuntimeData["dataQuality"]["status"]) => {
+  if (status === "available") return "Day du" as FinancialsPageData["header"]["dataStatus"];
+  if (status === "partial" || status === "insufficient_data") {
+    return "Thieu du lieu" as FinancialsPageData["header"]["dataStatus"];
+  }
+  return "Can kiem tra them" as FinancialsPageData["header"]["dataStatus"];
+};
+
+const filterLogicDeskData = (
+  data: FinancialReadingDeskData,
+  extraWarnings: FinancialReadingDeskData["warnings"] = [],
+): FinancialReadingDeskData => {
+  const metrics = data.metrics.filter((metric) => logicMetricIds.has(metric.id));
+  const metricIds = new Set(metrics.map((metric) => metric.id));
+  const readingSteps = data.readingSteps.map((step) => ({
+    ...step,
+    metricIds: step.metricIds.filter((metricId) => metricIds.has(metricId)),
+  }));
+  const firstMetricStep = readingSteps.find((step) => step.metricIds.length > 0)?.id ?? data.nextReadingStep.stepId;
+
+  return {
+    ...data,
+    metrics,
+    readingSteps,
+    warnings: [...extraWarnings, ...data.warnings].filter(
+      (warning, index, warnings) => warnings.findIndex((item) => item.id === warning.id) === index,
+    ),
+    nextReadingStep: {
+      ...data.nextReadingStep,
+      stepId: firstMetricStep,
+    },
+  };
 };
 
 const buildBridgeDeskData = (statement: FinancialsApiStatement): FinancialReadingDeskData => {
   const next = buildFinancialReadingDeskData(financialReadingDeskData, statement.snapshot);
-  const apiMetrics = next.metrics.filter((metric) => logicMetricIds.has(metric.id));
-  const apiMetricIds = new Set(apiMetrics.map((metric) => metric.id));
-  const readingSteps = next.readingSteps.map((step) => ({
-    ...step,
-    metricIds: step.metricIds.filter((metricId) => apiMetricIds.has(metricId)),
-  }));
-  const firstMetricStep = readingSteps.find((step) => step.metricIds.length > 0)?.id ?? next.nextReadingStep.stepId;
+  const firstMetricStep =
+    next.readingSteps.find((step) => step.metricIds.some((metricId) => logicMetricIds.has(metricId)))?.id ??
+    next.nextReadingStep.stepId;
   const sourceWarnings = [
     ...(statement.metadata.warningCodes.length > 0
       ? [
           {
             id: "api-source-warnings",
-            title: "Dữ liệu cần rà soát",
+            title: "Du lieu can ra soat",
             severity: "watch" as const,
-            summary: `Nguồn dữ liệu có ${statement.metadata.warningCodes.length} cảnh báo metadata.`,
+            summary: `Nguon du lieu co ${statement.metadata.warningCodes.length} canh bao metadata.`,
             cause: statement.metadata.warningCodes.join(", "),
             targetStepId: firstMetricStep,
           },
@@ -72,9 +117,9 @@ const buildBridgeDeskData = (statement: FinancialsApiStatement): FinancialReadin
       ? [
           {
             id: "api-missing-fields",
-            title: "Thiếu trường dữ liệu",
+            title: "Thieu truong du lieu",
             severity: "watch" as const,
-            summary: `API trả về ${statement.dataQuality.missingFields.length} trường còn thiếu.`,
+            summary: `API tra ve ${statement.dataQuality.missingFields.length} truong con thieu.`,
             cause: statement.dataQuality.missingFields.join(", "),
             targetStepId: firstMetricStep,
           },
@@ -83,17 +128,10 @@ const buildBridgeDeskData = (statement: FinancialsApiStatement): FinancialReadin
   ];
 
   return {
-    ...next,
+    ...filterLogicDeskData(next, sourceWarnings),
     ticker: statement.snapshot.ticker ?? statement.metadata.ticker,
     companyName: statement.snapshot.ticker ?? statement.metadata.ticker,
     period: statement.snapshot.period ?? statement.metadata.period,
-    metrics: apiMetrics,
-    readingSteps,
-    warnings: sourceWarnings,
-    nextReadingStep: {
-      ...next.nextReadingStep,
-      stepId: firstMetricStep,
-    },
   };
 };
 
@@ -110,22 +148,97 @@ const buildBridgePageData = (
     reportPeriod: statement.metadata.period,
     dataStatus: readinessToHeaderStatus(statement.metadata.readiness),
     previousModuleLink:
-      "Dữ liệu BCTC đang được đọc từ API nội bộ và database local. Không dùng fallback mock khi API lỗi hoặc rỗng.",
+      "Du lieu BCTC dang duoc doc tu API noi bo va database local. Khong dung fallback mock khi API loi hoac rong.",
   },
   disclaimer: {
     ...financialsPageData.disclaimer,
   },
 });
 
-export function FinancialsPage({ onNavigate }: FinancialsPageProps) {
-  const [tickerInput, setTickerInput] = useState("FPTLAB");
-  const [request, setRequest] = useState({ ticker: "FPTLAB", id: 0 });
-  const [bridgeState, setBridgeState] = useState<FinancialsBridgeState>({ status: "loading" });
-  const [activeStepId, setActiveStepId] = useState(financialReadingDeskData.nextReadingStep.stepId);
-  const activeTicker = request.ticker;
+const buildRuntimeDeskData = (runtimeData: FinancialsRuntimeData): FinancialReadingDeskData | null => {
+  if (!runtimeData.statementSnapshot) return null;
+
+  const next = buildFinancialReadingDeskData(financialReadingDeskData, runtimeData.statementSnapshot);
+  const firstMetricStep =
+    next.readingSteps.find((step) => step.metricIds.some((metricId) => logicMetricIds.has(metricId)))?.id ??
+    next.nextReadingStep.stepId;
+  const sourceWarnings =
+    runtimeData.dataQuality.missingFields.length > 0
+      ? [
+          {
+            id: "runtime-missing-fields",
+            title: "Thieu truong du lieu",
+            severity: "watch" as const,
+            summary: `Runtime financials con thieu ${runtimeData.dataQuality.missingFields.length} truong.`,
+            cause: runtimeData.dataQuality.missingFields.join(", "),
+            targetStepId: firstMetricStep,
+          },
+        ]
+      : [];
+  const filtered = filterLogicDeskData(next, sourceWarnings);
+
+  return {
+    ...filtered,
+    ticker: runtimeData.statementSnapshot.ticker ?? runtimeData.source.ticker,
+    companyName: runtimeData.statementSnapshot.ticker ?? runtimeData.source.ticker,
+    period:
+      runtimeData.statementSnapshot.period ??
+      (runtimeData.source.fiscalYear ? String(runtimeData.source.fiscalYear) : financialReadingDeskData.period),
+  };
+};
+
+const buildRuntimePageData = (
+  runtimeData: FinancialsRuntimeData,
+  deskData: FinancialReadingDeskData | null,
+): FinancialsPageData => ({
+  ...financialsPageData,
+  header: {
+    ...financialsPageData.header,
+    ticker: runtimeData.source.ticker,
+    companyName: deskData?.companyName ?? runtimeData.source.ticker,
+    industry: runtimeData.statementSnapshot?.companyType ?? runtimeData.statementSnapshot?.industry ?? "unknown",
+    reportPeriod:
+      runtimeData.statementSnapshot?.period ??
+      (runtimeData.source.fiscalYear ? String(runtimeData.source.fiscalYear) : financialsPageData.header.reportPeriod),
+    dataStatus: runtimeStatusToHeaderStatus(runtimeData.dataQuality.status),
+    previousModuleLink:
+      runtimeData.runtimeStatus === "db_backed"
+        ? "Dang doc Financials tu local DB research-only qua server runtime boundary; chua phai nguon production."
+        : "Dang dung sample fallback; DB-backed financials chi bat khi env flag duoc cau hinh.",
+  },
+  disclaimer: {
+    ...financialsPageData.disclaimer,
+  },
+});
+
+const buildRuntimeState = (runtimeData: FinancialsRuntimeData): RuntimeReadyState => {
+  const deskData = buildRuntimeDeskData(runtimeData);
+
+  return {
+    status: "runtime",
+    runtimeData,
+    deskData,
+    pageData: buildRuntimePageData(runtimeData, deskData),
+  };
+};
+
+export function FinancialsPage({ initialRuntimeData, onNavigate }: FinancialsPageProps) {
+  const [tickerInput, setTickerInput] = useState(initialRuntimeData?.source.ticker ?? "FPTLAB");
+  const [request, setRequest] = useState<{ ticker: string; id: number } | null>(null);
+  const [bridgeState, setBridgeState] = useState<FinancialsBridgeState>(() =>
+    initialRuntimeData ? buildRuntimeState(initialRuntimeData) : { status: "empty", ticker: "FPTLAB" },
+  );
+  const [activeStepId, setActiveStepId] = useState(() =>
+    bridgeState.status === "runtime"
+      ? bridgeState.deskData?.nextReadingStep.stepId ?? financialReadingDeskData.nextReadingStep.stepId
+      : financialReadingDeskData.nextReadingStep.stepId,
+  );
 
   useEffect(() => {
+    if (!request) return;
+
     let isActive = true;
+    const activeTicker = request.ticker;
 
     fetchFinancialStatementsByTicker({ ticker: activeTicker, limit: 2 })
       .then((statements) => {
@@ -153,7 +266,7 @@ export function FinancialsPage({ onNavigate }: FinancialsPageProps) {
     return () => {
       isActive = false;
     };
-  }, [activeTicker, request.id]);
+  }, [request]);
 
   const metadataChips = useMemo(() => {
     if (bridgeState.status !== "ready") return [];
@@ -178,9 +291,25 @@ export function FinancialsPage({ onNavigate }: FinancialsPageProps) {
     event.preventDefault();
     const nextTicker = tickerInput.trim().toUpperCase();
     if (!nextTicker) return;
-    setBridgeState({ status: "loading" });
-    setRequest((current) => ({ ticker: nextTicker, id: current.id + 1 }));
+    setBridgeState({ status: "loading", ticker: nextTicker });
+    setRequest((current) => ({ ticker: nextTicker, id: (current?.id ?? 0) + 1 }));
   };
+
+  const renderFinancialsExperience = (deskData: FinancialReadingDeskData, pageData: FinancialsPageData) => (
+    <>
+      <FinancialsHeader
+        canContinueToValuation={deskData.valuationReadiness.canContinue}
+        data={pageData.header}
+        onNavigate={onNavigate}
+        valuationDisabledReason={deskData.valuationReadiness.reason}
+        valuationReadinessCaption={deskData.valuationReadiness.nextStepSuggestion}
+        valuationReadinessStatus={deskData.valuationReadiness.logicStatus}
+      />
+      <FinancialsOverviewPanel data={deskData} onFocusStep={focusStep} />
+      <FinancialReadingJourney activeStepId={activeStepId} data={deskData} onActiveStepChange={setActiveStepId} />
+      <FinancialsDisclaimer data={pageData.disclaimer} />
+    </>
+  );
 
   return (
     <div className="mx-auto w-full max-w-[1080px] space-y-6">
@@ -200,7 +329,7 @@ export function FinancialsPage({ onNavigate }: FinancialsPageProps) {
               />
             </div>
             <Button isLoading={bridgeState.status === "loading"} type="submit" variant="secondary">
-              Tải từ API
+              Tai tu API
             </Button>
           </form>
         </CardBody>
@@ -208,25 +337,47 @@ export function FinancialsPage({ onNavigate }: FinancialsPageProps) {
 
       {bridgeState.status === "loading" ? (
         <LoadingState
-          description={`Đang đọc dữ liệu BCTC đã persist cho ${activeTicker}.`}
-          title="Đang tải Financials từ API"
+          description={`Dang doc du lieu BCTC da persist cho ${bridgeState.ticker}.`}
+          title="Dang tai Financials tu API"
         />
       ) : null}
 
       {bridgeState.status === "empty" ? (
         <EmptyState
-          description={`Không có FinancialStatement đã persist cho ${bridgeState.ticker}. Không dùng dữ liệu mock để thay thế.`}
+          description={`Khong co FinancialStatement da persist cho ${bridgeState.ticker}. Khong dung du lieu mock de thay the.`}
           icon="F"
-          title="Chưa có dữ liệu Financials trong database"
+          title="Chua co du lieu Financials trong database"
         />
       ) : null}
 
       {bridgeState.status === "error" ? (
         <EmptyState
-          description={`${bridgeState.message} Không dùng dữ liệu mock để thay thế.`}
+          description={`${bridgeState.message} Khong dung du lieu mock de thay the.`}
           icon="!"
-          title={`Không tải được Financials cho ${bridgeState.ticker}`}
+          title={`Khong tai duoc Financials cho ${bridgeState.ticker}`}
         />
+      ) : null}
+
+      {bridgeState.status === "runtime" ? (
+        <>
+          <FinancialsSourceTransparency runtimeData={bridgeState.runtimeData} />
+          <DataQualityBanner
+            asOf={bridgeState.runtimeData.source.asOf}
+            isDemoData={bridgeState.runtimeData.runtimeStatus !== "db_backed"}
+            isStale={false}
+            missingFields={bridgeState.runtimeData.dataQuality.missingFields}
+            source={bridgeState.runtimeData.source.sourceLabel}
+          />
+          {bridgeState.deskData && bridgeState.pageData ? (
+            renderFinancialsExperience(bridgeState.deskData, bridgeState.pageData)
+          ) : (
+            <EmptyState
+              description="Runtime boundary khong co statement snapshot kha dung; du lieu thieu duoc giu la unavailable."
+              icon="F"
+              title="Chua co snapshot de hien thi Financials"
+            />
+          )}
+        </>
       ) : null}
 
       {bridgeState.status === "ready" ? (
@@ -239,21 +390,7 @@ export function FinancialsPage({ onNavigate }: FinancialsPageProps) {
               </Chip>
             ))}
           </div>
-          <FinancialsHeader
-            canContinueToValuation={bridgeState.deskData.valuationReadiness.canContinue}
-            data={bridgeState.pageData.header}
-            onNavigate={onNavigate}
-            valuationDisabledReason={bridgeState.deskData.valuationReadiness.reason}
-            valuationReadinessCaption={bridgeState.deskData.valuationReadiness.nextStepSuggestion}
-            valuationReadinessStatus={bridgeState.deskData.valuationReadiness.logicStatus}
-          />
-          <FinancialsOverviewPanel data={bridgeState.deskData} onFocusStep={focusStep} />
-          <FinancialReadingJourney
-            activeStepId={activeStepId}
-            data={bridgeState.deskData}
-            onActiveStepChange={setActiveStepId}
-          />
-          <FinancialsDisclaimer data={bridgeState.pageData.disclaimer} />
+          {renderFinancialsExperience(bridgeState.deskData, bridgeState.pageData)}
         </>
       ) : null}
     </div>

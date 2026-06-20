@@ -64,7 +64,9 @@ The write-trial CLI runs the Phase 41/40/39 dry-run chain first and then writes 
 
 Phase 46 records read-back evidence and cleanup policy in `FINANCIAL_STATEMENTS_READ_BACK_AND_CLEANUP_POLICY.md`. It verifies the Phase 45 synthetic rows through the local read service and adapter, and it does not write or delete DB rows.
 
-Phase 47 adds a Financials DB-backed runtime boundary in `FINANCIALS_DB_BACKED_RUNTIME_BOUNDARY.md`. It can consume these synthetic rows only when explicitly enabled and does not wire the Financials UI.
+Phase 47 adds a Financials DB-backed runtime boundary in `FINANCIALS_DB_BACKED_RUNTIME_BOUNDARY.md`. It can consume these synthetic rows only when explicitly enabled.
+
+Phase 48 wires that runtime boundary into the Financials UI in `FINANCIALS_UI_RUNTIME_WIRING_BOUNDARY.md`. The DB-backed UI remains explicit/default-off, shows source transparency, and does not turn the Phase 45 synthetic rows into real BCTC or production-approved data.
 
 ## 5. Required Confirmation Flags
 
@@ -205,6 +207,7 @@ Phase 45 did not:
 - No production database or production data provider is involved.
 - Phase 46 verifies read-back and cleanup policy only. It does not cleanup/delete the Phase 45 synthetic rows by default.
 - Phase 47 adds runtime loader boundary only. It does not write additional rows, delete rows, or claim real BCTC import.
+- Phase 48 adds UI runtime wiring only. It does not write additional rows, delete rows, or approve the synthetic local research source.
 
 ## 12. Files Changed
 
