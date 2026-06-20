@@ -24,6 +24,8 @@ Before any local write trial can be allowed, the project needs an explicit polic
 
 The current Phase 42 CLI still rejects write-like flags. Phase 44 documents future policy only.
 
+Phase 45 implements the first controlled local DB write trial in `FINANCIAL_STATEMENTS_FIRST_LOCAL_DB_WRITE_TRIAL.md`. It uses a separate `financials:write-trial` command, requires the Phase 44 confirmations, writes synthetic accepted dry-run rows only to a local SQLite/dev DB, and does not change Financials UI runtime behavior.
+
 ## 3. Write Eligibility Criteria
 
 A future financial statement local write trial may be considered only when all conditions are true:
@@ -171,6 +173,7 @@ Phase 44 does not:
 - No Excel/PDF parser was added.
 - No public upload/API route was added.
 - No Financials UI runtime path was changed.
+- Phase 45 implements a controlled local write trial using this policy. It remains synthetic/local research only and does not approve a production source or import real BCTC data.
 
 ## 12. Files Changed
 

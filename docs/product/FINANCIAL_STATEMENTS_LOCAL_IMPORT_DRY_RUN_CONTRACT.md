@@ -57,6 +57,8 @@ Phase 43 records synthetic CLI verification evidence in `FINANCIAL_STATEMENTS_CL
 
 Phase 44 adds a controlled local write trial plan in `FINANCIAL_STATEMENTS_CONTROLLED_LOCAL_WRITE_TRIAL_PLAN.md`. The plan requires this contract's dry-run output to be reviewed before any future write trial and does not add persistence behavior to this contract.
 
+Phase 45 adds a separate controlled local write trial in `FINANCIAL_STATEMENTS_FIRST_LOCAL_DB_WRITE_TRIAL.md`. This contract still does not write DB rows; its accepted rows are the only rows eligible for the separate guarded write service.
+
 ## 4. Input Row Shape
 
 Accepted input keys include:
@@ -267,6 +269,7 @@ Phase 39 does not:
 - Phase 42 adds CLI access only as a dry-run runner and keeps this contract as the validation boundary.
 - Phase 43 records CLI verification evidence only and keeps this contract as the validation boundary.
 - Phase 44 records controlled local write trial policy only and keeps this contract as the validation boundary.
+- Phase 45 keeps this contract as the validation boundary before the separate guarded local write service.
 
 ## 14. Files Changed
 

@@ -24,6 +24,8 @@ Phase 43 records synthetic CLI verification evidence in `FINANCIAL_STATEMENTS_CL
 
 Phase 44 adds a controlled local write trial plan in `FINANCIAL_STATEMENTS_CONTROLLED_LOCAL_WRITE_TRIAL_PLAN.md`. It defines future write eligibility, confirmations, verification, and recovery policy only; it still does not import real BCTC data, write DB rows, approve a provider, parse Excel/PDF, fetch URLs, or change UI behavior.
 
+Phase 45 adds the first controlled local DB write trial in `FINANCIAL_STATEMENTS_FIRST_LOCAL_DB_WRITE_TRIAL.md`. It writes synthetic accepted dry-run rows only to a local SQLite/dev DB with `productionApproved:false`; it still does not import real BCTC data, approve a provider, parse Excel/PDF, fetch URLs, or change UI behavior.
+
 ## 2. Why This Follows Technical/PVT DB-backed Work
 
 Technical/PVT now has a local DB-backed market-price path with explicit source boundaries:
@@ -200,6 +202,7 @@ Phase 38 did not:
 - Phase 42 adds a dry-run CLI runner only. It does not add persistence, write flags, URL fetching, Excel/PDF parsing, public upload APIs, or a real file import workflow.
 - Phase 43 records CLI verification evidence only. It does not add persistence, write flags, URL fetching, Excel/PDF parsing, public upload APIs, or a real file import workflow.
 - Phase 44 records controlled local write trial policy only. It does not add persistence, write flags, URL fetching, Excel/PDF parsing, public upload APIs, or a real file import workflow.
+- Phase 45 adds a controlled local DB write trial for synthetic accepted rows only. It does not add URL fetching, Excel/PDF parsing, public upload APIs, real BCTC import, or Financials UI runtime behavior.
 
 ## 12. Files Changed
 

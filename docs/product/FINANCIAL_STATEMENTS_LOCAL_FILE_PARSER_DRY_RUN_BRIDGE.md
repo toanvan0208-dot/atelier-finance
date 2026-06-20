@@ -52,6 +52,8 @@ Phase 43 records synthetic CLI verification evidence in `FINANCIAL_STATEMENTS_CL
 
 Phase 44 adds a controlled local write trial plan in `FINANCIAL_STATEMENTS_CONTROLLED_LOCAL_WRITE_TRIAL_PLAN.md`. The plan keeps this parser bridge as part of the required dry-run prerequisite and does not add persistence behavior.
 
+Phase 45 adds a separate controlled local write trial in `FINANCIAL_STATEMENTS_FIRST_LOCAL_DB_WRITE_TRIAL.md`. The parser bridge remains dry-run parsing/validation input and does not write DB rows directly.
+
 ## 4. Supported Headers
 
 Exact case-insensitive headers supported:
@@ -220,6 +222,7 @@ Phase 40 does not:
 - Phase 42 adds CLI access only as a dry-run runner and keeps this parser bridge plus the Phase 39 contract as the parsing/validation boundary.
 - Phase 43 records CLI verification evidence only and keeps this parser bridge plus the Phase 39 contract as the parsing/validation boundary.
 - Phase 44 records controlled local write trial policy only and keeps this parser bridge plus the Phase 39 contract as the parsing/validation boundary.
+- Phase 45 keeps this parser bridge as the dry-run parsing boundary before a separate guarded write service consumes accepted rows.
 
 ## 15. Files Changed
 
