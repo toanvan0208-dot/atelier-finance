@@ -186,3 +186,5 @@ Phase 50 records the downstream Financials-derived readiness boundary in `FINANC
 Phase 51 records the first Overview consumption boundary in `OVERVIEW_FINANCIALS_RUNTIME_CONSUMPTION_BOUNDARY.md`. Overview can display Financials runtime metadata as partial/mixed-source evidence only; local/research-only/sample data remains `productionApproved:false`, and Valuation/Risk do not inherit the status.
 
 Phase 52 records the Valuation readiness boundary in `VALUATION_FINANCIALS_RUNTIME_READINESS_BOUNDARY.md`. Financials runtime availability may inform Valuation readiness, but Valuation calculations remain on the existing persisted input bridge and cannot claim DB-backed, official, realtime, or production source status.
+
+Phase 53 records controlled Valuation runtime consumption in `CONTROLLED_VALUATION_RUNTIME_CONSUMPTION_BOUNDARY.md`. Financials runtime metadata and safe fields can be displayed in Valuation as mixed-source evidence, while calculations remain on the persisted bridge and local/research/sample data remains `productionApproved:false`.

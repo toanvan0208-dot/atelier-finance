@@ -8,8 +8,13 @@ import {
   ValuationApiError,
   type ValuationApiInputs,
 } from "@/lib/data-sources/valuation-api-client";
+import type { FinancialsRuntimeData } from "@/features/financials/lib/financials-runtime-types";
 import { baseValuationRefactoredData } from "../data/valuationRefactored.data";
 import { buildValuationDeskData } from "../lib/build-valuation-desk-data";
+import {
+  buildValuationFinancialsRuntimeConsumption,
+  type ValuationFinancialsRuntimeConsumption,
+} from "../lib/valuation-financials-runtime-consumption";
 import type { ValuationRefactoredData } from "../types";
 import { ValuationAssumptionPanel } from "./ValuationAssumptionPanel";
 import { ValuationFinalConclusion } from "./ValuationFinalConclusion";
@@ -22,6 +27,7 @@ import { ValuationTrapList } from "./ValuationTrapList";
 import { ValuationUncertaintyPanel } from "./ValuationUncertaintyPanel";
 
 type ValuationPageProps = {
+  initialFinancialsRuntimeData?: FinancialsRuntimeData;
   onNavigate?: (moduleKey: string) => void;
 };
 
@@ -33,6 +39,11 @@ type ValuationBridgeState =
   | { status: "error"; ticker: string; message: string };
 
 const metadataLabel = (value: string): string => value.replace(/_/g, " ");
+
+const boundaryValue = (value: string | number | boolean | null | undefined): string => {
+  if (value === null || value === undefined || value === "") return "unavailable";
+  return String(value);
+};
 
 const buildBridgeData = (result: ValuationApiInputs): ValuationRefactoredData => {
   const data = buildValuationDeskData(baseValuationRefactoredData, result.snapshot);
@@ -48,7 +59,75 @@ const buildBridgeData = (result: ValuationApiInputs): ValuationRefactoredData =>
   };
 };
 
-export function ValuationPage({ onNavigate }: ValuationPageProps) {
+function ValuationFinancialsRuntimeNote({ boundary }: { boundary: ValuationFinancialsRuntimeConsumption }) {
+  const fields = [
+    ["valuationSourceMode", boundary.valuationSourceMode],
+    ["runtimeStatus", boundary.runtimeStatus],
+    ["readPath", boundary.readPath],
+    ["sourceLabel", boundary.sourceLabel],
+    ["dataMode", boundary.dataMode],
+    ["fallbackUsed", boundary.fallbackUsed],
+    ["productionApproved", boundary.productionApproved],
+    ["canClaimRuntimeBacked", boundary.canClaimValuationDbBacked],
+  ] as const;
+  const readinessRows = [
+    ["pe", boundary.calculationReadiness.pe],
+    ["pb", boundary.calculationReadiness.pb],
+    ["bvps", boundary.calculationReadiness.bvps],
+    ["roe", boundary.calculationReadiness.roe],
+    ["marketCap", boundary.calculationReadiness.marketCap],
+  ] as const;
+
+  return (
+    <section className="rounded-[4px] border border-[#D6B15C] bg-[#FFF8E5] px-4 py-4 text-sm text-[#765416]">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div className="min-w-0">
+          <div className="flex flex-wrap gap-2">
+            <Chip variant="neutral">valuation runtime boundary</Chip>
+            <Chip variant="neutral">{boundary.valuationSourceMode}</Chip>
+            <Chip variant="neutral">productionApproved:false</Chip>
+            <Chip variant="neutral">controlled partial</Chip>
+          </div>
+          <p className="mt-3 font-semibold">
+            Valuation uses a mixed source state: persisted input bridge for calculations plus controlled Financials runtime metadata when available.
+          </p>
+          <p className="mt-1">
+            Local Financials runtime data is research-only. Missing EPS, equity, market price, or shares keep dependent metrics unavailable or not_applicable.
+          </p>
+          <p className="mt-1">
+            Consumed fields: {boundary.consumedFields.length ? boundary.consumedFields.join(", ") : "none"}.
+          </p>
+          <p className="mt-1">
+            Unavailable fields: {boundary.unavailableFields.length ? boundary.unavailableFields.join(", ") : "none"}.
+          </p>
+          {boundary.warnings.length > 0 ? (
+            <p className="mt-2">Boundary warnings: {boundary.warnings.slice(0, 4).join(" | ")}</p>
+          ) : null}
+        </div>
+        <div className="grid min-w-0 gap-3 text-xs lg:min-w-[360px]">
+          <dl className="grid gap-2">
+            {fields.map(([label, value]) => (
+              <div className="grid grid-cols-[170px_1fr] gap-3" key={label}>
+                <dt className="font-bold">{label}</dt>
+                <dd className="min-w-0 break-words text-right">{boundaryValue(value)}</dd>
+              </div>
+            ))}
+          </dl>
+          <dl className="grid gap-2 border-t border-[#E8CC82] pt-3">
+            {readinessRows.map(([label, value]) => (
+              <div className="grid grid-cols-[170px_1fr] gap-3" key={label}>
+                <dt className="font-bold">{label}</dt>
+                <dd className="min-w-0 break-words text-right">{boundaryValue(value)}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export function ValuationPage({ initialFinancialsRuntimeData, onNavigate }: ValuationPageProps) {
   const [tickerInput, setTickerInput] = useState("FPTLAB");
   const [request, setRequest] = useState({ ticker: "FPTLAB", id: 0 });
   const [bridgeState, setBridgeState] = useState<ValuationBridgeState>({ status: "loading" });
@@ -97,6 +176,24 @@ export function ValuationPage({ onNavigate }: ValuationPageProps) {
       `fallback: ${String(metadata.fallback)}`,
     ];
   }, [bridgeState]);
+
+  const runtimeConsumption = useMemo(() => {
+    const snapshot =
+      bridgeState.status === "ready" || bridgeState.status === "insufficient"
+        ? bridgeState.result.snapshot
+        : null;
+
+    return buildValuationFinancialsRuntimeConsumption({
+      financialsRuntimeData: initialFinancialsRuntimeData,
+      persistedBridgeInputs: {
+        eps: snapshot?.eps ?? null,
+        equity: snapshot?.totalEquity ?? null,
+        bvps: snapshot?.bvps ?? null,
+        marketPrice: snapshot?.closePrice ?? null,
+        sharesOutstanding: snapshot?.sharesOutstanding ?? null,
+      },
+    });
+  }, [bridgeState, initialFinancialsRuntimeData]);
 
   const submitTicker = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -156,6 +253,7 @@ export function ValuationPage({ onNavigate }: ValuationPageProps) {
       {bridgeState.status === "ready" || bridgeState.status === "insufficient" ? (
         <>
           <DataQualityBanner {...bridgeState.result.dataQuality} />
+          <ValuationFinancialsRuntimeNote boundary={runtimeConsumption} />
           <div className="flex flex-wrap gap-2">
             {metadataChips.map((chip) => (
               <Chip key={chip} variant="neutral">

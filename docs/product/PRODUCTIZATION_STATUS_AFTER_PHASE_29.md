@@ -250,6 +250,8 @@ Phase 51 connects Overview to Financials runtime metadata as a partial/mixed-sou
 
 Phase 52 adds a Valuation Financials runtime readiness boundary. Valuation still uses its existing persisted local financial/market input bridge for calculations, but now has a pure readiness contract for Financials runtime availability, EPS/equity/market-price/shares safety, `canClaimValuationDbBacked:false`, and `productionApproved:false`. Risk remains unwired.
 
+Phase 53 adds controlled Valuation runtime consumption. `AppShell` now passes Financials runtime metadata into Valuation, the Valuation UI renders a mixed-source/partial-runtime transparency note, and a consumption helper lists consumed/unavailable safe fields while calculations still use the persisted input bridge. Risk remains unwired and `productionApproved:false` is preserved.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot

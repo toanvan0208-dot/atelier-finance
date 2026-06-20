@@ -181,7 +181,12 @@ function AppShellContent({ initialFinancialsRuntimeData, initialTechnicalData }:
             onNavigate={handleNavigate}
           />
         ) : null}
-        {activeModule === "valuation" ? <ValuationPage onNavigate={handleNavigate} /> : null}
+        {activeModule === "valuation" ? (
+          <ValuationPage
+            initialFinancialsRuntimeData={initialFinancialsRuntimeData}
+            onNavigate={handleNavigate}
+          />
+        ) : null}
         {activeModule === "technical" ? (
           <TechnicalPage
             initialRuntimeData={initialTechnicalData}
