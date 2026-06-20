@@ -13,6 +13,7 @@
     "db:migrate": "prisma db execute --file prisma/migrations/20260618162000_phase_29e_local_database_foundation/migration.sql",
     "db:seed": "prisma db execute --file prisma/seed.sql",
     "db:reset": "node scripts/reset-local-db.mjs",
+    "financials:dry-run": "tsx scripts/financial-statements-dry-run.ts",
     "import:market-prices:vnstock:local": "tsx scripts/import-vnstock-market-prices.ts",
     "test": "vitest run",
     "test:e2e": "playwright test",
