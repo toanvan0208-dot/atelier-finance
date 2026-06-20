@@ -78,11 +78,25 @@ Observed result:
 ## 5. Known Limitations
 
 - Manual browser verification was local-only, not deployed verification.
+- Phase 33 observed `FPT - FPT - Ban le` in DB-backed mode; Phase 34 tracks the follow-up boundary that prevents DB-backed FPT market prices from reusing static sample company/industry metadata when issuer metadata is not verified.
+
+## 6. Phase 34 Follow-up
+
+Company/issuer metadata boundary details are recorded in `TECHNICAL_PVT_COMPANY_METADATA_BOUNDARY.md`.
+
+Phase 34 does not verify FPT issuer metadata. It only separates market price source transparency from issuer metadata status and labels unavailable metadata as not verified.
+
+Phase 34 manual browser verification was completed locally on 2026-06-20:
+
+| Mode | URL | Observed result |
+| --- | --- | --- |
+| DB-backed | `http://localhost:3000/workspace?module=technical` with `DATABASE_URL=file:./dev.db` and `ATELIER_TECHNICAL_PVT_DB_SOURCE=enabled` | Page rendered; FPT market price rendered from local DB / `vnstock` / `research_only`; `productionApproved:false`; issuer metadata shown as unavailable/not verified; sample industry/sector was not reused for FPT; no recommendation or trading-signal wording observed. |
+| Fallback | `http://localhost:3000/workspace?module=technical` with `DATABASE_URL=file:./dev.db` and DB source flag disabled | Page rendered; sample/static fallback rendered; metadata marked as `static_sample`; `productionApproved:false`; no DB-backed `vnstock` source shown; no recommendation or trading-signal wording observed. |
 - DB-backed UI depends on the local `dev.db` retaining Phase 31Q FPT evidence rows.
 - Screenshots were not committed.
-- DB-backed market price data rendered successfully, but company/industry metadata is still limited and may come from fallback/static context. The observed industry label `Ban le` for FPT requires a future company-metadata source or safer unknown/limited metadata handling.
+- DB-backed market price data rendered successfully. Company/issuer metadata remains unverified, but Phase 34 browser verification confirmed that static sample industry/sector was not reused for FPT.
 
-## 6. Safety Confirmations
+## 7. Safety Confirmations
 
 Phase 33 did not:
 

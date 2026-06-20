@@ -458,10 +458,47 @@ export type PVTNextAction = {
   primary?: boolean;
 };
 
+export type TechnicalIssuerMetadataVerificationStatus =
+  | "verified"
+  | "static_sample"
+  | "limited"
+  | "unavailable"
+  | "unknown";
+
+export type TechnicalMarketDataSource = {
+  sourceType: "local_db_manual_import" | "sample_static_fallback";
+  provider: "vnstock" | "sample_static";
+  sourceLabel: string;
+  dataMode: string;
+  productionApproved: false;
+  fallbackUsed: boolean;
+  ticker: string | null;
+  asOf: string | null;
+  dateSpan: {
+    from: string | null;
+    to: string | null;
+  };
+};
+
+export type TechnicalIssuerMetadata = {
+  ticker: string;
+  displayName: string | null;
+  issuerName: string | null;
+  industry: string | null;
+  sector: string | null;
+  sourceLabel: string;
+  dataMode: string;
+  productionApproved: false;
+  verificationStatus: TechnicalIssuerMetadataVerificationStatus;
+  limitations: string[];
+  warnings: string[];
+};
+
 export type PVTObservationData = {
   ticker: string;
   companyName: string;
   industry: string;
+  issuerMetadata?: TechnicalIssuerMetadata;
   currentPrice: number;
   status: {
     label: string;

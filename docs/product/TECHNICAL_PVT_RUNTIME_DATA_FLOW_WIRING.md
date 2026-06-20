@@ -52,6 +52,12 @@ The DB-backed result keeps:
 - `dataMode:research_only`
 - `productionApproved:false`
 
+Phase 34 adds a serializable metadata boundary to this runtime result; see `TECHNICAL_PVT_COMPANY_METADATA_BOUNDARY.md`:
+
+- `marketDataSource` describes price/volume source lineage.
+- `issuerMetadata` describes company/industry/sector metadata status.
+- When the DB-backed ticker differs from the static sample ticker and no issuer metadata source exists, sample issuer metadata is not reused and `issuerMetadata.verificationStatus` remains unavailable/unknown.
+
 ## 4. Fallback Behavior
 
 Fallback remains mandatory for runtime safety.

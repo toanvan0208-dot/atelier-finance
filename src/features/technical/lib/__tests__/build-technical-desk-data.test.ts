@@ -127,7 +127,42 @@ describe("technical PVT builder", () => {
 
     expect(data.ticker).toBe("FPT");
     expect(data.companyName).toBe("FPT");
+    expect(data.industry).not.toBe("Retail");
+    expect(data.issuerMetadata).toMatchObject({
+      ticker: "FPT",
+      displayName: null,
+      industry: null,
+      sector: null,
+      sourceLabel: "unavailable",
+      dataMode: "unknown",
+      productionApproved: false,
+      verificationStatus: "unavailable",
+    });
     expect(data.currentPrice).toBe(50_000);
+  });
+
+  it("keeps static sample issuer metadata only when the market ticker matches the sample base ticker", () => {
+    const data = buildTechnicalDeskData(baseData, completeSnapshot);
+
+    expect(data.ticker).toBe("ABC");
+    expect(data.companyName).toBe("ABC");
+    expect(data.industry).toBe("Retail");
+    expect(data.issuerMetadata).toMatchObject({
+      ticker: "ABC",
+      displayName: "ABC",
+      industry: "Retail",
+      sourceLabel: "sample_static_fallback",
+      dataMode: "sample",
+      productionApproved: false,
+      verificationStatus: "static_sample",
+    });
+  });
+
+  it("does not output prohibited Vietnamese recommendation wording", () => {
+    const data = buildTechnicalDeskData(baseData, completeSnapshot);
+    const output = JSON.stringify(data).toLowerCase();
+
+    expect(output).not.toMatch(/nên mua|nên bán|nên nắm giữ|tín hiệu mua|tín hiệu bán|điểm mua|cổ phiếu an toàn|chắc chắn rẻ|chắc chắn xấu/);
   });
 
   it("keeps price change unavailable when previousClosePrice is missing", () => {

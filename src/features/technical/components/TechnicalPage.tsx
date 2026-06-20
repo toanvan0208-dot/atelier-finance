@@ -1,6 +1,6 @@
 import { DataQualityBanner } from "@/components/shared/DataQualityBanner";
 import { pvtDataQuality, pvtObservationData } from "../data/pvtObservation.data";
-import type { PVTObservationData } from "../types";
+import type { PVTObservationData, TechnicalIssuerMetadata, TechnicalMarketDataSource } from "../types";
 import { PVTConfirmationScenarios } from "./PVTConfirmationScenarios";
 import { PVTFinalConclusion } from "./PVTFinalConclusion";
 import { PVTFomoThermometer } from "./PVTFomoThermometer";
@@ -14,10 +14,13 @@ export type TechnicalPageRuntimeData = {
   dataQuality: typeof pvtDataQuality;
   source?: {
     sourceType: "local_db_manual_import" | "sample_static_fallback";
+    provider?: "vnstock" | "sample_static";
     sourceLabel: string;
     dataMode: string;
     productionApproved: false;
   };
+  marketDataSource?: TechnicalMarketDataSource;
+  issuerMetadata?: TechnicalIssuerMetadata;
   fallbackUsed?: boolean;
   warnings?: string[];
 };
@@ -27,26 +30,68 @@ type TechnicalPageProps = {
   onNavigate: (key: string) => void;
 };
 
+const fallbackIssuerMetadata = (
+  data: PVTObservationData,
+  sourceType: "local_db_manual_import" | "sample_static_fallback",
+): TechnicalIssuerMetadata => ({
+  ticker: data.ticker,
+  displayName: sourceType === "sample_static_fallback" ? data.companyName : null,
+  issuerName: sourceType === "sample_static_fallback" ? data.companyName : null,
+  industry: sourceType === "sample_static_fallback" ? data.industry : null,
+  sector: null,
+  sourceLabel: sourceType === "sample_static_fallback" ? "sample_static_fallback" : "unavailable",
+  dataMode: sourceType === "sample_static_fallback" ? "sample" : "unknown",
+  productionApproved: false,
+  verificationStatus: sourceType === "sample_static_fallback" ? "static_sample" : "unavailable",
+  limitations: [
+    sourceType === "sample_static_fallback"
+      ? "Static sample issuer metadata is not verified production metadata."
+      : "Company/issuer metadata is unavailable for this DB-backed ticker.",
+  ],
+  warnings: [],
+});
+
+const stringOrNull = (value: string | Date | null | undefined): string | null => {
+  if (!value) return null;
+  return value instanceof Date ? value.toISOString() : value;
+};
+
 export function TechnicalPage({ initialRuntimeData, onNavigate }: TechnicalPageProps) {
   const data = initialRuntimeData?.data ?? pvtObservationData;
   const dataQuality = initialRuntimeData?.dataQuality ?? pvtDataQuality;
   const source = initialRuntimeData?.source ?? {
     sourceType: "sample_static_fallback",
+    provider: "sample_static",
     sourceLabel: "sample_static_fallback",
     dataMode: "sample",
     productionApproved: false,
   };
   const fallbackUsed = initialRuntimeData?.fallbackUsed ?? true;
+  const marketDataSource = initialRuntimeData?.marketDataSource ?? {
+    sourceType: source.sourceType,
+    provider: source.sourceType === "local_db_manual_import" ? "vnstock" : "sample_static",
+    sourceLabel: source.sourceLabel,
+    dataMode: source.dataMode,
+    productionApproved: source.productionApproved,
+    fallbackUsed,
+    ticker: data.ticker,
+    asOf: stringOrNull(dataQuality.asOf),
+    dateSpan: {
+      from: null,
+      to: null,
+    },
+  };
+  const issuerMetadata =
+    initialRuntimeData?.issuerMetadata ??
+    data.issuerMetadata ??
+    fallbackIssuerMetadata(data, source.sourceType);
 
   return (
     <div className="mx-auto w-full max-w-[1180px] space-y-5">
       <DataQualityBanner {...dataQuality} />
       <SourceTransparencyStrip
-        dataMode={source.dataMode}
-        fallbackUsed={fallbackUsed}
-        productionApproved={source.productionApproved}
-        sourceLabel={source.sourceLabel}
-        sourceType={source.sourceType}
+        issuerMetadata={issuerMetadata}
+        marketDataSource={marketDataSource}
       />
       <PVTHeroStatus data={data} />
       <PVTMainChart
@@ -74,38 +119,56 @@ export function TechnicalPage({ initialRuntimeData, onNavigate }: TechnicalPageP
 }
 
 function SourceTransparencyStrip({
-  dataMode,
-  fallbackUsed,
-  productionApproved,
-  sourceLabel,
-  sourceType,
+  issuerMetadata,
+  marketDataSource,
 }: {
-  dataMode: string;
-  fallbackUsed: boolean;
-  productionApproved: false;
-  sourceLabel: string;
-  sourceType: "local_db_manual_import" | "sample_static_fallback";
+  issuerMetadata: TechnicalIssuerMetadata;
+  marketDataSource: TechnicalMarketDataSource;
 }) {
   const sourceText =
-    sourceType === "local_db_manual_import"
-      ? `Local DB manual import · ${sourceLabel} · ${dataMode}`
-      : `Sample/static fallback · ${dataMode}`;
+    marketDataSource.sourceType === "local_db_manual_import"
+      ? `Local DB manual import · ${marketDataSource.sourceLabel} · ${marketDataSource.dataMode}`
+      : `Sample/static fallback · ${marketDataSource.dataMode}`;
+  const metadataUnavailable =
+    issuerMetadata.verificationStatus === "unavailable" ||
+    issuerMetadata.verificationStatus === "limited" ||
+    issuerMetadata.verificationStatus === "unknown";
+  const industryText = issuerMetadata.industry ?? "chua co du lieu xac minh";
+  const sectorText = issuerMetadata.sector ?? "chua co du lieu xac minh";
+  const metadataText = metadataUnavailable
+    ? "Metadata doanh nghiệp/ngành chưa được xác minh"
+    : "Metadata sample/static, productionApproved:false";
 
   return (
     <section
       aria-label="Technical/PVT source transparency"
       className="rounded-[4px] border border-ink/10 bg-surface px-4 py-3 text-xs leading-5 text-muted"
     >
-      <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-        <p className="font-semibold text-ink">
-          Source transparency: {sourceText}
-        </p>
-        <div className="flex flex-wrap gap-2">
+      <p className="mb-2 font-bold uppercase text-subtle">Source transparency</p>
+      <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <div>
+          <p className="font-semibold text-ink">
+            Price/volume source: {sourceText}
+          </p>
+          <p>
+            Ticker: {marketDataSource.ticker ?? "unknown"} · asOf: {marketDataSource.asOf ?? "unknown"}
+          </p>
+        </div>
+        <div>
+          <p className="font-semibold text-ink">{metadataText}</p>
+          <p>
+            Metadata: {issuerMetadata.verificationStatus} · Industry: {industryText} · Sector: {sectorText}
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2 lg:col-span-2">
           <span className="rounded-[3px] border border-ink/10 bg-muted/10 px-2 py-1 font-bold text-ink">
-            productionApproved:{String(productionApproved)}
+            productionApproved:{String(marketDataSource.productionApproved)}
           </span>
           <span className="rounded-[3px] border border-ink/10 bg-muted/10 px-2 py-1 font-bold text-ink">
-            {fallbackUsed ? "sampleFallback" : "researchOnly"}
+            {marketDataSource.fallbackUsed ? "sampleFallback" : "researchOnly"}
+          </span>
+          <span className="rounded-[3px] border border-ink/10 bg-muted/10 px-2 py-1 font-bold text-ink">
+            metadata:{issuerMetadata.verificationStatus}
           </span>
         </div>
       </div>

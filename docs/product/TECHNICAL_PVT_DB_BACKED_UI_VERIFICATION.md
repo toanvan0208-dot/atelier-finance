@@ -42,7 +42,20 @@ The strip displays:
 - `productionApproved:false`
 - Runtime state: `researchOnly` or `sampleFallback`
 
+Phase 34 extends this strip with a separate company/issuer metadata layer; see `TECHNICAL_PVT_COMPANY_METADATA_BOUNDARY.md`. DB-backed market price data and issuer metadata now have separate source/status fields. If DB-backed FPT prices are present but issuer metadata is not verified, the UI labels metadata as unavailable/not verified instead of reusing static sample industry or sector values.
+
 This is intentionally small and does not redesign the Technical/PVT module.
+
+## 3A. Phase 34 Browser Evidence
+
+Manual browser verification on 2026-06-20 confirmed:
+
+- DB-backed mode at `http://localhost:3000/workspace?module=technical` with `DATABASE_URL=file:./dev.db` and `ATELIER_TECHNICAL_PVT_DB_SOURCE=enabled` rendered FPT market price data from local DB / `vnstock` / `research_only`.
+- DB-backed mode kept `productionApproved:false`, showed issuer metadata as unavailable/not verified, and did not reuse static sample industry/sector for FPT.
+- Fallback mode at the same route with the DB source flag disabled rendered sample/static fallback, marked metadata as `static_sample`, kept `productionApproved:false`, and did not show DB-backed `vnstock` source.
+- No recommendation or trading-signal wording was observed in either mode.
+
+This evidence does not verify FPT issuer metadata. It verifies only the UI/source-boundary behavior.
 
 ## 4. Client/Server Boundary
 

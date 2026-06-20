@@ -12,6 +12,8 @@ import {
 import type { PVTLogicMetric, PVTObservationData, PVTStatus } from "../types";
 import { mapTechnicalToLogicInput, type TechnicalMarketSnapshot } from "./map-technical-to-logic-input";
 
+const UNVERIFIED_METADATA_LABEL = "Chua co du lieu xac minh";
+
 const levelToPvtStatus = (level: MetricLevel): PVTStatus => {
   if (level === "good") return "aligned";
   if (level === "watch") return "watch";
@@ -120,6 +122,56 @@ const updateSignalLayers = (
     return layer;
   });
 
+const normalizeTicker = (ticker: string | null | undefined): string | null => {
+  const normalized = ticker?.trim().toUpperCase();
+  return normalized ? normalized : null;
+};
+
+const buildIssuerMetadata = (
+  baseData: PVTObservationData,
+  snapshot: TechnicalMarketSnapshot
+): PVTObservationData["issuerMetadata"] => {
+  const snapshotTicker = normalizeTicker(snapshot.ticker);
+  const baseTicker = normalizeTicker(baseData.ticker);
+  const ticker = snapshotTicker ?? baseTicker ?? "UNKNOWN";
+
+  if (snapshotTicker && baseTicker && snapshotTicker !== baseTicker) {
+    return {
+      ticker,
+      displayName: null,
+      issuerName: null,
+      industry: null,
+      sector: null,
+      sourceLabel: "unavailable",
+      dataMode: "unknown",
+      productionApproved: false,
+      verificationStatus: "unavailable",
+      limitations: [
+        "Company/issuer metadata is unavailable for this DB-backed ticker.",
+        "Sample company, industry, and sector metadata were not reused because the ticker differs from the sample base ticker.",
+      ],
+      warnings: ["Issuer metadata has not been verified for this market price ticker."],
+    };
+  }
+
+  return {
+    ticker,
+    displayName: baseData.companyName,
+    issuerName: baseData.companyName,
+    industry: baseData.industry,
+    sector: null,
+    sourceLabel: "sample_static_fallback",
+    dataMode: "sample",
+    productionApproved: false,
+    verificationStatus: "static_sample",
+    limitations: [
+      "Static sample issuer metadata is for local product behavior checks only.",
+      "It is not verified production issuer metadata.",
+    ],
+    warnings: ["Sample/static issuer metadata is not production approved."],
+  };
+};
+
 export const buildTechnicalDeskData = (
   baseData: PVTObservationData,
   snapshot: TechnicalMarketSnapshot
@@ -144,14 +196,20 @@ export const buildTechnicalDeskData = (
     ...liquidityRisk.missingFields,
     ...dataQuality.missingFields,
   ]);
+  const snapshotTicker = normalizeTicker(snapshot.ticker);
+  const baseTicker = normalizeTicker(baseData.ticker);
+  const tickerChanged = Boolean(snapshotTicker && baseTicker && snapshotTicker !== baseTicker);
+  const issuerMetadata = buildIssuerMetadata(baseData, snapshot);
 
   return {
     ...baseData,
     ticker: snapshot.ticker ?? baseData.ticker,
     companyName:
-      snapshot.ticker && snapshot.ticker !== baseData.ticker
-        ? snapshot.ticker
+      tickerChanged
+        ? snapshotTicker ?? baseData.ticker
         : baseData.companyName,
+    industry: tickerChanged ? UNVERIFIED_METADATA_LABEL : baseData.industry,
+    issuerMetadata,
     currentPrice: snapshot.closePrice ?? baseData.currentPrice,
     status: resolveStatus(priceChange, liquidityStatus, missingFields),
     volume: {

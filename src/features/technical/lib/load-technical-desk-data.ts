@@ -3,7 +3,7 @@ import {
   type MarketPriceSeriesResult,
 } from "../../../lib/data-sources";
 import { pvtDataQuality, pvtObservationData } from "../data/pvtObservation.data";
-import type { PVTObservationData } from "../types";
+import type { PVTObservationData, TechnicalIssuerMetadata, TechnicalMarketDataSource } from "../types";
 import {
   buildTechnicalFromMarketPriceSeries,
   type TechnicalPvtFromMarketPriceSeriesResult,
@@ -34,6 +34,8 @@ export type LoadTechnicalDeskDataResult = {
     dataMode: string;
     productionApproved: false;
   };
+  marketDataSource: TechnicalMarketDataSource;
+  issuerMetadata: TechnicalIssuerMetadata;
   fallbackUsed: boolean;
   warnings: string[];
   errors: string[];
@@ -54,6 +56,81 @@ const STATIC_FALLBACK_WARNING =
 
 const LOCAL_RESEARCH_WARNING =
   "Technical/PVT DB-backed data is local academic/research only; production approval remains false.";
+
+const stringOrNull = (value: string | Date | null | undefined): string | null => {
+  if (!value) return null;
+  return value instanceof Date ? value.toISOString() : value;
+};
+
+const fallbackIssuerMetadata = (fallbackData: PVTObservationData): TechnicalIssuerMetadata =>
+  fallbackData.issuerMetadata ?? {
+    ticker: fallbackData.ticker,
+    displayName: fallbackData.companyName,
+    issuerName: fallbackData.companyName,
+    industry: fallbackData.industry,
+    sector: null,
+    sourceLabel: "sample_static_fallback",
+    dataMode: "sample",
+    productionApproved: false,
+    verificationStatus: "static_sample",
+    limitations: [
+      "Static sample issuer metadata is for local product behavior checks only.",
+      "It is not verified production issuer metadata.",
+    ],
+    warnings: ["Sample/static issuer metadata is not production approved."],
+  };
+
+const unavailableIssuerMetadata = (ticker: string): TechnicalIssuerMetadata => ({
+  ticker,
+  displayName: null,
+  issuerName: null,
+  industry: null,
+  sector: null,
+  sourceLabel: "unavailable",
+  dataMode: "unknown",
+  productionApproved: false,
+  verificationStatus: "unavailable",
+  limitations: [
+    "Company/issuer metadata is unavailable for this DB-backed ticker.",
+    "Sample company, industry, and sector metadata were not reused because the ticker differs from the sample base ticker.",
+  ],
+  warnings: ["Issuer metadata has not been verified for this market price ticker."],
+});
+
+const fallbackMarketDataSource = (
+  ticker: string | null,
+  asOf: string | null,
+): TechnicalMarketDataSource => ({
+  sourceType: "sample_static_fallback",
+  provider: "sample_static",
+  sourceLabel: "sample_static_fallback",
+  dataMode: "sample",
+  productionApproved: false,
+  fallbackUsed: true,
+  ticker,
+  asOf,
+  dateSpan: {
+    from: null,
+    to: null,
+  },
+});
+
+const dbMarketDataSource = (
+  series: MarketPriceSeriesResult,
+): TechnicalMarketDataSource => ({
+  sourceType: "local_db_manual_import",
+  provider: "vnstock",
+  sourceLabel: series.sourceLabel,
+  dataMode: series.dataMode,
+  productionApproved: false,
+  fallbackUsed: false,
+  ticker: series.ticker,
+  asOf: series.rows.at(-1)?.date ?? series.to ?? null,
+  dateSpan: {
+    from: series.from,
+    to: series.to,
+  },
+});
 
 const fallbackResult = ({
   fallbackData,
@@ -79,6 +156,8 @@ const fallbackResult = ({
     dataMode: "sample",
     productionApproved: false,
   },
+  marketDataSource: fallbackMarketDataSource(fallbackData.ticker, stringOrNull(fallbackDataQuality.asOf)),
+  issuerMetadata: fallbackIssuerMetadata(fallbackData),
   fallbackUsed: true,
   warnings: [STATIC_FALLBACK_WARNING, ...warnings],
   errors,
@@ -106,6 +185,8 @@ const safeErrorResult = ({
     dataMode: "sample",
     productionApproved: false,
   },
+  marketDataSource: fallbackMarketDataSource(null, stringOrNull(fallbackDataQuality.asOf)),
+  issuerMetadata: unavailableIssuerMetadata("UNKNOWN"),
   fallbackUsed: false,
   warnings,
   errors,
@@ -238,6 +319,8 @@ export const loadTechnicalDeskData = async (
       dataMode: series.dataMode,
       productionApproved: false,
     },
+    marketDataSource: dbMarketDataSource(series),
+    issuerMetadata: built.data.issuerMetadata ?? unavailableIssuerMetadata(series.ticker ?? input.ticker),
     fallbackUsed: false,
     warnings: [LOCAL_RESEARCH_WARNING, ...series.warnings, ...built.adapter.warnings],
     errors: built.adapter.errors,

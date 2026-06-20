@@ -5,9 +5,9 @@ import type { PVTObservationData } from "../../types";
 import { loadTechnicalDeskData } from "../load-technical-desk-data";
 
 const baseData: PVTObservationData = {
-  ticker: "FPT",
-  companyName: "FPT",
-  industry: "Technology",
+  ticker: "MWG",
+  companyName: "MWG Sample",
+  industry: "Ban le",
   currentPrice: 0,
   status: {
     label: "Base",
@@ -150,6 +150,26 @@ describe("loadTechnicalDeskData", () => {
     });
     expect(result.data?.ticker).toBe("FPT");
     expect(result.data?.currentPrice).toBe(110);
+    expect(result.data?.industry).not.toBe("Ban le");
+    expect(result.marketDataSource).toMatchObject({
+      sourceType: "local_db_manual_import",
+      provider: "vnstock",
+      sourceLabel: "vnstock",
+      dataMode: "research_only",
+      productionApproved: false,
+      fallbackUsed: false,
+      ticker: "FPT",
+    });
+    expect(result.issuerMetadata).toMatchObject({
+      ticker: "FPT",
+      displayName: null,
+      industry: null,
+      sector: null,
+      sourceLabel: "unavailable",
+      dataMode: "unknown",
+      productionApproved: false,
+      verificationStatus: "unavailable",
+    });
     expect(result.warnings.join(" ")).toContain("local academic/research");
   });
 
@@ -177,6 +197,22 @@ describe("loadTechnicalDeskData", () => {
     expect(result.fallbackUsed).toBe(true);
     expect(result.source.sourceType).toBe("sample_static_fallback");
     expect(result.source.productionApproved).toBe(false);
+    expect(result.marketDataSource).toMatchObject({
+      sourceType: "sample_static_fallback",
+      sourceLabel: "sample_static_fallback",
+      dataMode: "sample",
+      productionApproved: false,
+      fallbackUsed: true,
+    });
+    expect(result.issuerMetadata).toMatchObject({
+      ticker: "MWG",
+      displayName: "MWG Sample",
+      industry: "Ban le",
+      sourceLabel: "sample_static_fallback",
+      dataMode: "sample",
+      productionApproved: false,
+      verificationStatus: "static_sample",
+    });
     expect(result.data).toBe(baseData);
     expect(result.warnings.join(" ")).toContain("static fallback");
   });
