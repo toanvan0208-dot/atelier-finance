@@ -136,8 +136,8 @@ Phase 32 did not add:
 - `productionApproved:true`.
 - Recommendation, rating, target-price, or trading-action fields.
 
-## 8. Phase 33 Browser Verification
+## 8. Phase 33 Browser Verification Status
 
-Phase 33 is tracked in `docs/product/TECHNICAL_PVT_BROWSER_VERIFICATION_RECORD.md`.
+Phase 33 is pending/planned, not completed.
 
-It verifies through local browser/dev-server checks that explicit DB-backed mode renders FPT local DB data with `Local DB manual import`, `research_only`, and `productionApproved:false`, and that fallback mode renders `Sample/static fallback` with `productionApproved:false`.
+Manual browser verification has not been confirmed yet. Phase 32 provides runtime/test evidence only; it does not provide manual browser evidence that the Technical/PVT UI rendered DB-backed FPT data in a local browser session.
