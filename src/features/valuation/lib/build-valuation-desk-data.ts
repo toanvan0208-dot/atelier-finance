@@ -234,7 +234,7 @@ export const buildValuationDeskData = (
           name: "Kịch bản xấu",
           range: "Chưa sẵn sàng",
           explanation: "Chưa đặt kịch bản giảm vì thiếu fair value nền đáng tin cậy.",
-          tone: "downside",
+          tone: "lower",
         },
         {
           name: "Kịch bản cơ sở",
@@ -246,13 +246,13 @@ export const buildValuationDeskData = (
           name: "Kịch bản tốt",
           range: "Chưa sẵn sàng",
           explanation: "Không tự tăng giả định để tạo vùng cao khi chưa có mô hình dòng tiền đủ điều kiện.",
-          tone: "upside",
+          tone: "upper",
         },
       ],
     },
     traps: [
       {
-        title: "P/E thấp không tự nói lên định giá hấp dẫn",
+        title: "P/E thấp cần kiểm tra chất lượng lợi nhuận",
         description:
           "Nếu lợi nhuận đang bất thường hoặc EPS không bền, P/E có thể gây hiểu nhầm. Cần đọc cùng chất lượng lợi nhuận và dòng tiền.",
       },

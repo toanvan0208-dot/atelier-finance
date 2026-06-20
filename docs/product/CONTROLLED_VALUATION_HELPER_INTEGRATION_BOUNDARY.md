@@ -152,3 +152,7 @@ Maximum safe Phase 61 scope:
 - keep persisted bridge visible where it still supplies market inputs;
 - keep `canClaimValuationDbBacked:false`;
 - browser-verify fallback and local DB-backed modes before commit.
+
+## 11. Phase 61 Follow-up
+
+Phase 61 adds `CONTROLLED_VALUATION_UI_READ_ONLY_DISPLAY_BOUNDARY.md` and wires this boundary into Valuation UI as a read-only status panel. It displays source mode, `productionApproved:false`, `canClaimValuationDbBacked:false`, allowed metric readiness, and blocked EV/EV/EBITDA/DCF/fair-value-range states without adding investment interpretation.

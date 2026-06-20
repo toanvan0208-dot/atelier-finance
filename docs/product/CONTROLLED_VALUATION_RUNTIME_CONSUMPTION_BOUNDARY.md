@@ -169,3 +169,7 @@ Phase 59 adds `CONTROLLED_VALUATION_CALCULATION_HELPER.md`. The new helper is pu
 ## 19. Phase 60 Follow-up
 
 Phase 60 adds `CONTROLLED_VALUATION_HELPER_INTEGRATION_BOUNDARY.md`. It provides a pure integration wrapper around the Phase 59 helper, but does not wire that wrapper into the Phase 53 Valuation UI note or displayed metric cards.
+
+## 20. Phase 61 Follow-up
+
+Phase 61 adds `CONTROLLED_VALUATION_UI_READ_ONLY_DISPLAY_BOUNDARY.md` and displays the controlled integration wrapper below the existing Valuation runtime note. The original mixed-source/controlled partial note remains visible, and the new panel still shows `productionApproved:false` and `canClaimValuationDbBacked:false`.

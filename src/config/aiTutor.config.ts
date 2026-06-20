@@ -139,7 +139,7 @@ export const aiTutorConfig: Record<string, AITutorConfig> = {
     commonMistakes: ["Ngành tốt không có nghĩa mọi cổ phiếu trong ngành đều tốt.", "Kết luận ngành hưởng lợi chỉ vì một tin chính sách."],
     suggestedQuestions: ["Ngành chu kỳ là gì?", "Vĩ mô đi vào ngành như thế nào?", "Dữ liệu nào xác nhận ngành tốt lên?"],
     recommendedLessons: [
-      { title: "P/E ngành chu kỳ vì sao dễ gây hiểu nhầm?", duration: "5 phút", usedIn: "Ngành, Định giá, Rủi ro", reason: "Giúp tránh kết luận rẻ khi lợi nhuận đang ở đỉnh chu kỳ." },
+      { title: "P/E ngành chu kỳ vì sao dễ gây hiểu nhầm?", duration: "5 phút", usedIn: "Ngành, Định giá, Rủi ro", reason: "Giúp tránh kết luận vội khi lợi nhuận đang ở đỉnh chu kỳ." },
     ],
     nextActions: [
       { label: "Chọn ngành để phân tích", moduleKey: "industry", primary: true },
@@ -203,12 +203,12 @@ export const aiTutorConfig: Record<string, AITutorConfig> = {
     moduleId: "valuation",
     moduleName: "Định giá",
     currentGoal: "Kiểm tra giá hiện tại có hợp lý với chất lượng doanh nghiệp, lợi nhuận và rủi ro hay không.",
-    whatThisStepDoes: "Định giá giúp bạn đặt giả định rõ ràng, kiểm tra biên an toàn và tránh kết luận rẻ quá nhanh.",
+    whatThisStepDoes: "Định giá giúp bạn đặt giả định rõ ràng, kiểm tra biên an toàn và tránh kết luận quá nhanh.",
     questionsToCheck: ["P/E đang phản ánh điều gì?", "P/B có phù hợp ngành không?", "DCF nhạy với giả định nào?", "Có value trap không?", "Biên an toàn đủ chưa?"],
-    commonMistakes: ["P/E thấp không tự động có nghĩa cổ phiếu rẻ.", "DCF chính xác giả tạo vì giả định quá lạc quan.", "Bỏ qua rủi ro chu kỳ."],
-    suggestedQuestions: ["P/E thấp có phải cổ phiếu rẻ không?", "Value trap là gì?", "DCF dễ sai ở đâu?", "Biên an toàn là gì?"],
+    commonMistakes: ["P/E thấp không tự động đủ để kết luận.", "DCF chính xác giả tạo vì giả định quá lạc quan.", "Bỏ qua rủi ro chu kỳ."],
+    suggestedQuestions: ["P/E thấp cần kiểm tra gì?", "Value trap là gì?", "DCF dễ sai ở đâu?", "Biên an toàn là gì?"],
     recommendedLessons: [
-      { title: "P/E ngành chu kỳ vì sao dễ gây hiểu nhầm?", duration: "5 phút", usedIn: "Ngành, Định giá, Rủi ro", reason: "Giúp bạn tránh kết luận cổ phiếu rẻ chỉ vì P/E thấp." },
+      { title: "P/E ngành chu kỳ vì sao dễ gây hiểu nhầm?", duration: "5 phút", usedIn: "Ngành, Định giá, Rủi ro", reason: "Giúp bạn tránh kết luận chỉ vì P/E thấp." },
     ],
     nextActions: [
       { label: "Kiểm tra biên an toàn", moduleKey: "valuation", primary: true },

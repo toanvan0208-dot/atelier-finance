@@ -462,7 +462,11 @@ export type ValuationPageData = {
   personalThesis?: PersonalThesisData;
 };
 
-export type ValuationRangeStatus = "Rẻ hấp dẫn" | "Đang nằm trong vùng giá trị hợp lý" | "Đắt / rủi ro" | "Cần kiểm tra thêm";
+export type ValuationRangeStatus =
+  | "Vùng thấp cần kiểm tra"
+  | "Đang nằm trong vùng giá trị hợp lý"
+  | "Vùng cao cần kiểm tra"
+  | "Cần kiểm tra thêm";
 
 export type ValuationSummaryData = {
   ticker: string;
@@ -510,7 +514,7 @@ export type ValuationScenarioSafetyItem = {
   name: "Kịch bản xấu" | "Kịch bản cơ sở" | "Kịch bản tốt";
   range: string;
   explanation: string;
-  tone: "downside" | "base" | "upside";
+  tone: "lower" | "base" | "upper";
 };
 
 export type ValuationTrapSimple = {
@@ -520,7 +524,7 @@ export type ValuationTrapSimple = {
 };
 
 export type ValuationFinalConclusionData = {
-  status: "Chưa đủ rẻ rõ ràng" | "Có thể theo dõi tiếp" | "Cần kiểm tra thêm trước khi kết luận";
+  status: "Chưa đủ dữ liệu rõ ràng" | "Có thể theo dõi tiếp" | "Cần kiểm tra thêm trước khi kết luận";
   pricePosition: string;
   marginOfSafety: string;
   keyRisk: string;

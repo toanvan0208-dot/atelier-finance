@@ -202,3 +202,5 @@ Phase 58 records the controlled Valuation calculation wiring readiness plan in `
 Phase 59 records the pure controlled Valuation calculation helper in `CONTROLLED_VALUATION_CALCULATION_HELPER.md`. The helper preserves `productionApproved:false`, blocks full Valuation DB-backed claims, and emits mixed/fallback source warnings without approving any data source.
 
 Phase 60 records the controlled Valuation helper integration boundary in `CONTROLLED_VALUATION_HELPER_INTEGRATION_BOUNDARY.md`. The boundary can combine Financials runtime and persisted bridge inputs, but keeps `productionApproved:false`, records mixed-source warnings, and does not approve any source.
+
+Phase 61 records the controlled Valuation UI read-only display boundary in `CONTROLLED_VALUATION_UI_READ_ONLY_DISPLAY_BOUNDARY.md`. Displaying helper readiness/status does not change source approval: local/research/sample data remains `productionApproved:false`, Valuation remains unable to claim DB-backed production readiness, and blocked valuation metrics stay blocked until explicit source evidence exists.

@@ -266,6 +266,8 @@ Phase 59 adds a pure controlled Valuation calculation helper in `CONTROLLED_VALU
 
 Phase 60 adds a pure controlled Valuation helper integration boundary in `CONTROLLED_VALUATION_HELPER_INTEGRATION_BOUNDARY.md`. The boundary selects Financials runtime and persisted bridge inputs with provenance tracking, calls the Phase 59 helper, and keeps UI output unchanged.
 
+Phase 61 adds a controlled Valuation UI read-only display boundary in `CONTROLLED_VALUATION_UI_READ_ONLY_DISPLAY_BOUNDARY.md`. The Valuation UI now shows helper readiness/status for marketCap, P/E, BVPS, P/B, and P/S while keeping EV, EV/EBITDA, DCF, and fair value range blocked. It still displays `productionApproved:false` and `canClaimValuationDbBacked:false`, and browser verification covered fallback plus local DB-backed Financials modes.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot

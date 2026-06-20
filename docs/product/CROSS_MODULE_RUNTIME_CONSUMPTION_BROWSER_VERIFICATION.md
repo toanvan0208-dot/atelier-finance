@@ -186,3 +186,7 @@ Recommended next phase: Controlled Valuation Calculation Wiring Readiness Plan. 
 ## 14. Phase 58 Follow-up
 
 Phase 58 implements that recommended planning step in `CONTROLLED_VALUATION_CALCULATION_WIRING_READINESS_PLAN.md`. It records the Valuation metric/input/guardrail matrix for Phase 59 and confirms no new browser pass is required in Phase 58 because no UI or calculation behavior changed.
+
+## 15. Phase 61 Follow-up
+
+Phase 61 records the next Valuation-specific browser pass in `CONTROLLED_VALUATION_UI_READ_ONLY_DISPLAY_BOUNDARY.md`. Playwright fallback verified the new controlled Valuation read-only status panel in fallback and local DB-backed Financials modes, with blocked EV/EV/EBITDA/DCF/fair-value-range states and no browser-visible valuation interpretation wording.

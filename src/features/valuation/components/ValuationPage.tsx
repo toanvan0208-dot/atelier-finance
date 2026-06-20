@@ -11,11 +11,13 @@ import {
 import type { FinancialsRuntimeData } from "@/features/financials/lib/financials-runtime-types";
 import { baseValuationRefactoredData } from "../data/valuationRefactored.data";
 import { buildValuationDeskData } from "../lib/build-valuation-desk-data";
+import { buildControlledValuationIntegrationBoundary } from "../lib/controlled-valuation-integration-boundary";
 import {
   buildValuationFinancialsRuntimeConsumption,
   type ValuationFinancialsRuntimeConsumption,
 } from "../lib/valuation-financials-runtime-consumption";
 import type { ValuationRefactoredData } from "../types";
+import { ControlledValuationCalculationPanel } from "./ControlledValuationCalculationPanel";
 import { ValuationAssumptionPanel } from "./ValuationAssumptionPanel";
 import { ValuationFinalConclusion } from "./ValuationFinalConclusion";
 import { ValuationMethodSelector } from "./ValuationMethodSelector";
@@ -195,6 +197,49 @@ export function ValuationPage({ initialFinancialsRuntimeData, onNavigate }: Valu
     });
   }, [bridgeState, initialFinancialsRuntimeData]);
 
+  const controlledCalculationBoundary = useMemo(() => {
+    const snapshot =
+      bridgeState.status === "ready" || bridgeState.status === "insufficient"
+        ? bridgeState.result.snapshot
+        : null;
+    const runtimeSnapshot = initialFinancialsRuntimeData?.statementSnapshot;
+
+    return buildControlledValuationIntegrationBoundary({
+      financialsRuntimeSnapshot: runtimeSnapshot
+        ? {
+            revenue: runtimeSnapshot.revenue,
+            netProfit: runtimeSnapshot.netProfit,
+            totalEquity: runtimeSnapshot.totalEquity,
+            eps: runtimeSnapshot.eps,
+            sharesOutstanding: runtimeSnapshot.sharesOutstanding,
+            dataMode: initialFinancialsRuntimeData.source.dataMode,
+            readPath: initialFinancialsRuntimeData.source.readPath,
+            runtimeStatus: initialFinancialsRuntimeData.runtimeStatus,
+            fallbackUsed: initialFinancialsRuntimeData.source.fallbackUsed,
+            productionApproved: initialFinancialsRuntimeData.source.productionApproved,
+            sourceLabel: initialFinancialsRuntimeData.source.sourceLabel,
+          }
+        : null,
+      persistedValuationInputs: snapshot
+        ? {
+            revenue: snapshot.revenue,
+            netIncome: snapshot.netProfit,
+            equity: snapshot.totalEquity,
+            eps: snapshot.eps,
+            sharesOutstanding: snapshot.sharesOutstanding,
+            marketPrice: snapshot.closePrice,
+            dataMode:
+              bridgeState.status === "ready" || bridgeState.status === "insufficient"
+                ? bridgeState.result.metadata.dataMode
+                : null,
+            productionApproved: false,
+            sourceLabel: snapshot.sourceName,
+          }
+        : null,
+      mode: runtimeConsumption.valuationSourceMode === "sample_fallback" ? "fallback" : undefined,
+    });
+  }, [bridgeState, initialFinancialsRuntimeData, runtimeConsumption.valuationSourceMode]);
+
   const submitTicker = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const nextTicker = tickerInput.trim().toUpperCase();
@@ -254,6 +299,7 @@ export function ValuationPage({ initialFinancialsRuntimeData, onNavigate }: Valu
         <>
           <DataQualityBanner {...bridgeState.result.dataQuality} />
           <ValuationFinancialsRuntimeNote boundary={runtimeConsumption} />
+          <ControlledValuationCalculationPanel boundary={controlledCalculationBoundary} />
           <div className="flex flex-wrap gap-2">
             {metadataChips.map((chip) => (
               <Chip key={chip} variant="neutral">

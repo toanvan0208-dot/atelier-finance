@@ -6,8 +6,8 @@ type ValuationScenarioSafetyProps = {
 };
 
 function scenarioVariant(tone: ValuationScenarioSafetyItem["tone"]) {
-  if (tone === "upside") return "success";
-  if (tone === "downside") return "warning";
+  if (tone === "upper") return "success";
+  if (tone === "lower") return "warning";
   return "accent";
 }
 
@@ -51,9 +51,9 @@ export function ValuationScenarioSafety({ data }: ValuationScenarioSafetyProps) 
             <div className="bg-accent-green/20" />
           </div>
           <div className="mt-2 grid grid-cols-3 text-[11px] font-bold text-subtle">
-            <span>Downside</span>
+            <span>Lower range</span>
             <span className="text-center">Base</span>
-            <span className="text-right">Upside</span>
+            <span className="text-right">Upper range</span>
           </div>
         </div>
 

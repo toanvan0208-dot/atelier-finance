@@ -168,7 +168,7 @@ function AskAIInput({
         <span className="text-xs font-bold text-ink">Nhập câu hỏi</span>
         <textarea
           className="min-h-[84px] resize-none rounded-[3px] border border-border bg-surface px-3 py-2 text-xs leading-5 text-ink outline-none focus:bg-accent-soft/35"
-          placeholder="Ví dụ: P/E thấp có phải cổ phiếu rẻ không?"
+          placeholder="Ví dụ: P/E thấp cần kiểm tra gì?"
           value={value}
           onChange={(event) => onChange(event.target.value)}
         />

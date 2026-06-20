@@ -240,3 +240,7 @@ Phase 59 adds `CONTROLLED_VALUATION_CALCULATION_HELPER.md` and the pure `buildCo
 ## 13. Phase 60 Follow-up
 
 Phase 60 adds `CONTROLLED_VALUATION_HELPER_INTEGRATION_BOUNDARY.md`. It integrates the Phase 59 helper behind a pure boundary that selects Financials runtime and persisted bridge inputs with provenance tracking. No UI output or displayed Valuation metric changes are made.
+
+## 14. Phase 61 Follow-up
+
+Phase 61 implements the read-only UI display boundary described in this plan's browser-verification requirements. The Valuation UI now shows controlled metric readiness/status through the Phase 60 boundary, keeps blocked metrics locked, and browser-verifies fallback plus local DB-backed Financials modes.

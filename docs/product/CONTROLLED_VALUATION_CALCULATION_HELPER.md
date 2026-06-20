@@ -159,3 +159,7 @@ Maximum safe Phase 60 scope:
 ## 11. Phase 60 Follow-up
 
 Phase 60 adds `CONTROLLED_VALUATION_HELPER_INTEGRATION_BOUNDARY.md` and the pure `buildControlledValuationIntegrationBoundary` wrapper. It selects Financials runtime and persisted bridge inputs, calls `buildControlledValuationCalculation`, and returns source provenance while keeping `ValuationPage` output unchanged.
+
+## 12. Phase 61 Follow-up
+
+Phase 61 adds `CONTROLLED_VALUATION_UI_READ_ONLY_DISPLAY_BOUNDARY.md`. The Phase 59 helper output is now displayed only through the Phase 60 boundary as read-only readiness/status. The UI still blocks EV, EV/EBITDA, DCF, and fair value range, and it still keeps `productionApproved:false` and `canClaimValuationDbBacked:false`.

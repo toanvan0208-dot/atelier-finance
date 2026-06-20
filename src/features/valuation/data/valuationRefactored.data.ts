@@ -24,7 +24,7 @@ export const baseValuationRefactoredData: ValuationRefactoredData = {
       marginOfSafety: "Mỏng",
       confidence: "Trung bình",
       conclusion:
-        "Giá hiện tại chưa đủ rẻ rõ ràng. Nhà đầu tư cần kiểm tra thêm giả định lợi nhuận phục hồi và biên lợi nhuận trước khi xem đây là cơ hội hấp dẫn.",
+        "Dữ liệu hiện tại chưa đủ rõ để kết luận. Cần kiểm tra thêm giả định lợi nhuận phục hồi và biên lợi nhuận trước khi dùng vùng tham khảo này.",
     },
   },
   assumptions: {
@@ -153,7 +153,7 @@ export const baseValuationRefactoredData: ValuationRefactoredData = {
         range: "32.000 đến 37.000",
         explanation:
           "Lợi nhuận phục hồi chậm, biên lợi nhuận yếu, thị trường chỉ chấp nhận P/E thấp.",
-        tone: "downside",
+        tone: "lower",
       },
       {
         name: "Kịch bản cơ sở",
@@ -167,13 +167,13 @@ export const baseValuationRefactoredData: ValuationRefactoredData = {
         range: "46.000 đến 55.000",
         explanation:
           "Lợi nhuận phục hồi mạnh, biên lợi nhuận tốt hơn kỳ vọng, thị trường sẵn sàng trả P/E cao hơn.",
-        tone: "upside",
+        tone: "upper",
       },
     ],
   },
   traps: [
     {
-      title: "P/E thấp không có nghĩa là rẻ",
+      title: "P/E thấp cần kiểm tra chất lượng lợi nhuận",
       description:
         "Nếu lợi nhuận đang ở đỉnh chu kỳ hoặc có khoản bất thường, P/E thấp có thể tạo diễn giải sai.",
     },
@@ -183,24 +183,24 @@ export const baseValuationRefactoredData: ValuationRefactoredData = {
         "Chỉ cần tăng nhẹ tăng trưởng dài hạn hoặc giảm tỷ lệ chiết khấu, giá trị DCF có thể tăng mạnh.",
     },
     {
-      title: "Rẻ nhưng không có động lực cải thiện",
+      title: "Thiếu động lực cải thiện",
       description:
-        "Một cổ phiếu có thể rẻ trong thời gian dài nếu lợi nhuận không phục hồi hoặc thị trường không có lý do định giá lại.",
+        "Một mã có thể duy trì mức định giá thấp trong thời gian dài nếu lợi nhuận không phục hồi hoặc thị trường không có lý do định giá lại.",
     },
     {
       title: "Biên an toàn quá mỏng",
       description:
-        "Nếu giá hiện tại đã nằm gần vùng hợp lý, sai số nhỏ trong giả định cũng có thể làm kết quả kém hấp dẫn.",
+        "Nếu giá hiện tại đã nằm gần vùng hợp lý, sai số nhỏ trong giả định cũng có thể làm kết quả kém tin cậy.",
     },
   ],
   finalConclusion: {
-    status: "Chưa đủ rẻ rõ ràng",
-    pricePosition: "Giá hiện tại đang nằm trong vùng giá trị hợp lý, chưa rẻ rõ ràng.",
+    status: "Chưa đủ dữ liệu rõ ràng",
+    pricePosition: "Giá hiện tại đang nằm trong vùng giá trị hợp lý, cần thêm dữ liệu để kết luận.",
     marginOfSafety: "Biên an toàn hiện tại mỏng, chưa tạo lợi thế lớn cho nhà đầu tư trung hạn.",
     keyRisk:
       "Kết quả phụ thuộc nhiều vào giả định lợi nhuận phục hồi, biên lợi nhuận và mức P/E thị trường chấp nhận.",
     nextStep:
-      "Có thể phân tích tiếp sang Rủi ro và Price - Volume - Time, nhưng chưa nên xem cổ phiếu là cơ hội hấp dẫn chỉ vì một vài chỉ số định giá nhìn thấp.",
+      "Có thể phân tích tiếp sang Rủi ro và Price - Volume - Time, nhưng chưa nên kết luận chỉ vì một vài chỉ số định giá nhìn thấp.",
   },
   nextActions: [
     {
