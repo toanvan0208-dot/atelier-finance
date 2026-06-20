@@ -137,3 +137,7 @@ Phase 52 implements the Valuation readiness follow-up in `VALUATION_FINANCIALS_R
 ## 14. Phase 53 Follow-up
 
 Phase 53 implements controlled Valuation runtime consumption in `CONTROLLED_VALUATION_RUNTIME_CONSUMPTION_BOUNDARY.md`. Valuation now receives Financials runtime metadata and safe snapshot fields for UI transparency, while the calculation path remains the persisted input bridge.
+
+## 15. Phase 54 Follow-up
+
+Phase 54 implements the Risk readiness follow-up in `RISK_FINANCIALS_RUNTIME_READINESS_BOUNDARY.md`. Risk now has a pure readiness contract for Financials runtime availability and risk input safety, with `canClaimRiskDbBacked:false`; Risk UI remains on the existing static/sample path.

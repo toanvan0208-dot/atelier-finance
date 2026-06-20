@@ -252,6 +252,8 @@ Phase 52 adds a Valuation Financials runtime readiness boundary. Valuation still
 
 Phase 53 adds controlled Valuation runtime consumption. `AppShell` now passes Financials runtime metadata into Valuation, the Valuation UI renders a mixed-source/partial-runtime transparency note, and a consumption helper lists consumed/unavailable safe fields while calculations still use the persisted input bridge. Risk remains unwired and `productionApproved:false` is preserved.
 
+Phase 54 adds a Risk Financials runtime readiness boundary. Risk still uses its existing static/sample UI path, but now has a pure readiness contract for Financials runtime availability and CFO/net income/revenue/debt/equity/assets/liquidity safety, with `canClaimRiskDbBacked:false` and `productionApproved:false`.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot
