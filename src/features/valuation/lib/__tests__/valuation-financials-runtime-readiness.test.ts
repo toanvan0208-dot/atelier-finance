@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { FinancialsRuntimeData } from "@/features/financials/lib/financials-runtime-types";
+import { buildFinancialsUnitMetadata } from "@/features/financials/lib/financials-unit-metadata-contract";
 import { buildValuationFinancialsRuntimeReadiness } from "../valuation-financials-runtime-readiness";
 
 const localDbFinancialsRuntime = {
@@ -48,6 +49,7 @@ const localDbFinancialsRuntime = {
     eps: null,
   },
   readResult: null,
+  unitMetadata: buildFinancialsUnitMetadata(),
 } satisfies FinancialsRuntimeData;
 
 describe("valuation financials runtime readiness boundary", () => {

@@ -86,6 +86,8 @@ describe("loadFinancialsRuntimeData", () => {
     expect(result.source.readPath).toBe("sample_static");
     expect(result.source.fallbackUsed).toBe(true);
     expect(result.source.productionApproved).toBe(false);
+    expect(result.unitMetadata.revenue.status).toBe("missing");
+    expect(result.unitMetadata.revenue.unit).toBe("unknown");
   });
 
   it("reads DB-backed records when explicitly requested", async () => {
@@ -103,6 +105,14 @@ describe("loadFinancialsRuntimeData", () => {
       readPath: "local_db",
     });
     expect(result.statementSnapshot?.revenue).toBe(1000);
+    expect(result.unitMetadata.revenue).toMatchObject({
+      productionApproved: false,
+      status: "unknown_unit",
+      unit: "unknown",
+      warnings: ["revenue_financials_unit_metadata_missing"],
+    });
+    expect(result.unitMetadata.netIncome.status).toBe("unknown_unit");
+    expect(result.unitMetadata.equity.status).toBe("unknown_unit");
   });
 
   it("keeps missing DB values partial and null instead of substituting zero", async () => {
@@ -140,6 +150,8 @@ describe("loadFinancialsRuntimeData", () => {
     expect(result.statementSnapshot?.revenue).toBeNull();
     expect(result.statementSnapshot?.operatingCashFlow).toBeNull();
     expect(result.statementSnapshot?.revenue).not.toBe(0);
+    expect(result.unitMetadata.revenue.status).toBe("missing");
+    expect(result.unitMetadata.operatingCashFlow.status).toBe("missing");
   });
 
   it("falls back safely when explicit DB mode returns empty and fallback is allowed", async () => {
@@ -179,6 +191,7 @@ describe("loadFinancialsRuntimeData", () => {
     expect(result.runtimeStatus).toBe("unavailable");
     expect(result.source.fallbackUsed).toBe(false);
     expect(result.statementSnapshot).toBeNull();
+    expect(result.unitMetadata.revenue.status).toBe("missing");
   });
 
   it("handles read errors without uncaught throw", async () => {

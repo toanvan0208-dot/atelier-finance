@@ -164,3 +164,7 @@ Phase 62 adds `VALUATION_CONTROLLED_DISPLAY_EVIDENCE_HARDENING.md`. The integrat
 ## 13. Phase 63 Follow-up
 
 Phase 63 adds `VALUATION_INPUT_UNIT_PROVENANCE_NORMALIZATION.md` and updates the integration boundary with unit/provenance guards. The boundary now normalizes only explicit units and passes `null` into the calculation helper when a scale-sensitive input has an unknown or incompatible unit.
+
+## 14. Phase 64 Follow-up
+
+Phase 64 adds `FINANCIALS_IMPORT_UNIT_METADATA_CONTRACT.md`. Financials runtime now provides unit metadata for import-owned fields, and `ValuationPage` forwards the relevant units into this integration boundary. Unknown Financials units remain unknown and continue to normalize to `null` before reaching the calculation helper.

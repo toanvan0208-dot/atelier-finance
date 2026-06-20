@@ -171,3 +171,7 @@ Phase 62 adds `VALUATION_CONTROLLED_DISPLAY_EVIDENCE_HARDENING.md`. The helper w
 ## 14. Phase 63 Follow-up
 
 Phase 63 adds `VALUATION_INPUT_UNIT_PROVENANCE_NORMALIZATION.md`. The pure calculation helper remains unchanged; unit/provenance checks happen in the integration boundary before values reach the helper. Unknown units are passed as `null`, which keeps dependent metrics not ready.
+
+## 15. Phase 64 Follow-up
+
+Phase 64 adds `FINANCIALS_IMPORT_UNIT_METADATA_CONTRACT.md`. Financials runtime now attaches unit metadata before Valuation integration. The pure calculation helper remains unchanged; it only receives values after the integration boundary has accepted explicit units or converted unknown/incompatible inputs to `null`.

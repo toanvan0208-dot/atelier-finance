@@ -1,4 +1,5 @@
 import type { FinancialStatementSeriesResult } from "../../../lib/data-sources/financial-statement-read-service";
+import type { FinancialsUnitMetadataMap } from "./financials-unit-metadata-contract";
 import type { FinancialsStatementSnapshot } from "./map-financials-to-logic-input";
 
 export type FinancialsRuntimeReadPath = "local_db" | "sample_static" | "unavailable";
@@ -28,5 +29,6 @@ export type FinancialsRuntimeData = {
   source: FinancialsRuntimeDataSource;
   dataQuality: FinancialsRuntimeDataQuality;
   statementSnapshot: FinancialsStatementSnapshot | null;
+  unitMetadata: FinancialsUnitMetadataMap;
   readResult: FinancialStatementSeriesResult | null;
 };

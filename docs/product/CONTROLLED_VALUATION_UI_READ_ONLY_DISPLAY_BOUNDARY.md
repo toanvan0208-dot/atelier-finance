@@ -153,3 +153,7 @@ Phase 62 adds `VALUATION_CONTROLLED_DISPLAY_EVIDENCE_HARDENING.md`. It re-audits
 ## 12. Phase 63 Follow-up
 
 Phase 63 adds `VALUATION_INPUT_UNIT_PROVENANCE_NORMALIZATION.md`. The read-only panel remains the display surface, but controlled values can now become unavailable when required input units are unknown. This prevents scale-sensitive values from being rendered from raw untyped inputs.
+
+## 13. Phase 64 Follow-up
+
+Phase 64 adds `FINANCIALS_IMPORT_UNIT_METADATA_CONTRACT.md`. The Valuation page now passes Financials runtime unit metadata into the controlled boundary, but current Financials local/research/sample data remains unknown-unit unless a source explicitly supplies units. The read-only panel behavior therefore stays conservative: unavailable/insufficient-data is preferred over scale inference.

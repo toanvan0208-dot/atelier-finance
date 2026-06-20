@@ -7,6 +7,7 @@ import {
   adaptFinancialStatementSeries,
   type AdaptFinancialStatementSeriesResult,
 } from "./adapt-financial-statement-records";
+import { buildFinancialsUnitMetadata } from "./financials-unit-metadata-contract";
 import type { FinancialsStatementSnapshot } from "./map-financials-to-logic-input";
 import type { FinancialsRuntimeData, FinancialsRuntimeDataQuality, FinancialsRuntimeReadPath } from "./financials-runtime-types";
 
@@ -90,6 +91,11 @@ const sampleFallback = ({
     errors,
   },
   statementSnapshot: sampleSnapshot(ticker),
+  unitMetadata: buildFinancialsUnitMetadata({
+    dataMode: "sample",
+    snapshot: sampleSnapshot(ticker),
+    sourceLabel: SAMPLE_SOURCE_LABEL,
+  }),
   readResult: null,
 });
 
@@ -131,6 +137,7 @@ const unavailableResult = ({
     errors,
   },
   statementSnapshot: null,
+  unitMetadata: buildFinancialsUnitMetadata({ dataMode, snapshot: null, sourceLabel }),
   readResult,
 });
 
@@ -149,19 +156,24 @@ const dbBackedResult = ({
 }): FinancialsRuntimeData => {
   const firstStatement = adapted.statements[0];
   const firstRecord = readResult.records[0];
+  const statementSnapshot = firstStatement?.snapshot ?? null;
+  const source = {
+    sourceLabel: firstStatement?.metadata.sourceLabel ?? sourceLabel,
+    dataMode: firstStatement?.metadata.dataMode ?? dataMode,
+  };
 
   return {
     runtimeStatus: "db_backed",
     source: {
-      sourceLabel: firstStatement?.metadata.sourceLabel ?? sourceLabel,
-      dataMode: firstStatement?.metadata.dataMode ?? dataMode,
+      sourceLabel: source.sourceLabel,
+      dataMode: source.dataMode,
       productionApproved: false,
       fallbackUsed: false,
       readPath: "local_db",
       ticker: firstStatement?.metadata.ticker ?? ticker,
       asOf: firstRecord?.source.asOf ?? null,
       fiscalYear: firstRecord?.fiscalYear ?? null,
-      periodType: firstStatement?.snapshot.periodType ?? null,
+      periodType: statementSnapshot?.periodType ?? null,
     },
     dataQuality: {
       status: adapted.status,
@@ -169,7 +181,12 @@ const dbBackedResult = ({
       warnings: adapted.warnings,
       errors: adapted.errors,
     },
-    statementSnapshot: firstStatement?.snapshot ?? null,
+    statementSnapshot,
+    unitMetadata: buildFinancialsUnitMetadata({
+      dataMode: source.dataMode,
+      snapshot: statementSnapshot,
+      sourceLabel: source.sourceLabel,
+    }),
     readResult,
   };
 };

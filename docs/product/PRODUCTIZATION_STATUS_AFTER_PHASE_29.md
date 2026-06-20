@@ -272,6 +272,8 @@ Phase 62 adds a controlled Valuation display evidence hardening pass in `VALUATI
 
 Phase 63 adds controlled Valuation input unit and provenance normalization in `VALUATION_INPUT_UNIT_PROVENANCE_NORMALIZATION.md`. The integration boundary now requires explicit units before passing scale-sensitive inputs into the calculation helper; unknown units remain insufficient data instead of being inferred from magnitude.
 
+Phase 64 adds a Financials import unit metadata contract in `FINANCIALS_IMPORT_UNIT_METADATA_CONTRACT.md`. Financials runtime snapshots now include a unit metadata sidecar for import-owned fields, and Valuation receives the relevant units through its controlled boundary. Current local/research/sample Financials values without explicit source units remain unknown-unit and do not unlock scale-sensitive metrics.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot

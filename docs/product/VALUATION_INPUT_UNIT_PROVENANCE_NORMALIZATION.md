@@ -207,3 +207,7 @@ Maximum safe scope:
 - keep `productionApproved:false`;
 - do not add new metrics;
 - do not calculate EV, DCF, or fair value range.
+
+## 13. Phase 64 Follow-up
+
+Phase 64 adds `FINANCIALS_IMPORT_UNIT_METADATA_CONTRACT.md`. Financials runtime data now carries a `unitMetadata` sidecar for the import-owned numeric fields. Current local/research/sample values without explicit source units remain `unit:"unknown"`, so the Phase 63 Valuation normalization boundary continues to block scale-sensitive metrics instead of guessing magnitude.

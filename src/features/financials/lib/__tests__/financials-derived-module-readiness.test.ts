@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { FinancialsRuntimeData } from "../financials-runtime-types";
+import { buildFinancialsUnitMetadata } from "../financials-unit-metadata-contract";
 import {
   buildCurrentFinancialsDerivedModuleReadiness,
   buildFinancialsDerivedModuleReadiness,
@@ -27,6 +28,7 @@ const localDbFinancialsRuntime = {
     errors: [],
   },
   statementSnapshot: null,
+  unitMetadata: buildFinancialsUnitMetadata(),
   readResult: null,
 } satisfies FinancialsRuntimeData;
 

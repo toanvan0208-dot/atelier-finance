@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { FinancialsRuntimeData } from "@/features/financials/lib/financials-runtime-types";
+import { buildFinancialsUnitMetadata } from "@/features/financials/lib/financials-unit-metadata-contract";
 import { buildRiskFinancialsRuntimeConsumption } from "../risk-financials-runtime-consumption";
 
 const localDbRuntime = {
@@ -48,6 +49,7 @@ const localDbRuntime = {
     eps: null,
   },
   readResult: null,
+  unitMetadata: buildFinancialsUnitMetadata(),
 } satisfies FinancialsRuntimeData;
 
 describe("risk financials runtime consumption boundary", () => {

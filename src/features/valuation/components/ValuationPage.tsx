@@ -218,6 +218,13 @@ export function ValuationPage({ initialFinancialsRuntimeData, onNavigate }: Valu
             fallbackUsed: initialFinancialsRuntimeData.source.fallbackUsed,
             productionApproved: initialFinancialsRuntimeData.source.productionApproved,
             sourceLabel: initialFinancialsRuntimeData.source.sourceLabel,
+            units: {
+              equity: initialFinancialsRuntimeData.unitMetadata.equity.unit,
+              eps: initialFinancialsRuntimeData.unitMetadata.eps.unit,
+              netIncome: initialFinancialsRuntimeData.unitMetadata.netIncome.unit,
+              revenue: initialFinancialsRuntimeData.unitMetadata.revenue.unit,
+              sharesOutstanding: initialFinancialsRuntimeData.unitMetadata.sharesOutstanding.unit,
+            },
           }
         : null,
       persistedValuationInputs: snapshot

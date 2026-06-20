@@ -7,6 +7,7 @@ import { DataQualityBanner } from "@/components/shared/DataQualityBanner";
 import { FinancialsPage } from "../FinancialsPage";
 import { FinancialsSourceTransparency } from "../FinancialsSourceTransparency";
 import type { FinancialsRuntimeData } from "../../lib/financials-runtime-types";
+import { buildFinancialsUnitMetadata } from "../../lib/financials-unit-metadata-contract";
 
 const repoRoot = process.cwd();
 
@@ -54,6 +55,7 @@ const sampleRuntimeData = {
     sharesOutstanding: null,
     eps: null,
   },
+  unitMetadata: buildFinancialsUnitMetadata(),
   readResult: null,
 } satisfies FinancialsRuntimeData;
 
@@ -86,6 +88,7 @@ const dbBackedRuntimeData = {
     totalAssets: 2000,
     totalEquity: 1200,
   },
+  unitMetadata: buildFinancialsUnitMetadata(),
 } satisfies FinancialsRuntimeData;
 
 describe("Financials runtime UI boundary", () => {

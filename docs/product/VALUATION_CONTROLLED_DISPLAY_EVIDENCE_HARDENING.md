@@ -212,3 +212,7 @@ Recommended next phase: Phase 63 should focus on controlled unit/provenance norm
 ## 14. Phase 63 Follow-up
 
 Phase 63 implements the recommended unit/provenance normalization step in `VALUATION_INPUT_UNIT_PROVENANCE_NORMALIZATION.md`. Unknown units now block scale-sensitive controlled Valuation calculations instead of being inferred from raw numbers.
+
+## 15. Phase 64 Follow-up
+
+Phase 64 adds `FINANCIALS_IMPORT_UNIT_METADATA_CONTRACT.md`. The Financials runtime sidecar now records missing, unknown, explicit, or invalid units for import-owned fields and passes the Valuation-relevant units into the controlled Valuation boundary. Existing local/research/sample data still has unknown units unless explicitly supplied by a source, so prior browser evidence remains directionally unchanged for visible Valuation output.
