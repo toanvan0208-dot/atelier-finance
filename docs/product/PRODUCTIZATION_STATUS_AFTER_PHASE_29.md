@@ -248,6 +248,8 @@ Phase 50 adds a Financials-derived module readiness contract for Overview, Valua
 
 Phase 51 connects Overview to Financials runtime metadata as a partial/mixed-source boundary. `AppShell` passes the server-loaded Financials runtime into Overview, Overview renders source transparency with `canClaimOverviewDbBacked:false`, and Valuation/Risk remain unwired. The phase keeps local/research-only/sample data unapproved and does not make Overview fully DB-backed.
 
+Phase 52 adds a Valuation Financials runtime readiness boundary. Valuation still uses its existing persisted local financial/market input bridge for calculations, but now has a pure readiness contract for Financials runtime availability, EPS/equity/market-price/shares safety, `canClaimValuationDbBacked:false`, and `productionApproved:false`. Risk remains unwired.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot

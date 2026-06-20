@@ -129,3 +129,7 @@ Browser verification was not run for Phase 51. The change is covered by TypeScri
 ## 11. Next Recommended Phase
 
 The next safe phase can define a Valuation Financials runtime readiness/wiring boundary, but only after this Overview boundary remains stable through validation and browser review.
+
+## 12. Phase 52 Follow-up
+
+Phase 52 adds `VALUATION_FINANCIALS_RUNTIME_READINESS_BOUNDARY.md`. It keeps Valuation calculation wiring deferred and adds a pure readiness contract for EPS, equity/BVPS, market price, shares outstanding, and Financials runtime source status.

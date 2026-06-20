@@ -129,3 +129,7 @@ The next safe phase is controlled runtime wiring design for Overview, Valuation,
 ## 12. Phase 51 Follow-up
 
 Phase 51 implements the first Overview-specific follow-up in `OVERVIEW_FINANCIALS_RUNTIME_CONSUMPTION_BOUNDARY.md`. Overview now receives Financials runtime metadata and safe snapshot fields as a partial/mixed-source boundary with `canClaimOverviewDbBacked:false`. Valuation and Risk remain outside that wiring.
+
+## 13. Phase 52 Follow-up
+
+Phase 52 implements the Valuation readiness follow-up in `VALUATION_FINANCIALS_RUNTIME_READINESS_BOUNDARY.md`. Valuation now has a pure readiness contract for Financials runtime availability and valuation input safety, with `canClaimValuationDbBacked:false`; Valuation calculations remain on the existing persisted input bridge.
