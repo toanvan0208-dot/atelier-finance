@@ -59,6 +59,8 @@ Phase 44 adds a controlled local write trial plan in `FINANCIAL_STATEMENTS_CONTR
 
 Phase 45 adds a separate controlled local write trial in `FINANCIAL_STATEMENTS_FIRST_LOCAL_DB_WRITE_TRIAL.md`. This contract still does not write DB rows; its accepted rows are the only rows eligible for the separate guarded write service.
 
+Phase 46 records read-back evidence and cleanup policy in `FINANCIAL_STATEMENTS_READ_BACK_AND_CLEANUP_POLICY.md`. It does not change this dry-run contract.
+
 ## 4. Input Row Shape
 
 Accepted input keys include:
@@ -270,6 +272,7 @@ Phase 39 does not:
 - Phase 43 records CLI verification evidence only and keeps this contract as the validation boundary.
 - Phase 44 records controlled local write trial policy only and keeps this contract as the validation boundary.
 - Phase 45 keeps this contract as the validation boundary before the separate guarded local write service.
+- Phase 46 keeps this contract unchanged and adds read-back/cleanup evidence only.
 
 ## 14. Files Changed
 

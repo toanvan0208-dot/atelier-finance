@@ -52,6 +52,8 @@ Phase 44 adds a controlled local write trial plan in `FINANCIAL_STATEMENTS_CONTR
 
 Phase 45 adds a separate controlled write-trial command in `FINANCIAL_STATEMENTS_FIRST_LOCAL_DB_WRITE_TRIAL.md`. This does not change the `financials:dry-run` command, which remains dry-run-only.
 
+Phase 46 records read-back evidence and cleanup policy in `FINANCIAL_STATEMENTS_READ_BACK_AND_CLEANUP_POLICY.md`. It does not change this dry-run runner.
+
 ## 4. Supported Options
 
 Required:
@@ -213,6 +215,7 @@ Phase 42 does not:
 - Phase 43 records CLI verification evidence only. It does not add persistence, a write flag, a public upload API, real BCTC import, or Financials UI runtime behavior.
 - Phase 44 records controlled local write trial policy only. It does not enable a write flag, add persistence, add a public upload API, import real BCTC data, or change Financials UI runtime behavior.
 - Phase 45 adds a separate controlled local write-trial CLI. It does not make this dry-run runner a write command.
+- Phase 46 adds read-back evidence and cleanup policy only. It does not change this dry-run runner.
 
 ## 13. Files Changed
 

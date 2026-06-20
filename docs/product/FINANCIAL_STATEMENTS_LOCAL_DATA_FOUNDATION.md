@@ -26,6 +26,8 @@ Phase 44 adds a controlled local write trial plan in `FINANCIAL_STATEMENTS_CONTR
 
 Phase 45 adds the first controlled local DB write trial in `FINANCIAL_STATEMENTS_FIRST_LOCAL_DB_WRITE_TRIAL.md`. It writes synthetic accepted dry-run rows only to a local SQLite/dev DB with `productionApproved:false`; it still does not import real BCTC data, approve a provider, parse Excel/PDF, fetch URLs, or change UI behavior.
 
+Phase 46 records read-back evidence and cleanup policy in `FINANCIAL_STATEMENTS_READ_BACK_AND_CLEANUP_POLICY.md`. It verifies the Phase 45 synthetic rows through the local read service and adapter while keeping UI runtime unchanged.
+
 ## 2. Why This Follows Technical/PVT DB-backed Work
 
 Technical/PVT now has a local DB-backed market-price path with explicit source boundaries:
@@ -203,6 +205,7 @@ Phase 38 did not:
 - Phase 43 records CLI verification evidence only. It does not add persistence, write flags, URL fetching, Excel/PDF parsing, public upload APIs, or a real file import workflow.
 - Phase 44 records controlled local write trial policy only. It does not add persistence, write flags, URL fetching, Excel/PDF parsing, public upload APIs, or a real file import workflow.
 - Phase 45 adds a controlled local DB write trial for synthetic accepted rows only. It does not add URL fetching, Excel/PDF parsing, public upload APIs, real BCTC import, or Financials UI runtime behavior.
+- Phase 46 adds read-back and cleanup policy only. It does not delete rows, add public cleanup behavior, import real BCTC data, or change Financials UI runtime behavior.
 
 ## 12. Files Changed
 

@@ -26,6 +26,8 @@ Phase 44 adds a controlled local write trial plan in `FINANCIAL_STATEMENTS_CONTR
 
 Phase 45 adds a separate controlled write-trial CLI in `FINANCIAL_STATEMENTS_FIRST_LOCAL_DB_WRITE_TRIAL.md`. The original `financials:dry-run` command remains dry-run-only and still rejects write-like flags.
 
+Phase 46 records read-back evidence and cleanup policy in `FINANCIAL_STATEMENTS_READ_BACK_AND_CLEANUP_POLICY.md`. It does not change the dry-run CLI.
+
 ## 3. Synthetic Verification Setup
 
 Temporary file:
@@ -149,6 +151,7 @@ Phase 43 verification did not:
 - This evidence does not promote local/research-only data to production use.
 - Phase 44 adds planning policy only. The current CLI still rejects write-like flags and no DB write behavior exists in this financial statement dry-run path.
 - Phase 45 write behavior lives in the separate `financials:write-trial` command and remains limited to synthetic accepted rows in a local SQLite/dev DB.
+- Phase 46 adds read-back evidence only; no dry-run/write CLI behavior is changed.
 
 ## 10. Files Changed
 

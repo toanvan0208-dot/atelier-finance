@@ -62,6 +62,8 @@ Phase 45 adds:
 
 The write-trial CLI runs the Phase 41/40/39 dry-run chain first and then writes only `acceptedRows` when all confirmations and DB safety checks pass.
 
+Phase 46 records read-back evidence and cleanup policy in `FINANCIAL_STATEMENTS_READ_BACK_AND_CLEANUP_POLICY.md`. It verifies the Phase 45 synthetic rows through the local read service and adapter, and it does not write or delete DB rows.
+
 ## 5. Required Confirmation Flags
 
 Command flags used:
@@ -199,6 +201,7 @@ Phase 45 did not:
 - No Excel/PDF parser was added.
 - No Financials UI runtime path was changed.
 - No production database or production data provider is involved.
+- Phase 46 verifies read-back and cleanup policy only. It does not cleanup/delete the Phase 45 synthetic rows by default.
 
 ## 12. Files Changed
 
