@@ -15,11 +15,11 @@ const baseData: PVTObservationData = {
     conclusion: "Base conclusion",
   },
   keyLevels: {
-    support: "N/A",
-    resistance: "N/A",
+    support: "38.000 - 40.000",
+    resistance: "44.000 - 46.000",
   },
   volume: {
-    currentVsAvg20: 1,
+    currentVsAvg20: 1.4,
     label: "Base volume",
     conclusion: "Base volume conclusion",
   },
@@ -62,10 +62,37 @@ const baseData: PVTObservationData = {
   },
   fomo: {
     level: "Thấp",
-    score: 1,
+    score: 3,
     maxScore: 6,
     signs: [],
     conclusion: "Base fomo",
+  },
+  pvtDerivedMetrics: {
+    sourceLabel: "sample_static_fallback",
+    dataMode: "sample",
+    productionApproved: false,
+    dataStatus: "static_sample",
+    calculationBasis: "static_sample",
+    requiredObservations: 20,
+    availableObservations: 0,
+    supportRange: {
+      value: "38.000 - 40.000",
+      status: "static_sample",
+    },
+    resistanceRange: {
+      value: "44.000 - 46.000",
+      status: "static_sample",
+    },
+    volumeRatio: {
+      value: 1.4,
+      status: "static_sample",
+    },
+    fomoScore: {
+      value: 3,
+      status: "static_sample",
+    },
+    limitations: ["Static sample derived metrics."],
+    warnings: [],
   },
   finalConclusion: {
     status: "Base status",
@@ -150,6 +177,25 @@ describe("loadTechnicalDeskData", () => {
     });
     expect(result.data?.ticker).toBe("FPT");
     expect(result.data?.currentPrice).toBe(110);
+    expect(result.data?.keyLevels.support).not.toBe("38.000 - 40.000");
+    expect(result.data?.keyLevels.resistance).not.toBe("44.000 - 46.000");
+    expect(result.data?.volume.currentVsAvg20).toBeNull();
+    expect(result.data?.fomo.score).toBeNull();
+    expect(result.data?.pvtDerivedMetrics).toMatchObject({
+      sourceLabel: "vnstock",
+      dataMode: "research_only",
+      productionApproved: false,
+      dataStatus: "insufficient_data",
+      availableObservations: 2,
+      volumeRatio: {
+        value: null,
+        status: "insufficient_data",
+      },
+      fomoScore: {
+        value: null,
+        status: "unavailable",
+      },
+    });
     expect(result.data?.industry).not.toBe("Ban le");
     expect(result.marketDataSource).toMatchObject({
       sourceType: "local_db_manual_import",
@@ -256,6 +302,18 @@ describe("loadTechnicalDeskData", () => {
       verificationStatus: "static_sample",
     });
     expect(result.data).toBe(baseData);
+    expect(result.data?.pvtDerivedMetrics).toMatchObject({
+      dataStatus: "static_sample",
+      productionApproved: false,
+      supportRange: {
+        value: "38.000 - 40.000",
+        status: "static_sample",
+      },
+      fomoScore: {
+        value: 3,
+        status: "static_sample",
+      },
+    });
     expect(result.warnings.join(" ")).toContain("static fallback");
   });
 

@@ -78,6 +78,32 @@ Manual browser verification on 2026-06-20 confirmed DB-backed FPT rendering afte
 
 Later-phase review note: the browser UI still shows support/resistance style PVT derived levels while the current DB-backed price is `129.12`. This was not changed in Phase 35 and should be reviewed separately as a possible PVT derived-metrics/sample-boundary issue.
 
+## 3C. Phase 36 Derived Metrics Boundary
+
+Manual browser verification on 2026-06-20 confirmed DB-backed FPT rendering after Phase 36:
+
+- Page rendered at `http://localhost:3000/workspace?module=technical` with `DATABASE_URL=file:./dev.db` and `ATELIER_TECHNICAL_PVT_DB_SOURCE=enabled`.
+- FPT current price rendered from local DB / `vnstock` / `research_only` as `129.12`.
+- Price/volume source displayed as Local DB manual import / `vnstock` / `research_only`.
+- `productionApproved:false` remained visible.
+- Source transparency displayed `derived:insufficient_data`.
+- Support sample range `38.000 - 40.000` was no longer shown.
+- Resistance sample range `44.000 - 46.000` was no longer shown.
+- Volume sample value `1.4x TB20` was no longer shown.
+- FOMO sample score `Trung bình, 3/6` was no longer shown.
+- Support/resistance cards displayed `Chưa đủ dữ liệu`.
+- Volume displayed `Chưa đủ 20 phiên`.
+- FOMO displayed `Không khả dụng`.
+- Risk/reward section displayed support/resistance/upside/downside as `Không khả dụng`.
+- FOMO thermometer stated that FOMO is not available because it was not computed from the same DB-backed series.
+- No recommendation or trading-signal wording was observed.
+
+Phase 36 browser evidence does not claim full DB-backed chart series rendering. The chart can still display presentation/sample chart points, MA lines, volume bars, and annotations such as `KQKD` / `Ngành`; this is deferred to Phase 37 - PVT Chart Series Boundary.
+
+Phase 36 addresses the later-phase review note by adding `pvtDerivedMetrics` status/source metadata and preventing static sample support/resistance, volume ratio, and FOMO from rendering in DB-backed mode. See `TECHNICAL_PVT_DERIVED_METRICS_BOUNDARY.md`.
+
+When DB-backed derived metrics are insufficient or unavailable, the UI shows labels such as `Chưa đủ dữ liệu`, `Chưa đủ 20 phiên`, and `Không khả dụng` instead of sample ranges or sample FOMO score.
+
 ## 4. Client/Server Boundary
 
 Server-side loader path:

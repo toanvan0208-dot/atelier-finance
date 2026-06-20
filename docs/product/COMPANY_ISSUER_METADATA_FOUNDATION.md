@@ -153,6 +153,7 @@ DB-backed mode:
 Later-phase review note:
 
 - The browser UI still shows support/resistance style PVT derived levels while the current DB-backed price is `129.12`. This may indicate a separate PVT derived-metrics/sample-boundary issue and should be reviewed in a later phase. Phase 35 does not change this behavior.
+- Phase 36 addresses this boundary by preventing sample-derived PVT metrics from leaking into DB-backed mode. See `TECHNICAL_PVT_DERIVED_METRICS_BOUNDARY.md`.
 
 ## 10. Safety Notes
 
@@ -177,7 +178,7 @@ Phase 35 did not:
 - The service is in-code seed data, not DB-backed metadata.
 - There is no public API or external provider for issuer metadata.
 - Manual browser verification has been completed for DB-backed Phase 35 behavior.
-- PVT support/resistance style derived levels were not changed and need later review against DB-backed price boundaries.
+- PVT support/resistance style derived levels are handled by the Phase 36 derived metrics boundary record.
 
 ## 12. Files Changed
 

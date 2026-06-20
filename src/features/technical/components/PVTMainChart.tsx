@@ -24,6 +24,9 @@ function buildLinePath(
     .join(" ");
 }
 
+const hasDerivedLevel = (label: string): boolean =>
+  !/chưa đủ|không khả dụng|insufficient|unavailable|not_available/i.test(label);
+
 export function PVTMainChart({ data, resistanceLabel, supportLabel }: PVTMainChartProps) {
   const width = 760;
   const priceHeight = 260;
@@ -38,6 +41,7 @@ export function PVTMainChart({ data, resistanceLabel, supportLabel }: PVTMainCha
   const ma50Path = buildLinePath(data.points, width, priceHeight, "ma50", minPrice, priceSpan);
   const supportY = priceHeight - ((39 - minPrice) / priceSpan) * priceHeight;
   const resistanceY = priceHeight - ((45 - minPrice) / priceSpan) * priceHeight;
+  const showSupportResistanceBands = hasDerivedLevel(supportLabel) && hasDerivedLevel(resistanceLabel);
 
   return (
     <Card>
@@ -49,14 +53,18 @@ export function PVTMainChart({ data, resistanceLabel, supportLabel }: PVTMainCha
       <CardBody className="space-y-4">
         <div className="overflow-x-auto rounded-[4px] border border-border-soft bg-surface-soft p-4">
           <svg className="min-w-[760px] w-full" viewBox={`0 0 ${width} ${priceHeight + volumeHeight + 58}`} role="img" aria-label={data.title}>
-            <rect x="0" y={resistanceY - 12} width={width} height="24" fill="#F4C542" opacity="0.18" />
-            <rect x="0" y={supportY - 12} width={width} height="24" fill="#00A676" opacity="0.12" />
-            <text x="8" y={Math.max(14, resistanceY - 16)} className="fill-subtle text-[11px] font-bold">
-              Kháng cự {resistanceLabel}
-            </text>
-            <text x="8" y={supportY + 30} className="fill-subtle text-[11px] font-bold">
-              Hỗ trợ {supportLabel}
-            </text>
+            {showSupportResistanceBands ? (
+              <>
+                <rect x="0" y={resistanceY - 12} width={width} height="24" fill="#F4C542" opacity="0.18" />
+                <rect x="0" y={supportY - 12} width={width} height="24" fill="#00A676" opacity="0.12" />
+                <text x="8" y={Math.max(14, resistanceY - 16)} className="fill-subtle text-[11px] font-bold">
+                  Kháng cự {resistanceLabel}
+                </text>
+                <text x="8" y={supportY + 30} className="fill-subtle text-[11px] font-bold">
+                  Hỗ trợ {supportLabel}
+                </text>
+              </>
+            ) : null}
             {[0.25, 0.5, 0.75].map((ratio) => (
               <line key={ratio} x1="0" x2={width} y1={priceHeight * ratio} y2={priceHeight * ratio} stroke="currentColor" className="text-border-soft" strokeDasharray="4 8" />
             ))}

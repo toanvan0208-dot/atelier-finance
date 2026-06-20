@@ -19,6 +19,7 @@ Atelier Finance now has a real backend/database foundation for local productizat
 - Financials, Valuation, and Overview can read from API/database-backed records.
 - Technical/PVT can read local DB-backed market prices in explicit research mode and now separates market price source lineage from company/issuer metadata status.
 - Technical/PVT has a local/research-only issuer metadata foundation for safe source transparency; it is not official or production-approved metadata.
+- Technical/PVT now prevents static/sample-derived support/resistance, volume ratio, and FOMO values from leaking into DB-backed mode.
 - Bridged modules do not silently fall back to legacy mock/static records when API data is missing.
 
 This is not yet a production data product. The current database can store local sample/lab data and user-provided manual upload evidence, but there is no production-approved real data source, no external source adapter, and no production database/cloud deployment confirmed in the repo.
@@ -62,7 +63,7 @@ This is not yet a production data product. The current database can store local 
 - Manual CSV is not promoted into canonical production data.
 - Manual import persistence does not replace source-provider ingestion.
 - Risk, Technical/PVT, Checklist, Watchlist, Simulation, and broader AI data context are not fully bridged to database-backed product data.
-- Technical/PVT company/issuer metadata is not production verified; Phase 34 prevents static sample metadata reuse, and Phase 35 only adds a local/research-only seed foundation. See `TECHNICAL_PVT_COMPANY_METADATA_BOUNDARY.md` and `COMPANY_ISSUER_METADATA_FOUNDATION.md`.
+- Technical/PVT company/issuer metadata is not production verified; Phase 34 prevents static sample metadata reuse, and Phase 35 only adds a local/research-only seed foundation. Phase 36 prevents sample-derived PVT metrics from leaking into DB-backed mode, but does not implement full technical analysis. See `TECHNICAL_PVT_COMPANY_METADATA_BOUNDARY.md`, `COMPANY_ISSUER_METADATA_FOUNDATION.md`, and `TECHNICAL_PVT_DERIVED_METRICS_BOUNDARY.md`.
 - No authenticated multi-user workspace layer exists yet.
 - No production monitoring, jobs, queues, cache policy, or provider retry policy exists yet.
 
@@ -183,6 +184,12 @@ Phase 31U wires `/workspace` initial Technical/PVT data through a server-side ru
 Phase 32 adds Technical/PVT source transparency for fallback and local DB manual import modes, plus tests/docs for explicit DB-backed UI verification; it does not add a fetcher, network call, DB write, public trigger, automatic import, or production approval.
 
 Phase 33 records local browser/dev-server verification evidence for Technical/PVT DB-backed and fallback rendering; it confirms source transparency in both modes while keeping the known limitation that DB-backed company/industry metadata is still not a reviewed company-profile source.
+
+Phase 34 adds a Technical/PVT company/issuer metadata boundary so DB-backed market price data no longer reuses static sample company/industry metadata when issuer metadata is unavailable or not verified.
+
+Phase 35 adds a local/research-only issuer metadata foundation for source transparency. It remains `productionApproved:false`, is not official metadata, and does not fill industry/sector unless source evidence exists.
+
+Phase 36 adds and browser-verifies the PVT derived metrics boundary. DB-backed FPT mode now renders `derived:insufficient_data`, does not show sample support `38.000 - 40.000`, sample resistance `44.000 - 46.000`, sample volume `1.4x TB20`, or sample FOMO `Trung bình, 3/6`, and displays insufficient/unavailable states instead. Chart series/sample presentation points remain a known limitation for Phase 37.
 
 ## 8. Roadmap After Phase 29
 

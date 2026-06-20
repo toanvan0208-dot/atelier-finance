@@ -92,6 +92,7 @@ export function TechnicalPage({ initialRuntimeData, onNavigate }: TechnicalPageP
       <SourceTransparencyStrip
         issuerMetadata={issuerMetadata}
         marketDataSource={marketDataSource}
+        pvtDerivedMetrics={data.pvtDerivedMetrics}
       />
       <PVTHeroStatus data={data} />
       <PVTMainChart
@@ -121,9 +122,11 @@ export function TechnicalPage({ initialRuntimeData, onNavigate }: TechnicalPageP
 function SourceTransparencyStrip({
   issuerMetadata,
   marketDataSource,
+  pvtDerivedMetrics,
 }: {
   issuerMetadata: TechnicalIssuerMetadata;
   marketDataSource: TechnicalMarketDataSource;
+  pvtDerivedMetrics: PVTObservationData["pvtDerivedMetrics"];
 }) {
   const sourceText =
     marketDataSource.sourceType === "local_db_manual_import"
@@ -176,7 +179,15 @@ function SourceTransparencyStrip({
           <span className="rounded-[3px] border border-ink/10 bg-muted/10 px-2 py-1 font-bold text-ink">
             metadata:{issuerMetadata.verificationStatus}
           </span>
+          {pvtDerivedMetrics ? (
+            <span className="rounded-[3px] border border-ink/10 bg-muted/10 px-2 py-1 font-bold text-ink">
+              derived:{pvtDerivedMetrics.dataStatus}
+            </span>
+          ) : null}
         </div>
+        <p className="lg:col-span-2">
+          Derived PVT metrics are computed only from the active market price series; unavailable when insufficient.
+        </p>
       </div>
     </section>
   );

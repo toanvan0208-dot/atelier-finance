@@ -7,12 +7,15 @@ export type TechnicalMarketSnapshot = {
   period?: string;
   periodType?: FinancialStatementInput["periodType"];
   sourceName?: string | null;
+  dataMode?: string | null;
   collectedAt?: string | Date | null;
   closePrice?: number | null;
   previousClosePrice?: number | null;
   volume?: number | null;
   avgVolume20d?: number | null;
   avgTradingValue20d?: number | null;
+  availableObservations?: number;
+  sourceKind?: "market_price_series" | "sample_static";
 };
 
 export const mapTechnicalToLogicInput = (snapshot: TechnicalMarketSnapshot): FinancialStatementInput => ({

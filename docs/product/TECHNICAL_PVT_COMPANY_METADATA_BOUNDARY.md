@@ -48,6 +48,8 @@ Issuer metadata verification status can be `verified`, `local_research_seed`, `s
 
 Phase 35 adds the first local/research-only issuer metadata foundation behind this boundary. See `COMPANY_ISSUER_METADATA_FOUNDATION.md`. The Phase 35 foundation does not make issuer metadata official or production-approved.
 
+Phase 36 adds a separate derived PVT metrics boundary so support/resistance, volume ratio, and FOMO do not reuse static sample values in DB-backed mode. See `TECHNICAL_PVT_DERIVED_METRICS_BOUNDARY.md`.
+
 ## 4. DB-backed Behavior
 
 When DB-backed market price rows are used:

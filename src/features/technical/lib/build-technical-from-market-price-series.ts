@@ -34,12 +34,15 @@ export const buildTechnicalFromMarketPriceSeries = (
     period: adapter.pvtInput.period,
     periodType: "unknown",
     sourceName: adapter.pvtInput.sourceName,
+    dataMode: adapter.dataMode,
     collectedAt: adapter.pvtInput.collectedAt,
     closePrice: adapter.pvtInput.closePrice,
     previousClosePrice: adapter.pvtInput.previousClosePrice,
     volume: adapter.pvtInput.volume,
     avgVolume20d: adapter.pvtInput.avgVolume20d,
     avgTradingValue20d: adapter.pvtInput.avgTradingValue20d,
+    availableObservations: adapter.count,
+    sourceKind: "market_price_series",
   };
 
   return {

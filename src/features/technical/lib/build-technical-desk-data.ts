@@ -9,10 +9,13 @@ import {
   type MetricLevel,
   type RiskLevel,
 } from "../../../lib/financial-logic";
-import type { PVTLogicMetric, PVTObservationData, PVTStatus } from "../types";
+import type { PVTDerivedMetrics, PVTLogicMetric, PVTObservationData, PVTStatus } from "../types";
 import { mapTechnicalToLogicInput, type TechnicalMarketSnapshot } from "./map-technical-to-logic-input";
 
 const UNVERIFIED_METADATA_LABEL = "Chua co du lieu xac minh";
+const DERIVED_UNAVAILABLE_LABEL = "Chưa đủ dữ liệu";
+const DERIVED_NOT_AVAILABLE_LABEL = "Không khả dụng";
+const REQUIRED_TB20_OBSERVATIONS = 20;
 
 const levelToPvtStatus = (level: MetricLevel): PVTStatus => {
   if (level === "good") return "aligned";
@@ -172,6 +175,91 @@ const buildIssuerMetadata = (
   };
 };
 
+const buildDerivedMetrics = ({
+  baseData,
+  isMarketPriceSeries,
+  snapshot,
+  volumeRatio,
+}: {
+  baseData: PVTObservationData;
+  isMarketPriceSeries: boolean;
+  snapshot: TechnicalMarketSnapshot;
+  volumeRatio: number | null;
+}): PVTDerivedMetrics => {
+  if (!isMarketPriceSeries) {
+    return {
+      sourceLabel: "sample_static_fallback",
+      dataMode: "sample",
+      productionApproved: false,
+      dataStatus: "static_sample",
+      calculationBasis: "static_sample",
+      requiredObservations: REQUIRED_TB20_OBSERVATIONS,
+      availableObservations: baseData.chart.points.length,
+      supportRange: {
+        value: baseData.keyLevels.support,
+        status: "static_sample",
+      },
+      resistanceRange: {
+        value: baseData.keyLevels.resistance,
+        status: "static_sample",
+      },
+      volumeRatio: {
+        value: baseData.volume.currentVsAvg20,
+        status: "static_sample",
+      },
+      fomoScore: {
+        value: baseData.fomo.score,
+        status: "static_sample",
+      },
+      limitations: [
+        "Static sample PVT derived metrics are for local product behavior checks only.",
+        "They are not production-approved technical analysis.",
+      ],
+      warnings: ["Sample/static derived metrics are not reused in DB-backed mode."],
+    };
+  }
+
+  const availableObservations = snapshot.availableObservations ?? 0;
+  const volumeStatus =
+    availableObservations >= REQUIRED_TB20_OBSERVATIONS && volumeRatio !== null
+      ? "computed_from_market_price_series"
+      : "insufficient_data";
+
+  return {
+    sourceLabel: snapshot.sourceName ?? "market_price_series",
+    dataMode: snapshot.dataMode ?? "research_only",
+    productionApproved: false,
+    dataStatus: "insufficient_data",
+    calculationBasis: "active_market_price_series",
+    requiredObservations: REQUIRED_TB20_OBSERVATIONS,
+    availableObservations,
+    supportRange: {
+      value: null,
+      status: "unavailable",
+    },
+    resistanceRange: {
+      value: null,
+      status: "unavailable",
+    },
+    volumeRatio: {
+      value: volumeStatus === "computed_from_market_price_series" ? volumeRatio : null,
+      status: volumeStatus,
+    },
+    fomoScore: {
+      value: null,
+      status: "unavailable",
+    },
+    limitations: [
+      "Support/resistance ranges are not computed unless they come from the active market price series.",
+      "Volume TB20 requires at least 20 observations from the active market price series.",
+      "FOMO is unavailable unless computed from the active market price series.",
+    ],
+    warnings: [
+      "Sample support/resistance, volume ratio, and FOMO metrics were not reused for DB-backed market price data.",
+    ],
+  };
+};
+
 export const buildTechnicalDeskData = (
   baseData: PVTObservationData,
   snapshot: TechnicalMarketSnapshot
@@ -200,6 +288,13 @@ export const buildTechnicalDeskData = (
   const baseTicker = normalizeTicker(baseData.ticker);
   const tickerChanged = Boolean(snapshotTicker && baseTicker && snapshotTicker !== baseTicker);
   const issuerMetadata = buildIssuerMetadata(baseData, snapshot);
+  const isMarketPriceSeries = snapshot.sourceKind === "market_price_series";
+  const pvtDerivedMetrics = buildDerivedMetrics({
+    baseData,
+    isMarketPriceSeries,
+    snapshot,
+    volumeRatio: liquidityStatus.value,
+  });
 
   return {
     ...baseData,
@@ -210,11 +305,19 @@ export const buildTechnicalDeskData = (
         : baseData.companyName,
     industry: tickerChanged ? UNVERIFIED_METADATA_LABEL : baseData.industry,
     issuerMetadata,
+    pvtDerivedMetrics,
     currentPrice: snapshot.closePrice ?? baseData.currentPrice,
     status: resolveStatus(priceChange, liquidityStatus, missingFields),
+    keyLevels: isMarketPriceSeries
+      ? {
+          support: DERIVED_UNAVAILABLE_LABEL,
+          resistance: DERIVED_UNAVAILABLE_LABEL,
+        }
+      : baseData.keyLevels,
     volume: {
       ...baseData.volume,
-      label: metricValueLabel(liquidityStatus),
+      currentVsAvg20: isMarketPriceSeries ? null : baseData.volume.currentVsAvg20,
+      label: isMarketPriceSeries ? "Chưa đủ 20 phiên" : metricValueLabel(liquidityStatus),
       conclusion:
         liquidityStatus.value === null
           ? "Chưa đủ dữ liệu để đọc thanh khoản."
@@ -249,6 +352,40 @@ export const buildTechnicalDeskData = (
       avgTradingValue20d,
       liquidityStatus,
     }),
+    confirmation: isMarketPriceSeries
+      ? ["Chưa đủ dữ liệu để xác định điều kiện xác nhận từ chuỗi DB-backed."]
+      : baseData.confirmation,
+    invalidation: isMarketPriceSeries
+      ? ["Chưa đủ dữ liệu để xác định điều kiện phủ nhận từ chuỗi DB-backed."]
+      : baseData.invalidation,
+    scenarios: isMarketPriceSeries
+      ? [
+          {
+            name: "Derived metrics unavailable",
+            condition: "Chuỗi DB-backed chưa đủ cơ sở để tính vùng kỹ thuật.",
+            meaning: "Không sử dụng kịch bản sample cho dữ liệu DB-backed.",
+          },
+        ]
+      : baseData.scenarios,
+    riskReward: isMarketPriceSeries
+      ? {
+          currentPrice: snapshot.closePrice ?? baseData.currentPrice,
+          supportPrice: null,
+          resistancePrice: null,
+          upside: DERIVED_NOT_AVAILABLE_LABEL,
+          downside: DERIVED_NOT_AVAILABLE_LABEL,
+          conclusion: "Chưa đủ dữ liệu để tính vùng hỗ trợ/kháng cự từ chuỗi DB-backed.",
+        }
+      : baseData.riskReward,
+    fomo: isMarketPriceSeries
+      ? {
+          level: baseData.fomo.level,
+          score: null,
+          maxScore: baseData.fomo.maxScore,
+          signs: ["FOMO chưa khả dụng cho dữ liệu DB-backed."],
+          conclusion: "FOMO chưa khả dụng vì chưa được tính từ cùng chuỗi DB-backed.",
+        }
+      : baseData.fomo,
     finalConclusion: {
       ...baseData.finalConclusion,
       status: resolveStatus(priceChange, liquidityStatus, missingFields).label,

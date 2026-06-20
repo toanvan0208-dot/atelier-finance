@@ -6,14 +6,15 @@ type PVTFomoThermometerProps = {
 };
 
 export function PVTFomoThermometer({ data }: PVTFomoThermometerProps) {
-  const ratio = Math.min(100, (data.score / data.maxScore) * 100);
+  const ratio = data.score === null ? 0 : Math.min(100, (data.score / data.maxScore) * 100);
+  const scoreLabel = data.score === null ? "Không khả dụng" : `${data.level} · ${data.score}/${data.maxScore}`;
 
   return (
     <Card>
       <CardHeader
         title="Thước đo FOMO"
         description="Nhận diện lúc cảm xúc có thể kéo bạn đi nhanh hơn dữ liệu."
-        chip={<Chip variant="warning">{data.level} · {data.score}/{data.maxScore}</Chip>}
+        chip={<Chip variant="warning">{scoreLabel}</Chip>}
       />
       <CardBody className="space-y-4">
         <div className="h-3 rounded-full bg-neutral">

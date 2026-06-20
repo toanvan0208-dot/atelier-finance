@@ -15,11 +15,11 @@ const baseData: PVTObservationData = {
     conclusion: "Base conclusion",
   },
   keyLevels: {
-    support: "N/A",
-    resistance: "N/A",
+    support: "38.000 - 40.000",
+    resistance: "44.000 - 46.000",
   },
   volume: {
-    currentVsAvg20: 1,
+    currentVsAvg20: 1.4,
     label: "Base volume",
     conclusion: "Base volume conclusion",
   },
@@ -62,7 +62,7 @@ const baseData: PVTObservationData = {
   },
   fomo: {
     level: "Thấp",
-    score: 1,
+    score: 3,
     maxScore: 6,
     signs: [],
     conclusion: "Base fomo",
@@ -124,6 +124,35 @@ describe("buildTechnicalFromMarketPriceSeries", () => {
     expect(result.adapter.dataMode).toBe("research_only");
     expect(result.data?.ticker).toBe("FPT");
     expect(result.data?.currentPrice).toBe(110);
+    expect(result.data?.keyLevels.support).not.toBe("38.000 - 40.000");
+    expect(result.data?.keyLevels.resistance).not.toBe("44.000 - 46.000");
+    expect(result.data?.pvtDerivedMetrics).toMatchObject({
+      sourceLabel: "vnstock",
+      dataMode: "research_only",
+      productionApproved: false,
+      dataStatus: "insufficient_data",
+      calculationBasis: "active_market_price_series",
+      requiredObservations: 20,
+      availableObservations: 2,
+      supportRange: {
+        value: null,
+        status: "unavailable",
+      },
+      resistanceRange: {
+        value: null,
+        status: "unavailable",
+      },
+      volumeRatio: {
+        value: null,
+        status: "insufficient_data",
+      },
+      fomoScore: {
+        value: null,
+        status: "unavailable",
+      },
+    });
+    expect(result.data?.volume.currentVsAvg20).toBeNull();
+    expect(result.data?.fomo.score).toBeNull();
     expect(result.data?.logicSummary?.metrics.find((metric) => metric.id === "priceChangePct")?.rawValue)
       .toBeCloseTo(0.1);
   });
@@ -145,6 +174,31 @@ describe("buildTechnicalFromMarketPriceSeries", () => {
     expect(priceChange?.rawValue).toBeNull();
     expect(tradingValue?.rawValue).toBeNull();
     expect(priceChange?.rawValue).not.toBe(0);
+  });
+
+  it("marks volume TB20 insufficient when the DB-backed series has fewer than 20 observations", () => {
+    const result = buildTechnicalFromMarketPriceSeries(
+      baseData,
+      series(
+        Array.from({ length: 17 }, (_, index) =>
+          row({
+            date: `2025-01-${String(index + 1).padStart(2, "0")}`,
+            close: 100 + index,
+            volume: 1000 + index,
+            tradingValue: 100000 + index,
+          }),
+        ),
+      ),
+    );
+
+    expect(result.ok).toBe(true);
+    expect(result.data?.pvtDerivedMetrics?.availableObservations).toBe(17);
+    expect(result.data?.pvtDerivedMetrics?.volumeRatio).toMatchObject({
+      value: null,
+      status: "insufficient_data",
+    });
+    expect(result.data?.volume.currentVsAvg20).toBeNull();
+    expect(result.data?.volume.label).toMatch(/20/);
   });
 
   it("returns an adapter-ready failure when the series is not completed", () => {

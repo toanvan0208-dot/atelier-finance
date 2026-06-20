@@ -401,8 +401,8 @@ export type PVTScenario = {
 
 export type PVTRiskRewardZoneData = {
   currentPrice: number;
-  supportPrice: number;
-  resistancePrice: number;
+  supportPrice: number | null;
+  resistancePrice: number | null;
   upside: string;
   downside: string;
   conclusion: string;
@@ -410,7 +410,7 @@ export type PVTRiskRewardZoneData = {
 
 export type PVTFomoData = {
   level: "Thấp" | "Trung bình" | "Cao";
-  score: number;
+  score: number | null;
   maxScore: number;
   signs: string[];
   conclusion: string;
@@ -456,6 +456,41 @@ export type PVTNextAction = {
   label: string;
   moduleKey: "watchlist" | "risk" | "valuation" | "checklist";
   primary?: boolean;
+};
+
+export type PVTDerivedMetricsStatus =
+  | "computed_from_market_price_series"
+  | "insufficient_data"
+  | "unavailable"
+  | "static_sample"
+  | "unknown";
+
+export type PVTDerivedMetrics = {
+  sourceLabel: string;
+  dataMode: string;
+  productionApproved: false;
+  dataStatus: PVTDerivedMetricsStatus;
+  calculationBasis: "active_market_price_series" | "static_sample" | "unavailable";
+  requiredObservations: number;
+  availableObservations: number;
+  supportRange: {
+    value: string | null;
+    status: PVTDerivedMetricsStatus;
+  };
+  resistanceRange: {
+    value: string | null;
+    status: PVTDerivedMetricsStatus;
+  };
+  volumeRatio: {
+    value: number | null;
+    status: PVTDerivedMetricsStatus;
+  };
+  fomoScore: {
+    value: number | null;
+    status: PVTDerivedMetricsStatus;
+  };
+  limitations: string[];
+  warnings: string[];
 };
 
 export type TechnicalIssuerMetadataVerificationStatus =
@@ -511,7 +546,7 @@ export type PVTObservationData = {
     resistance: string;
   };
   volume: {
-    currentVsAvg20: number;
+    currentVsAvg20: number | null;
     label: string;
     conclusion: string;
   };
@@ -530,6 +565,7 @@ export type PVTObservationData = {
   scenarios: PVTScenario[];
   riskReward: PVTRiskRewardZoneData;
   fomo: PVTFomoData;
+  pvtDerivedMetrics?: PVTDerivedMetrics;
   logicSummary?: PVTLogicSummary;
   finalConclusion: PVTFinalConclusionData;
   nextActions: PVTNextAction[];

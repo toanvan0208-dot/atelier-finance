@@ -17,12 +17,15 @@ function formatPrice(value: number) {
 }
 
 export function PVTHeroStatus({ data }: PVTHeroStatusProps) {
+  const volumeValue =
+    data.volume.currentVsAvg20 === null ? data.volume.label : `${data.volume.currentVsAvg20}x TB20`;
+  const fomoValue = data.fomo.score === null ? "Không khả dụng" : `${data.fomo.level}, ${data.fomo.score}/${data.fomo.maxScore}`;
   const metrics = [
     { label: "Giá hiện tại", value: `${formatPrice(data.currentPrice)} đ/cp` },
     { label: "Hỗ trợ gần", value: data.keyLevels.support },
     { label: "Kháng cự gần", value: data.keyLevels.resistance },
-    { label: "Volume", value: `${data.volume.currentVsAvg20}x TB20` },
-    { label: "FOMO", value: `${data.fomo.level}, ${data.fomo.score}/${data.fomo.maxScore}` },
+    { label: "Volume", value: volumeValue },
+    { label: "FOMO", value: fomoValue },
   ];
 
   return (

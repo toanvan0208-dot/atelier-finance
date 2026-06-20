@@ -5,7 +5,8 @@ type PVTRiskRewardZoneProps = {
   data: PVTRiskRewardZoneData;
 };
 
-function formatPrice(value: number) {
+function formatPrice(value: number | null) {
+  if (value === null) return "Không khả dụng";
   return new Intl.NumberFormat("vi-VN").format(value);
 }
 

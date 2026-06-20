@@ -20,6 +20,75 @@ const dbRuntimeBase = {
     companyName: "FPT",
     industry: "Chua co du lieu xac minh",
     currentPrice: 129.12,
+    keyLevels: {
+      support: "Chưa đủ dữ liệu",
+      resistance: "Chưa đủ dữ liệu",
+    },
+    volume: {
+      ...pvtObservationData.volume,
+      currentVsAvg20: null,
+      label: "Chưa đủ 20 phiên",
+    },
+    chart: {
+      ...pvtObservationData.chart,
+      quickRead: [
+        {
+          question: "Dữ liệu derived có đủ không?",
+          answer: "Chưa đủ dữ liệu để tính vùng hỗ trợ/kháng cự từ chuỗi DB-backed.",
+        },
+      ],
+    },
+    riskReward: {
+      ...pvtObservationData.riskReward,
+      currentPrice: 129.12,
+      supportPrice: null,
+      resistancePrice: null,
+      upside: "Không khả dụng",
+      downside: "Không khả dụng",
+      conclusion: "Chưa đủ dữ liệu để tính vùng hỗ trợ/kháng cự từ chuỗi DB-backed.",
+    },
+    fomo: {
+      ...pvtObservationData.fomo,
+      score: null,
+      signs: ["FOMO chưa khả dụng cho dữ liệu DB-backed."],
+      conclusion: "FOMO chưa khả dụng vì chưa được tính từ cùng chuỗi DB-backed.",
+    },
+    pvtDerivedMetrics: {
+      sourceLabel: "vnstock",
+      dataMode: "research_only",
+      productionApproved: false as const,
+      dataStatus: "insufficient_data" as const,
+      calculationBasis: "active_market_price_series" as const,
+      requiredObservations: 20,
+      availableObservations: 17,
+      supportRange: {
+        value: null,
+        status: "unavailable" as const,
+      },
+      resistanceRange: {
+        value: null,
+        status: "unavailable" as const,
+      },
+      volumeRatio: {
+        value: null,
+        status: "insufficient_data" as const,
+      },
+      fomoScore: {
+        value: null,
+        status: "unavailable" as const,
+      },
+      limitations: ["Derived metrics require the active DB-backed series."],
+      warnings: [],
+    },
+    confirmation: ["Chưa đủ dữ liệu để xác định điều kiện xác nhận từ chuỗi DB-backed."],
+    invalidation: ["Chưa đủ dữ liệu để xác định điều kiện phủ nhận từ chuỗi DB-backed."],
+    scenarios: [
+      {
+        name: "Derived metrics unavailable",
+        condition: "Chuỗi DB-backed chưa đủ cơ sở để tính vùng kỹ thuật.",
+        meaning: "Không sử dụng kịch bản sample cho dữ liệu DB-backed.",
+      },
+    ],
   },
   dataQuality: {
     ...pvtDataQuality,
@@ -73,6 +142,7 @@ describe("TechnicalPage source transparency", () => {
     expect(html).toContain("productionApproved:false");
     expect(html).toContain("sampleFallback");
     expect(html).toContain("metadata:static_sample");
+    expect(html).toContain("derived:static_sample");
   });
 
   it("displays DB-backed source transparency and issuer metadata limitation without client DB imports", () => {
@@ -100,8 +170,18 @@ describe("TechnicalPage source transparency", () => {
     expect(html).toContain("researchOnly");
     expect(html).toContain("Metadata doanh nghiep/nganh chua duoc xac minh");
     expect(html).toContain("metadata:unavailable");
+    expect(html).toContain("derived:insufficient_data");
+    expect(html).toContain("Derived PVT metrics are computed only from the active market price series");
+    expect(html).toContain("Chưa đủ dữ liệu");
+    expect(html).toContain("Chưa đủ 20 phiên");
+    expect(html).toContain("Không khả dụng");
+    expect(html).toContain("FOMO chưa khả dụng");
     expect(html).toContain("Industry: chua co du lieu xac minh");
     expect(html).not.toContain("Ban le");
+    expect(html).not.toContain("38.000 - 40.000");
+    expect(html).not.toContain("44.000 - 46.000");
+    expect(html).not.toContain("1.4x TB20");
+    expect(html).not.toContain("3/6");
   });
 
   it("displays local research seed issuer metadata without claiming official metadata", () => {
@@ -129,4 +209,3 @@ describe("TechnicalPage source transparency", () => {
     expect(html.toLowerCase()).not.toContain("official metadata");
   });
 });
-

@@ -60,6 +60,8 @@ Phase 34 adds a serializable metadata boundary to this runtime result; see `TECH
 
 Phase 35 adds `getIssuerMetadata(ticker)` as a local/research-only issuer metadata foundation; see `COMPANY_ISSUER_METADATA_FOUNDATION.md`. In DB-backed mode, Technical/PVT keeps `marketDataSource` on local DB / `vnstock` / `research_only` while `issuerMetadata` can come from `local_issuer_metadata_seed` or remain unavailable.
 
+Phase 36 adds `pvtDerivedMetrics` to keep support/resistance, volume ratio, and FOMO source/status separate from both market price source and issuer metadata. In DB-backed mode, derived PVT metrics must come from the active market price series or render as insufficient/unavailable. See `TECHNICAL_PVT_DERIVED_METRICS_BOUNDARY.md`.
+
 ## 4. Fallback Behavior
 
 Fallback remains mandatory for runtime safety.
