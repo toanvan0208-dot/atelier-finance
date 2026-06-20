@@ -141,3 +141,7 @@ Maximum safe scope:
 - preserve `productionApproved:false`;
 - add read-back tests from persistence into Financials runtime sidecar;
 - do not add metrics, recommendations, target price, EV, DCF, or fair value range.
+
+## 14. Phase 66 Follow-up
+
+Phase 66 adds `FINANCIALS_UNIT_METADATA_PERSISTENCE_READBACK_BOUNDARY.md`. The current schema has no safe field-level metadata column, so DB persistence remains deferred. A pure payload/read-back helper now defines the boundary, and runtime sidecar handoff is ready when a repository provides validated metadata.

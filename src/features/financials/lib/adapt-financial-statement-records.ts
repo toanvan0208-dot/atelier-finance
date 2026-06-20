@@ -2,6 +2,7 @@ import type {
   FinancialStatementLocalRecord,
   FinancialStatementSeriesResult,
 } from "../../../lib/data-sources/financial-statement-read-service";
+import type { FinancialsUnitMetadataMap } from "./financials-unit-metadata-contract";
 import type { FinancialsStatementSnapshot } from "./map-financials-to-logic-input";
 
 export type FinancialStatementAdapterStatus =
@@ -12,6 +13,7 @@ export type FinancialStatementAdapterStatus =
 
 export type AdaptedFinancialStatement = {
   snapshot: FinancialsStatementSnapshot;
+  unitMetadata?: FinancialsUnitMetadataMap | null;
   metadata: {
     ticker: string;
     period: string;
@@ -80,6 +82,7 @@ const adaptRecord = (
     sharesOutstanding: record.values.sharesOutstanding,
     eps: record.values.eps,
   },
+  unitMetadata: record.unitMetadata ?? null,
   metadata: {
     ticker: record.ticker,
     period: record.period,

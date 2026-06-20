@@ -276,6 +276,8 @@ Phase 64 adds a Financials import unit metadata contract in `FINANCIALS_IMPORT_U
 
 Phase 65 adds source-specific Financials import unit capture in `SOURCE_SPECIFIC_FINANCIALS_IMPORT_UNIT_CAPTURE.md`. CSV dry-run/import rows can now include explicit unit columns that populate accepted row metadata; invalid explicit units reject rows, missing units remain unknown, and DB/runtime persistence of unit metadata is deferred.
 
+Phase 66 adds a Financials unit metadata persistence/read-back boundary in `FINANCIALS_UNIT_METADATA_PERSISTENCE_READBACK_BOUNDARY.md`. Because the current schema lacks a safe field-level metadata column, DB persistence remains deferred. A pure payload helper and runtime handoff path now validate sidecars without approving sources or changing visible UI.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot

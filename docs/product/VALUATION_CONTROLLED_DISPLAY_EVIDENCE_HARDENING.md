@@ -220,3 +220,7 @@ Phase 64 adds `FINANCIALS_IMPORT_UNIT_METADATA_CONTRACT.md`. The Financials runt
 ## 16. Phase 65 Follow-up
 
 Phase 65 adds `SOURCE_SPECIFIC_FINANCIALS_IMPORT_UNIT_CAPTURE.md`. Browser evidence is not refreshed because Phase 65 only changes parser/import dry-run contracts and tests; runtime DB persistence and visible Valuation output remain unchanged.
+
+## 17. Phase 66 Follow-up
+
+Phase 66 adds `FINANCIALS_UNIT_METADATA_PERSISTENCE_READBACK_BOUNDARY.md`. The phase remains non-UI: it validates payload/read-back and runtime handoff behavior in tests, while visible Valuation browser output remains unchanged.

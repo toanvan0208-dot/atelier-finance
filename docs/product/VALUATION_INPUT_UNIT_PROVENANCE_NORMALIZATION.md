@@ -215,3 +215,7 @@ Phase 64 adds `FINANCIALS_IMPORT_UNIT_METADATA_CONTRACT.md`. Financials runtime 
 ## 14. Phase 65 Follow-up
 
 Phase 65 adds `SOURCE_SPECIFIC_FINANCIALS_IMPORT_UNIT_CAPTURE.md`. CSV dry-run rows can now carry explicit import units into accepted row metadata, and pure tests confirm those units can be handed to the Valuation integration boundary. Unknown units still normalize to `null`; DB/runtime persistence of the import sidecar is deferred.
+
+## 15. Phase 66 Follow-up
+
+Phase 66 adds `FINANCIALS_UNIT_METADATA_PERSISTENCE_READBACK_BOUNDARY.md`. The tested runtime handoff can pass validated Financials unit metadata into the controlled Valuation integration boundary. If metadata is missing or invalid, the existing Phase 63 unknown-unit behavior still blocks scale-sensitive calculations.

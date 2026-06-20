@@ -122,3 +122,7 @@ Maximum safe scope:
 ## 10. Phase 65 Follow-up
 
 Phase 65 adds `SOURCE_SPECIFIC_FINANCIALS_IMPORT_UNIT_CAPTURE.md`. The local CSV dry-run/import contract can now capture explicit unit columns into accepted row `unitMetadata`, reject invalid explicit units, and keep missing units as `unknown_unit`. Runtime DB persistence of the sidecar remains deferred.
+
+## 11. Phase 66 Follow-up
+
+Phase 66 adds `FINANCIALS_UNIT_METADATA_PERSISTENCE_READBACK_BOUNDARY.md`. No schema migration was made; instead a pure persistence payload helper validates field-level unit sidecars and the Financials runtime loader can consume adapted statement `unitMetadata` when a future repository provides it.

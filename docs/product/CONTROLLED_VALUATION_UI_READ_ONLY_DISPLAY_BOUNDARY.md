@@ -161,3 +161,7 @@ Phase 64 adds `FINANCIALS_IMPORT_UNIT_METADATA_CONTRACT.md`. The Valuation page 
 ## 14. Phase 65 Follow-up
 
 Phase 65 adds `SOURCE_SPECIFIC_FINANCIALS_IMPORT_UNIT_CAPTURE.md`. This is parser/import dry-run work only; it does not change the visible Valuation panel. Explicit units captured during dry-run become eligible for future runtime handoff, while unknown units remain blocked by the existing read-only boundary.
+
+## 15. Phase 66 Follow-up
+
+Phase 66 adds `FINANCIALS_UNIT_METADATA_PERSISTENCE_READBACK_BOUNDARY.md`. Runtime sidecar handoff is test-covered, but DB persistence and visible UI output are unchanged. Browser verification is therefore not required for this phase.

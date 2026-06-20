@@ -1,3 +1,5 @@
+import type { FinancialsUnitMetadataMap } from "@/features/financials/lib/financials-unit-metadata-contract";
+
 export type FinancialStatementReadStatus =
   | "available"
   | "partial"
@@ -66,6 +68,7 @@ export type FinancialStatementLocalRecord = {
   statementDate: string | null;
   source: FinancialStatementSourceMetadata;
   values: FinancialStatementNormalizedValues;
+  unitMetadata?: FinancialsUnitMetadataMap | null;
   dataQuality: FinancialStatementDataQuality;
 };
 

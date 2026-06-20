@@ -182,11 +182,13 @@ const dbBackedResult = ({
       errors: adapted.errors,
     },
     statementSnapshot,
-    unitMetadata: buildFinancialsUnitMetadata({
-      dataMode: source.dataMode,
-      snapshot: statementSnapshot,
-      sourceLabel: source.sourceLabel,
-    }),
+    unitMetadata:
+      firstStatement?.unitMetadata ??
+      buildFinancialsUnitMetadata({
+        dataMode: source.dataMode,
+        snapshot: statementSnapshot,
+        sourceLabel: source.sourceLabel,
+      }),
     readResult,
   };
 };
