@@ -13,8 +13,13 @@ describe("ControlledValuationCalculationPanel", () => {
   it("renders the source boundary without DB-backed or production approval claims", () => {
     const html = renderPanel(
       buildControlledValuationIntegrationBoundary({
-        financialsRuntimeSnapshot: { eps: 5, dataMode: "research_only", readPath: "local_db" },
-        persistedValuationInputs: { marketPrice: 100 },
+        financialsRuntimeSnapshot: {
+          dataMode: "research_only",
+          eps: 5,
+          readPath: "local_db",
+          units: { eps: "vnd_per_share" },
+        },
+        persistedValuationInputs: { marketPrice: 100, units: { marketPrice: "vnd_per_share" } },
       }),
     );
 
@@ -27,8 +32,13 @@ describe("ControlledValuationCalculationPanel", () => {
   it("renders ready metric values only when status is ready", () => {
     const html = renderPanel(
       buildControlledValuationIntegrationBoundary({
-        financialsRuntimeSnapshot: { equity: 1000, eps: 5, sharesOutstanding: 100 },
-        persistedValuationInputs: { marketPrice: 20 },
+        financialsRuntimeSnapshot: {
+          equity: 1000,
+          eps: 5,
+          sharesOutstanding: 100,
+          units: { equity: "vnd", eps: "vnd_per_share", sharesOutstanding: "shares" },
+        },
+        persistedValuationInputs: { marketPrice: 20, units: { marketPrice: "vnd_per_share" } },
       }),
     );
 
@@ -42,7 +52,7 @@ describe("ControlledValuationCalculationPanel", () => {
   it("renders insufficient data reasons without zero-filling missing values", () => {
     const html = renderPanel(
       buildControlledValuationIntegrationBoundary({
-        persistedValuationInputs: { marketPrice: 100 },
+        persistedValuationInputs: { marketPrice: 100, units: { marketPrice: "vnd_per_share" } },
       }),
     );
 
@@ -56,8 +66,13 @@ describe("ControlledValuationCalculationPanel", () => {
   it("does not round small positive ready values down to zero", () => {
     const html = renderPanel(
       buildControlledValuationIntegrationBoundary({
-        financialsRuntimeSnapshot: { equity: 1, eps: 5, sharesOutstanding: 10_000 },
-        persistedValuationInputs: { marketPrice: 20 },
+        financialsRuntimeSnapshot: {
+          equity: 1,
+          eps: 5,
+          sharesOutstanding: 10_000,
+          units: { equity: "vnd", eps: "vnd_per_share", sharesOutstanding: "shares" },
+        },
+        persistedValuationInputs: { marketPrice: 20, units: { marketPrice: "vnd_per_share" } },
       }),
     );
 
@@ -68,8 +83,13 @@ describe("ControlledValuationCalculationPanel", () => {
   it("renders not applicable states for non-positive EPS and equity", () => {
     const html = renderPanel(
       buildControlledValuationIntegrationBoundary({
-        financialsRuntimeSnapshot: { equity: 0, eps: -1, sharesOutstanding: 100 },
-        persistedValuationInputs: { marketPrice: 20 },
+        financialsRuntimeSnapshot: {
+          equity: 0,
+          eps: -1,
+          sharesOutstanding: 100,
+          units: { equity: "vnd", eps: "vnd_per_share", sharesOutstanding: "shares" },
+        },
+        persistedValuationInputs: { marketPrice: 20, units: { marketPrice: "vnd_per_share" } },
       }),
     );
 
@@ -101,8 +121,9 @@ describe("ControlledValuationCalculationPanel", () => {
           sharesOutstanding: 100,
           dataMode: "research_only",
           readPath: "local_db",
+          units: { equity: "vnd", eps: "vnd_per_share", revenue: "vnd", sharesOutstanding: "shares" },
         },
-        persistedValuationInputs: { marketPrice: 100, marketCap: 10_000 },
+        persistedValuationInputs: { marketCap: 10_000, marketPrice: 100, units: { marketCap: "vnd", marketPrice: "vnd_per_share" } },
       }),
     ).toLowerCase();
     const blockedPhrases = [

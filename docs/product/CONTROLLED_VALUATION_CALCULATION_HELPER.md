@@ -167,3 +167,7 @@ Phase 61 adds `CONTROLLED_VALUATION_UI_READ_ONLY_DISPLAY_BOUNDARY.md`. The Phase
 ## 13. Phase 62 Follow-up
 
 Phase 62 adds `VALUATION_CONTROLLED_DISPLAY_EVIDENCE_HARDENING.md`. The helper was not changed; the evidence pass confirms browser-visible UI still treats helper output as read-only status and keeps blocked metrics locked.
+
+## 14. Phase 63 Follow-up
+
+Phase 63 adds `VALUATION_INPUT_UNIT_PROVENANCE_NORMALIZATION.md`. The pure calculation helper remains unchanged; unit/provenance checks happen in the integration boundary before values reach the helper. Unknown units are passed as `null`, which keeps dependent metrics not ready.

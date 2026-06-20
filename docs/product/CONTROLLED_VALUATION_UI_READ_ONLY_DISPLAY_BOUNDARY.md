@@ -149,3 +149,7 @@ Priority checks:
 ## 11. Phase 62 Follow-up
 
 Phase 62 adds `VALUATION_CONTROLLED_DISPLAY_EVIDENCE_HARDENING.md`. It re-audits the Phase 61 read-only panel in fallback and local DB-backed Financials modes, confirms browser-visible source boundary flags remain clear, records runtime-missing persisted-bridge warnings, and finds no UI/source overclaim issue.
+
+## 12. Phase 63 Follow-up
+
+Phase 63 adds `VALUATION_INPUT_UNIT_PROVENANCE_NORMALIZATION.md`. The read-only panel remains the display surface, but controlled values can now become unavailable when required input units are unknown. This prevents scale-sensitive values from being rendered from raw untyped inputs.

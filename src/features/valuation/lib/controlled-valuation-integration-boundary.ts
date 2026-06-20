@@ -2,13 +2,36 @@ import {
   buildControlledValuationCalculation,
   type ControlledValuationCalculationResult,
 } from "./controlled-valuation-calculation";
+import {
+  normalizeValuationInput,
+  type ValuationInputNormalizationKind,
+  type ValuationInputNormalizationStatus,
+  type ValuationInputProvenance,
+  type ValuationUnit,
+} from "./valuation-input-unit-provenance";
 import type { ValuationSourceMode } from "./valuation-financials-runtime-consumption";
 
 export type ControlledValuationIntegrationInputSource = "financials_runtime" | "persisted_bridge" | "unavailable";
 
+export type ControlledValuationInputUnitMap = {
+  revenue?: ValuationUnit | null;
+  netIncome?: ValuationUnit | null;
+  equity?: ValuationUnit | null;
+  eps?: ValuationUnit | null;
+  sharesOutstanding?: ValuationUnit | null;
+  marketPrice?: ValuationUnit | null;
+  marketCap?: ValuationUnit | null;
+};
+
 export type ControlledValuationSelectedInput = {
   value: number | null;
+  rawValue: number | null;
   source: ControlledValuationIntegrationInputSource;
+  unit: ValuationUnit;
+  normalizedUnit: ValuationUnit | "not_normalized";
+  normalizationStatus: ValuationInputNormalizationStatus;
+  provenance: ValuationInputProvenance;
+  warnings: string[];
 };
 
 export type ControlledValuationFinancialsRuntimeSnapshot = {
@@ -25,6 +48,7 @@ export type ControlledValuationFinancialsRuntimeSnapshot = {
   runtimeStatus?: string | null;
   fallbackUsed?: boolean | null;
   productionApproved?: boolean | null;
+  units?: ControlledValuationInputUnitMap | null;
 };
 
 export type ControlledValuationPersistedInputs = {
@@ -38,6 +62,7 @@ export type ControlledValuationPersistedInputs = {
   sourceLabel?: string | null;
   dataMode?: string | null;
   productionApproved?: boolean | null;
+  units?: ControlledValuationInputUnitMap | null;
 };
 
 export type ControlledValuationIntegrationMode =
@@ -75,33 +100,158 @@ export type ControlledValuationIntegrationBoundary = {
 const isPresentNumber = (value: number | null | undefined): value is number =>
   typeof value === "number" && Number.isFinite(value);
 
-const selectFinancialInput = ({
+const inputUnit = (
+  units: ControlledValuationInputUnitMap | null | undefined,
+  field: keyof ControlledValuationInputUnitMap,
+): ValuationUnit => units?.[field] ?? "unknown";
+
+const sourceForProvenance = (source: ControlledValuationIntegrationInputSource): ValuationInputProvenance["source"] => {
+  if (source === "financials_runtime") return "financials_runtime";
+  if (source === "persisted_bridge") return "persisted_bridge";
+  return "unknown";
+};
+
+const selectedInput = ({
+  dataMode,
+  expected,
   field,
+  productionApproved,
+  source,
+  sourceLabel,
+  unit,
+  value,
+}: {
+  field: string;
+  value: number | null | undefined;
+  unit: ValuationUnit;
+  expected: ValuationInputNormalizationKind;
+  source: ControlledValuationIntegrationInputSource;
+  sourceLabel?: string | null;
+  dataMode?: string | null;
+  productionApproved?: boolean | null;
+}): ControlledValuationSelectedInput => {
+  const normalized = normalizeValuationInput({
+    expected,
+    provenance: {
+      dataMode,
+      productionApproved: productionApproved === true,
+      source: sourceForProvenance(source),
+      sourceLabel,
+    },
+    unit,
+    value,
+  });
+
+  return {
+    rawValue: normalized.value,
+    value: normalized.normalizedValue,
+    source,
+    unit: normalized.unit,
+    normalizedUnit: normalized.normalizedUnit,
+    normalizationStatus: normalized.status,
+    provenance: normalized.provenance,
+    warnings: normalized.warnings.map((warning) => `${field}_${warning}`),
+  };
+};
+
+const selectFinancialInput = ({
+  expected,
+  field,
+  persisted,
   persistedValue,
+  runtime,
   runtimeValue,
   warnings,
 }: {
   field: string;
+  expected: ValuationInputNormalizationKind;
   runtimeValue: number | null | undefined;
   persistedValue: number | null | undefined;
+  runtime?: ControlledValuationFinancialsRuntimeSnapshot | null;
+  persisted?: ControlledValuationPersistedInputs | null;
   warnings: string[];
 }): ControlledValuationSelectedInput => {
   if (isPresentNumber(runtimeValue)) {
-    return { value: runtimeValue, source: "financials_runtime" };
+    const input = selectedInput({
+      dataMode: runtime?.dataMode,
+      expected,
+      field,
+      productionApproved: runtime?.productionApproved,
+      source: "financials_runtime",
+      sourceLabel: runtime?.sourceLabel,
+      unit: inputUnit(runtime?.units, field as keyof ControlledValuationInputUnitMap),
+      value: runtimeValue,
+    });
+    warnings.push(...input.warnings);
+    return input;
   }
 
   if (isPresentNumber(persistedValue)) {
     if (runtimeValue === null) {
       warnings.push(`runtime_${field}_missing_used_persisted_bridge`);
     }
-    return { value: persistedValue, source: "persisted_bridge" };
+    const input = selectedInput({
+      dataMode: persisted?.dataMode,
+      expected,
+      field,
+      productionApproved: persisted?.productionApproved,
+      source: "persisted_bridge",
+      sourceLabel: persisted?.sourceLabel,
+      unit: inputUnit(persisted?.units, field as keyof ControlledValuationInputUnitMap),
+      value: persistedValue,
+    });
+    warnings.push(...input.warnings);
+    return input;
   }
 
-  return { value: null, source: "unavailable" };
+  return selectedInput({
+    expected,
+    field,
+    source: "unavailable",
+    unit: "unknown",
+    value: null,
+  });
 };
 
-const selectPersistedMarketInput = (value: number | null | undefined): ControlledValuationSelectedInput =>
-  isPresentNumber(value) ? { value, source: "persisted_bridge" } : { value: null, source: "unavailable" };
+const selectPersistedMarketInput = ({
+  expected,
+  field,
+  persisted,
+  value,
+  warnings,
+}: {
+  field: keyof ControlledValuationInputUnitMap;
+  expected: ValuationInputNormalizationKind;
+  value: number | null | undefined;
+  persisted?: ControlledValuationPersistedInputs | null;
+  warnings: string[];
+}): ControlledValuationSelectedInput => {
+  if (!isPresentNumber(value)) {
+    return selectedInput({
+      expected,
+      field,
+      source: "unavailable",
+      unit: "unknown",
+      value: null,
+    });
+  }
+
+  const input = selectedInput({
+    dataMode: persisted?.dataMode,
+    expected,
+    field,
+    productionApproved: persisted?.productionApproved,
+    source: "persisted_bridge",
+    sourceLabel: persisted?.sourceLabel,
+    unit: inputUnit(persisted?.units, field),
+    value,
+  });
+  warnings.push(...input.warnings);
+  return input;
+};
+
+const normalizedValue = (input: ControlledValuationSelectedInput): number | null =>
+  input.normalizationStatus === "ready" ? input.value : null;
 
 const hasSource = (
   selectedInputs: ControlledValuationIntegrationBoundary["selectedInputs"],
@@ -177,37 +327,64 @@ export const buildControlledValuationIntegrationBoundary = ({
   const persisted = persistedValuationInputs;
   const selectedInputs = {
     revenue: selectFinancialInput({
+      expected: "currency",
       field: "revenue",
+      persisted,
       runtimeValue: runtime?.revenue,
+      runtime,
       persistedValue: persisted?.revenue,
       warnings,
     }),
     netIncome: selectFinancialInput({
-      field: "net_income",
+      expected: "currency",
+      field: "netIncome",
+      persisted,
       runtimeValue: runtime?.netIncome ?? runtime?.netProfit,
+      runtime,
       persistedValue: persisted?.netIncome,
       warnings,
     }),
     equity: selectFinancialInput({
+      expected: "currency",
       field: "equity",
+      persisted,
       runtimeValue: runtime?.equity ?? runtime?.totalEquity,
+      runtime,
       persistedValue: persisted?.equity,
       warnings,
     }),
     eps: selectFinancialInput({
+      expected: "per_share",
       field: "eps",
+      persisted,
       runtimeValue: runtime?.eps,
+      runtime,
       persistedValue: persisted?.eps,
       warnings,
     }),
     sharesOutstanding: selectFinancialInput({
-      field: "shares_outstanding",
+      expected: "shares",
+      field: "sharesOutstanding",
+      persisted,
       runtimeValue: runtime?.sharesOutstanding,
+      runtime,
       persistedValue: persisted?.sharesOutstanding,
       warnings,
     }),
-    marketPrice: selectPersistedMarketInput(persisted?.marketPrice),
-    marketCap: selectPersistedMarketInput(persisted?.marketCap),
+    marketPrice: selectPersistedMarketInput({
+      expected: "per_share",
+      field: "marketPrice",
+      persisted,
+      value: persisted?.marketPrice,
+      warnings,
+    }),
+    marketCap: selectPersistedMarketInput({
+      expected: "currency",
+      field: "marketCap",
+      persisted,
+      value: persisted?.marketCap,
+      warnings,
+    }),
   };
   const fallbackUsed = Boolean(runtime?.fallbackUsed) || mode === "fallback";
   const hasRuntimeInput = hasSource(selectedInputs, "financials_runtime");
@@ -221,15 +398,15 @@ export const buildControlledValuationIntegrationBoundary = ({
   const mixedSource = valuationSourceMode === "mixed_source";
   const calculation = buildControlledValuationCalculation({
     financials: {
-      revenue: selectedInputs.revenue.value,
-      netIncome: selectedInputs.netIncome.value,
-      equity: selectedInputs.equity.value,
-      eps: selectedInputs.eps.value,
-      sharesOutstanding: selectedInputs.sharesOutstanding.value,
+      revenue: normalizedValue(selectedInputs.revenue),
+      netIncome: normalizedValue(selectedInputs.netIncome),
+      equity: normalizedValue(selectedInputs.equity),
+      eps: normalizedValue(selectedInputs.eps),
+      sharesOutstanding: normalizedValue(selectedInputs.sharesOutstanding),
     },
     market: {
-      marketPrice: selectedInputs.marketPrice.value,
-      marketCap: selectedInputs.marketCap.value,
+      marketPrice: normalizedValue(selectedInputs.marketPrice),
+      marketCap: normalizedValue(selectedInputs.marketCap),
     },
     source: {
       financialsSourceMode: hasRuntimeInput ? "financials_runtime_partial" : selectedInputs.revenue.source,
@@ -259,9 +436,10 @@ export const buildControlledValuationIntegrationBoundary = ({
       warnings: boundaryWarnings,
     },
     integrationNotes: [
-      "calculation_helper_integrated_ui_output_unchanged",
+      "calculation_helper_integrated_with_unit_provenance_guard",
       "market_inputs_remain_persisted_or_pvt_owned",
       "financial_inputs_may_use_runtime_when_available",
+      "unknown_units_block_scale_sensitive_calculation",
       "no_ev_dcf_or_fair_value_integration",
     ],
   };

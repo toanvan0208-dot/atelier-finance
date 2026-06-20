@@ -208,3 +208,7 @@ No code fix was applied in Phase 62.
 Result: pass.
 
 Recommended next phase: Phase 63 should focus on controlled unit/provenance normalization for Valuation inputs before expanding any displayed calculation surface. Maximum scope should be input-unit evidence, selected-input provenance display or tests, and no new metric/EV/DCF/fair-value output.
+
+## 14. Phase 63 Follow-up
+
+Phase 63 implements the recommended unit/provenance normalization step in `VALUATION_INPUT_UNIT_PROVENANCE_NORMALIZATION.md`. Unknown units now block scale-sensitive controlled Valuation calculations instead of being inferred from raw numbers.

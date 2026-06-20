@@ -270,6 +270,8 @@ Phase 61 adds a controlled Valuation UI read-only display boundary in `CONTROLLE
 
 Phase 62 adds a controlled Valuation display evidence hardening pass in `VALUATION_CONTROLLED_DISPLAY_EVIDENCE_HARDENING.md`. It re-audits fallback and local DB-backed Financials Valuation routes with the in-app Browser plugin, confirms no UI/source overclaim issue, and keeps the implementation docs-only.
 
+Phase 63 adds controlled Valuation input unit and provenance normalization in `VALUATION_INPUT_UNIT_PROVENANCE_NORMALIZATION.md`. The integration boundary now requires explicit units before passing scale-sensitive inputs into the calculation helper; unknown units remain insufficient data instead of being inferred from magnitude.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot

@@ -160,3 +160,7 @@ Phase 61 adds `CONTROLLED_VALUATION_UI_READ_ONLY_DISPLAY_BOUNDARY.md` and wires 
 ## 12. Phase 62 Follow-up
 
 Phase 62 adds `VALUATION_CONTROLLED_DISPLAY_EVIDENCE_HARDENING.md`. The integration boundary remains unchanged; browser evidence confirms the UI still displays mixed-source and persisted-bridge warnings instead of claiming full Valuation DB-backed or production-approved status.
+
+## 13. Phase 63 Follow-up
+
+Phase 63 adds `VALUATION_INPUT_UNIT_PROVENANCE_NORMALIZATION.md` and updates the integration boundary with unit/provenance guards. The boundary now normalizes only explicit units and passes `null` into the calculation helper when a scale-sensitive input has an unknown or incompatible unit.
