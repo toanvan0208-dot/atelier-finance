@@ -484,3 +484,14 @@ Phase 31T adds `docs/product/TECHNICAL_PVT_MODULE_DATA_FLOW_CONNECTION.md` and a
 - Invalid input, empty DB results, read errors, and builder failures fail safely into fallback when fallback is allowed.
 - The rendered Technical/PVT UI data source is not changed in this phase.
 - The helper does not run imports, write DB rows, call Vnstock, call network, expose a public trigger, or change source approval status.
+
+## 30. Phase 31U Technical/PVT Runtime Wiring
+
+Phase 31U adds `docs/product/TECHNICAL_PVT_RUNTIME_DATA_FLOW_WIRING.md` and routes `/workspace` initial Technical/PVT data through a server-side runtime wrapper.
+
+- DB-backed mode remains disabled by default.
+- `ATELIER_TECHNICAL_PVT_DB_SOURCE=enabled` is the explicit env flag for server-side DB preference.
+- The client shell receives serialized runtime data through props.
+- Technical client components do not import DB read services or Prisma code.
+- Static/sample fallback remains available and is used by default.
+- The phase does not run imports, write DB rows, call Vnstock, call network, expose a public trigger, or change source approval status.

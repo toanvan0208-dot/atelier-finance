@@ -175,6 +175,8 @@ Phase 31S connects the local MarketPrice DB read path to a Technical/PVT adapter
 
 Phase 31T adds a Technical/PVT module-level loader/helper that can prefer local DB market price rows and falls back safely to existing static/sample data; rendered UI data remains unchanged, and no public API, direct fetcher, network call, DB write, automatic import, or production approval is added.
 
+Phase 31U wires `/workspace` initial Technical/PVT data through a server-side runtime wrapper and passes the serialized result to the client shell; DB-backed mode remains explicit/default-off, static fallback is preserved, and no public API, direct fetcher, network call, DB write, automatic import, or production approval is added.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot

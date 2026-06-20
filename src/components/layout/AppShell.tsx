@@ -28,6 +28,7 @@ import { RightAssistantPanel } from "./RightAssistantPanel";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
 import { resolveActiveModule, shouldNormalizeInvalidModule } from "./app-shell-routing";
+import type { TechnicalPageRuntimeData } from "@/features/technical";
 
 const modulesWithInternalProgress = new Set([
   "macro",
@@ -44,15 +45,19 @@ const modulesWithInternalProgress = new Set([
 
 const navigationChangeEvent = "app:navigation";
 
-export function AppShell() {
+type AppShellProps = {
+  initialTechnicalData?: TechnicalPageRuntimeData;
+};
+
+export function AppShell({ initialTechnicalData }: AppShellProps) {
   return (
     <PersonalAnalysisProfileProvider>
-      <AppShellContent />
+      <AppShellContent initialTechnicalData={initialTechnicalData} />
     </PersonalAnalysisProfileProvider>
   );
 }
 
-function AppShellContent() {
+function AppShellContent({ initialTechnicalData }: AppShellProps) {
   const { openDrawer } = usePersonalAnalysisProfile();
   const moduleKeys = useMemo(
     () => new Set(navigationItems.map((item) => item.key)),
@@ -164,7 +169,12 @@ function AppShellContent() {
         ) : null}
         {activeModule === "financials" ? <FinancialsPage onNavigate={handleNavigate} /> : null}
         {activeModule === "valuation" ? <ValuationPage onNavigate={handleNavigate} /> : null}
-        {activeModule === "technical" ? <TechnicalPage onNavigate={handleNavigate} /> : null}
+        {activeModule === "technical" ? (
+          <TechnicalPage
+            initialRuntimeData={initialTechnicalData}
+            onNavigate={handleNavigate}
+          />
+        ) : null}
         {activeModule === "risk" ? <RiskPage onNavigate={handleNavigate} /> : null}
         {activeModule === "simulation" ? <SimulationPage /> : null}
         {activeModule === "watchlist" ? <WatchlistPage onNavigate={handleNavigate} /> : null}

@@ -82,7 +82,7 @@ Phase 31S did not run import `--write`, did not write DB rows, did not call Vnst
 
 ## 5. Follow-Up
 
-Phase 31T adds a module-level loader/helper in `src/features/technical/lib/load-technical-desk-data.ts`. The helper can use the local DB read path when `preferDb:true`, otherwise it falls back to the existing static/sample Technical/PVT data. Phase 31T still does not wire the rendered UI to DB data.
+Phase 31T adds a module-level loader/helper in `src/features/technical/lib/load-technical-desk-data.ts`. The helper can use the local DB read path when `preferDb:true`, otherwise it falls back to the existing static/sample Technical/PVT data. Phase 31U then adds a server-side runtime wrapper for `/workspace` initial Technical/PVT data, with DB-backed mode still disabled by default.
 
 Follow-up constraints:
 

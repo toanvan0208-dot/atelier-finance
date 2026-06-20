@@ -94,3 +94,9 @@ Phase 31T did not:
 - Add cron, scheduler, or app-start import.
 - Add recommendation, rating, target-price, or trading-action fields.
 - Change source approval status.
+
+## 8. Phase 31U Runtime Wiring
+
+Phase 31U is tracked in `docs/product/TECHNICAL_PVT_RUNTIME_DATA_FLOW_WIRING.md`.
+
+It adds a server-side runtime wrapper and routes the `/workspace` Technical/PVT initial data through the safe loader path. DB-backed mode remains disabled by default and can only be enabled explicitly. The client Technical/PVT components receive serialized data through props and do not import DB/server loader code.

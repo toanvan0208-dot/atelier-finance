@@ -59,8 +59,8 @@ Phase 30H adds an academic/local/research data boundary for AI disclosure. Curre
 | legalStatus | `needs_review` |
 | productionApproved | `false` |
 | attributionRequired | `true` |
-| runtimeUse | `local_command_only` / `manual_file_write_verified` / `db_read_path_verified` / `pvt_adapter_ready` / `technical_helper_available` |
-| implementationStatus | `technical_pvt_loader_helper_added` |
+| runtimeUse | `local_command_only` / `manual_file_write_verified` / `db_read_path_verified` / `pvt_adapter_ready` / `technical_helper_available` / `technical_runtime_wrapper_default_off` |
+| implementationStatus | `technical_pvt_runtime_wrapper_added` |
 | dataCategories | `market_prices_research_only` |
 | persistence | `local_database_only` |
 | publicRuntime | `not_enabled` |
@@ -86,6 +86,7 @@ Phase 30H adds an academic/local/research data boundary for AI disclosure. Curre
 | marketPriceDbReadPathVerification | `docs/product/MARKET_PRICE_DB_READ_PATH_VERIFICATION.md` |
 | marketPricePvtAdapterConnection | `docs/product/MARKET_PRICE_PVT_ADAPTER_CONNECTION.md` |
 | technicalPvtDataFlowConnection | `docs/product/TECHNICAL_PVT_MODULE_DATA_FLOW_CONNECTION.md` |
+| technicalPvtRuntimeDataFlowWiring | `docs/product/TECHNICAL_PVT_RUNTIME_DATA_FLOW_WIRING.md` |
 | Notes | Vnstock is planned as a local/academic research connector candidate only; original data rights may belong to upstream providers. |
 
 ## 2. Required Evidence Before Approval

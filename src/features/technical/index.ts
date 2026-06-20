@@ -1,1 +1,1 @@
-export { TechnicalPage } from "./components/TechnicalPage";
+export { TechnicalPage, type TechnicalPageRuntimeData } from "./components/TechnicalPage";
