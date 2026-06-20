@@ -153,3 +153,7 @@ Phase 56 adds `CONTROLLED_RISK_RUNTIME_CONSUMPTION_BOUNDARY.md`. Risk now receiv
 ## 18. Phase 57 Follow-up
 
 Phase 57 adds `CROSS_MODULE_RUNTIME_CONSUMPTION_BROWSER_VERIFICATION.md`. Browser verification confirmed the derived-module boundaries remain mixed-source/partial/runtime-readiness-only across Overview, Valuation, and Risk after the Risk note was added.
+
+## 19. Phase 58 Follow-up
+
+Phase 58 adds `CONTROLLED_VALUATION_CALCULATION_WIRING_READINESS_PLAN.md`. It keeps the derived-module boundary model unchanged and documents which Valuation metrics could later consume Financials runtime fields, which still need market/PVT ownership, and which remain blocked until additional inputs are explicit.

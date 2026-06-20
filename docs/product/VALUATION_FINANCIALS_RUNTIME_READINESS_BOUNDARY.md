@@ -127,3 +127,7 @@ Phase 53 can define a controlled Valuation runtime consumption boundary if Phase
 ## 13. Phase 53 Follow-up
 
 Phase 53 adds `CONTROLLED_VALUATION_RUNTIME_CONSUMPTION_BOUNDARY.md`. Valuation now receives Financials runtime metadata and safe snapshot fields for a compact UI source note, but calculations still use the existing persisted input bridge.
+
+## 14. Phase 58 Follow-up
+
+Phase 58 adds `CONTROLLED_VALUATION_CALCULATION_WIRING_READINESS_PLAN.md`. The plan audits current Valuation metrics and input ownership before any calculation wiring. It keeps Phase 52's core boundary intact: Financials runtime availability may inform readiness, while the calculation path remains the persisted bridge and `canClaimValuationDbBacked:false` remains locked.

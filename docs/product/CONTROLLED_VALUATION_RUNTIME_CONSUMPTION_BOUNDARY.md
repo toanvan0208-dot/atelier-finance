@@ -157,3 +157,7 @@ Phase 56 adds `CONTROLLED_RISK_RUNTIME_CONSUMPTION_BOUNDARY.md`. This mirrors th
 ## 16. Phase 57 Follow-up
 
 Phase 57 adds `CROSS_MODULE_RUNTIME_CONSUMPTION_BROWSER_VERIFICATION.md`. Browser verification confirmed Valuation still renders mixed-source/controlled partial source notes and keeps the persisted input bridge as the calculation path.
+
+## 17. Phase 58 Follow-up
+
+Phase 58 adds `CONTROLLED_VALUATION_CALCULATION_WIRING_READINESS_PLAN.md`. It translates the Phase 53 controlled-consumption boundary into a metric-by-metric readiness plan for a later narrow wiring phase. The plan does not change the Phase 53 runtime behavior: Valuation still consumes Financials runtime metadata/safe fields only, and calculations still use the persisted bridge.

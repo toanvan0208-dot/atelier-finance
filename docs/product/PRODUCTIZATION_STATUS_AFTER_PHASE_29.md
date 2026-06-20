@@ -260,6 +260,8 @@ Phase 56 adds controlled Risk runtime consumption in `CONTROLLED_RISK_RUNTIME_CO
 
 Phase 57 records cross-module runtime consumption browser verification in `CROSS_MODULE_RUNTIME_CONSUMPTION_BROWSER_VERIFICATION.md`. Playwright re-checked Financials, Overview, Valuation, and Risk after the Risk UI note was added; fallback and local DB-backed modes rendered without source overclaim, and MWG partial missing fields remained unavailable instead of zero-filled.
 
+Phase 58 records the controlled Valuation calculation wiring readiness plan in `CONTROLLED_VALUATION_CALCULATION_WIRING_READINESS_PLAN.md`. It audits the current Valuation calculation path, maps metric input ownership, and locks Phase 59 guardrails while keeping calculations on the persisted bridge and preserving `canClaimValuationDbBacked:false` and `productionApproved:false`.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot
