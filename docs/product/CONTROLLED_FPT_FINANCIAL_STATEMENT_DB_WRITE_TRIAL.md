@@ -170,3 +170,7 @@ The focused Phase 79 tests verify controlled write/read-back behavior using an i
 Phase 80 should remain narrow. Recommended next step: decide whether to run a similarly controlled temporary-DB integration test using an isolated SQLite DB outside the repo, or keep the write trial at the dependency-injected service boundary until source approval and real-file evidence are available.
 
 Do not move to real CSV import, production ingestion, or expanded ticker/year coverage until the source/evidence review is complete.
+
+## Phase 80 Follow-up
+
+Phase 80 adds `PRISMA_BACKED_FPT_FINANCIAL_STATEMENT_TEMP_DB_WRITE_VERIFICATION.md`. It runs the same controlled FPT lineage through actual Prisma Client and a SQLite temp DB outside the repo, applying existing migration SQL with `prisma db execute --file`. The temp DB is test-only and cleaned after verification. No production/dev DB mutation, DB file commit, real CSV import, source approval, UI change, or new metric is added.

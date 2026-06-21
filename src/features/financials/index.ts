@@ -4,6 +4,7 @@ export * from "./lib/financials-derived-module-readiness";
 export * from "./lib/financial-statement-csv-import-trial-plan";
 export * from "./lib/fpt-local-research-data-trial";
 export * from "./lib/fpt-financial-statement-db-write-trial";
+export * from "./lib/fpt-financial-statement-prisma-temp-db-write-verification";
 export * from "./lib/financials-unit-metadata-contract";
 export * from "./lib/financials-unit-metadata-persistence-boundary";
 export * from "./lib/financials-unit-metadata-storage-plan";

@@ -304,6 +304,8 @@ Phase 78 adds a controlled FPT local research financial statement data trial in 
 
 Phase 79 adds a controlled FPT FinancialStatement DB write trial in `CONTROLLED_FPT_FINANCIAL_STATEMENT_DB_WRITE_TRIAL.md`. It maps the validated Phase 78 draft/write-intent into the existing local write service, verifies FinancialStatement and FinancialStatementUnitMetadata persistence through an in-memory test fixture, reads explicit metadata back into Financials runtime-compatible data, and confirms Valuation remains a bounded handoff rather than fully DB-backed. No real CSV import, raw CSV file, DB file commit, schema migration, external API/Vnstock call, source approval, UI change, or new metric is added.
 
+Phase 80 adds Prisma-backed FPT FinancialStatement temp DB write verification in `PRISMA_BACKED_FPT_FINANCIAL_STATEMENT_TEMP_DB_WRITE_VERIFICATION.md`. It creates an OS temp SQLite DB outside the repo, applies existing migration SQL with `prisma db execute --file`, writes the controlled FPT payload through Prisma Client, reads back explicit sidecar metadata, and cleans the temp DB. No production/dev DB mutation, DB file commit, real CSV import, raw CSV file, schema migration, external API/Vnstock call, source approval, UI change, or new metric is added.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot

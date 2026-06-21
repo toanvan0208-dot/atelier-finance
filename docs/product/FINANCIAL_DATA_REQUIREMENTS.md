@@ -50,3 +50,18 @@ Controlled DB write trials must preserve these additional requirements:
 - invalid persisted sidecar metadata cannot be bypassed by numeric values;
 - read-back source metadata remains `research_only` and `productionApproved:false`;
 - Financials DB-backed read-back does not make Valuation fully DB-backed.
+
+## Phase 80 Prisma Temp DB Verification Requirements
+
+Phase 80 records Prisma-backed FPT FinancialStatement temp DB verification in `PRISMA_BACKED_FPT_FINANCIAL_STATEMENT_TEMP_DB_WRITE_VERIFICATION.md`.
+
+Prisma-backed temp DB verification must preserve these requirements:
+
+- temp SQLite DB files must be created outside tracked repo paths or cleaned before final status;
+- existing migration SQL may be applied to the temp DB with `prisma db execute --file`;
+- `prisma db push`, `db:reset`, and `db:seed` must not be used;
+- `prisma/dev.db` and production/dev databases must not be mutated;
+- actual Prisma read-back must verify `FinancialStatement` and `FinancialStatementUnitMetadata`;
+- revenue, equity/totalEquity, sharesOutstanding, and EPS units must be explicit and valid;
+- temp DB files must never be committed or left visible in git status;
+- source/evidence status remains not approved and `productionApproved:false`.
