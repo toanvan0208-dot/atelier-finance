@@ -72,6 +72,7 @@ const adaptRecord = (
     totalAssets: record.values.totalAssets,
     previousTotalAssets: previous?.values.totalAssets ?? null,
     totalLiabilities: record.values.totalLiabilities,
+    totalDebt: record.values.totalDebt,
     totalEquity: record.values.totalEquity,
     previousTotalEquity: previous?.values.totalEquity ?? null,
     currentAssets: record.values.currentAssets,

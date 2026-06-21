@@ -128,8 +128,9 @@ const financialsRuntime = (
         operatingCashFlow: "billion_vnd",
         revenue: "billion_vnd",
         totalAssets: "billion_vnd",
+        totalDebt: "billion_vnd",
       },
-      snapshot,
+      snapshot: { ...snapshot, totalDebt: snapshot.totalLiabilities },
       sourceLabel: "phase109_controlled_local_financials",
     }),
   };
@@ -169,6 +170,13 @@ describe("loadPortfolioReadiness", () => {
         runtimeStatus: "db_backed",
         sourceLabel: "phase109_controlled_local_financials",
       });
+      expect(item.financials.coverage.totalLiabilities).toEqual({
+        status: "available",
+        unit: "billion_vnd",
+        value: 39_000,
+      });
+      expect(item.financials.coverage.totalDebt).toEqual({ status: "unavailable", unit: null, value: null });
+      expect(item.financials.coverage.operatingCashFlow.status).toBe("available");
       expect(item.sharesOutstanding).toEqual({ status: "unavailable", unit: null, value: null });
       expect(item.sharesOutstanding.value).not.toBe(0);
       expect(item.eps).toEqual({ status: "unavailable", value: null });
@@ -219,6 +227,42 @@ describe("loadPortfolioReadiness", () => {
     expect(mwg?.risk.leverageRisk).toBe("insufficient_data");
     expect(mwg?.risk.canClaimRiskDbBacked).toBe(false);
     expect(mwg?.missingInputs).toEqual(expect.arrayContaining(["operatingCashFlow", "equity", "totalDebt"]));
+  });
+
+  it("shows available cash-flow, liquidity, and liabilities coverage while debt leverage remains blocked", async () => {
+    const result = await loadPortfolioReadiness({
+      loadFinancials: async (input = {}) => financialsRuntime(input.ticker ?? "UNKNOWN"),
+      loadTechnical: async (input = {}) => technicalRuntime(input.ticker ?? "UNKNOWN"),
+      readIssuerMetadata: getIssuerMetadata,
+    });
+
+    for (const item of result.tickers) {
+      expect(item.risk.cashFlowQuality).toBe("ready");
+      expect(item.risk.liquidityRisk).toBe("ready");
+      expect(item.risk.leverageRisk).toBe("insufficient_data");
+      expect(item.missingInputs).toContain("totalDebt");
+      expect(item.missingInputs).not.toContain("totalLiabilities");
+    }
+  });
+
+  it("fails financial coverage closed when required unit metadata is invalid", async () => {
+    const runtime = financialsRuntime("FPT");
+    runtime.unitMetadata.operatingCashFlow = {
+      ...runtime.unitMetadata.operatingCashFlow,
+      status: "invalid_unit",
+      unit: "shares",
+    };
+    const result = await loadPortfolioReadiness({
+      loadFinancials: async () => runtime,
+      loadTechnical: async (input = {}) => technicalRuntime(input.ticker ?? "UNKNOWN"),
+      readIssuerMetadata: getIssuerMetadata,
+    });
+
+    expect(result.tickers[0].financials.coverage.operatingCashFlow).toEqual({
+      status: "invalid_unit",
+      unit: null,
+      value: 9_800,
+    });
   });
 
   it("passes bounded VNStock technical read parameters for every ticker", async () => {

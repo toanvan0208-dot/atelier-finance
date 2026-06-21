@@ -1,5 +1,9 @@
 import { getIssuerMetadata, type IssuerMetadataRecord } from "@/lib/data-sources/issuer-metadata-service";
 import type { FinancialsRuntimeData } from "@/features/financials/lib/financials-runtime-types";
+import {
+  buildFinancialStatementCoverage,
+  type FinancialStatementCoverage,
+} from "@/features/financials/lib/financial-statement-coverage";
 import { loadFinancialsRuntimeData, type LoadFinancialsRuntimeDataDeps } from "@/features/financials/lib/load-financials-runtime-data";
 import { buildRiskFinancialsRuntimeConsumption } from "@/features/risk/lib/risk-financials-runtime-consumption";
 import type { TechnicalPageRuntimeData } from "@/features/technical";
@@ -43,6 +47,7 @@ export type PortfolioReadinessItem = {
     dataMode: string;
     fallbackUsed: boolean;
     productionApproved: false;
+    coverage: FinancialStatementCoverage;
   };
   sharesOutstanding: {
     status: "available" | "unavailable";
@@ -178,6 +183,7 @@ const buildItem = ({
   const eps = financials.statementSnapshot?.eps ?? null;
   const blockedMetrics = blockedMetricsFrom({ eps, sharesOutstanding });
   const missingInputs = missingInputsFrom({ financials, metadata, risk, technical });
+  const financialCoverage = buildFinancialStatementCoverage(financials);
 
   return {
     ticker: metadata.ticker as PortfolioReadinessTicker,
@@ -208,6 +214,7 @@ const buildItem = ({
       runtimeStatus: financials.runtimeStatus,
       sourceLabel: financials.source.sourceLabel,
       status: financialsStatus(financials),
+      coverage: financialCoverage,
     },
     sharesOutstanding: {
       status: statusFromBoolean(sharesOutstanding !== null && sharesOutstanding !== undefined) as "available" | "unavailable",
@@ -242,6 +249,7 @@ const buildItem = ({
     dataWarnings: unique([
       "Technical/PVT uses VNStock research candidate rows when DB-backed.",
       "Financials uses controlled local/research rows when DB-backed.",
+      "Liabilities and debt remain separate: available liabilities do not unlock debt-based leverage readiness.",
       "Local DB-backed data remains productionApproved:false.",
       ...metadata.warnings,
       ...(technical.warnings ?? []),

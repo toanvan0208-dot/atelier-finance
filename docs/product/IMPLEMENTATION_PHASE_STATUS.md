@@ -2,11 +2,11 @@
 
 ## 1. Current latest phase
 
-Phase 110 - Portfolio Readiness Backbone for FPT/MWG/VNM
+Phase 111 - Financial Statement Coverage Upgrade for Risk and Valuation Inputs
 
 ## 2. Latest commit
 
-Commit: Phase 110 add portfolio readiness backbone (this phase commit)
+Commit: Phase 111 upgrade financial risk coverage (this phase commit)
 
 ## 3. Current branch expectation
 
@@ -92,6 +92,7 @@ The working tree should be clean before starting a new phase.
 - Phase 108 adds a controlled local/research FPT financials activation path that routes inline reviewed FPT financial rows through the existing Financial Statement safe import MVP, writes to the intended local app DB only by explicit confirm, and lets Financials runtime prefer the DB-backed `phase108_controlled_local_financials` rows without sample fallback. EPS and sharesOutstanding remain null/unavailable.
 - Phase 109 generalizes the controlled Financials activation path to the small FPT/MWG/VNM set. The new `phase109_controlled_local_financials` source remains controlled local/research data, writes through the existing Financial Statement safe import MVP only by explicit confirmation, returns per-ticker audit counts, and lets Financials runtime read each imported ticker from local DB without sample fallback when rows exist.
 - Phase 110 adds a derived portfolio readiness backbone for FPT/MWG/VNM and wires it into Watchlist. It summarizes controlled company metadata, VNStock research-candidate Technical/PVT status, Phase 109 controlled local/research Financials status, missing shares/EPS, and guarded Valuation/Risk readiness without creating a new data source or approval claim.
+- Phase 111 activates Phase 109 total-liabilities values through the Financials read path without relabeling them as total debt, adds explicit per-field Financial Statement coverage to Portfolio Readiness, and exposes cash-flow, liquidity, and leverage readiness separately. Existing FPT/MWG/VNM local DB rows already contained the controlled values, so no new DB write was required.
 
 ## 7. Current known limitations
 
@@ -121,6 +122,7 @@ The working tree should be clean before starting a new phase.
 - Phase 108 controlled FPT financials are local/research data only. Applying the existing FinancialStatementUnitMetadata sidecar migration to ignored `dev.db` may be required before local activation; no reset, seed, db push, schema change, source approval, external financials fetch, or share-count source is added. Valuation remains partial where EPS, sharesOutstanding, market inputs, or source approvals are missing.
 - Phase 109 controlled FPT/MWG/VNM financials are local/research data only. They are not official, realtime, source-approved, or production-approved. EPS and sharesOutstanding remain unavailable/null, so Valuation cannot claim a fully DB-backed state and share-based metrics remain insufficient. Risk consumes available runtime fields only as partial/mixed readiness; Watchlist remains intentionally unwired.
 - Phase 110 portfolio readiness is a derived status layer only. It does not add sharesOutstanding/EPS sources, source/legal approval, market-wide coverage, valuation unlocks, or new ingestion. Watchlist can display FPT/MWG/VNM readiness, but shares/EPS remain unavailable and Valuation/Risk remain guarded.
+- Phase 111 does not add new financial values or a traceable shares/EPS source. Controlled liabilities use the existing legacy storage bridge and remain distinct from total debt; leverage readiness therefore remains insufficient while cash-flow and liquidity readiness can reflect available inputs. Valuation remains guarded and all local/research data stays `productionApproved:false`.
 
 ## 8. Recommended next phase
 

@@ -41,8 +41,8 @@ const resultBase = (patch: Partial<FinancialStatementSeriesResult> = {}): Financ
         operatingIncome: null,
         netIncome: null,
         totalAssets: 2000,
-        totalLiabilities: null,
-        totalDebt: null,
+        totalLiabilities: 1_200,
+        totalDebt: 400,
         totalEquity: 0,
         cashAndEquivalents: null,
         currentAssets: 900,
@@ -82,6 +82,8 @@ describe("adaptFinancialStatementSeries", () => {
       operatingCashFlow: null,
       capitalExpenditure: null,
       totalEquity: 0,
+      totalLiabilities: 1_200,
+      totalDebt: 400,
       eps: -1,
     });
     expect(result.statements[0].metadata).toMatchObject({

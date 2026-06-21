@@ -154,6 +154,10 @@ const DEFAULT_SOURCE_LABEL = "local_financial_statement_research";
 const DEFAULT_DATA_MODE = "research_only";
 const SOURCE_BOUNDARY_WARNING =
   "Financial statement read path is local academic/research only; production approval remains false.";
+const LIABILITIES_STORED_IN_LEGACY_DEBT_FIELD_SOURCES = new Set([
+  "phase108_controlled_local_financials",
+  "phase109_controlled_local_financials",
+]);
 const REQUIRED_FIELDS: Array<keyof FinancialStatementNormalizedValues> = [
   "revenue",
   "netIncome",
@@ -241,23 +245,27 @@ const resolveDb = async (db: FinancialStatementReadDb | undefined): Promise<Fina
   return database.prisma as unknown as FinancialStatementReadDb;
 };
 
-const buildValues = (record: StoredFinancialStatement): FinancialStatementNormalizedValues => ({
-  revenue: toNullableNumber(record.revenue),
-  grossProfit: toNullableNumber(record.grossProfit),
-  operatingIncome: null,
-  netIncome: toNullableNumber(record.netIncome),
-  totalAssets: toNullableNumber(record.totalAssets),
-  totalLiabilities: null,
-  totalDebt: toNullableNumber(record.totalDebt),
-  totalEquity: toNullableNumber(record.equity),
-  cashAndEquivalents: null,
-  currentAssets: toNullableNumber(record.currentAssets),
-  currentLiabilities: toNullableNumber(record.currentLiabilities),
-  operatingCashFlow: toNullableNumber(record.operatingCashFlow),
-  capitalExpenditure: null,
-  sharesOutstanding: toNullableNumber(record.sharesOutstanding),
-  eps: toNullableNumber(record.eps),
-});
+const buildValues = (record: StoredFinancialStatement): FinancialStatementNormalizedValues => {
+  const usesLegacyLiabilitiesStorage = LIABILITIES_STORED_IN_LEGACY_DEBT_FIELD_SOURCES.has(record.sourceLabel);
+
+  return {
+    revenue: toNullableNumber(record.revenue),
+    grossProfit: toNullableNumber(record.grossProfit),
+    operatingIncome: null,
+    netIncome: toNullableNumber(record.netIncome),
+    totalAssets: toNullableNumber(record.totalAssets),
+    totalLiabilities: usesLegacyLiabilitiesStorage ? toNullableNumber(record.totalDebt) : null,
+    totalDebt: usesLegacyLiabilitiesStorage ? null : toNullableNumber(record.totalDebt),
+    totalEquity: toNullableNumber(record.equity),
+    cashAndEquivalents: null,
+    currentAssets: toNullableNumber(record.currentAssets),
+    currentLiabilities: toNullableNumber(record.currentLiabilities),
+    operatingCashFlow: toNullableNumber(record.operatingCashFlow),
+    capitalExpenditure: null,
+    sharesOutstanding: toNullableNumber(record.sharesOutstanding),
+    eps: toNullableNumber(record.eps),
+  };
+};
 
 const unitMetadataPayloadFromSidecar = (
   rows: StoredFinancialStatementUnitMetadata[] | null | undefined,
@@ -336,7 +344,8 @@ const mapRecord = (record: StoredFinancialStatement): FinancialStatementLocalRec
       sharesOutstanding: values.sharesOutstanding,
       sourceName: record.sourceLabel,
       totalAssets: values.totalAssets,
-      totalDebt: values.totalDebt,
+      // Phase 108/109 liabilities use this legacy unit-metadata slot, while the runtime value remains totalLiabilities.
+      totalDebt: values.totalDebt ?? values.totalLiabilities,
       totalEquity: values.totalEquity,
     },
     sourceLabel: record.sourceLabel,
@@ -365,6 +374,9 @@ const mapRecord = (record: StoredFinancialStatement): FinancialStatementLocalRec
       limitations: [
         "Local/research-only financial statement data is not production-approved.",
         "Fields not present in the current DB schema remain null instead of being inferred.",
+        ...(LIABILITIES_STORED_IN_LEGACY_DEBT_FIELD_SOURCES.has(record.sourceLabel)
+          ? ["Controlled totalLiabilities uses the legacy totalDebt storage column; it is not treated as totalDebt."]
+          : []),
       ],
       warnings: [SOURCE_BOUNDARY_WARNING],
     },

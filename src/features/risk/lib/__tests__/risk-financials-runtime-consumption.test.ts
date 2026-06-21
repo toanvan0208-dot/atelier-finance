@@ -74,10 +74,28 @@ describe("risk financials runtime consumption boundary", () => {
     expect(result.unavailableFields).toEqual([
       "revenue",
       "operatingCashFlow",
+      "totalLiabilities",
       "totalDebt",
       "currentAssets",
       "currentLiabilities",
     ]);
+  });
+
+  it("consumes liabilities as coverage context without treating them as total debt", () => {
+    const result = buildRiskFinancialsRuntimeConsumption({
+      financialsRuntimeData: {
+        ...localDbRuntime,
+        statementSnapshot: {
+          ...localDbRuntime.statementSnapshot,
+          totalLiabilities: 1_200,
+          totalDebt: null,
+        },
+      },
+    });
+
+    expect(result.consumedFields).toContain("totalLiabilities");
+    expect(result.unavailableFields).toContain("totalDebt");
+    expect(result.calculationReadiness.leverageRisk).toBe("insufficient_data");
   });
 
   it("keeps operating cash flow missing as insufficient data without strong conclusion wording", () => {

@@ -22,6 +22,8 @@ const blockedMetricLabel = (metric: string): string =>
     .replace(":", " blocked by ")
     .replaceAll("_", " ");
 
+const coverageLabel = (field: string): string => (field === "operatingCashFlow" ? "CFO" : field);
+
 function ReadinessRow({ item }: { item: PortfolioReadinessItem }) {
   const missingInputs = item.missingInputs.length ? item.missingInputs.join(", ") : "none";
   const blockedMetrics = item.blockedMetrics.length
@@ -99,8 +101,20 @@ function ReadinessRow({ item }: { item: PortfolioReadinessItem }) {
             {item.risk.status} · canClaimRiskDbBacked:false
           </p>
           <p className="text-[11px] leading-5 text-muted">
-            source:{item.risk.sourceMode} · leverage:{item.risk.leverageRisk}
+            source:{item.risk.sourceMode} · cash flow:{item.risk.cashFlowQuality} · liquidity:
+            {item.risk.liquidityRisk} · leverage:{item.risk.leverageRisk}
           </p>
+        </div>
+      </div>
+
+      <div className="mt-3 rounded-[3px] border border-border-soft bg-surface px-2 py-2">
+        <p className="text-[11px] font-bold text-subtle">Financial statement coverage</p>
+        <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[11px] leading-5 text-muted">
+          {Object.entries(item.financials.coverage).map(([field, coverage]) => (
+            <span key={field}>
+              {coverageLabel(field)}:{coverage.status}
+            </span>
+          ))}
         </div>
       </div>
 

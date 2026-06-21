@@ -105,6 +105,20 @@ describe("financial statement read service", () => {
     expect(result.records[0].dataQuality.warnings.join(" ")).toContain("non-positive");
   });
 
+  it("activates Phase 109 liabilities from legacy storage without relabeling them as debt", async () => {
+    const findMany = vi.fn().mockResolvedValue([
+      record({ sourceLabel: "phase109_controlled_local_financials", totalDebt: 39_000 }),
+    ]);
+    const result = await getFinancialStatementSeries(
+      { ticker: "FPT", sourceLabel: "phase109_controlled_local_financials" },
+      { db: { financialStatement: { findMany } } },
+    );
+
+    expect(result.records[0].values.totalLiabilities).toBe(39_000);
+    expect(result.records[0].values.totalDebt).toBeNull();
+    expect(result.records[0].source.limitations.join(" ")).toContain("legacy totalDebt storage column");
+  });
+
   it("does not emit prohibited recommendation or trading-signal wording", async () => {
     const findMany = vi.fn().mockResolvedValue([record()]);
     const result = await getFinancialStatementSeries(

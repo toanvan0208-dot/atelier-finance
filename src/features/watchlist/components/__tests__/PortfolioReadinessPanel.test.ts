@@ -28,6 +28,17 @@ const portfolioReadiness: PortfolioReadinessResult = {
     eps: { status: "unavailable", value: null },
     exchange: "HOSE",
     financials: {
+      coverage: {
+        eps: { status: "unavailable", unit: null, value: null },
+        netIncome: { status: "available", unit: "billion_vnd", value: 8_700 },
+        operatingCashFlow: { status: "available", unit: "billion_vnd", value: 9_800 },
+        revenue: { status: "available", unit: "billion_vnd", value: 62_000 },
+        sharesOutstanding: { status: "unavailable", unit: null, value: null },
+        totalAssets: { status: "available", unit: "billion_vnd", value: 75_000 },
+        totalDebt: { status: "unavailable", unit: null, value: null },
+        totalEquity: { status: "available", unit: "billion_vnd", value: 36_000 },
+        totalLiabilities: { status: "available", unit: "billion_vnd", value: 39_000 },
+      },
       dataMode: "research_only",
       fallbackUsed: false,
       productionApproved: false,
@@ -85,6 +96,11 @@ describe("PortfolioReadinessPanel", () => {
     expect(html).toContain("canClaimValuationDbBacked:false");
     expect(html).toContain("canClaimRiskDbBacked:false");
     expect(html).toContain("productionApproved:false");
+    expect(html).toContain("Financial statement coverage");
+    expect(html).toContain("totalLiabilities:available");
+    expect(html).toContain("totalDebt:unavailable");
+    expect(html).toContain("cash flow:ready");
+    expect(html).toContain("liquidity:ready");
   });
 
   it("does not introduce forbidden positive wording", () => {

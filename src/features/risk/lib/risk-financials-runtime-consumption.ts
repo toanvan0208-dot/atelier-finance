@@ -43,6 +43,7 @@ const riskFinancialFields = [
   "netIncome",
   "operatingCashFlow",
   "totalAssets",
+  "totalLiabilities",
   "equity",
   "totalDebt",
   "currentAssets",
