@@ -165,3 +165,7 @@ The focused test performs an actual Prisma-backed temp SQLite write/read-back an
 Phase 81 should stay narrow and source-evidence driven. Recommended next step: decide whether to add a temp-DB runtime loader integration test using the same controlled FPT row, or pause write expansion until source approval and real-file evidence are available.
 
 Do not move to real CSV import, provider ingestion, expanded ticker/year coverage, or production data claims until source/evidence review is complete.
+
+## Phase 82 Follow-up
+
+Phase 82 adds `FINANCIAL_STATEMENT_CSV_TO_PRISMA_TEMP_DB_WRITE_TRIAL.md`. It reuses the Phase 80 temp DB safety pattern after parsing an inline CSV string through the Phase 81 boundary. The Prisma write remains test-only and temp-DB-only, with cleanup verified. No production/dev DB mutation, CSV file, filesystem CSV read, public upload API/UI, source approval, or production-approved claim is added.

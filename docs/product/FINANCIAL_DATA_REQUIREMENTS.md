@@ -83,3 +83,20 @@ CSV parser boundary requirements:
 - duplicate row keys must fail closed;
 - output must remain `writeIntent: draft_only_no_db_write`;
 - parser output must not write DB rows or expose upload/import endpoints.
+
+## Phase 82 CSV Parser To Prisma Temp DB Requirements
+
+Phase 82 records the Financial Statement CSV to Prisma temp DB write trial in `FINANCIAL_STATEMENT_CSV_TO_PRISMA_TEMP_DB_WRITE_TRIAL.md`.
+
+Parser-to-write requirements:
+
+- input must remain an inline CSV string fixture only;
+- parser result must have `writeIntent: draft_only_no_db_write`;
+- any parser blocked row must prevent Prisma write;
+- valid parser output may map to a test-only temp DB write payload;
+- Prisma writes must use an OS temp SQLite DB outside tracked repo paths;
+- temp DB cleanup must be verified;
+- `prisma/dev.db` and production/dev databases must not be mutated;
+- no CSV fixture file, raw CSV file, or filesystem CSV read is allowed;
+- read-back must verify explicit revenue, equity/totalEquity, sharesOutstanding, and EPS units;
+- source/evidence status remains not approved and `productionApproved:false`.

@@ -193,3 +193,7 @@ Focused tests use inline CSV strings only.
 Phase 82 should remain controlled. Recommended next step: decide whether this parser boundary should feed a dry-run-only mapper into the existing Phase 78/79/80 FPT write-intent flow, still without reading files or writing DB.
 
 Do not add public upload, real CSV file import, provider ingestion, DB writes, or production-approved claims until source/evidence review is complete.
+
+## Phase 82 Follow-up
+
+Phase 82 adds `FINANCIAL_STATEMENT_CSV_TO_PRISMA_TEMP_DB_WRITE_TRIAL.md`. It connects the string-only parser boundary to a Prisma temp DB write trial using a tiny inline CSV fixture. Any parser blocked row prevents write. No CSV file, filesystem read, real import, production/dev DB mutation, public upload API/UI, source approval, or new metric is added.
