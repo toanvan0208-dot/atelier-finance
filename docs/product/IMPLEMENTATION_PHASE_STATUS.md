@@ -2,11 +2,11 @@
 
 ## 1. Current latest phase
 
-Phase 93 - Real Financial Statement Import MVP with Safe Local DB Write
+Phase 94 - Financials DB-backed UI Read Path Hardening
 
 ## 2. Latest commit
 
-Commit: Phase 93 add safe financial statement import mvp (this phase commit)
+Commit: Phase 94 harden financials db backed read path (this phase commit)
 
 ## 3. Current branch expectation
 
@@ -30,6 +30,7 @@ The working tree should be clean before starting a new phase.
 - Product demo flow browser smoke evidence exists across Overview, Financials, Valuation, Technical/PVT, Macro, and Industry.
 - Productization evidence index and safe demo narrative now connect Overview, Financials, Valuation, Technical/PVT, Macro, Industry, AI/RAG, browser smoke, guardrails, known limitations, and future gates.
 - Safe Financial Statement CSV import MVP exists for controlled local/research CSV text: preview/dry-run, valid/invalid separation, confirmed local DB write, duplicate skip, and import summary reporting.
+- Financials UI runtime now tries the local DB-backed read path first and safely falls back to static sample data when no usable local/imported financial statement rows are available.
 
 ## 5. Current validated data pipeline state
 
@@ -46,6 +47,7 @@ The working tree should be clean before starting a new phase.
 - Phase 91 browser smoke verification confirmed the core workspace demo routes render without source approval or ingestion changes.
 - Phase 92 adds docs-only evidence organization and a safe walkthrough; it does not add runtime behavior, ingestion, writes, metrics, APIs, source approval, or browser-visible UI changes.
 - Phase 93 reuses the existing Phase 81 parser boundary and local write service to write only valid research-only rows after code-level confirmation; invalid rows remain out of DB and imported rows remain `productionApproved:false`.
+- Phase 94 hardens the Financials UI read path so verified local/imported DB rows are preferred when usable, missing numeric values remain null/unavailable, and sample fallback remains safe when DB rows are absent or insufficient.
 
 ## 6. Current UI/readiness state
 
@@ -58,6 +60,7 @@ The working tree should be clean before starting a new phase.
 - Phase 91 verified Overview, Financials, Valuation, Technical/PVT, Macro, and Industry routes load normally with no framework overlay, no blocking console errors, and no forbidden browser-visible wording observed in the smoke pass.
 - Phase 92 documents how to present that UI in a thesis/demo without overclaiming production source status or investment conclusions.
 - Phase 93 does not change UI/browser-visible behavior and does not make Valuation or Overview inherit production/source approval from imported Financials rows.
+- Phase 94 changes Financials runtime behavior to prefer usable local DB rows, but Financials DB-backed status still remains scoped to Financials and does not make Overview or Valuation fully DB-backed or production-approved.
 
 ## 7. Current known limitations
 
@@ -71,6 +74,7 @@ The working tree should be clean before starting a new phase.
 - Browser smoke evidence is local verification only; it does not replace a future deployed environment QA pass.
 - Productization evidence docs are an index/narrative only; they do not replace source/legal approval or deployed QA.
 - Phase 93 import MVP is code-level/local only; no public upload UI/API, production CSV importer, source approval workflow, real web/API fetcher, or official/realtime data claim exists.
+- Phase 94 does not add public upload UI/API, filesystem CSV import, source approval, production provider ingestion, or new valuation metrics; local DB reads still depend on rows already present in the dev/local database.
 
 ## 8. Recommended next phase
 

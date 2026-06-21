@@ -54,7 +54,7 @@ const overviewStatusFromFinancials = (
   if (!runtimeData) return "not_wired";
   if (runtimeData.runtimeStatus === "sample_fallback") return "sample_fallback";
   if (runtimeData.source.readPath === "sample_static") return "sample_static";
-  if (runtimeData.runtimeStatus === "db_backed") return "mixed_source";
+  if (runtimeData.runtimeStatus === "db_backed" && runtimeData.source.readPath === "local_db") return "mixed_source";
   return "financials_runtime_partial";
 };
 

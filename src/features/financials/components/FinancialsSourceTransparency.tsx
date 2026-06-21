@@ -17,7 +17,7 @@ const sourceNote = (runtimeData: FinancialsRuntimeData): string => {
   }
 
   if (runtimeData.runtimeStatus === "sample_fallback") {
-    return "Du lieu mau tinh (static sample). Fallback dang bat; DB-backed financials chi bat khi ATELIER_FINANCIALS_DB_SOURCE=enabled.";
+    return "Du lieu mau tinh (static sample). Fallback dang bat vi chua co local/imported financial statements usable.";
   }
 
   return "Nguon du lieu chua co trang thai duyet cho san xuat; can doc kem pham vi va thoi diem cap nhat.";

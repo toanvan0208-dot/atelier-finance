@@ -112,7 +112,9 @@ const valuationRuntimeStatus = ({
   if (!financialsRuntimeData) return hasPersistedLocalInputBridge ? "persisted_local_input" : "not_wired";
   if (financialsRuntimeData.runtimeStatus === "sample_fallback") return "sample_fallback";
   if (financialsRuntimeData.source.readPath === "sample_static") return "sample_static";
-  if (valuationConsumesFinancialsRuntime) return "financials_runtime_ready";
+  if (valuationConsumesFinancialsRuntime && financialsRuntimeData.source.readPath === "local_db") {
+    return "financials_runtime_ready";
+  }
   return hasPersistedLocalInputBridge ? "mixed_source" : "financials_runtime_available";
 };
 

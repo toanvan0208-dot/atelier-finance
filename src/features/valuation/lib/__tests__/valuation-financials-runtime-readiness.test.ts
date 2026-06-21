@@ -69,6 +69,26 @@ describe("valuation financials runtime readiness boundary", () => {
     expect(readiness.warnings).toContain("Financials runtime available, but Valuation calculation is not yet wired.");
   });
 
+  it("does not mark Valuation runtime ready when Financials status is inconsistent with a local DB read path", () => {
+    const readiness = buildValuationFinancialsRuntimeReadiness({
+      financialsRuntimeData: {
+        ...localDbFinancialsRuntime,
+        source: {
+          ...localDbFinancialsRuntime.source,
+          readPath: "unavailable",
+        },
+      },
+      valuationConsumesFinancialsRuntime: true,
+      inputs: { eps: 100, equity: 1200, marketPrice: 50, sharesOutstanding: 100 },
+    });
+
+    expect(readiness.financialsRuntimeStatus).toBe("db_backed");
+    expect(readiness.financialsReadPath).toBe("unavailable");
+    expect(readiness.valuationRuntimeStatus).toBe("mixed_source");
+    expect(readiness.canClaimValuationDbBacked).toBe(false);
+    expect(readiness.productionApproved).toBe(false);
+  });
+
   it("marks P/E not ready when EPS is missing without cheap or normal interpretation wording", () => {
     const readiness = buildValuationFinancialsRuntimeReadiness({
       inputs: { eps: null, equity: 1000, marketPrice: 20, sharesOutstanding: 100 },

@@ -97,6 +97,21 @@ describe("overview financials runtime boundary", () => {
     expect(boundary.warnings).toContain("Financials fallback is active; Overview must label this as fallback-derived.");
   });
 
+  it("does not mark Overview mixed-source DB-backed when Financials did not actually use local DB rows", () => {
+    const boundary = buildOverviewFinancialsRuntimeBoundary({
+      ...financialsRuntime,
+      source: {
+        ...financialsRuntime.source,
+        readPath: "unavailable",
+      },
+    });
+
+    expect(boundary.financialsRuntimeStatus).toBe("db_backed");
+    expect(boundary.financialsReadPath).toBe("unavailable");
+    expect(boundary.overviewRuntimeStatus).toBe("financials_runtime_partial");
+    expect(boundary.canClaimOverviewDbBacked).toBe(false);
+  });
+
   it("preserves missing Financials fields as null and unavailable instead of zero filling", () => {
     const boundary = buildOverviewFinancialsRuntimeBoundary(financialsRuntime);
 

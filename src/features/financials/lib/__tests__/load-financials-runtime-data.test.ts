@@ -71,11 +71,32 @@ const seriesResult = (
 });
 
 describe("loadFinancialsRuntimeData", () => {
-  it("uses sample fallback by default without reading DB", async () => {
+  it("uses DB-backed local rows by default when valid records are available", async () => {
     let readCalled = false;
 
     const result = await loadFinancialsRuntimeData(
       {},
+      {
+        readSeries: async () => {
+          readCalled = true;
+          return seriesResult();
+        },
+      },
+    );
+
+    expect(readCalled).toBe(true);
+    expect(result.runtimeStatus).toBe("db_backed");
+    expect(result.source.readPath).toBe("local_db");
+    expect(result.source.fallbackUsed).toBe(false);
+    expect(result.source.productionApproved).toBe(false);
+    expect(result.statementSnapshot?.revenue).toBe(1000);
+  });
+
+  it("uses sample fallback without reading DB when DB reads are explicitly disabled", async () => {
+    let readCalled = false;
+
+    const result = await loadFinancialsRuntimeData(
+      { preferDb: false },
       {
         readSeries: async () => {
           readCalled = true;
@@ -93,16 +114,53 @@ describe("loadFinancialsRuntimeData", () => {
     expect(result.unitMetadata.revenue.unit).toBe("unknown");
   });
 
-  it("reads DB-backed records when explicitly requested", async () => {
+  it("uses sample fallback without reading DB when the DB source env is disabled", async () => {
+    let readCalled = false;
+
     const result = await loadFinancialsRuntimeData(
-      { ticker: "FPT", preferDb: true, sourceLabel, dataMode: "research_only" },
-      { readSeries: async () => seriesResult() },
+      { env: { ATELIER_FINANCIALS_DB_SOURCE: "disabled" } },
+      {
+        readSeries: async () => {
+          readCalled = true;
+          return seriesResult();
+        },
+      },
+    );
+
+    expect(readCalled).toBe(false);
+    expect(result.runtimeStatus).toBe("sample_fallback");
+    expect(result.source.readPath).toBe("sample_static");
+    expect(result.dataQuality.warnings.join(" ")).toContain("no usable local DB financial statements were available");
+  });
+
+  it("reads DB-backed imported-local records when available", async () => {
+    const importedSourceLabel = "imported_local_financial_statement";
+    const importedRecord = seriesResult().records[0];
+    const result = await loadFinancialsRuntimeData(
+      { ticker: "FPT", sourceLabel: importedSourceLabel, dataMode: "manual" },
+      {
+        readSeries: async () =>
+          seriesResult({
+            sourceLabel: importedSourceLabel,
+            dataMode: "manual",
+            records: [
+              {
+                ...importedRecord,
+                source: {
+                  ...importedRecord.source,
+                  sourceLabel: importedSourceLabel,
+                  dataMode: "manual",
+                },
+              },
+            ],
+          }),
+      },
     );
 
     expect(result.runtimeStatus).toBe("db_backed");
     expect(result.source).toMatchObject({
-      sourceLabel,
-      dataMode: "research_only",
+      sourceLabel: importedSourceLabel,
+      dataMode: "manual",
       productionApproved: false,
       fallbackUsed: false,
       readPath: "local_db",

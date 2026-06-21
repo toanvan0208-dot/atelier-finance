@@ -31,8 +31,8 @@ const DEFAULT_DB_SOURCE_LABEL = "phase45_synthetic_financial_statement_local_wri
 const DEFAULT_DATA_MODE = "research_only";
 const SAMPLE_SOURCE_LABEL = "static_sample_financials";
 
-const isDbEnabled = (options: LoadFinancialsRuntimeDataOptions): boolean =>
-  options.preferDb === true || options.env?.[DB_ENV_FLAG] === "enabled" || process.env[DB_ENV_FLAG] === "enabled";
+const isDbDisabled = (options: LoadFinancialsRuntimeDataOptions): boolean =>
+  options.preferDb === false || options.env?.[DB_ENV_FLAG] === "disabled" || process.env[DB_ENV_FLAG] === "disabled";
 
 const sampleSnapshot = (ticker: string): FinancialsStatementSnapshot => ({
   ticker: financialsPageData.header.ticker || ticker,
@@ -85,7 +85,7 @@ const sampleFallback = ({
     status: "unavailable",
     missingFields: [],
     warnings: [
-      "Financials runtime is using static sample data; DB-backed financial statements are not enabled.",
+      "Financials runtime is using static sample data; no usable local DB financial statements were available.",
       ...warnings,
     ],
     errors,
@@ -202,7 +202,7 @@ export const loadFinancialsRuntimeData = async (
   const dataMode = options.dataMode?.trim() || DEFAULT_DATA_MODE;
   const allowFallback = options.allowFallback !== false;
 
-  if (!isDbEnabled(options)) return sampleFallback({ ticker });
+  if (isDbDisabled(options)) return sampleFallback({ ticker });
 
   try {
     const readSeries =

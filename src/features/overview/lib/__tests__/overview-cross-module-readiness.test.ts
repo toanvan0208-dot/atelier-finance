@@ -65,6 +65,12 @@ const item = (moduleKey: string) => {
   return found;
 };
 
+const itemFor = (moduleKey: string, data: FinancialsRuntimeData) => {
+  const found = buildOverviewCrossModuleReadinessSummary(data).items.find((readiness) => readiness.moduleKey === moduleKey);
+  if (!found) throw new Error(`Missing module readiness item: ${moduleKey}`);
+  return found;
+};
+
 describe("overview cross-module readiness summary", () => {
   it("includes Financials readiness with source, unit, missing data, and productionApproved:false", () => {
     const financials = item("financials");
@@ -76,6 +82,25 @@ describe("overview cross-module readiness summary", () => {
     expect(financials.blockedReasons).toEqual(
       expect.arrayContaining(["operatingCashFlow_missing", "eps_missing", "productionApproved:false"]),
     );
+  });
+
+  it("marks Financials db_backed only when runtime actually used local DB rows", () => {
+    const dbBackedFinancials = itemFor("financials", {
+      ...runtimeData(),
+      runtimeStatus: "db_backed",
+      source: {
+        ...runtimeData().source,
+        dataMode: "research_only",
+        fallbackUsed: false,
+        readPath: "local_db",
+      },
+    });
+    const fallbackFinancials = itemFor("financials", runtimeData());
+
+    expect(dbBackedFinancials.dataMode).toBe("db_backed");
+    expect(dbBackedFinancials.productionApproved).toBe(false);
+    expect(fallbackFinancials.dataMode).toBe("sample");
+    expect(JSON.stringify(fallbackFinancials)).not.toContain('"dataMode":"db_backed"');
   });
 
   it("includes Valuation boundary status without claiming full DB-backed readiness", () => {
