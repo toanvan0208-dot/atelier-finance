@@ -151,3 +151,9 @@ Maximum safe scope:
 - preserve backward compatibility for existing rows;
 - keep `productionApproved:false`;
 - do not add metrics, target price, fair value, recommendation, EV, DCF, or Risk scoring.
+
+## 13. Phase 67 Follow-up
+
+Phase 67 adds `ADDITIVE_FINANCIALS_UNIT_METADATA_STORAGE_DESIGN_AND_MIGRATION_SAFETY_REVIEW.md` and a pure storage-plan helper. The review recommends a future additive sidecar table for `FinancialStatementUnitMetadata` because the current SQLite schema has no safe row-level metadata field and field-level trace is needed.
+
+No migration was applied, no DB write was performed, and the Phase 66 read-back boundary remains the runtime fallback for missing or invalid persisted metadata.

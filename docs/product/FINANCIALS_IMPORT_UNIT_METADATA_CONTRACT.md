@@ -126,3 +126,9 @@ Phase 65 adds `SOURCE_SPECIFIC_FINANCIALS_IMPORT_UNIT_CAPTURE.md`. The local CSV
 ## 11. Phase 66 Follow-up
 
 Phase 66 adds `FINANCIALS_UNIT_METADATA_PERSISTENCE_READBACK_BOUNDARY.md`. No schema migration was made; instead a pure persistence payload helper validates field-level unit sidecars and the Financials runtime loader can consume adapted statement `unitMetadata` when a future repository provides it.
+
+## 12. Phase 67 Follow-up
+
+Phase 67 adds `ADDITIVE_FINANCIALS_UNIT_METADATA_STORAGE_DESIGN_AND_MIGRATION_SAFETY_REVIEW.md`. The contract remains the validator for allowed Financials fields and units, while the storage review recommends a future additive sidecar table to persist one unit metadata record per statement field.
+
+The review does not apply a migration, write DB rows, or change the existing `unknown_unit` behavior for old rows.

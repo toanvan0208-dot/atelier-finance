@@ -145,3 +145,9 @@ Maximum safe scope:
 ## 14. Phase 66 Follow-up
 
 Phase 66 adds `FINANCIALS_UNIT_METADATA_PERSISTENCE_READBACK_BOUNDARY.md`. The current schema has no safe field-level metadata column, so DB persistence remains deferred. A pure payload/read-back helper now defines the boundary, and runtime sidecar handoff is ready when a repository provides validated metadata.
+
+## 15. Phase 67 Follow-up
+
+Phase 67 adds `ADDITIVE_FINANCIALS_UNIT_METADATA_STORAGE_DESIGN_AND_MIGRATION_SAFETY_REVIEW.md`. It recommends a future additive `FinancialStatementUnitMetadata` sidecar table after approval, while keeping Phase 65 CSV unit capture as import/runtime metadata only until persistence is implemented.
+
+No migration, DB write, reset, seed, real BCTC import, or source approval is added by the storage review.

@@ -278,6 +278,8 @@ Phase 65 adds source-specific Financials import unit capture in `SOURCE_SPECIFIC
 
 Phase 66 adds a Financials unit metadata persistence/read-back boundary in `FINANCIALS_UNIT_METADATA_PERSISTENCE_READBACK_BOUNDARY.md`. Because the current schema lacks a safe field-level metadata column, DB persistence remains deferred. A pure payload helper and runtime handoff path now validate sidecars without approving sources or changing visible UI.
 
+Phase 67 adds an additive Financials unit metadata storage design and migration safety review in `ADDITIVE_FINANCIALS_UNIT_METADATA_STORAGE_DESIGN_AND_MIGRATION_SAFETY_REVIEW.md`. The review audits the SQLite `FinancialStatement` schema, compares JSON field, sidecar table, and deferred payload-only options, and recommends a future sidecar table with a machine-readable safety checklist. No migration, DB write, reset, seed, source approval, UI change, or new metric is added.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot

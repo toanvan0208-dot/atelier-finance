@@ -219,3 +219,9 @@ Phase 65 adds `SOURCE_SPECIFIC_FINANCIALS_IMPORT_UNIT_CAPTURE.md`. CSV dry-run r
 ## 15. Phase 66 Follow-up
 
 Phase 66 adds `FINANCIALS_UNIT_METADATA_PERSISTENCE_READBACK_BOUNDARY.md`. The tested runtime handoff can pass validated Financials unit metadata into the controlled Valuation integration boundary. If metadata is missing or invalid, the existing Phase 63 unknown-unit behavior still blocks scale-sensitive calculations.
+
+## 16. Phase 67 Follow-up
+
+Phase 67 adds `ADDITIVE_FINANCIALS_UNIT_METADATA_STORAGE_DESIGN_AND_MIGRATION_SAFETY_REVIEW.md`. The recommended sidecar-table design would let a later phase persist field-level Financials unit metadata, but this review does not change Valuation readiness.
+
+Until a later implementation writes and reads validated explicit units, Phase 63 normalization still treats missing or invalid metadata as insufficient for scale-sensitive calculations.
