@@ -138,3 +138,7 @@ The review does not apply a migration, write DB rows, or change the existing `un
 Phase 68 adds `ADDITIVE_FINANCIALS_UNIT_METADATA_PERSISTENCE_IMPLEMENTATION.md`. The Phase 64 contract now gates both sidecar write selection and sidecar read-back validation: only recognized Financials fields can be persisted as explicit metadata, and invalid persisted units are downgraded rather than accepted.
 
 The sidecar implementation does not infer units from magnitude and does not make local/research/sample data production-approved.
+
+## 14. Phase 69 Follow-up
+
+Phase 69 adds `CONTROLLED_UNIT_METADATA_WRITE_TRIAL.md`. The controlled synthetic trial confirms the contract-owned fields can persist explicit units through the sidecar and return through read-back/runtime metadata without changing source approval.

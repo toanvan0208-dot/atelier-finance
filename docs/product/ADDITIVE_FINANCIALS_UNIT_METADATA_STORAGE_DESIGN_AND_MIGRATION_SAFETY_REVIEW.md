@@ -222,3 +222,7 @@ Maximum scope:
 Phase 68 adds `ADDITIVE_FINANCIALS_UNIT_METADATA_PERSISTENCE_IMPLEMENTATION.md`. The approved sidecar design is now represented by an additive `FinancialStatementUnitMetadata` schema model, a sidecar-only migration, controlled write/read-back service wiring, and tests for old-row compatibility and invalid metadata fail-closed behavior.
 
 No reset, seed, real BCTC import, external API call, UI change, source approval, new metric, target price, fair value range, recommendation, or Risk scoring is added.
+
+## 16. Phase 69 Follow-up
+
+Phase 69 adds `CONTROLLED_UNIT_METADATA_WRITE_TRIAL.md`. The sidecar storage design was exercised with one synthetic explicit-unit row in a temporary SQLite DB outside the repo. Sidecar persistence, read-back, runtime handoff, and controlled Valuation handoff were verified without committing DB files or generated Prisma output.

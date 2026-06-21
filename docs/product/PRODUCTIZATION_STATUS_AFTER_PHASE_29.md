@@ -282,6 +282,8 @@ Phase 67 adds an additive Financials unit metadata storage design and migration 
 
 Phase 68 adds additive Financials unit metadata sidecar persistence in `ADDITIVE_FINANCIALS_UNIT_METADATA_PERSISTENCE_IMPLEMENTATION.md`. `FinancialStatementUnitMetadata` is added as a sidecar model/table with unique statement-field protection, controlled local write/read-back wiring, and runtime/Valuation handoff tests. Old rows remain compatible, invalid metadata fails closed, and no reset, seed, real BCTC import, external API call, source approval, UI change, or new metric is added.
 
+Phase 69 adds a controlled unit metadata write trial in `CONTROLLED_UNIT_METADATA_WRITE_TRIAL.md`. The existing repo-root `dev.db` could not use `prisma migrate deploy` without a migration baseline, so the trial used a temporary SQLite DB outside the repo, applied existing additive SQL migrations there, wrote one synthetic explicit-unit Financials row, verified ten sidecar unit rows, and read the metadata back through runtime and controlled Valuation boundaries. No DB file, generated Prisma output, raw CSV/JSON output, reset, seed, real BCTC import, UI change, or new metric is committed.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot

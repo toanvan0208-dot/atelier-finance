@@ -163,3 +163,7 @@ No migration was applied, no DB write was performed, and the Phase 66 read-back 
 Phase 68 adds `ADDITIVE_FINANCIALS_UNIT_METADATA_PERSISTENCE_IMPLEMENTATION.md`. `FinancialStatementUnitMetadata` is now an additive sidecar model/table with unique statement-field protection, and the read-back path converts sidecar rows through the Phase 66 validation helper before exposing runtime unit metadata.
 
 Old rows without sidecar rows still read as `unknown_unit` or `missing`, invalid sidecar rows fail closed, and `productionApproved:false` remains preserved.
+
+## 15. Phase 69 Follow-up
+
+Phase 69 adds `CONTROLLED_UNIT_METADATA_WRITE_TRIAL.md`. The controlled trial verified that explicit sidecar rows can be persisted and read back into the Financials runtime sidecar. It used synthetic local data only and kept missing/old-row and invalid-metadata safeguards covered by the existing tests.

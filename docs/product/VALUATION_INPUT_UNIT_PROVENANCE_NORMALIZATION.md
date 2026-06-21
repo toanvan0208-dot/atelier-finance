@@ -231,3 +231,7 @@ Until a later implementation writes and reads validated explicit units, Phase 63
 Phase 68 adds `ADDITIVE_FINANCIALS_UNIT_METADATA_PERSISTENCE_IMPLEMENTATION.md`. Valid Financials sidecar rows can now flow through read-back and runtime unit metadata into the controlled Valuation boundary.
 
 Valuation readiness still requires explicit market input units where market inputs are needed. Missing or invalid Financials units remain insufficient, `marketPrice` and `marketCap` remain non-Financials-owned, and `canClaimValuationDbBacked:false` remains preserved.
+
+## 18. Phase 69 Follow-up
+
+Phase 69 adds `CONTROLLED_UNIT_METADATA_WRITE_TRIAL.md`. The synthetic trial verified explicit Financials units reached the controlled Valuation boundary from runtime sidecar metadata. Market input ownership stayed separate, `productionApproved:false` and `canClaimValuationDbBacked:false` stayed preserved, and EV/DCF remained blocked.

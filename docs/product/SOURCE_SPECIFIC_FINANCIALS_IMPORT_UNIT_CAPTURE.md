@@ -157,3 +157,7 @@ No migration, DB write, reset, seed, real BCTC import, or source approval is add
 Phase 68 adds `ADDITIVE_FINANCIALS_UNIT_METADATA_PERSISTENCE_IMPLEMENTATION.md`. Controlled local write now persists explicit Phase 65 unit metadata into the additive sidecar table for recognized Financials fields only, and read-back validates those rows before runtime use.
 
 Missing unit metadata remains compatible, invalid metadata fails closed, and marketPrice/marketCap remain outside Financials import unit ownership.
+
+## 17. Phase 69 Follow-up
+
+Phase 69 adds `CONTROLLED_UNIT_METADATA_WRITE_TRIAL.md`. A synthetic CSV row with explicit unit columns produced one accepted dry-run row and ten persisted sidecar unit rows in a temporary local DB trial. No raw CSV file, JSON output, DB file, or generated Prisma output was committed.

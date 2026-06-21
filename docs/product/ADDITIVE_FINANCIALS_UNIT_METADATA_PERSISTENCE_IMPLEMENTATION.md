@@ -233,3 +233,9 @@ Maximum scope:
 - read back the sidecar rows;
 - verify Financials runtime and Valuation boundary behavior from the local DB;
 - keep DB files, generated Prisma client, raw CSV/JSON, and screenshots out of the commit unless explicitly requested.
+
+## 14. Phase 69 Follow-up
+
+Phase 69 adds `CONTROLLED_UNIT_METADATA_WRITE_TRIAL.md`. A synthetic explicit-unit write trial was run against a temporary SQLite DB outside the repo after applying the existing additive SQL migrations there. The trial inserted one synthetic Financials row plus ten explicit sidecar unit rows, read them back into runtime metadata, and passed the explicit Financials units into the controlled Valuation boundary.
+
+The existing repo-root `dev.db` was not reset or seeded and was not committed. Generated Prisma output and temp artifacts were cleaned up before commit.
