@@ -179,7 +179,7 @@ const basePvtObservationData: PVTObservationData = {
     upside: "+9,5%",
     downside: "-9,5%",
     conclusion:
-      "Tỷ lệ rủi ro/lợi nhuận ngắn hạn chưa hấp dẫn vì upside và downside gần tương đương.",
+      "Tỷ lệ rủi ro/lợi nhuận ngắn hạn chưa hấp dẫn vì biên tăng và biên giảm gần tương đương.",
   },
   fomo: {
     level: "Trung bình",

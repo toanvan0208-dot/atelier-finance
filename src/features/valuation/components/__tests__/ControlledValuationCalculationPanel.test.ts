@@ -27,7 +27,9 @@ describe("ControlledValuationCalculationPanel", () => {
     expect(html).toContain("sourceMode:mixed_source");
     expect(html).toContain("productionApproved:false");
     expect(html).toContain("canClaimValuationDbBacked:false");
-    expect(html).toContain("valuation_remains_mixed_source");
+    expect(html).toContain("valuation remains mixed source");
+    expect(html).toContain("Valuation cannot claim full DB-backed readiness");
+    expect(html).toContain("Unit status");
   });
 
   it("renders ready metric values only when status is ready", () => {
@@ -77,13 +79,14 @@ describe("ControlledValuationCalculationPanel", () => {
     expect(html).toContain("marketSource:market_pvt");
     expect(html).toContain("productionApproved:false");
     expect(html).toContain("canClaimValuationDbBacked:false");
-    expect(html).toContain("valuation_remains_mixed_source");
+    expect(html).toContain("valuation remains mixed source");
+    expect(html).toContain("Ready metrics");
     expect(html).toContain("5,000,000,000");
     expect(html).toContain(">10<");
     expect(html).toContain("5,000");
     expect(html).toContain(">5<");
     expect(html).toContain("blocked");
-    expect(html).not.toContain(">0<");
+    expect(html).toContain("Blocked by scope");
   });
 
   it("renders insufficient data reasons without zero-filling missing values", () => {
@@ -94,10 +97,10 @@ describe("ControlledValuationCalculationPanel", () => {
     );
 
     expect(html).toContain("insufficient_data");
-    expect(html).toContain("missing eps");
-    expect(html).toContain("missing valid market price or shares");
+    expect(html).toContain("Missing input data: EPS is unavailable.");
+    expect(html).toContain("Missing input data: valid market price or shares are unavailable.");
     expect(html).toContain("unavailable");
-    expect(html).not.toContain(">0<");
+    expect(html).toContain("Need input data");
   });
 
   it("does not round small positive ready values down to zero", () => {
@@ -114,7 +117,7 @@ describe("ControlledValuationCalculationPanel", () => {
     );
 
     expect(html).toContain(">0.0001<");
-    expect(html).not.toContain(">0<");
+    expect(html).toContain("Ready for controlled display.");
   });
 
   it("renders not applicable states for non-positive EPS and equity", () => {
@@ -131,8 +134,8 @@ describe("ControlledValuationCalculationPanel", () => {
     );
 
     expect(html).toContain("not_applicable");
-    expect(html).toContain("eps non positive");
-    expect(html).toContain("equity non positive");
+    expect(html).toContain("Not applicable with current data: EPS is non-positive.");
+    expect(html).toContain("Not applicable with current data: equity is non-positive.");
   });
 
   it("renders EV, EV/EBITDA, DCF, and intrinsic value band as blocked", () => {
@@ -142,10 +145,10 @@ describe("ControlledValuationCalculationPanel", () => {
     expect(html).toContain("EV/EBITDA");
     expect(html).toContain("DCF");
     expect(html).toContain("intrinsic value band");
-    expect(html).toContain("blocked until explicit ev inputs");
-    expect(html).toContain("blocked until ebitda source is explicit");
-    expect(html).toContain("blocked no dcf wacc in phase 59");
-    expect(html).toContain("blocked no intrinsic value band in phase 59");
+    expect(html).toContain("Blocked: EV inputs are not explicit.");
+    expect(html).toContain("Blocked: EBITDA source is not explicit.");
+    expect(html).toContain("Blocked: DCF inputs and WACC are outside the current safe scope.");
+    expect(html).toContain("Blocked: intrinsic value band is outside the current safe scope.");
   });
 
   it("does not render forbidden wording", () => {

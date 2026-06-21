@@ -53,6 +53,8 @@ const boundaryValue = (value: string | number | boolean | null | undefined): str
   return String(value);
 };
 
+const readableBoundaryValue = (value: string): string => value.replace(/_/g, " ");
+
 const buildBridgeData = (result: ValuationApiInputs): ValuationRefactoredData => {
   const data = buildValuationDeskData(baseValuationRefactoredData, result.snapshot);
   const ticker = result.snapshot.ticker ?? result.ticker;
@@ -85,6 +87,32 @@ function ValuationFinancialsRuntimeNote({ boundary }: { boundary: ValuationFinan
     ["roe", boundary.calculationReadiness.roe],
     ["marketCap", boundary.calculationReadiness.marketCap],
   ] as const;
+  const sourceSummaryRows = [
+    [
+      "Source state",
+      boundary.valuationSourceMode === "sample_fallback"
+        ? "sample/static fallback; use as local review context only"
+        : `${readableBoundaryValue(boundary.valuationSourceMode)}; Valuation remains boundary-scoped`,
+    ],
+    [
+      "DB-backed claim",
+      boundary.canClaimValuationDbBacked
+        ? "eligible for a Valuation DB-backed claim"
+        : "canClaimValuationDbBacked:false because inputs and approvals are separate",
+    ],
+    [
+      "Input coverage",
+      boundary.unavailableFields.length
+        ? `missing or unavailable: ${boundary.unavailableFields.join(", ")}`
+        : "tracked Financials runtime fields are available",
+    ],
+    [
+      "Source approval",
+      boundary.productionApproved
+        ? "source approval requires separate evidence"
+        : "productionApproved:false; local/research/sample context only",
+    ],
+  ] as const;
 
   return (
     <section className="rounded-[4px] border border-[#D6B15C] bg-[#FFF8E5] px-4 py-4 text-sm text-[#765416]">
@@ -102,6 +130,14 @@ function ValuationFinancialsRuntimeNote({ boundary }: { boundary: ValuationFinan
           <p className="mt-1">
             Local Financials runtime data is research-only. Missing EPS, equity, market price, or shares keep dependent metrics unavailable or not_applicable.
           </p>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            {sourceSummaryRows.map(([label, value]) => (
+              <div className="rounded-[4px] border border-[#E8CC82] bg-white/55 px-3 py-2" key={label}>
+                <p className="text-[11px] font-bold uppercase tracking-[0.02em]">{label}</p>
+                <p className="mt-1 leading-5">{value}</p>
+              </div>
+            ))}
+          </div>
           <p className="mt-1">
             Consumed fields: {boundary.consumedFields.length ? boundary.consumedFields.join(", ") : "none"}.
           </p>
@@ -109,7 +145,9 @@ function ValuationFinancialsRuntimeNote({ boundary }: { boundary: ValuationFinan
             Unavailable fields: {boundary.unavailableFields.length ? boundary.unavailableFields.join(", ") : "none"}.
           </p>
           {boundary.warnings.length > 0 ? (
-            <p className="mt-2">Boundary warnings: {boundary.warnings.slice(0, 4).join(" | ")}</p>
+            <p className="mt-2">
+              Boundary warnings: {boundary.warnings.slice(0, 4).map(readableBoundaryValue).join(" | ")}
+            </p>
           ) : null}
         </div>
         <div className="grid min-w-0 gap-3 text-xs lg:min-w-[360px]">

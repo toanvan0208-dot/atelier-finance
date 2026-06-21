@@ -15,8 +15,8 @@ export function PVTRiskRewardZone({ data }: PVTRiskRewardZoneProps) {
     { label: "Giá hiện tại", value: formatPrice(data.currentPrice) },
     { label: "Hỗ trợ gần", value: formatPrice(data.supportPrice) },
     { label: "Kháng cự gần", value: formatPrice(data.resistancePrice) },
-    { label: "Upside gần", value: data.upside },
-    { label: "Downside gần", value: data.downside },
+    { label: "Biên tăng gần", value: data.upside },
+    { label: "Biên giảm gần", value: data.downside },
   ];
 
   return (

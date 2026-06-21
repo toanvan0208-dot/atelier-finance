@@ -187,6 +187,10 @@ describe("TechnicalPage source transparency", () => {
     expect(html).toContain("metadata:static_sample");
     expect(html).toContain("derived:static_sample");
     expect(html).toContain("chart:static_sample");
+    expect(html).toContain("Biên tăng gần");
+    expect(html).toContain("Biên giảm gần");
+    expect(html.toLowerCase()).not.toContain("upside");
+    expect(html.toLowerCase()).not.toContain("downside");
   });
 
   it("displays DB-backed source transparency and chart boundary without client DB imports", () => {

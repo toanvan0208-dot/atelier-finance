@@ -140,3 +140,5 @@ Blocked reasons are displayed in a readable form while preserving their underlyi
 Phase 85 does not add ingestion, filesystem CSV reading, DB writes, schema changes, external API/Vnstock calls, upload UI/API, source approval, or new metrics.
 
 Browser verification on 2026-06-21 checked `/workspace?module=financials` and `/workspace?module=valuation` with the in-app Browser. Both routes loaded without framework overlay or console errors. Financials showed `productionApproved:false`, data mode/source evidence/unit metadata/Valuation handoff summary cards, missing fields, readable blocked reasons, and `canClaimValuationDbBacked:false`. Valuation showed its mixed/controlled runtime boundary, `productionApproved:false`, and `canClaimValuationDbBacked:false`. No forbidden browser-visible wording was found in the checked routes.
+
+Phase 86 follows this boundary from the Valuation side. Financials remains the owner of Financials runtime transparency, while Valuation explains its own mixed/partial source state, required input units, blocked/not-applicable reasons, and `canClaimValuationDbBacked:false`.

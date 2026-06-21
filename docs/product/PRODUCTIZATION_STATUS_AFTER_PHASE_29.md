@@ -314,6 +314,8 @@ Phase 83 adds Financials data source transparency UI readiness in `FINANCIALS_DA
 
 Phase 85 polishes Financials transparency browser copy and aligns evidence docs with rendered behavior. The Financials source card now adds a compact summary for data mode, source/evidence state, unit metadata readiness, and Valuation handoff readiness while keeping `productionApproved:false`, missing fields, blocked reasons, and `canClaimValuationDbBacked:false` visible. No ingestion, real CSV import, filesystem CSV read, DB write, schema migration, external API/Vnstock call, source approval, public upload UI/API, or new metric is added.
 
+Phase 86 polishes Valuation transparency boundary UI in `VALUATION_TRANSPARENCY_BOUNDARY_UI_POLISH.md`. The Valuation runtime note and controlled calculation panel now make source state, DB-backed claim status, input coverage, source approval, input unit status, readable blocked/not-applicable reasons, `productionApproved:false`, and `canClaimValuationDbBacked:false` easier to understand. No new valuation metric, EV/EVEBITDA/DCF/fair-value/target-price calculation, recommendation, risk scoring, real import, DB write, schema migration, external API/Vnstock call, source approval, public upload UI/API, or production claim is added.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot
