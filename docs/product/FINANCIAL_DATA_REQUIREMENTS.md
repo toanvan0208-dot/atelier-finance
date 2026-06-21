@@ -100,3 +100,19 @@ Parser-to-write requirements:
 - no CSV fixture file, raw CSV file, or filesystem CSV read is allowed;
 - read-back must verify explicit revenue, equity/totalEquity, sharesOutstanding, and EPS units;
 - source/evidence status remains not approved and `productionApproved:false`.
+
+## Phase 83 Financials Transparency UI Readiness Requirements
+
+Phase 83 records Financials data source transparency UI readiness in `FINANCIALS_DATA_SOURCE_TRANSPARENCY_UI_READINESS.md`.
+
+Financials transparency requirements:
+
+- UI/readiness helpers must expose `productionApproved:false` for local, research-only, manual, sample, and current DB-backed Financials data;
+- local, research-only, manual, and sample data must not be labeled as official, realtime, or production-approved;
+- Financials DB-backed runtime status may be shown only as a Financials boundary;
+- Financials DB-backed runtime status must not make Valuation fully DB-backed;
+- unit metadata readiness must distinguish explicit, partial, unknown, and invalid states;
+- missing or invalid units must block unit-sensitive handoff states;
+- missing important fields must be listed and must not be converted to `0`;
+- browser-visible warnings must avoid recommendation, target-price, fair-value, DCF, EV/EBITDA, trading-signal, and risk-scoring wording;
+- the phase must not add ingestion, real CSV import, filesystem CSV reading, DB writes, schema changes, external API/Vnstock calls, upload UI/API, or new metrics.

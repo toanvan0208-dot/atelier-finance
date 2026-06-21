@@ -135,17 +135,17 @@ describe("ControlledValuationCalculationPanel", () => {
     expect(html).toContain("equity non positive");
   });
 
-  it("renders EV, EV/EBITDA, DCF, and fair value range as blocked", () => {
+  it("renders EV, EV/EBITDA, DCF, and intrinsic value band as blocked", () => {
     const html = renderPanel();
 
     expect(html).toContain("EV");
     expect(html).toContain("EV/EBITDA");
     expect(html).toContain("DCF");
-    expect(html).toContain("fair value range");
+    expect(html).toContain("intrinsic value band");
     expect(html).toContain("blocked until explicit ev inputs");
     expect(html).toContain("blocked until ebitda source is explicit");
     expect(html).toContain("blocked no dcf wacc in phase 59");
-    expect(html).toContain("blocked no fair value range in phase 59");
+    expect(html).toContain("blocked no intrinsic value band in phase 59");
   });
 
   it("does not render forbidden wording", () => {

@@ -91,7 +91,7 @@ const metricRows = (boundary: ControlledValuationIntegrationBoundary): MetricRow
   },
   {
     key: "fairValueRange",
-    label: "fair value range",
+    label: "intrinsic value band",
     status: boundary.calculation.blockedMetrics.fairValueRange.status,
     value: boundary.calculation.blockedMetrics.fairValueRange.value,
     reason: boundary.calculation.blockedMetrics.fairValueRange.reason,
@@ -119,7 +119,7 @@ export function ControlledValuationCalculationPanel({ boundary }: ControlledValu
         </div>
         <p className="text-xs leading-5 text-muted">
           This panel shows data readiness and blocked states only. It does not replace the persisted input bridge or
-          provide an investment recommendation.
+          provide an action instruction.
         </p>
         {boundary.sourceBoundary.warnings.length > 0 ? (
           <div className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-2 text-xs leading-5 text-muted">

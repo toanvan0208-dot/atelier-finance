@@ -372,7 +372,7 @@ export const buildControlledValuationCalculation = (
     ev: blockedMetric("blocked_until_explicit_ev_inputs", ["marketCap", "totalDebt", "cashAndEquivalents"]),
     evToEbitda: blockedMetric("blocked_until_ebitda_source_is_explicit", ["enterpriseValue", "ebitda"]),
     dcf: blockedMetric("blocked_no_dcf_wacc_in_phase_59", ["cashFlowSeries", "wacc", "terminalGrowth"]),
-    fairValueRange: blockedMetric("blocked_no_fair_value_range_in_phase_59", ["fairValueModel"]),
+    fairValueRange: blockedMetric("blocked_no_intrinsic_value_band_in_phase_59", ["intrinsicValueModel"]),
   };
   const metricValues = Object.values(metrics);
 

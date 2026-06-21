@@ -158,7 +158,7 @@ describe("controlled valuation calculation helper", () => {
     }
   });
 
-  it("always blocks EV, EV/EBITDA, DCF, and fair value range in Phase 59", () => {
+  it("always blocks EV, EV/EBITDA, DCF, and intrinsic value band in Phase 59", () => {
     const result = buildControlledValuationCalculation({
       financials: { revenue: 1000, equity: 1000, eps: 5, sharesOutstanding: 100 },
       market: { marketPrice: 100, marketCap: 10_000 },
@@ -182,7 +182,7 @@ describe("controlled valuation calculation helper", () => {
     expect(result.blockedMetrics.fairValueRange).toMatchObject({
       status: "blocked",
       value: null,
-      reason: "blocked_no_fair_value_range_in_phase_59",
+      reason: "blocked_no_intrinsic_value_band_in_phase_59",
     });
   });
 

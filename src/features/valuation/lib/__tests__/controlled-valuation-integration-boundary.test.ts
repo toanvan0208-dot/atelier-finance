@@ -192,7 +192,7 @@ describe("controlled valuation integration boundary", () => {
     expect(result.sourceBoundary.warnings).toContain("fallback_data_not_production_approved");
   });
 
-  it("keeps EV, EV/EBITDA, DCF, and fair value range blocked", () => {
+  it("keeps EV, EV/EBITDA, DCF, and intrinsic value band blocked", () => {
     const result = buildControlledValuationIntegrationBoundary({
       financialsRuntimeSnapshot: {
         equity: 1000,
@@ -215,7 +215,7 @@ describe("controlled valuation integration boundary", () => {
 
     expect(result.integrationNotes).toContain("calculation_helper_integrated_with_unit_provenance_guard");
     expect(result.integrationNotes).toContain("unknown_units_block_scale_sensitive_calculation");
-    expect(result.integrationNotes).toContain("no_ev_dcf_or_fair_value_integration");
+    expect(result.integrationNotes).toContain("no_ev_dcf_or_intrinsic_value_band_integration");
   });
 
   it("does not emit forbidden wording in boundary output", () => {

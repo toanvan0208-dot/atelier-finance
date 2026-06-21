@@ -478,7 +478,7 @@ export const buildControlledValuationIntegrationBoundary = ({
       "market_inputs_remain_persisted_or_pvt_owned",
       "financial_inputs_may_use_runtime_when_available",
       "unknown_units_block_scale_sensitive_calculation",
-      "no_ev_dcf_or_fair_value_integration",
+      "no_ev_dcf_or_intrinsic_value_band_integration",
     ],
   };
 };

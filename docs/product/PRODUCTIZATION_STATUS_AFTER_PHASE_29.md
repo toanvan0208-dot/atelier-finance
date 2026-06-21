@@ -310,6 +310,8 @@ Phase 81 adds the Financial Statement CSV parser boundary in `FINANCIAL_STATEMEN
 
 Phase 82 adds the Financial Statement CSV to Prisma temp DB write trial in `FINANCIAL_STATEMENT_CSV_TO_PRISMA_TEMP_DB_WRITE_TRIAL.md`. It connects the Phase 81 string-only parser to the Phase 80 Prisma temp DB pattern, writes only when parser output has no blocked rows, verifies FinancialStatement and FinancialStatementUnitMetadata read-back, and cleans the temp DB. No CSV fixture file, filesystem CSV read, real CSV import, production/dev DB mutation, schema migration, external API/Vnstock call, source approval, UI change, public upload API, or new metric is added.
 
+Phase 83 adds Financials data source transparency UI readiness in `FINANCIALS_DATA_SOURCE_TRANSPARENCY_UI_READINESS.md`. It introduces a UI-safe Financials transparency helper and extends the existing Financials source card with data mode, source/evidence status, unit metadata status, missing fields, blocked reasons, Valuation handoff readiness, `productionApproved:false`, and `canClaimValuationDbBacked:false`. No ingestion, real CSV import, filesystem CSV read, DB write, schema migration, external API/Vnstock call, source approval, public upload UI/API, or new metric is added.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot

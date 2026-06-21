@@ -1,5 +1,6 @@
 export { FinancialsPage } from "./components/FinancialsPage";
 export type { FinancialsRuntimeData } from "./lib/financials-runtime-types";
+export * from "./lib/financials-data-source-transparency";
 export * from "./lib/financials-derived-module-readiness";
 export * from "./lib/financial-statement-csv-import-trial-plan";
 export * from "./lib/financial-statement-csv-parser-boundary";

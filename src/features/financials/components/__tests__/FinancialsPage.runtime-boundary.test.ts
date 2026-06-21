@@ -116,6 +116,11 @@ describe("Financials runtime UI boundary", () => {
     expect(html).toContain("local DB phuc vu nghien cuu");
     expect(html).toContain("Boundary nay chi ap dung cho module Financials");
     expect(html).toContain("khong tu dong tro thanh DB-backed");
+    expect(html).toContain("Transparency dataMode");
+    expect(html).toContain("Source evidence");
+    expect(html).toContain("Unit metadata");
+    expect(html).toContain("Valuation handoff");
+    expect(html).toContain("canClaimValuationDbBacked");
   });
 
   it("renders research-only data quality wording without overclaiming the source", () => {
@@ -142,6 +147,8 @@ describe("Financials runtime UI boundary", () => {
     expect(html).toContain("revenue");
     expect(html).toContain("operatingCashFlow");
     expect(html).toContain("null/unavailable");
+    expect(html).toContain("Ly do dang chan");
+    expect(html).toContain("revenue_missing_for_valuation_handoff");
     expect(html).not.toContain("0 ty");
     expect(html).not.toContain("0 tỷ");
   });

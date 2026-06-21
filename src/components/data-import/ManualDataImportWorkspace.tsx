@@ -4,11 +4,13 @@ import { useMemo, useState } from "react";
 import { Button, Card, CardBody, CardHeader, Chip } from "@/components/ui";
 import {
   buildManualUploadPreview,
-  saveManualImportSession,
-  type ManualImportSaveResult,
   type ManualUploadPreviewResult,
   type ManualUploadPreviewStatus,
-} from "@/lib/data-sources";
+} from "@/lib/data-sources/manual-upload-preview-bridge";
+import {
+  saveManualImportSession,
+  type ManualImportSaveResult,
+} from "@/lib/data-sources/manual-import-api-client";
 import type { ManualUploadIssueSeverity } from "@/lib/data-sources/manual-upload-report";
 
 const templateCsv = [

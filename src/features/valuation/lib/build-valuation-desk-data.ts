@@ -101,7 +101,7 @@ export const buildValuationDeskData = (
       intro:
         "Các chỉ số định giá dưới đây được tính từ financial logic core. Phần giá trị nội tại như DCF, WACC, FCFF hoặc FCFE chỉ được xem là chưa sẵn sàng nếu thiếu dữ liệu nền.",
       sensitiveNote:
-        "Điểm nhạy nhất hiện tại là chất lượng EPS, BVPS, EBITDA, dòng tiền và nguồn dữ liệu. Không tự đặt WACC, tăng trưởng dài hạn hoặc fair value khi dữ liệu chưa đủ.",
+        "Điểm nhạy nhất hiện tại là chất lượng EPS, BVPS, EBITDA, dòng tiền và nguồn dữ liệu. Không tự đặt WACC, tăng trưởng dài hạn hoặc vùng giá trị khi dữ liệu chưa đủ.",
       items: [
         {
           title: "Dữ liệu thị trường",
@@ -217,12 +217,12 @@ export const buildValuationDeskData = (
           keyAssumption: "Chưa đủ dữ liệu để đặt WACC, tăng trưởng dài hạn, FCFF hoặc FCFE.",
           range: "Chưa sẵn sàng",
           confidence: "Thấp",
-          risk: "Không tạo fair value giả khi dữ liệu nền chưa đủ.",
+          risk: "Không tạo vùng giá trị giả khi dữ liệu nền chưa đủ.",
         },
       ],
       combinedRange: "Chưa đủ dữ liệu để tính vùng giá trị nội tại",
       explanation:
-        "Bảng này hiển thị các chỉ số tương đối từ financial logic core. Vùng giá trị nội tại và margin of safety chỉ được mở khi có fair value hợp lệ và độ tin cậy đủ rõ.",
+        "Bảng này hiển thị các chỉ số tương đối từ financial logic core. Vùng giá trị nội tại và margin of safety chỉ được mở khi dữ liệu nền hợp lệ và độ tin cậy đủ rõ.",
     },
     scenarios: {
       currentPrice,
@@ -233,7 +233,7 @@ export const buildValuationDeskData = (
         {
           name: "Kịch bản xấu",
           range: "Chưa sẵn sàng",
-          explanation: "Chưa đặt kịch bản giảm vì thiếu fair value nền đáng tin cậy.",
+          explanation: "Chưa đặt kịch bản giảm vì thiếu dữ liệu nền đáng tin cậy.",
           tone: "lower",
         },
         {
@@ -276,10 +276,10 @@ export const buildValuationDeskData = (
       status: "Cần kiểm tra thêm trước khi kết luận",
       pricePosition:
         currentPrice !== null && currentPrice > 0
-          ? `Giá hiện tại là ${currentPrice.toLocaleString("vi-VN")} đồng/cp. Chưa có fair value hợp lệ để so sánh trực tiếp.`
+          ? `Giá hiện tại là ${currentPrice.toLocaleString("vi-VN")} đồng/cp. Chưa có vùng giá trị hợp lệ để so sánh trực tiếp.`
           : "Thiếu giá hiện tại nên chưa thể đặt vị trí giá.",
       marginOfSafety:
-        "Chưa tính margin of safety vì chưa có fair value hợp lệ và độ tin cậy đủ rõ. Không dùng chỉ số này như kết luận hành động.",
+        "Chưa tính margin of safety vì chưa có vùng giá trị hợp lệ và độ tin cậy đủ rõ. Không dùng chỉ số này như kết luận hành động.",
       keyRisk:
         "Rủi ro lớn nhất là dữ liệu thiếu hoặc yếu khiến các chỉ số tương đối bị đọc quá mức. Cần kiểm tra EPS, BVPS, EBITDA, dòng tiền và nguồn dữ liệu.",
       nextStep:
