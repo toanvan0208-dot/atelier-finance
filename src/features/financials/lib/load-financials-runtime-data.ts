@@ -10,7 +10,7 @@ import {
 import { buildFinancialsUnitMetadata } from "./financials-unit-metadata-contract";
 import type { FinancialsStatementSnapshot } from "./map-financials-to-logic-input";
 import type { FinancialsRuntimeData, FinancialsRuntimeDataQuality, FinancialsRuntimeReadPath } from "./financials-runtime-types";
-import { PHASE108_FPT_CONTROLLED_FINANCIALS_SOURCE_LABEL } from "./phase108-fpt-controlled-financials-constants";
+import { PHASE109_CONTROLLED_FINANCIALS_SOURCE_LABEL } from "./phase109-controlled-financials-constants";
 
 export type LoadFinancialsRuntimeDataOptions = {
   ticker?: string;
@@ -28,7 +28,7 @@ export type LoadFinancialsRuntimeDataDeps = {
 
 const DB_ENV_FLAG = "ATELIER_FINANCIALS_DB_SOURCE";
 const DEFAULT_TICKER = "FPT";
-const DEFAULT_DB_SOURCE_LABEL = PHASE108_FPT_CONTROLLED_FINANCIALS_SOURCE_LABEL;
+const DEFAULT_DB_SOURCE_LABEL = PHASE109_CONTROLLED_FINANCIALS_SOURCE_LABEL;
 const DEFAULT_DATA_MODE = "research_only";
 const SAMPLE_SOURCE_LABEL = "static_sample_financials";
 

@@ -2,11 +2,11 @@
 
 ## 1. Current latest phase
 
-Phase 108 - Financials Real/Local Data Activation for FPT
+Phase 109 - Multi-Ticker Financials Expansion and Cross-Module Readiness
 
 ## 2. Latest commit
 
-Commit: Phase 108 activate FPT financials data (this phase commit)
+Commit: Phase 109 expand financials readiness (this phase commit)
 
 ## 3. Current branch expectation
 
@@ -90,6 +90,7 @@ The working tree should be clean before starting a new phase.
 - Phase 106 applies the existing Phase 75 sidecar migration SQL to the intended local app DB (`file:./dev.db`), writes 63 live VNStock rows for FPT/MWG/VNM into that DB through the guarded import pipeline, and verifies the production app route renders Technical/PVT from DB-backed VNStock-candidate rows with fallback disabled for FPT.
 - Phase 107 adds a controlled local/research company metadata backbone for FPT/MWG/VNM using the existing issuer metadata runtime path. It exposes company name, exchange, industry, source label, as-of, data mode, `productionApproved:false`, and keeps `sharesOutstanding` null/unavailable because no traceable shares source is stored in the repo.
 - Phase 108 adds a controlled local/research FPT financials activation path that routes inline reviewed FPT financial rows through the existing Financial Statement safe import MVP, writes to the intended local app DB only by explicit confirm, and lets Financials runtime prefer the DB-backed `phase108_controlled_local_financials` rows without sample fallback. EPS and sharesOutstanding remain null/unavailable.
+- Phase 109 generalizes the controlled Financials activation path to the small FPT/MWG/VNM set. The new `phase109_controlled_local_financials` source remains controlled local/research data, writes through the existing Financial Statement safe import MVP only by explicit confirmation, returns per-ticker audit counts, and lets Financials runtime read each imported ticker from local DB without sample fallback when rows exist.
 
 ## 7. Current known limitations
 
@@ -117,6 +118,7 @@ The working tree should be clean before starting a new phase.
 - Phase 106 mutates only the local ignored `dev.db` runtime database for activation/smoke evidence. The DB file remains ignored and uncommitted; VNStock rows remain research candidates with `productionApproved:false`, and no source approval, scheduled ingestion, crawler, or production data claim was added.
 - Phase 107 does not add a source/legal approval workflow, schema migration, scheduled ingestion, crawler, official profile source, or share-count source. Missing `sharesOutstanding` remains null/unavailable and does not unlock market-cap, BVPS/share metrics, or a fully DB-backed Valuation state.
 - Phase 108 controlled FPT financials are local/research data only. Applying the existing FinancialStatementUnitMetadata sidecar migration to ignored `dev.db` may be required before local activation; no reset, seed, db push, schema change, source approval, external financials fetch, or share-count source is added. Valuation remains partial where EPS, sharesOutstanding, market inputs, or source approvals are missing.
+- Phase 109 controlled FPT/MWG/VNM financials are local/research data only. They are not official, realtime, source-approved, or production-approved. EPS and sharesOutstanding remain unavailable/null, so Valuation cannot claim a fully DB-backed state and share-based metrics remain insufficient. Risk consumes available runtime fields only as partial/mixed readiness; Watchlist remains intentionally unwired.
 
 ## 8. Recommended next phase
 

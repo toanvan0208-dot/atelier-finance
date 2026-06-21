@@ -14,6 +14,7 @@
     "db:seed": "prisma db execute --file prisma/seed.sql",
     "db:reset": "node scripts/reset-local-db.mjs",
     "financials:dry-run": "tsx scripts/financial-statements-dry-run.ts",
+    "financials:controlled": "tsx scripts/import-controlled-financials.ts",
     "financials:fpt:controlled": "tsx scripts/import-fpt-financials-controlled.ts",
     "financials:write-trial": "tsx scripts/financial-statements-write-trial.ts",
     "import:market-prices:vnstock:local": "tsx scripts/import-vnstock-market-prices.ts",
