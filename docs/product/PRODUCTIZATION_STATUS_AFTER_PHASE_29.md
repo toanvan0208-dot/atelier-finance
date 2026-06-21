@@ -298,6 +298,8 @@ Phase 75 adds additive Market/PVT unit metadata sidecar persistence. `MarketPric
 
 Phase 76 adds a controlled synthetic/local Market/PVT metadata persistence write trial in `MARKET_PVT_METADATA_PERSISTENCE_WRITE_TRIAL.md`. The trial verifies explicit `MarketPriceUnitMetadata` sidecar upsert/read-back into Technical/PVT `marketUnitMetadata` and controlled Valuation persisted-market-bridge consumption. It uses an in-memory test fixture only; no schema change, migration, DB file, reset, seed, `db push`, real market import, real BCTC import, external API/Vnstock call, source approval, UI change, or new metric is added.
 
+Phase 77 adds a controlled real financial statement CSV import trial plan in `REAL_FINANCIAL_STATEMENT_CSV_IMPORT_TRIAL_PLAN.md`. The phase defines required CSV columns, explicit Financials unit metadata, source/evidence metadata, period/ticker/statement mapping, duplicate handling, and future Phase 78 gates. It is plan-only: no real CSV import, raw CSV file, DB write, schema migration, external API call, source approval, UI change, or new metric is added.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot
