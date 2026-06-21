@@ -13,6 +13,11 @@ import { baseValuationRefactoredData } from "../data/valuationRefactored.data";
 import { buildValuationDeskData } from "../lib/build-valuation-desk-data";
 import { buildControlledValuationIntegrationBoundary } from "../lib/controlled-valuation-integration-boundary";
 import {
+  buildValuationUnitAwareReadyMetricsScenario,
+  valuationUnitAwareReadyMetricsScenarioId,
+  type ValuationUnitAwareReadyMetricsScenarioId,
+} from "../lib/valuation-unit-aware-ready-metrics-scenario";
+import {
   buildValuationFinancialsRuntimeConsumption,
   type ValuationFinancialsRuntimeConsumption,
 } from "../lib/valuation-financials-runtime-consumption";
@@ -30,6 +35,7 @@ import { ValuationUncertaintyPanel } from "./ValuationUncertaintyPanel";
 
 type ValuationPageProps = {
   initialFinancialsRuntimeData?: FinancialsRuntimeData;
+  initialScenario?: ValuationUnitAwareReadyMetricsScenarioId | null;
   onNavigate?: (moduleKey: string) => void;
 };
 
@@ -129,13 +135,35 @@ function ValuationFinancialsRuntimeNote({ boundary }: { boundary: ValuationFinan
   );
 }
 
-export function ValuationPage({ initialFinancialsRuntimeData, onNavigate }: ValuationPageProps) {
-  const [tickerInput, setTickerInput] = useState("FPTLAB");
-  const [request, setRequest] = useState({ ticker: "FPTLAB", id: 0 });
-  const [bridgeState, setBridgeState] = useState<ValuationBridgeState>({ status: "loading" });
+export function ValuationPage({ initialFinancialsRuntimeData, initialScenario, onNavigate }: ValuationPageProps) {
+  const controlledScenario = useMemo(
+    () => (initialScenario === valuationUnitAwareReadyMetricsScenarioId ? buildValuationUnitAwareReadyMetricsScenario() : null),
+    [initialScenario],
+  );
+  const controlledScenarioBridgeState = useMemo<ValuationBridgeState | null>(
+    () =>
+      controlledScenario
+        ? {
+            data: buildBridgeData(controlledScenario.valuationApiInputs),
+            result: controlledScenario.valuationApiInputs,
+            status: "ready",
+          }
+        : null,
+    [controlledScenario],
+  );
+  const effectiveFinancialsRuntimeData = controlledScenario?.financialsRuntimeData ?? initialFinancialsRuntimeData;
+  const [tickerInput, setTickerInput] = useState(controlledScenario?.ticker ?? "FPTLAB");
+  const [request, setRequest] = useState({ ticker: controlledScenario?.ticker ?? "FPTLAB", id: 0 });
+  const [bridgeState, setBridgeState] = useState<ValuationBridgeState>(
+    controlledScenarioBridgeState ?? { status: "loading" },
+  );
   const activeTicker = request.ticker;
 
   useEffect(() => {
+    if (controlledScenario) {
+      return;
+    }
+
     let isActive = true;
 
     fetchValuationInputsByTicker({ ticker: activeTicker })
@@ -165,7 +193,7 @@ export function ValuationPage({ initialFinancialsRuntimeData, onNavigate }: Valu
     return () => {
       isActive = false;
     };
-  }, [activeTicker, request.id]);
+  }, [activeTicker, controlledScenario, request.id]);
 
   const metadataChips = useMemo(() => {
     if (bridgeState.status !== "ready" && bridgeState.status !== "insufficient") return [];
@@ -186,7 +214,7 @@ export function ValuationPage({ initialFinancialsRuntimeData, onNavigate }: Valu
         : null;
 
     return buildValuationFinancialsRuntimeConsumption({
-      financialsRuntimeData: initialFinancialsRuntimeData,
+      financialsRuntimeData: effectiveFinancialsRuntimeData,
       persistedBridgeInputs: {
         eps: snapshot?.eps ?? null,
         equity: snapshot?.totalEquity ?? null,
@@ -195,14 +223,14 @@ export function ValuationPage({ initialFinancialsRuntimeData, onNavigate }: Valu
         sharesOutstanding: snapshot?.sharesOutstanding ?? null,
       },
     });
-  }, [bridgeState, initialFinancialsRuntimeData]);
+  }, [bridgeState, effectiveFinancialsRuntimeData]);
 
   const controlledCalculationBoundary = useMemo(() => {
     const snapshot =
       bridgeState.status === "ready" || bridgeState.status === "insufficient"
         ? bridgeState.result.snapshot
         : null;
-    const runtimeSnapshot = initialFinancialsRuntimeData?.statementSnapshot;
+    const runtimeSnapshot = effectiveFinancialsRuntimeData?.statementSnapshot;
 
     return buildControlledValuationIntegrationBoundary({
       financialsRuntimeSnapshot: runtimeSnapshot
@@ -212,18 +240,18 @@ export function ValuationPage({ initialFinancialsRuntimeData, onNavigate }: Valu
             totalEquity: runtimeSnapshot.totalEquity,
             eps: runtimeSnapshot.eps,
             sharesOutstanding: runtimeSnapshot.sharesOutstanding,
-            dataMode: initialFinancialsRuntimeData.source.dataMode,
-            readPath: initialFinancialsRuntimeData.source.readPath,
-            runtimeStatus: initialFinancialsRuntimeData.runtimeStatus,
-            fallbackUsed: initialFinancialsRuntimeData.source.fallbackUsed,
-            productionApproved: initialFinancialsRuntimeData.source.productionApproved,
-            sourceLabel: initialFinancialsRuntimeData.source.sourceLabel,
+            dataMode: effectiveFinancialsRuntimeData.source.dataMode,
+            readPath: effectiveFinancialsRuntimeData.source.readPath,
+            runtimeStatus: effectiveFinancialsRuntimeData.runtimeStatus,
+            fallbackUsed: effectiveFinancialsRuntimeData.source.fallbackUsed,
+            productionApproved: effectiveFinancialsRuntimeData.source.productionApproved,
+            sourceLabel: effectiveFinancialsRuntimeData.source.sourceLabel,
             units: {
-              equity: initialFinancialsRuntimeData.unitMetadata.equity.unit,
-              eps: initialFinancialsRuntimeData.unitMetadata.eps.unit,
-              netIncome: initialFinancialsRuntimeData.unitMetadata.netIncome.unit,
-              revenue: initialFinancialsRuntimeData.unitMetadata.revenue.unit,
-              sharesOutstanding: initialFinancialsRuntimeData.unitMetadata.sharesOutstanding.unit,
+              equity: effectiveFinancialsRuntimeData.unitMetadata.equity.unit,
+              eps: effectiveFinancialsRuntimeData.unitMetadata.eps.unit,
+              netIncome: effectiveFinancialsRuntimeData.unitMetadata.netIncome.unit,
+              revenue: effectiveFinancialsRuntimeData.unitMetadata.revenue.unit,
+              sharesOutstanding: effectiveFinancialsRuntimeData.unitMetadata.sharesOutstanding.unit,
             },
           }
         : null,
@@ -235,20 +263,32 @@ export function ValuationPage({ initialFinancialsRuntimeData, onNavigate }: Valu
             eps: snapshot.eps,
             sharesOutstanding: snapshot.sharesOutstanding,
             marketPrice: snapshot.closePrice,
+            marketUnitMetadata: controlledScenario?.persistedValuationInputs.marketUnitMetadata,
+            marketCap: controlledScenario?.persistedValuationInputs.marketCap,
             dataMode:
               bridgeState.status === "ready" || bridgeState.status === "insufficient"
                 ? bridgeState.result.metadata.dataMode
                 : null,
             productionApproved: false,
-            sourceLabel: snapshot.sourceName,
+            sourceLabel: controlledScenario?.persistedValuationInputs.sourceLabel ?? snapshot.sourceName,
           }
         : null,
-      mode: runtimeConsumption.valuationSourceMode === "sample_fallback" ? "fallback" : undefined,
+      mode: controlledScenario
+        ? "mixed_source"
+        : runtimeConsumption.valuationSourceMode === "sample_fallback"
+          ? "fallback"
+          : undefined,
     });
-  }, [bridgeState, initialFinancialsRuntimeData, runtimeConsumption.valuationSourceMode]);
+  }, [bridgeState, controlledScenario, effectiveFinancialsRuntimeData, runtimeConsumption.valuationSourceMode]);
 
   const submitTicker = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (controlledScenarioBridgeState && controlledScenario) {
+      setTickerInput(controlledScenario.ticker);
+      setBridgeState(controlledScenarioBridgeState);
+      return;
+    }
+
     const nextTicker = tickerInput.trim().toUpperCase();
     if (!nextTicker) return;
     setBridgeState({ status: "loading" });

@@ -150,3 +150,9 @@ Maximum scope:
 - verify Valuation visible output does not overclaim source status;
 - preserve `productionApproved:false` and `canClaimValuationDbBacked:false`;
 - do not add new metrics, EV, DCF, fair value range, target price, recommendation, Risk scoring, DB reset, seed, or real data import.
+
+## 13. Phase 71 Follow-up
+
+Phase 71 adds `VALUATION_UNIT_AWARE_READY_METRICS_BROWSER_VERIFICATION.md`. A synthetic/local route verifies that explicit Market/PVT `marketPrice` and direct `marketCap` metadata can make only the already-approved controlled Valuation metrics ready in the browser, while EV/DCF/fair-value outputs remain blocked.
+
+The Market/PVT contract is unchanged. The browser scenario is synthetic/local, keeps `productionApproved:false`, and does not import real market data or write DB rows.

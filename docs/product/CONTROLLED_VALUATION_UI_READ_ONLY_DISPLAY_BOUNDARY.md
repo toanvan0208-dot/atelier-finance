@@ -171,3 +171,9 @@ Phase 66 adds `FINANCIALS_UNIT_METADATA_PERSISTENCE_READBACK_BOUNDARY.md`. Runti
 Phase 70 adds `MARKET_PVT_UNIT_METADATA_CONTRACT.md`. This is a non-UI boundary update: explicit Market/PVT unit metadata can be handed into the controlled Valuation integration tests, but the read-only Valuation panel rendering is not changed.
 
 Browser verification is therefore not required for Phase 70. The panel's safety posture remains `productionApproved:false`, `canClaimValuationDbBacked:false`, and blocked EV/DCF/fair-value output.
+
+## 17. Phase 71 Follow-up
+
+Phase 71 adds `VALUATION_UNIT_AWARE_READY_METRICS_BROWSER_VERIFICATION.md`. The read-only panel now has a controlled synthetic browser scenario for unit-aware ready metrics and exposes source-mode chips for Financials and Market/PVT provenance.
+
+The panel remains read-only and does not add any new metric, source approval, target price, fair value, recommendation, or Risk scoring.

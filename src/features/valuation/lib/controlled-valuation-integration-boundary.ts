@@ -99,6 +99,8 @@ export type ControlledValuationIntegrationBoundary = {
   };
   sourceBoundary: {
     valuationSourceMode: ValuationSourceMode;
+    financialsSourceMode: string;
+    marketSourceMode: string;
     canClaimValuationDbBacked: false;
     productionApproved: false;
     warnings: string[];
@@ -416,6 +418,13 @@ export const buildControlledValuationIntegrationBoundary = ({
     mode,
   });
   const mixedSource = valuationSourceMode === "mixed_source";
+  const financialsSourceMode = hasRuntimeInput ? "financials_runtime_partial" : selectedInputs.revenue.source;
+  const marketSourceMode =
+    selectedInputs.marketPrice.source === "market_pvt" || selectedInputs.marketCap.source === "market_pvt"
+      ? "market_pvt"
+      : selectedInputs.marketPrice.source === "persisted_bridge" || selectedInputs.marketCap.source === "persisted_bridge"
+        ? "persisted_bridge"
+        : "not_wired";
   const calculation = buildControlledValuationCalculation({
     financials: {
       revenue: normalizedValue(selectedInputs.revenue),
@@ -429,14 +438,8 @@ export const buildControlledValuationIntegrationBoundary = ({
       marketCap: normalizedValue(selectedInputs.marketCap),
     },
     source: {
-      financialsSourceMode: hasRuntimeInput ? "financials_runtime_partial" : selectedInputs.revenue.source,
-      marketSourceMode:
-        selectedInputs.marketPrice.source === "market_pvt" || selectedInputs.marketCap.source === "market_pvt"
-          ? "market_pvt"
-          : selectedInputs.marketPrice.source === "persisted_bridge" ||
-              selectedInputs.marketCap.source === "persisted_bridge"
-            ? "persisted_bridge"
-            : "not_wired",
+      financialsSourceMode,
+      marketSourceMode,
       dataMode: runtime?.dataMode ?? persisted?.dataMode ?? null,
       productionApproved: false,
       mixedSource,
@@ -455,6 +458,8 @@ export const buildControlledValuationIntegrationBoundary = ({
     selectedInputs,
     sourceBoundary: {
       valuationSourceMode,
+      financialsSourceMode,
+      marketSourceMode,
       canClaimValuationDbBacked: false,
       productionApproved: false,
       warnings: boundaryWarnings,

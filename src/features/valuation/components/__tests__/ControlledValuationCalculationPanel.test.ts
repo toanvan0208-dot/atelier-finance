@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import { ControlledValuationCalculationPanel } from "../ControlledValuationCalculationPanel";
 import { buildControlledValuationIntegrationBoundary } from "../../lib/controlled-valuation-integration-boundary";
 import type { ControlledValuationIntegrationBoundary } from "../../lib/controlled-valuation-integration-boundary";
+import { buildValuationUnitAwareReadyMetricsScenario } from "../../lib/valuation-unit-aware-ready-metrics-scenario";
 
 const renderPanel = (boundary: ControlledValuationIntegrationBoundary = buildControlledValuationIntegrationBoundary()) =>
   renderToStaticMarkup(createElement(ControlledValuationCalculationPanel, { boundary }));
@@ -47,6 +48,42 @@ describe("ControlledValuationCalculationPanel", () => {
     expect(html).toContain(">4<");
     expect(html).toContain("P/B");
     expect(html).toContain(">2<");
+  });
+
+  it("renders Phase 71 synthetic explicit-unit ready metrics with source guardrails", () => {
+    const scenario = buildValuationUnitAwareReadyMetricsScenario();
+    const html = renderPanel(
+      buildControlledValuationIntegrationBoundary({
+        financialsRuntimeSnapshot: {
+          dataMode: scenario.financialsRuntimeData.source.dataMode,
+          eps: scenario.financialsRuntimeData.statementSnapshot?.eps,
+          revenue: scenario.financialsRuntimeData.statementSnapshot?.revenue,
+          sharesOutstanding: scenario.financialsRuntimeData.statementSnapshot?.sharesOutstanding,
+          sourceLabel: scenario.financialsRuntimeData.source.sourceLabel,
+          totalEquity: scenario.financialsRuntimeData.statementSnapshot?.totalEquity,
+          units: {
+            equity: scenario.financialsRuntimeData.unitMetadata.equity.unit,
+            eps: scenario.financialsRuntimeData.unitMetadata.eps.unit,
+            revenue: scenario.financialsRuntimeData.unitMetadata.revenue.unit,
+            sharesOutstanding: scenario.financialsRuntimeData.unitMetadata.sharesOutstanding.unit,
+          },
+        },
+        persistedValuationInputs: scenario.persistedValuationInputs,
+      }),
+    );
+
+    expect(html).toContain("sourceMode:mixed_source");
+    expect(html).toContain("financialsSource:financials_runtime_partial");
+    expect(html).toContain("marketSource:market_pvt");
+    expect(html).toContain("productionApproved:false");
+    expect(html).toContain("canClaimValuationDbBacked:false");
+    expect(html).toContain("valuation_remains_mixed_source");
+    expect(html).toContain("5,000,000,000");
+    expect(html).toContain(">10<");
+    expect(html).toContain("5,000");
+    expect(html).toContain(">5<");
+    expect(html).toContain("blocked");
+    expect(html).not.toContain(">0<");
   });
 
   it("renders insufficient data reasons without zero-filling missing values", () => {

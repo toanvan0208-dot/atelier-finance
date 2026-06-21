@@ -245,3 +245,9 @@ The existing repo-root `dev.db` was not reset or seeded and was not committed. G
 Phase 70 adds `MARKET_PVT_UNIT_METADATA_CONTRACT.md`. It keeps `marketPrice` and `marketCap` outside the Financials sidecar persistence contract, defines their accepted Market/PVT units, and lets the controlled Valuation boundary consume explicit market metadata when available.
 
 No Financials schema, migration, sidecar table, DB row, generated Prisma output, or visible UI behavior changes in Phase 70.
+
+## 16. Phase 71 Follow-up
+
+Phase 71 adds `VALUATION_UNIT_AWARE_READY_METRICS_BROWSER_VERIFICATION.md`. The browser scenario uses explicit Financials units from a synthetic/local fixture and explicit Market/PVT units from the Phase 70 contract to verify ready controlled metrics.
+
+The Financials sidecar persistence implementation is not changed, and no schema migration, DB write, generated Prisma output, or DB artifact is committed.

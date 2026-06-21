@@ -241,3 +241,9 @@ Phase 69 adds `CONTROLLED_UNIT_METADATA_WRITE_TRIAL.md`. The synthetic trial ver
 Phase 70 adds `MARKET_PVT_UNIT_METADATA_CONTRACT.md`. The controlled Valuation boundary can now accept optional `marketUnitMetadata` for `marketPrice` and `marketCap`, with source provenance set to `market_pvt` when explicit Market/PVT metadata is present.
 
 Unknown or invalid market units still normalize to unavailable inputs and keep dependent metrics not ready. Market units are not inferred from value magnitude, and `marketPrice`/`marketCap` remain separate from Financials-owned unit metadata.
+
+## 20. Phase 71 Follow-up
+
+Phase 71 adds `VALUATION_UNIT_AWARE_READY_METRICS_BROWSER_VERIFICATION.md`. Browser evidence now confirms the Phase 63 normalization behavior on a synthetic explicit-unit route: ready values render only when required Financials and Market/PVT units are explicit, while blocked metrics render unavailable.
+
+The unknown-unit and invalid-unit fail-closed rules are unchanged.

@@ -111,6 +111,8 @@ export function ControlledValuationCalculationPanel({ boundary }: ControlledValu
       <CardBody className="space-y-4">
         <div className="flex flex-wrap gap-2">
           <Chip variant="neutral">sourceMode:{boundary.sourceBoundary.valuationSourceMode}</Chip>
+          <Chip variant="neutral">financialsSource:{boundary.sourceBoundary.financialsSourceMode}</Chip>
+          <Chip variant="neutral">marketSource:{boundary.sourceBoundary.marketSourceMode}</Chip>
           <Chip variant="neutral">productionApproved:false</Chip>
           <Chip variant="neutral">canClaimValuationDbBacked:false</Chip>
           <Chip variant="neutral">controlled status</Chip>

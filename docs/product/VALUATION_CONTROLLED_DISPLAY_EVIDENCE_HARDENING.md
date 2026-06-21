@@ -230,3 +230,9 @@ Phase 66 adds `FINANCIALS_UNIT_METADATA_PERSISTENCE_READBACK_BOUNDARY.md`. The p
 Phase 70 adds `MARKET_PVT_UNIT_METADATA_CONTRACT.md`. The display evidence remains valid because Phase 70 changes helper/types/tests/docs and the controlled Valuation integration boundary only; it does not change browser-visible Valuation UI behavior.
 
 Market/PVT inputs with missing or invalid units keep dependent metrics unavailable, and the display remains non-production-approved with no recommendation, target price, EV, DCF, or fair-value output.
+
+## 19. Phase 71 Follow-up
+
+Phase 71 adds `VALUATION_UNIT_AWARE_READY_METRICS_BROWSER_VERIFICATION.md`. In-app Browser verification covered baseline Valuation routes and a synthetic explicit-unit route. The controlled panel rendered ready marketCap, P/E, BVPS, P/B, and P/S only for explicit-unit inputs, while EV, EV/EBITDA, DCF, and fair value range stayed blocked.
+
+No browser-visible forbidden wording, framework overlay, console error, source overclaim, or zero-fill issue was found.

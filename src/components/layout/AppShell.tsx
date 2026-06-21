@@ -21,6 +21,7 @@ import { ScreeningPage } from "@/features/screening";
 import { SimulationPage } from "@/features/simulation";
 import { TechnicalPage } from "@/features/technical";
 import { ValuationPage } from "@/features/valuation";
+import type { ValuationUnitAwareReadyMetricsScenarioId } from "@/features/valuation/lib/valuation-unit-aware-ready-metrics-scenario";
 import { WatchlistPage } from "@/features/watchlist";
 import { MainContent } from "./MainContent";
 import { MobileNavigation } from "./MobileNavigation";
@@ -49,20 +50,22 @@ const navigationChangeEvent = "app:navigation";
 type AppShellProps = {
   initialFinancialsRuntimeData?: FinancialsRuntimeData;
   initialTechnicalData?: TechnicalPageRuntimeData;
+  initialValuationScenario?: ValuationUnitAwareReadyMetricsScenarioId | null;
 };
 
-export function AppShell({ initialFinancialsRuntimeData, initialTechnicalData }: AppShellProps) {
+export function AppShell({ initialFinancialsRuntimeData, initialTechnicalData, initialValuationScenario }: AppShellProps) {
   return (
     <PersonalAnalysisProfileProvider>
       <AppShellContent
         initialFinancialsRuntimeData={initialFinancialsRuntimeData}
         initialTechnicalData={initialTechnicalData}
+        initialValuationScenario={initialValuationScenario}
       />
     </PersonalAnalysisProfileProvider>
   );
 }
 
-function AppShellContent({ initialFinancialsRuntimeData, initialTechnicalData }: AppShellProps) {
+function AppShellContent({ initialFinancialsRuntimeData, initialTechnicalData, initialValuationScenario }: AppShellProps) {
   const { openDrawer } = usePersonalAnalysisProfile();
   const moduleKeys = useMemo(
     () => new Set(navigationItems.map((item) => item.key)),
@@ -184,6 +187,7 @@ function AppShellContent({ initialFinancialsRuntimeData, initialTechnicalData }:
         {activeModule === "valuation" ? (
           <ValuationPage
             initialFinancialsRuntimeData={initialFinancialsRuntimeData}
+            initialScenario={initialValuationScenario}
             onNavigate={handleNavigate}
           />
         ) : null}

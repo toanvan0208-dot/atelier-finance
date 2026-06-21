@@ -286,6 +286,8 @@ Phase 69 adds a controlled unit metadata write trial in `CONTROLLED_UNIT_METADAT
 
 Phase 70 adds a Market/PVT unit metadata contract in `MARKET_PVT_UNIT_METADATA_CONTRACT.md`. The contract defines accepted units for `marketPrice`, `marketCap`, `volume`, `tradingValue`, and `averageTradingValue20d`; keeps `marketPrice` and `marketCap` outside Financials ownership; and updates the controlled Valuation boundary so explicit Market/PVT metadata can unlock only already-approved helper metrics. Missing or invalid market units still block dependent metrics, with no magnitude guessing. No DB write, schema migration, real market import, UI change, new metric, target price, fair value, recommendation, Risk scoring, source approval, or production claim is added.
 
+Phase 71 adds unit-aware ready metrics browser verification in `VALUATION_UNIT_AWARE_READY_METRICS_BROWSER_VERIFICATION.md`. A synthetic/local route verifies that explicit Financials units plus explicit Market/PVT units can render ready controlled marketCap, P/E, BVPS, P/B, and P/S rows in the Valuation panel, while EV, EV/EBITDA, DCF, and fair value range remain blocked. The route is controlled, synthetic, and local; no real BCTC, real market import, DB write, schema migration, source approval, target price, fair value, recommendation, or new metric is added.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot

@@ -273,3 +273,9 @@ Maximum scope:
 Phase 70 adds `MARKET_PVT_UNIT_METADATA_CONTRACT.md`. Market input metadata is now documented as a separate Market/PVT-owned contract: `marketPrice` and `marketCap` do not belong to Financials, and Valuation can only use them when their units are explicit and accepted.
 
 The Phase 69 Financials sidecar write trial remains unchanged. Phase 70 adds helper/types/tests/docs only; it does not write DB rows, add a schema migration, import real market data, or change visible UI behavior.
+
+## 16. Phase 71 Follow-up
+
+Phase 71 adds `VALUATION_UNIT_AWARE_READY_METRICS_BROWSER_VERIFICATION.md`. The browser verification uses a synthetic/local explicit-unit scenario instead of another DB write trial, confirming that Financials unit metadata plus Market/PVT unit metadata can render ready controlled Valuation metrics without changing source approval.
+
+No new sidecar rows, DB files, generated output, real BCTC, or real market data are created by Phase 71.
