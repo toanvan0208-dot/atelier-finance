@@ -4,7 +4,9 @@ import { useMemo } from "react";
 import { EmptyState, LoadingState } from "@/components/ui";
 import { useLocalStorageState } from "@/lib/use-local-storage-state";
 import { watchlistPageData } from "../data/watchlist.data";
+import type { PortfolioReadinessResult } from "../lib/load-portfolio-readiness";
 import type { StockIdea, WatchlistFilterState } from "../types";
+import { PortfolioReadinessPanel } from "./PortfolioReadinessPanel";
 import { StockIdeaGrid } from "./StockIdeaGrid";
 import { WatchlistDisclaimer } from "./WatchlistDisclaimer";
 import { WatchlistFilters } from "./WatchlistFilters";
@@ -89,6 +91,7 @@ function applyFilters(ideas: StockIdea[], filters: WatchlistFilterState) {
 
 type WatchlistPageProps = {
   onNavigate: (key: string) => void;
+  portfolioReadiness?: PortfolioReadinessResult | null;
 };
 
 type WatchlistPersistentState = {
@@ -102,7 +105,7 @@ const defaultWatchlistFilters: WatchlistFilterState = {
   pipelineStatus: "all",
 };
 
-export function WatchlistPage({ onNavigate }: WatchlistPageProps) {
+export function WatchlistPage({ onNavigate, portfolioReadiness }: WatchlistPageProps) {
   const data = watchlistPageData;
   const [persistedState, setPersistedState] = useLocalStorageState<WatchlistPersistentState>(
     watchlistStorageKey,
@@ -156,6 +159,7 @@ export function WatchlistPage({ onNavigate }: WatchlistPageProps) {
         </aside>
 
         <main className="space-y-4">
+          <PortfolioReadinessPanel data={portfolioReadiness} />
           <StockIdeaGrid
             data={filteredIdeas}
             filteredCount={filteredIdeas.length}

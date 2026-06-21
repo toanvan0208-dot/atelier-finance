@@ -2,6 +2,7 @@ import { AppShell } from "@/components/layout/AppShell";
 import { loadFinancialsRuntimeData } from "@/features/financials/lib/load-financials-runtime-data";
 import { loadTechnicalRuntimeData } from "@/features/technical/lib/load-technical-runtime-data";
 import { resolveValuationUnitAwareReadyMetricsScenarioId } from "@/features/valuation/lib/valuation-unit-aware-ready-metrics-scenario";
+import { loadPortfolioReadiness } from "@/features/watchlist/lib/load-portfolio-readiness";
 
 type WorkspacePageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -26,7 +27,7 @@ export default async function WorkspacePage({ searchParams }: WorkspacePageProps
   const technicalSourceLabel = firstParam(params.technicalSourceLabel);
   const technicalPreferDb = boolParam(params.technicalPreferDb);
   const valuationScenario = resolveValuationUnitAwareReadyMetricsScenarioId(params.valuationScenario);
-  const [initialTechnicalData, initialFinancialsRuntimeData] = await Promise.all([
+  const [initialTechnicalData, initialFinancialsRuntimeData, initialPortfolioReadiness] = await Promise.all([
     loadTechnicalRuntimeData({
       ticker: technicalTicker,
       from: technicalFrom,
@@ -35,11 +36,13 @@ export default async function WorkspacePage({ searchParams }: WorkspacePageProps
       preferDb: technicalPreferDb,
     }),
     loadFinancialsRuntimeData({ ticker }),
+    loadPortfolioReadiness(),
   ]);
 
   return (
     <AppShell
       initialFinancialsRuntimeData={initialFinancialsRuntimeData}
+      initialPortfolioReadiness={initialPortfolioReadiness}
       initialTechnicalData={initialTechnicalData}
       initialValuationScenario={valuationScenario}
     />

@@ -31,6 +31,7 @@ import { Topbar } from "./Topbar";
 import { resolveActiveModule, shouldNormalizeInvalidModule } from "./app-shell-routing";
 import type { FinancialsRuntimeData } from "@/features/financials/lib/financials-runtime-types";
 import type { TechnicalPageRuntimeData } from "@/features/technical";
+import type { PortfolioReadinessResult } from "@/features/watchlist/lib/load-portfolio-readiness";
 
 const modulesWithInternalProgress = new Set([
   "macro",
@@ -49,15 +50,22 @@ const navigationChangeEvent = "app:navigation";
 
 type AppShellProps = {
   initialFinancialsRuntimeData?: FinancialsRuntimeData;
+  initialPortfolioReadiness?: PortfolioReadinessResult;
   initialTechnicalData?: TechnicalPageRuntimeData;
   initialValuationScenario?: ValuationUnitAwareReadyMetricsScenarioId | null;
 };
 
-export function AppShell({ initialFinancialsRuntimeData, initialTechnicalData, initialValuationScenario }: AppShellProps) {
+export function AppShell({
+  initialFinancialsRuntimeData,
+  initialPortfolioReadiness,
+  initialTechnicalData,
+  initialValuationScenario,
+}: AppShellProps) {
   return (
     <PersonalAnalysisProfileProvider>
       <AppShellContent
         initialFinancialsRuntimeData={initialFinancialsRuntimeData}
+        initialPortfolioReadiness={initialPortfolioReadiness}
         initialTechnicalData={initialTechnicalData}
         initialValuationScenario={initialValuationScenario}
       />
@@ -65,7 +73,12 @@ export function AppShell({ initialFinancialsRuntimeData, initialTechnicalData, i
   );
 }
 
-function AppShellContent({ initialFinancialsRuntimeData, initialTechnicalData, initialValuationScenario }: AppShellProps) {
+function AppShellContent({
+  initialFinancialsRuntimeData,
+  initialPortfolioReadiness,
+  initialTechnicalData,
+  initialValuationScenario,
+}: AppShellProps) {
   const { openDrawer } = usePersonalAnalysisProfile();
   const moduleKeys = useMemo(
     () => new Set(navigationItems.map((item) => item.key)),
@@ -204,7 +217,12 @@ function AppShellContent({ initialFinancialsRuntimeData, initialTechnicalData, i
           />
         ) : null}
         {activeModule === "simulation" ? <SimulationPage /> : null}
-        {activeModule === "watchlist" ? <WatchlistPage onNavigate={handleNavigate} /> : null}
+        {activeModule === "watchlist" ? (
+          <WatchlistPage
+            onNavigate={handleNavigate}
+            portfolioReadiness={initialPortfolioReadiness}
+          />
+        ) : null}
         {activeModule === "checklist" ? (
           <ChecklistPage onNavigate={handleNavigate} />
         ) : null}
