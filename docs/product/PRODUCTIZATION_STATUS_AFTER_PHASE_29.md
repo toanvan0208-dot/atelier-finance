@@ -324,6 +324,8 @@ Phase 89 polishes Macro/Industry readiness browser copy and evidence alignment i
 
 Phase 90 adds an Overview cross-module readiness summary in `OVERVIEW_CROSS_MODULE_READINESS_SUMMARY.md`. The existing Overview route now summarizes Financials, Valuation, Technical/PVT, Macro, and Industry readiness in one compact panel with source status, unit status, missing/blocked reasons, and `productionApproved:false`. It does not make Valuation fully DB-backed, does not approve any source, and does not add real data import, parser, filesystem read, DB write, schema migration, external API/Vnstock call, source approval, recommendation, target, fair-value, risk-scoring, or production claim.
 
+Phase 91 adds product demo flow browser smoke verification in `PRODUCT_DEMO_FLOW_BROWSER_SMOKE_VERIFICATION.md`. The in-app Browser verified the existing Overview, Financials, Valuation, Technical/PVT, Macro, and Industry routes load normally, show the expected readiness/transparency boundaries, keep `productionApproved:false` visible where expected, avoid forbidden browser-visible wording, and render without console/framework overlay issues. No UI/source code change, real data import, parser, filesystem read, DB write, schema migration, external API/Vnstock call, source approval, recommendation, target, fair-value, risk-scoring, or production claim is added.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot
