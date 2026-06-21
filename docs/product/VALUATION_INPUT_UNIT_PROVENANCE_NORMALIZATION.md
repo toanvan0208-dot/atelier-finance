@@ -235,3 +235,9 @@ Valuation readiness still requires explicit market input units where market inpu
 ## 18. Phase 69 Follow-up
 
 Phase 69 adds `CONTROLLED_UNIT_METADATA_WRITE_TRIAL.md`. The synthetic trial verified explicit Financials units reached the controlled Valuation boundary from runtime sidecar metadata. Market input ownership stayed separate, `productionApproved:false` and `canClaimValuationDbBacked:false` stayed preserved, and EV/DCF remained blocked.
+
+## 19. Phase 70 Follow-up
+
+Phase 70 adds `MARKET_PVT_UNIT_METADATA_CONTRACT.md`. The controlled Valuation boundary can now accept optional `marketUnitMetadata` for `marketPrice` and `marketCap`, with source provenance set to `market_pvt` when explicit Market/PVT metadata is present.
+
+Unknown or invalid market units still normalize to unavailable inputs and keep dependent metrics not ready. Market units are not inferred from value magnitude, and `marketPrice`/`marketCap` remain separate from Financials-owned unit metadata.

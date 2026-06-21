@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { buildMarketPvtUnitMetadata } from "@/features/technical/lib/market-pvt-unit-metadata-contract";
 import { buildControlledValuationIntegrationBoundary } from "../controlled-valuation-integration-boundary";
 
 describe("controlled valuation integration boundary", () => {
@@ -297,5 +298,166 @@ describe("controlled valuation integration boundary", () => {
     expect(result.calculation.metrics.bvps.value).toBe(200);
     expect(result.calculation.metrics.marketCap.value).toBe(500_000_000_000);
     expect(result.calculation.metrics.ps.value).toBe(5);
+  });
+
+  it("uses Market/PVT metadata for market price handoff into P/E", () => {
+    const marketUnitMetadata = buildMarketPvtUnitMetadata({
+      dataMode: "research_only",
+      sourceLabel: "market_pvt_unit_test",
+      units: { marketPrice: "vnd_per_share" },
+      values: { marketPrice: 50_000 },
+    });
+    const result = buildControlledValuationIntegrationBoundary({
+      financialsRuntimeSnapshot: { eps: 2500, units: { eps: "vnd_per_share" } },
+      persistedValuationInputs: {
+        dataMode: "research_only",
+        marketPrice: 50_000,
+        marketUnitMetadata,
+      },
+    });
+
+    expect(result.selectedInputs.marketPrice).toMatchObject({
+      normalizationStatus: "ready",
+      provenance: { source: "market_pvt", sourceLabel: "market_pvt_unit_test" },
+      source: "market_pvt",
+      unit: "vnd_per_share",
+    });
+    expect(result.calculation.metrics.pe.status).toBe("ready");
+    expect(result.calculation.metrics.pe.value).toBe(20);
+    expect(result.sourceBoundary.productionApproved).toBe(false);
+    expect(result.sourceBoundary.canClaimValuationDbBacked).toBe(false);
+  });
+
+  it("blocks P/E when market price has unknown Market/PVT unit", () => {
+    const marketUnitMetadata = buildMarketPvtUnitMetadata({
+      values: { marketPrice: 50_000 },
+    });
+    const result = buildControlledValuationIntegrationBoundary({
+      financialsRuntimeSnapshot: { eps: 2500, units: { eps: "vnd_per_share" } },
+      persistedValuationInputs: {
+        marketPrice: 50_000,
+        marketUnitMetadata,
+      },
+    });
+
+    expect(result.selectedInputs.marketPrice).toMatchObject({
+      normalizationStatus: "unknown_unit",
+      source: "market_pvt",
+      unit: "unknown",
+      value: null,
+    });
+    expect(result.sourceBoundary.warnings).toContain("marketPrice_market_pvt_unit_metadata_missing");
+    expect(result.calculation.metrics.pe.status).toBe("insufficient_data");
+  });
+
+  it("blocks market inputs with invalid Market/PVT units", () => {
+    const marketUnitMetadata = buildMarketPvtUnitMetadata({
+      units: { marketCap: "vnd_per_share", marketPrice: "million_vnd" },
+      values: { marketCap: 5000, marketPrice: 50_000 },
+    });
+    const result = buildControlledValuationIntegrationBoundary({
+      financialsRuntimeSnapshot: {
+        eps: 2500,
+        revenue: 100,
+        sharesOutstanding: 10,
+        units: { eps: "vnd_per_share", revenue: "billion_vnd", sharesOutstanding: "million_shares" },
+      },
+      persistedValuationInputs: {
+        marketCap: 5000,
+        marketPrice: 50_000,
+        marketUnitMetadata,
+      },
+    });
+
+    expect(result.selectedInputs.marketPrice.source).toBe("market_pvt");
+    expect(result.selectedInputs.marketPrice.normalizationStatus).toBe("not_normalized");
+    expect(result.selectedInputs.marketCap.normalizationStatus).toBe("not_normalized");
+    expect(result.sourceBoundary.warnings).toEqual(
+      expect.arrayContaining([
+        "marketPrice_market_pvt_unit_million_vnd_invalid_unit",
+        "marketCap_market_pvt_unit_vnd_per_share_invalid_unit",
+      ]),
+    );
+    expect(result.calculation.metrics.pe.status).toBe("insufficient_data");
+    expect(result.calculation.metrics.ps.status).toBe("insufficient_data");
+  });
+
+  it("uses direct explicit Market/PVT market cap before deriving from price and shares", () => {
+    const marketUnitMetadata = buildMarketPvtUnitMetadata({
+      units: { marketCap: "billion_vnd", marketPrice: "vnd_per_share" },
+      values: { marketCap: 2, marketPrice: 50_000 },
+    });
+    const result = buildControlledValuationIntegrationBoundary({
+      financialsRuntimeSnapshot: {
+        revenue: 100,
+        sharesOutstanding: 10,
+        units: { revenue: "billion_vnd", sharesOutstanding: "million_shares" },
+      },
+      persistedValuationInputs: {
+        marketCap: 2,
+        marketPrice: 50_000,
+        marketUnitMetadata,
+      },
+    });
+
+    expect(result.selectedInputs.marketCap).toMatchObject({
+      normalizationStatus: "ready",
+      normalizedUnit: "vnd",
+      source: "market_pvt",
+      value: 2_000_000_000,
+    });
+    expect(result.calculation.metrics.marketCap).toMatchObject({
+      reason: "ready_from_direct_market_cap",
+      status: "ready",
+      value: 2_000_000_000,
+    });
+    expect(result.calculation.metrics.ps.status).toBe("ready");
+  });
+
+  it("derives market cap only when market price and shares units are explicit", () => {
+    const explicitMarket = buildControlledValuationIntegrationBoundary({
+      financialsRuntimeSnapshot: { sharesOutstanding: 10, units: { sharesOutstanding: "million_shares" } },
+      persistedValuationInputs: {
+        marketPrice: 50_000,
+        marketUnitMetadata: buildMarketPvtUnitMetadata({
+          units: { marketPrice: "vnd_per_share" },
+          values: { marketPrice: 50_000 },
+        }),
+      },
+    });
+    const unknownShares = buildControlledValuationIntegrationBoundary({
+      financialsRuntimeSnapshot: { sharesOutstanding: 10 },
+      persistedValuationInputs: {
+        marketPrice: 50_000,
+        marketUnitMetadata: buildMarketPvtUnitMetadata({
+          units: { marketPrice: "vnd_per_share" },
+          values: { marketPrice: 50_000 },
+        }),
+      },
+    });
+
+    expect(explicitMarket.calculation.metrics.marketCap).toMatchObject({
+      reason: "ready_from_market_price_and_shares",
+      status: "ready",
+      value: 500_000_000_000,
+    });
+    expect(unknownShares.selectedInputs.sharesOutstanding.normalizationStatus).toBe("unknown_unit");
+    expect(unknownShares.calculation.metrics.marketCap.status).toBe("insufficient_data");
+  });
+
+  it("does not accept market price or market cap from Financials runtime ownership", () => {
+    const result = buildControlledValuationIntegrationBoundary({
+      financialsRuntimeSnapshot: {
+        eps: 2500,
+        marketCap: 1_000_000_000,
+        marketPrice: 50_000,
+        units: { eps: "vnd_per_share" },
+      } as never,
+    });
+
+    expect(result.selectedInputs.marketPrice.source).toBe("unavailable");
+    expect(result.selectedInputs.marketCap.source).toBe("unavailable");
+    expect(result.calculation.metrics.pe.status).toBe("insufficient_data");
+    expect(result.calculation.metrics.marketCap.status).toBe("insufficient_data");
   });
 });

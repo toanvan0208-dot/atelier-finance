@@ -165,3 +165,9 @@ Phase 65 adds `SOURCE_SPECIFIC_FINANCIALS_IMPORT_UNIT_CAPTURE.md`. This is parse
 ## 15. Phase 66 Follow-up
 
 Phase 66 adds `FINANCIALS_UNIT_METADATA_PERSISTENCE_READBACK_BOUNDARY.md`. Runtime sidecar handoff is test-covered, but DB persistence and visible UI output are unchanged. Browser verification is therefore not required for this phase.
+
+## 16. Phase 70 Follow-up
+
+Phase 70 adds `MARKET_PVT_UNIT_METADATA_CONTRACT.md`. This is a non-UI boundary update: explicit Market/PVT unit metadata can be handed into the controlled Valuation integration tests, but the read-only Valuation panel rendering is not changed.
+
+Browser verification is therefore not required for Phase 70. The panel's safety posture remains `productionApproved:false`, `canClaimValuationDbBacked:false`, and blocked EV/DCF/fair-value output.

@@ -101,3 +101,9 @@ Summary:
 - `buildTechnicalFromMarketPriceSeries()` passes adapter output into the existing Technical/PVT builder.
 - Existing UI/static data behavior is unchanged.
 - Optional local DB adapter verification completed with `17` FPT rows and `productionApproved:false`.
+
+## 7. Phase 70 Market/PVT Unit Metadata Contract
+
+Phase 70 is tracked in `MARKET_PVT_UNIT_METADATA_CONTRACT.md`.
+
+The market-price DB read path remains unchanged, but Valuation handoff now has a Market/PVT unit metadata contract. `marketPrice` must be explicit `vnd_per_share`; VND-scale fields such as direct `marketCap` or `tradingValue` must declare their scale; missing units stay unknown and are not inferred from numeric magnitude.

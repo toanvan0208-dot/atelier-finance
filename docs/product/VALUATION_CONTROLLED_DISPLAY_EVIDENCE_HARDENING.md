@@ -224,3 +224,9 @@ Phase 65 adds `SOURCE_SPECIFIC_FINANCIALS_IMPORT_UNIT_CAPTURE.md`. Browser evide
 ## 17. Phase 66 Follow-up
 
 Phase 66 adds `FINANCIALS_UNIT_METADATA_PERSISTENCE_READBACK_BOUNDARY.md`. The phase remains non-UI: it validates payload/read-back and runtime handoff behavior in tests, while visible Valuation browser output remains unchanged.
+
+## 18. Phase 70 Follow-up
+
+Phase 70 adds `MARKET_PVT_UNIT_METADATA_CONTRACT.md`. The display evidence remains valid because Phase 70 changes helper/types/tests/docs and the controlled Valuation integration boundary only; it does not change browser-visible Valuation UI behavior.
+
+Market/PVT inputs with missing or invalid units keep dependent metrics unavailable, and the display remains non-production-approved with no recommendation, target price, EV, DCF, or fair-value output.

@@ -267,3 +267,9 @@ Maximum scope:
 - keep market/PVT metadata separate from Financials unit metadata;
 - preserve `productionApproved:false`;
 - do not add EV, DCF, fair value range, target price, recommendation, or Risk scoring.
+
+## 15. Phase 70 Follow-up
+
+Phase 70 adds `MARKET_PVT_UNIT_METADATA_CONTRACT.md`. Market input metadata is now documented as a separate Market/PVT-owned contract: `marketPrice` and `marketCap` do not belong to Financials, and Valuation can only use them when their units are explicit and accepted.
+
+The Phase 69 Financials sidecar write trial remains unchanged. Phase 70 adds helper/types/tests/docs only; it does not write DB rows, add a schema migration, import real market data, or change visible UI behavior.

@@ -284,6 +284,8 @@ Phase 68 adds additive Financials unit metadata sidecar persistence in `ADDITIVE
 
 Phase 69 adds a controlled unit metadata write trial in `CONTROLLED_UNIT_METADATA_WRITE_TRIAL.md`. The existing repo-root `dev.db` could not use `prisma migrate deploy` without a migration baseline, so the trial used a temporary SQLite DB outside the repo, applied existing additive SQL migrations there, wrote one synthetic explicit-unit Financials row, verified ten sidecar unit rows, and read the metadata back through runtime and controlled Valuation boundaries. No DB file, generated Prisma output, raw CSV/JSON output, reset, seed, real BCTC import, UI change, or new metric is committed.
 
+Phase 70 adds a Market/PVT unit metadata contract in `MARKET_PVT_UNIT_METADATA_CONTRACT.md`. The contract defines accepted units for `marketPrice`, `marketCap`, `volume`, `tradingValue`, and `averageTradingValue20d`; keeps `marketPrice` and `marketCap` outside Financials ownership; and updates the controlled Valuation boundary so explicit Market/PVT metadata can unlock only already-approved helper metrics. Missing or invalid market units still block dependent metrics, with no magnitude guessing. No DB write, schema migration, real market import, UI change, new metric, target price, fair value, recommendation, Risk scoring, source approval, or production claim is added.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot

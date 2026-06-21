@@ -124,3 +124,9 @@ Phase 32 is tracked in `docs/product/TECHNICAL_PVT_DB_BACKED_UI_VERIFICATION.md`
 It adds a small Technical/PVT source transparency strip and verifies, through runtime/test evidence, that both sample fallback and DB-backed metadata can carry `productionApproved:false`. DB-backed mode remains explicit and default-off.
 
 Phase 33 browser verification is tracked in `docs/product/TECHNICAL_PVT_BROWSER_VERIFICATION_RECORD.md`.
+
+## 9. Phase 70 Market/PVT Unit Metadata Contract
+
+Phase 70 is tracked in `docs/product/MARKET_PVT_UNIT_METADATA_CONTRACT.md`.
+
+It adds a helper/type contract for Market/PVT numeric unit metadata without changing the Technical/PVT runtime loader or UI. Market price remains Market/PVT-owned, explicit unit metadata remains required for Valuation handoff, and local/research runtime data remains `productionApproved:false`.

@@ -239,3 +239,9 @@ Maximum scope:
 Phase 69 adds `CONTROLLED_UNIT_METADATA_WRITE_TRIAL.md`. A synthetic explicit-unit write trial was run against a temporary SQLite DB outside the repo after applying the existing additive SQL migrations there. The trial inserted one synthetic Financials row plus ten explicit sidecar unit rows, read them back into runtime metadata, and passed the explicit Financials units into the controlled Valuation boundary.
 
 The existing repo-root `dev.db` was not reset or seeded and was not committed. Generated Prisma output and temp artifacts were cleaned up before commit.
+
+## 15. Phase 70 Follow-up
+
+Phase 70 adds `MARKET_PVT_UNIT_METADATA_CONTRACT.md`. It keeps `marketPrice` and `marketCap` outside the Financials sidecar persistence contract, defines their accepted Market/PVT units, and lets the controlled Valuation boundary consume explicit market metadata when available.
+
+No Financials schema, migration, sidecar table, DB row, generated Prisma output, or visible UI behavior changes in Phase 70.

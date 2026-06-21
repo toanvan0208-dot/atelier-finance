@@ -9,9 +9,17 @@ import {
   type ValuationInputProvenance,
   type ValuationUnit,
 } from "./valuation-input-unit-provenance";
+import type {
+  MarketPvtFieldUnitMetadata,
+  MarketPvtNumericField,
+} from "@/features/technical/lib/market-pvt-unit-metadata-contract";
 import type { ValuationSourceMode } from "./valuation-financials-runtime-consumption";
 
-export type ControlledValuationIntegrationInputSource = "financials_runtime" | "persisted_bridge" | "unavailable";
+export type ControlledValuationIntegrationInputSource =
+  | "financials_runtime"
+  | "persisted_bridge"
+  | "market_pvt"
+  | "unavailable";
 
 export type ControlledValuationInputUnitMap = {
   revenue?: ValuationUnit | null;
@@ -63,6 +71,7 @@ export type ControlledValuationPersistedInputs = {
   dataMode?: string | null;
   productionApproved?: boolean | null;
   units?: ControlledValuationInputUnitMap | null;
+  marketUnitMetadata?: Partial<Record<MarketPvtNumericField, MarketPvtFieldUnitMetadata>> | null;
 };
 
 export type ControlledValuationIntegrationMode =
@@ -107,6 +116,7 @@ const inputUnit = (
 
 const sourceForProvenance = (source: ControlledValuationIntegrationInputSource): ValuationInputProvenance["source"] => {
   if (source === "financials_runtime") return "financials_runtime";
+  if (source === "market_pvt") return "market_pvt";
   if (source === "persisted_bridge") return "persisted_bridge";
   return "unknown";
 };
@@ -120,6 +130,7 @@ const selectedInput = ({
   sourceLabel,
   unit,
   value,
+  warnings: additionalWarnings = [],
 }: {
   field: string;
   value: number | null | undefined;
@@ -129,6 +140,7 @@ const selectedInput = ({
   sourceLabel?: string | null;
   dataMode?: string | null;
   productionApproved?: boolean | null;
+  warnings?: string[];
 }): ControlledValuationSelectedInput => {
   const normalized = normalizeValuationInput({
     expected,
@@ -150,7 +162,7 @@ const selectedInput = ({
     normalizedUnit: normalized.normalizedUnit,
     normalizationStatus: normalized.status,
     provenance: normalized.provenance,
-    warnings: normalized.warnings.map((warning) => `${field}_${warning}`),
+    warnings: [...normalized.warnings.map((warning) => `${field}_${warning}`), ...additionalWarnings],
   };
 };
 
@@ -220,7 +232,7 @@ const selectPersistedMarketInput = ({
   value,
   warnings,
 }: {
-  field: keyof ControlledValuationInputUnitMap;
+  field: "marketPrice" | "marketCap";
   expected: ValuationInputNormalizationKind;
   value: number | null | undefined;
   persisted?: ControlledValuationPersistedInputs | null;
@@ -236,15 +248,18 @@ const selectPersistedMarketInput = ({
     });
   }
 
+  const metadata = persisted?.marketUnitMetadata?.[field];
+  const hasMarketMetadata = Boolean(metadata);
   const input = selectedInput({
-    dataMode: persisted?.dataMode,
+    dataMode: metadata?.dataMode ?? persisted?.dataMode,
     expected,
     field,
     productionApproved: persisted?.productionApproved,
-    source: "persisted_bridge",
-    sourceLabel: persisted?.sourceLabel,
-    unit: inputUnit(persisted?.units, field),
+    source: hasMarketMetadata ? "market_pvt" : "persisted_bridge",
+    sourceLabel: metadata?.sourceLabel ?? persisted?.sourceLabel,
+    unit: metadata?.unit ?? inputUnit(persisted?.units, field),
     value,
+    warnings: metadata?.warnings ?? [],
   });
   warnings.push(...input.warnings);
   return input;
@@ -271,6 +286,10 @@ const hasAnyPersistedInput = (persisted?: ControlledValuationPersistedInputs | n
         persisted.marketCap,
       ].some(isPresentNumber),
   );
+
+const hasAnyMarketPvtInput = (
+  selectedInputs: ControlledValuationIntegrationBoundary["selectedInputs"],
+): boolean => hasSource(selectedInputs, "market_pvt");
 
 const resolveSourceMode = ({
   fallbackUsed,
@@ -389,9 +408,10 @@ export const buildControlledValuationIntegrationBoundary = ({
   const fallbackUsed = Boolean(runtime?.fallbackUsed) || mode === "fallback";
   const hasRuntimeInput = hasSource(selectedInputs, "financials_runtime");
   const hasPersistedInput = hasSource(selectedInputs, "persisted_bridge") || hasAnyPersistedInput(persisted);
+  const hasMarketPvtInput = hasAnyMarketPvtInput(selectedInputs);
   const valuationSourceMode = resolveSourceMode({
     fallbackUsed,
-    hasPersisted: hasPersistedInput,
+    hasPersisted: hasPersistedInput || hasMarketPvtInput,
     hasRuntime: hasRuntimeInput,
     mode,
   });
@@ -410,9 +430,13 @@ export const buildControlledValuationIntegrationBoundary = ({
     },
     source: {
       financialsSourceMode: hasRuntimeInput ? "financials_runtime_partial" : selectedInputs.revenue.source,
-      marketSourceMode: selectedInputs.marketPrice.source === "persisted_bridge" || selectedInputs.marketCap.source === "persisted_bridge"
-        ? "persisted_bridge"
-        : "not_wired",
+      marketSourceMode:
+        selectedInputs.marketPrice.source === "market_pvt" || selectedInputs.marketCap.source === "market_pvt"
+          ? "market_pvt"
+          : selectedInputs.marketPrice.source === "persisted_bridge" ||
+              selectedInputs.marketCap.source === "persisted_bridge"
+            ? "persisted_bridge"
+            : "not_wired",
       dataMode: runtime?.dataMode ?? persisted?.dataMode ?? null,
       productionApproved: false,
       mixedSource,
