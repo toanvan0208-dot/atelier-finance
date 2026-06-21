@@ -10,9 +10,10 @@ import { getMarketPriceSeries } from "../market-price-read-service";
 import type { MarketPvtSafeImportDb } from "../market-pvt-safe-import-mvp";
 
 const ENV_KEY = "ATELIER_LOCAL_IMPORTS_ENABLED";
-const DATABASE_URL = "file:./phase-102-test.db";
-const SOURCE_LABEL = "provider_candidate_phase_102";
-const request = { ticker: "FPT", from: "2026-06-20", to: "2026-06-21" };
+const DATABASE_URL = "file:./phase-103-test.db";
+const SOURCE_LABEL = "provider_candidate_phase_103";
+const request = { ticker: "FPT", from: "2026-06-01", to: "2026-06-30" };
+const EXPANDED_ROW_COUNT = 20;
 
 type StoredPrice = {
   id: string;
@@ -144,15 +145,23 @@ const providerResponse = (
   patch: Partial<ControlledMarketPvtProviderResponse> = {},
 ): ControlledMarketPvtProviderResponse => ({
   ticker: "FPT",
-  asOf: "2026-06-21",
+  asOf: "2026-06-30",
   sourceLabel: SOURCE_LABEL,
   currency: "VND",
   priceUnit: "vnd_per_share",
   volumeUnit: "shares",
-  observations: [
-    { ticker: "FPT", tradingDate: "2026-06-20", closePrice: 98000, volume: 400000 },
-    { ticker: "FPT", tradingDate: "2026-06-21", closePrice: 100000, volume: 500000 },
-  ],
+  observations: Array.from({ length: 30 }, (_, index) => {
+    const date = new Date(Date.UTC(2026, 5, index + 1));
+    return { date, weekday: date.getUTCDay() };
+  })
+    .filter(({ weekday }) => weekday !== 0 && weekday !== 6)
+    .slice(0, EXPANDED_ROW_COUNT)
+    .map(({ date }, index) => ({
+      ticker: "FPT",
+      tradingDate: date.toISOString().slice(0, 10),
+      closePrice: 98000 + index * 500,
+      volume: 400000 + index * 10000,
+    })),
   ...patch,
 });
 
@@ -179,7 +188,7 @@ describe("controlled Market/PVT provider adapter", () => {
 
     expect(normalized).toMatchObject({
       request,
-      asOf: "2026-06-21",
+      asOf: "2026-06-30",
       sourceLabel: SOURCE_LABEL,
       currency: "VND",
       priceUnit: "vnd_per_share",
@@ -187,10 +196,19 @@ describe("controlled Market/PVT provider adapter", () => {
       productionApproved: false,
       errors: [],
     });
-    expect(normalized.candidateRows).toEqual([
-      { symbol: "FPT", timestamp: "2026-06-20", close_price: 98000, volume_shares: 400000 },
-      { symbol: "FPT", timestamp: "2026-06-21", close_price: 100000, volume_shares: 500000 },
-    ]);
+    expect(normalized.candidateRows).toHaveLength(EXPANDED_ROW_COUNT);
+    expect(normalized.candidateRows[0]).toEqual({
+      symbol: "FPT",
+      timestamp: "2026-06-01",
+      close_price: 98000,
+      volume_shares: 400000,
+    });
+    expect(normalized.candidateRows.at(-1)).toEqual({
+      symbol: "FPT",
+      timestamp: "2026-06-26",
+      close_price: 107500,
+      volume_shares: 590000,
+    });
   });
 
   it("enforces a single ticker and a bounded date range before calling the provider", async () => {
@@ -215,12 +233,37 @@ describe("controlled Market/PVT provider adapter", () => {
     expect(fetcher).not.toHaveBeenCalled();
   });
 
+  it("fails closed when a provider response exceeds the bounded observation count", async () => {
+    process.env[ENV_KEY] = "true";
+    const db = new ProviderImportDb();
+    const base = providerResponse();
+    const oversized = providerResponse({
+      observations: Array.from({ length: 32 }, (_, index) => ({
+        ...base.observations[index % base.observations.length],
+        tradingDate: `2026-06-${String((index % 30) + 1).padStart(2, "0")}`,
+      })),
+    });
+    const normalized = normalizeControlledMarketPvtProviderResponse(request, oversized);
+    const result = await runProvider(db, oversized, { confirmWrite: true });
+
+    expect(normalized.errors).toContain("controlled_provider_observation_count_exceeded");
+    expect(normalized.candidateRows.every((row) => row.close_price === null)).toBe(true);
+    expect(result.summary).toMatchObject({ validRows: 0, invalidRows: 32, writtenRows: 0 });
+    expect(db.prices).toHaveLength(0);
+  });
+
   it("remains dry-run by default and writes zero rows", async () => {
     const db = new ProviderImportDb();
     const result = await runProvider(db);
 
     expect(result).toMatchObject({ dryRun: true, status: "preview_ready", productionApproved: false });
-    expect(result.summary).toMatchObject({ validRows: 2, writtenRows: 0 });
+    expect(result.summary).toMatchObject({
+      totalRows: EXPANDED_ROW_COUNT,
+      validRows: EXPANDED_ROW_COUNT,
+      invalidRows: 0,
+      skippedRows: 0,
+      writtenRows: 0,
+    });
     expect(result.audit).toMatchObject({ dryRun: true, confirmWrite: false, writtenRows: 0 });
     expect(db.prices).toHaveLength(0);
   });
@@ -253,18 +296,33 @@ describe("controlled Market/PVT provider adapter", () => {
       expect.objectContaining({ confirmWrite: true, databaseUrl: DATABASE_URL, db }),
     );
     expect(result.status).toBe("import_completed");
-    expect(result.summary).toMatchObject({ validRows: 2, invalidRows: 0, skippedRows: 0, writtenRows: 2 });
-    expect(result.audit).toMatchObject({ confirmWrite: true, writtenRows: 2, productionApproved: false });
-    expect(result.acceptedRows[1]).toMatchObject({
+    expect(result.summary).toMatchObject({
+      totalRows: EXPANDED_ROW_COUNT,
+      validRows: EXPANDED_ROW_COUNT,
+      invalidRows: 0,
+      skippedRows: 0,
+      writtenRows: EXPANDED_ROW_COUNT,
+    });
+    expect(result.summary.writtenRows).toBeGreaterThan(2);
+    expect(result.audit).toMatchObject({
+      confirmWrite: true,
+      totalRows: EXPANDED_ROW_COUNT,
+      validRows: EXPANDED_ROW_COUNT,
+      invalidRows: 0,
+      skippedRows: 0,
+      writtenRows: EXPANDED_ROW_COUNT,
+      productionApproved: false,
+    });
+    expect(result.acceptedRows.at(-1)).toMatchObject({
       ticker: "FPT",
-      period: "2026-06-21",
+      period: "2026-06-26",
       sourceLabel: SOURCE_LABEL,
       currency: "VND",
       productionApproved: false,
     });
-    expect(result.acceptedRows[1].asOf.toISOString()).toContain("2026-06-21");
-    expect(result.acceptedRows[1].marketUnitMetadata.marketPrice?.unit).toBe("vnd_per_share");
-    expect(result.acceptedRows[1].marketUnitMetadata.volume?.unit).toBe("shares");
+    expect(result.acceptedRows.at(-1)?.asOf.toISOString()).toContain("2026-06-30");
+    expect(result.acceptedRows.at(-1)?.marketUnitMetadata.marketPrice?.unit).toBe("vnd_per_share");
+    expect(result.acceptedRows.at(-1)?.marketUnitMetadata.volume?.unit).toBe("shares");
   });
 
   it("fails closed on missing or invalid provider units", async () => {
@@ -277,7 +335,11 @@ describe("controlled Market/PVT provider adapter", () => {
     );
 
     expect(result.status).toBe("import_rejected");
-    expect(result.summary).toMatchObject({ validRows: 0, invalidRows: 2, writtenRows: 0 });
+    expect(result.summary).toMatchObject({
+      validRows: 0,
+      invalidRows: EXPANDED_ROW_COUNT,
+      writtenRows: 0,
+    });
     expect(result.summary.errors.join(" ")).toContain("marketPrice_unit_invalid");
     expect(result.summary.errors.join(" ")).toContain("volume_unit_missing");
     expect(db.prices).toHaveLength(0);
@@ -346,7 +408,8 @@ describe("controlled Market/PVT provider adapter", () => {
       productionApproved: false,
     });
     expect(technical.marketDataSource).toMatchObject({ provider: "local_import", productionApproved: false });
-    expect(technical.data?.currentPrice).toBe(100000);
+    expect(technical.data?.currentPrice).toBe(107500);
+    expect(technical.data?.pvtDerivedMetrics?.availableObservations).toBe(EXPANDED_ROW_COUNT);
     expect(JSON.stringify(technical)).not.toContain("sample_fallback");
   });
 

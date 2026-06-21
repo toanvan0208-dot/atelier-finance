@@ -53,6 +53,7 @@ export type RunControlledMarketPvtProviderOptions = ControlledMarketPvtProviderR
   };
 
 const MAX_RANGE_DAYS = 31;
+const MAX_PROVIDER_OBSERVATIONS = 31;
 const SAFE_SOURCE_LABEL = /^(provider_candidate|research_external_candidate|local_external_candidate)(?:[_-][a-z0-9_-]+)?$/;
 
 const dateOnly = (value: string): string | null => {
@@ -95,6 +96,8 @@ export const normalizeControlledMarketPvtProviderResponse = (
   if (responseTicker !== request.ticker) errors.push("controlled_provider_response_ticker_mismatch");
   if (!asOf) errors.push("controlled_provider_as_of_invalid");
   if (!SAFE_SOURCE_LABEL.test(sourceLabel)) errors.push("controlled_provider_source_label_invalid");
+  const observationCountAccepted = response.observations.length <= MAX_PROVIDER_OBSERVATIONS;
+  if (!observationCountAccepted) errors.push("controlled_provider_observation_count_exceeded");
 
   const candidateRows = response.observations.map((observation) => {
     const observationTicker = observation.ticker.trim().toUpperCase();
@@ -108,7 +111,7 @@ export const normalizeControlledMarketPvtProviderResponse = (
     return {
       symbol: tickerMatches ? observationTicker : "",
       timestamp: dateInRange ? tradingDate : "",
-      close_price: observation.closePrice,
+      close_price: observationCountAccepted ? observation.closePrice : null,
       volume_shares: observation.volume,
     };
   });
