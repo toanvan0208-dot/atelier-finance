@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 const root = process.cwd();
 const files = [
   join(root, "src/components/data-import/ManualDataImportWorkspace.tsx"),
+  join(root, "src/components/data-import/LocalImportPreviewConfirmPanel.tsx"),
   join(root, "src/features/overview/components/OverviewPage.tsx"),
   join(root, "docs/product/MANUAL_DATA_IMPORT_WORKSPACE.md"),
   join(root, "docs/product/MANUAL_IMPORT_UX_HARDENING.md"),
@@ -24,6 +25,7 @@ const forbiddenPhrases = [
   "chắc chắn xấu",
   "target price",
   "fair value",
+  "production-ready",
 ];
 
 describe("Manual data import workspace copy", () => {

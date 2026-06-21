@@ -12,6 +12,7 @@ import {
   type ManualImportSaveResult,
 } from "@/lib/data-sources/manual-import-api-client";
 import type { ManualUploadIssueSeverity } from "@/lib/data-sources/manual-upload-report";
+import { LocalImportPreviewConfirmPanel } from "./LocalImportPreviewConfirmPanel";
 
 const templateCsv = [
   "ticker,period,revenue,netIncome,operatingCashFlow,totalAssets,equity,eps,bvps,sharesOutstanding,closePrice,volume,tradingValue,source,asOf",
@@ -720,6 +721,7 @@ export function ManualDataImportWorkspace() {
         </section>
 
         <DataSourceWarningCard />
+        <LocalImportPreviewConfirmPanel />
         <CsvTemplateCard onUseTemplate={useTemplate} />
         <FieldGuide />
 
