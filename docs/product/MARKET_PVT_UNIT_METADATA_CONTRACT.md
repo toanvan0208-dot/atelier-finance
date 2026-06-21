@@ -170,3 +170,7 @@ Phase 73 adds `CONTROLLED_MARKET_PVT_METADATA_WRITE_TRIAL.md`. The controlled tr
 ## 16. Phase 74 Follow-up
 
 Phase 74 adds `MARKET_PVT_METADATA_PERSISTENCE_DESIGN.md`. The recommended future persistence model is `MarketPriceUnitMetadata`, one sidecar row per `MarketPrice` field, with old rows continuing to fail closed as `unknown_unit`.
+
+## 17. Phase 75 Follow-up
+
+Phase 75 implements `MarketPriceUnitMetadata` as an additive sidecar model/table. The accepted-unit contract remains unchanged: only explicit valid units can become ready, missing units remain `unknown_unit`, invalid units fail closed, and Financials still cannot own `marketPrice` or `marketCap` metadata.

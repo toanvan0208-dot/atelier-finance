@@ -259,3 +259,9 @@ Phase 73 adds `CONTROLLED_MARKET_PVT_METADATA_WRITE_TRIAL.md`. The read-through 
 ## 23. Phase 74 Follow-up
 
 Phase 74 adds `MARKET_PVT_METADATA_PERSISTENCE_DESIGN.md`. The recommended sidecar design would feed the existing normalization boundary in a future implementation phase; Phase 74 itself does not change normalization runtime behavior.
+
+## 24. Phase 75 Follow-up
+
+Phase 75 implements the additive `MarketPriceUnitMetadata` sidecar and read-back mapping. Valuation can consume persisted Market/PVT metadata only after the Market/PVT contract marks it valid; missing sidecars stay `unknown_unit`, invalid sidecars fail closed, and a persisted numeric market value cannot bypass invalid metadata.
+
+Valuation still cannot claim fully DB-backed status from Market/PVT metadata persistence alone.

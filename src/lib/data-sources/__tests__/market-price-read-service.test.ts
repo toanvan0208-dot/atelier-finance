@@ -15,9 +15,22 @@ type StoredMarketPrice = {
   closePrice: number | null;
   volume: number | null;
   tradingValue: number | null;
+  marketCap?: number | null;
   sourceLabel: string;
   dataMode: string;
+  asOf?: Date | null;
   collectedAt?: Date | null;
+  unitMetadata?: Array<{
+    field: string;
+    unit: string | null;
+    status: string;
+    source?: string | null;
+    sourceLabel?: string | null;
+    dataMode?: string | null;
+    asOf?: Date | null;
+    warningCodes?: string | null;
+    productionApproved?: boolean | null;
+  }>;
 };
 
 class FakeMarketPriceReadDb {
@@ -57,9 +70,12 @@ const row = (patch: Partial<StoredMarketPrice> = {}): StoredMarketPrice => ({
   closePrice: 105,
   volume: 1000,
   tradingValue: 105000,
+  marketCap: null,
   sourceLabel: "vnstock",
   dataMode: "research_only",
+  asOf: new Date("2025-01-02"),
   collectedAt: new Date("2026-06-19T00:00:00.000Z"),
+  unitMetadata: [],
   ...patch,
 });
 
@@ -131,6 +147,109 @@ describe("market price read service", () => {
     });
     expect(result.rows[0].open).not.toBe(0);
     expect(result.rows[0].tradingValue).not.toBe(0);
+  });
+
+  it("maps old market price rows without sidecar metadata to unknown_unit", async () => {
+    db.marketPrices.push(row({ closePrice: 105, marketCap: 5_000_000_000, unitMetadata: [] }));
+
+    const result = await getMarketPriceSeries(params(), { db });
+
+    expect(result.marketUnitMetadata?.marketPrice).toMatchObject({
+      status: "unknown_unit",
+      unit: "unknown",
+      value: 105,
+    });
+    expect(result.marketUnitMetadata?.marketCap).toMatchObject({
+      status: "unknown_unit",
+      unit: "unknown",
+      value: 5_000_000_000,
+    });
+    expect(result.marketUnitMetadata?.marketCap.unit).not.toBe("vnd");
+  });
+
+  it("maps valid persisted sidecar metadata to ready Market/PVT metadata", async () => {
+    db.marketPrices.push(
+      row({
+        closePrice: 105,
+        marketCap: 5_000_000_000,
+        unitMetadata: [
+          {
+            field: "marketPrice",
+            unit: "vnd_per_share",
+            status: "ready",
+            source: "persisted_market_bridge",
+            sourceLabel: "vnstock",
+            dataMode: "research_only",
+            asOf: new Date("2025-01-02"),
+            warningCodes: "[]",
+            productionApproved: false,
+          },
+          {
+            field: "marketCap",
+            unit: "billion_vnd",
+            status: "ready",
+            source: "persisted_market_bridge",
+            sourceLabel: "vnstock",
+            dataMode: "research_only",
+            asOf: new Date("2025-01-02"),
+            warningCodes: "[]",
+            productionApproved: false,
+          },
+        ],
+      }),
+    );
+
+    const result = await getMarketPriceSeries(params(), { db });
+
+    expect(result.marketUnitMetadata?.marketPrice).toMatchObject({
+      source: "persisted_market_bridge",
+      status: "ready",
+      unit: "vnd_per_share",
+      value: 105,
+    });
+    expect(result.marketUnitMetadata?.marketCap).toMatchObject({
+      status: "ready",
+      unit: "billion_vnd",
+      value: 5_000_000_000,
+    });
+  });
+
+  it("keeps invalid persisted units fail-closed even when numeric values exist", async () => {
+    db.marketPrices.push(
+      row({
+        closePrice: 105,
+        marketCap: 5_000_000_000,
+        unitMetadata: [
+          {
+            field: "marketPrice",
+            unit: "million_vnd",
+            status: "ready",
+            warningCodes: "[]",
+          },
+          {
+            field: "marketCap",
+            unit: "vnd_per_share",
+            status: "ready",
+            warningCodes: "[]",
+          },
+        ],
+      }),
+    );
+
+    const result = await getMarketPriceSeries(params(), { db });
+
+    expect(result.marketUnitMetadata?.marketPrice).toMatchObject({
+      status: "unknown_unit",
+      unit: "unknown",
+      value: 105,
+    });
+    expect(result.marketUnitMetadata?.marketCap).toMatchObject({
+      status: "unknown_unit",
+      unit: "unknown",
+      value: 5_000_000_000,
+    });
+    expect(result.warnings).toContain("marketPrice_persisted_market_pvt_unit_metadata_invalid");
+    expect(result.warnings).toContain("marketCap_persisted_market_pvt_unit_metadata_invalid");
   });
 
   it("handles invalid input without reading the database", async () => {

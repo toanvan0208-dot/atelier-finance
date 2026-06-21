@@ -12,6 +12,21 @@ import {
 } from "./market-pvt-unit-metadata-capture";
 import type { MarketPvtUnitMetadataMap } from "./market-pvt-unit-metadata-contract";
 
+const hasExplicitCapture = (
+  capture: Pick<
+    MarketPvtUnitMetadataCaptureInput,
+    "asOf" | "dataMode" | "source" | "sourceLabel" | "units" | "values"
+  >,
+): boolean =>
+  Boolean(
+    capture.asOf ||
+      capture.dataMode ||
+      capture.source ||
+      capture.sourceLabel ||
+      Object.keys(capture.units ?? {}).length > 0 ||
+      Object.keys(capture.values ?? {}).length > 0,
+  );
+
 export type TechnicalPvtFromMarketPriceSeriesResult = {
   ok: boolean;
   status: MarketPricePvtAdapterResult["status"];
@@ -30,6 +45,7 @@ export const buildTechnicalFromMarketPriceSeries = (
 ): TechnicalPvtFromMarketPriceSeriesResult => {
   const adapter = adaptMarketPriceSeriesToPvt(series);
   const latestDate = adapter.latestDate ?? series.rows.at(-1)?.date ?? series.to;
+  const persistedMarketUnitMetadata = !hasExplicitCapture(capture) ? series.marketUnitMetadata : null;
   const captured = captureMarketPvtUnitMetadata({
     asOf: capture.asOf ?? latestDate,
     dataMode: capture.dataMode ?? series.dataMode,
@@ -44,13 +60,14 @@ export const buildTechnicalFromMarketPriceSeries = (
       ...capture.values,
     },
   });
+  const marketUnitMetadata = persistedMarketUnitMetadata ?? captured.marketUnitMetadata;
 
   if (!adapter.ok || !adapter.pvtInput) {
     return {
       ok: false,
       status: adapter.status,
       adapter,
-      marketUnitMetadata: captured.marketUnitMetadata,
+      marketUnitMetadata,
       data: null,
     };
   }
@@ -76,7 +93,7 @@ export const buildTechnicalFromMarketPriceSeries = (
     ok: true,
     status: "completed",
     adapter,
-    marketUnitMetadata: captured.marketUnitMetadata,
+    marketUnitMetadata,
     data: buildTechnicalDeskData(baseData, snapshot),
   };
 };

@@ -148,3 +148,11 @@ The Technical/PVT builder now supports controlled capture overrides for syntheti
 Phase 74 is tracked in `docs/product/MARKET_PVT_METADATA_PERSISTENCE_DESIGN.md`.
 
 The recommended future storage path is an additive `MarketPriceUnitMetadata` sidecar. Runtime behavior remains unchanged in Phase 74.
+
+## 13. Phase 75 Additive Market/PVT Metadata Persistence
+
+Phase 75 implements the additive sidecar path from Phase 74.
+
+`getMarketPriceSeries()` now selects `MarketPrice.unitMetadata` rows when present and converts them through the Market/PVT unit contract into `marketUnitMetadata`. `buildTechnicalFromMarketPriceSeries()` uses persisted `marketUnitMetadata` from the DB-backed series when no explicit capture override is supplied.
+
+Rows without sidecar metadata remain readable as `unknown_unit`. Invalid sidecar units fail closed and emit warnings; numeric market values alone do not unlock unit-sensitive Valuation calculations. This does not add a provider, parser, real import, source approval, UI change, or new metric.

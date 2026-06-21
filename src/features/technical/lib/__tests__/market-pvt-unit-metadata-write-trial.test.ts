@@ -121,12 +121,12 @@ const buildSyntheticTrial = () =>
   });
 
 describe("Phase 73 controlled Market/PVT metadata write/read-through trial", () => {
-  it("uses read-through mode because MarketPrice has no unit metadata persistence schema", () => {
+  it("keeps Phase 73 read-through fixtures compatible after additive sidecar persistence", () => {
     const schema = readFileSync(join(process.cwd(), "prisma/schema.prisma"), "utf8");
     const marketPriceModel = schema.slice(schema.indexOf("model MarketPrice"), schema.indexOf("model DataSource"));
 
-    expect(marketPriceModel).not.toContain("unitMetadata");
-    expect(schema).not.toContain("MarketPriceUnitMetadata");
+    expect(marketPriceModel).toContain("unitMetadata");
+    expect(schema).toContain("model MarketPriceUnitMetadata");
   });
 
   it("builds ready metadata for every explicit synthetic Market/PVT field", () => {

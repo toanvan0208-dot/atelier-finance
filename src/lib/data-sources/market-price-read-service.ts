@@ -1,3 +1,10 @@
+import type { MarketPvtUnitMetadataMap } from "@/features/technical/lib/market-pvt-unit-metadata-contract";
+import {
+  readMarketPvtUnitMetadataFromPersistencePayload,
+  unitMetadataPayloadFromMarketPriceSidecar,
+  type StoredMarketPvtUnitMetadataSidecarRow,
+} from "@/features/technical/lib/market-pvt-unit-metadata-persistence-boundary";
+
 export type MarketPriceReadStatus =
   | "completed"
   | "not_found"
@@ -21,6 +28,7 @@ export type MarketPriceSeriesRow = {
   close: number | null;
   volume: number | null;
   tradingValue: number | null;
+  marketCap?: number | null;
 };
 
 export type MarketPriceSeriesResult = {
@@ -34,6 +42,7 @@ export type MarketPriceSeriesResult = {
   productionApproved: false;
   count: number;
   rows: MarketPriceSeriesRow[];
+  marketUnitMetadata?: MarketPvtUnitMetadataMap | null;
   warnings: string[];
   errors: string[];
 };
@@ -66,9 +75,12 @@ type StoredMarketPrice = {
   closePrice: number | string | ReadableDecimal | null;
   volume: number | string | ReadableDecimal | null;
   tradingValue: number | string | ReadableDecimal | null;
+  marketCap?: number | string | ReadableDecimal | null;
   sourceLabel?: string | null;
   dataMode?: string | null;
+  asOf?: Date | string | null;
   collectedAt?: Date | string | null;
+  unitMetadata?: StoredMarketPvtUnitMetadataSidecarRow[];
 };
 
 type MarketPriceReadDb = {
@@ -115,6 +127,7 @@ const emptyResult = ({
   productionApproved: false,
   count: 0,
   rows: [],
+  marketUnitMetadata: null,
   warnings: [SOURCE_BOUNDARY_WARNING, ...warnings],
   errors,
 });
@@ -155,6 +168,20 @@ const resolveDb = async (db: MarketPriceReadDb | undefined): Promise<MarketPrice
   if (db) return db;
   const database = await import("../database/client");
   return database.prisma as unknown as MarketPriceReadDb;
+};
+
+const valuesForMarketUnitMetadata = (
+  rows: MarketPriceSeriesRow[],
+): Partial<Record<keyof MarketPvtUnitMetadataMap, number | null>> => {
+  const latest = rows.at(-1);
+  const lastTwenty = rows.slice(-20);
+  return {
+    averageTradingValue20d: average(lastTwenty.map((row) => row.tradingValue)),
+    marketCap: latest?.marketCap ?? null,
+    marketPrice: latest?.close ?? null,
+    tradingValue: latest?.tradingValue ?? null,
+    volume: latest?.volume ?? null,
+  };
 };
 
 export const getMarketPriceSeries = async (
@@ -211,9 +238,24 @@ export const getMarketPriceSeries = async (
         closePrice: true,
         volume: true,
         tradingValue: true,
+        marketCap: true,
         sourceLabel: true,
         dataMode: true,
+        asOf: true,
         collectedAt: true,
+        unitMetadata: {
+          select: {
+            field: true,
+            unit: true,
+            status: true,
+            source: true,
+            sourceLabel: true,
+            dataMode: true,
+            asOf: true,
+            warningCodes: true,
+            productionApproved: true,
+          },
+        },
       },
     });
 
@@ -226,6 +268,7 @@ export const getMarketPriceSeries = async (
       close: toNullableNumber(record.closePrice),
       volume: toNullableNumber(record.volume),
       tradingValue: toNullableNumber(record.tradingValue),
+      marketCap: toNullableNumber(record.marketCap),
     }));
 
     if (rows.length === 0) {
@@ -240,6 +283,15 @@ export const getMarketPriceSeries = async (
       });
     }
 
+    const latestRecord = records.at(-1);
+    const unitMetadataRead = readMarketPvtUnitMetadataFromPersistencePayload({
+      asOf: dateOnly(latestRecord?.asOf ?? latestRecord?.tradingDate ?? toDate),
+      dataMode,
+      payload: unitMetadataPayloadFromMarketPriceSidecar(latestRecord?.unitMetadata),
+      sourceLabel,
+      values: valuesForMarketUnitMetadata(rows),
+    });
+
     return {
       ...emptyResult({
         status: "completed",
@@ -248,8 +300,10 @@ export const getMarketPriceSeries = async (
         to: dateOnly(toDate),
         sourceLabel,
         dataMode,
+        warnings: unitMetadataRead.warnings,
       }),
       count: rows.length,
+      marketUnitMetadata: unitMetadataRead.marketUnitMetadata,
       rows,
     };
   } catch (error) {

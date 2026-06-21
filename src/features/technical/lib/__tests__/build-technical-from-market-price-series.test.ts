@@ -345,6 +345,92 @@ describe("buildTechnicalFromMarketPriceSeries", () => {
     expect(result.marketUnitMetadata.averageTradingValue20d.status).toBe("ready");
   });
 
+  it("uses persisted market unit metadata from DB-backed series when present", () => {
+    const persistedSeries = series([row({ close: 119, volume: 1019, tradingValue: 100019 })]);
+    const result = buildTechnicalFromMarketPriceSeries(baseData, {
+      ...persistedSeries,
+      marketUnitMetadata: {
+        averageTradingValue20d: {
+          acceptedUnits: ["vnd", "thousand_vnd", "million_vnd", "billion_vnd"],
+          dataMode: "research_only",
+          field: "averageTradingValue20d",
+          owner: "market_pvt",
+          productionApproved: false,
+          source: "persisted_market_bridge",
+          sourceLabel: "vnstock",
+          status: "ready",
+          unit: "vnd",
+          usedByValuation: false,
+          value: 100019,
+          warnings: [],
+        },
+        marketCap: {
+          acceptedUnits: ["vnd", "thousand_vnd", "million_vnd", "billion_vnd"],
+          dataMode: "research_only",
+          field: "marketCap",
+          owner: "market_pvt",
+          productionApproved: false,
+          source: "persisted_market_bridge",
+          sourceLabel: "vnstock",
+          status: "ready",
+          unit: "vnd",
+          usedByValuation: true,
+          value: 5_000_000_000,
+          warnings: [],
+        },
+        marketPrice: {
+          acceptedUnits: ["vnd_per_share"],
+          dataMode: "research_only",
+          field: "marketPrice",
+          owner: "market_pvt",
+          productionApproved: false,
+          source: "persisted_market_bridge",
+          sourceLabel: "vnstock",
+          status: "ready",
+          unit: "vnd_per_share",
+          usedByValuation: true,
+          value: 119,
+          warnings: [],
+        },
+        tradingValue: {
+          acceptedUnits: ["vnd", "thousand_vnd", "million_vnd", "billion_vnd"],
+          dataMode: "research_only",
+          field: "tradingValue",
+          owner: "market_pvt",
+          productionApproved: false,
+          source: "persisted_market_bridge",
+          sourceLabel: "vnstock",
+          status: "ready",
+          unit: "vnd",
+          usedByValuation: false,
+          value: 100019,
+          warnings: [],
+        },
+        volume: {
+          acceptedUnits: ["shares", "thousand_shares", "million_shares"],
+          dataMode: "research_only",
+          field: "volume",
+          owner: "market_pvt",
+          productionApproved: false,
+          source: "persisted_market_bridge",
+          sourceLabel: "vnstock",
+          status: "ready",
+          unit: "shares",
+          usedByValuation: false,
+          value: 1019,
+          warnings: [],
+        },
+      },
+    });
+
+    expect(result.marketUnitMetadata.marketPrice).toMatchObject({
+      source: "persisted_market_bridge",
+      status: "ready",
+      unit: "vnd_per_share",
+      value: 119,
+    });
+  });
+
   it("returns an adapter-ready failure when the series is not completed", () => {
     const result = buildTechnicalFromMarketPriceSeries(
       baseData,

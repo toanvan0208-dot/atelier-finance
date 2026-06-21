@@ -210,3 +210,9 @@ Maximum scope:
 Phase 74 adds `MARKET_PVT_METADATA_PERSISTENCE_DESIGN.md`. It recommends an additive `MarketPriceUnitMetadata` sidecar table for future implementation, mirroring the Financials sidecar pattern while keeping Phase 74 design-only.
 
 No schema migration, DB write, real market import, Vnstock/API fetch, source approval, UI change, or new metric is added.
+
+## 15. Phase 75 Follow-up
+
+Phase 75 implements the additive `MarketPriceUnitMetadata` sidecar and narrow persistence helper for explicit valid Market/PVT metadata. The Phase 73 read-through trial remains valid as a synthetic boundary test, while DB-backed read paths can now consume sidecar metadata when present.
+
+No real market import, Vnstock/API fetch, source approval, UI change, new metric, target price, fair value, recommendation, or Risk scoring is added.

@@ -166,3 +166,7 @@ No DB write, schema migration, real market import, Vnstock/API fetch, source app
 ## 14. Phase 74 Follow-up
 
 Phase 74 adds `MARKET_PVT_METADATA_PERSISTENCE_DESIGN.md`. It keeps the capture boundary unchanged and designs a future additive sidecar storage path so captured Market/PVT metadata can later be persisted without guessing units for old rows.
+
+## 15. Phase 75 Follow-up
+
+Phase 75 implements the additive `MarketPriceUnitMetadata` sidecar. The capture boundary remains the runtime contract: persisted sidecar rows are converted back into `marketUnitMetadata`, missing sidecars stay `unknown_unit`, invalid units fail closed, and no magnitude guessing or source approval is introduced.

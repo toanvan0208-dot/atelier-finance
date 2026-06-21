@@ -277,12 +277,35 @@ model MarketPrice {
   company             Company               @relation(fields: [companyId], references: [id])
   source              DataSource            @relation(fields: [sourceId], references: [id])
   manualImportRecords ManualImportRecord[]
+  unitMetadata        MarketPriceUnitMetadata[]
 
   @@index([companyId, tradingDate])
   @@index([ticker, tradingDate])
   @@index([sourceId, asOf])
   @@index([dataMode])
   @@index([readiness])
+}
+
+model MarketPriceUnitMetadata {
+  id                 String      @id @default(cuid())
+  marketPriceId      String
+  field              String
+  unit               String
+  status             String
+  source             String?
+  sourceLabel        String?
+  dataMode           String?
+  asOf               DateTime?
+  warningCodes       String      @default("[]")
+  productionApproved Boolean     @default(false)
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+  marketPrice        MarketPrice @relation(fields: [marketPriceId], references: [id], onDelete: Cascade)
+
+  @@unique([marketPriceId, field])
+  @@index([marketPriceId])
+  @@index([field])
+  @@index([status])
 }
 
 model DataSource {

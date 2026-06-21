@@ -8,6 +8,14 @@ No schema migration is implemented. No `schema.prisma` model is added. No DB wri
 
 The recommended future design is an additive sidecar table named `MarketPriceUnitMetadata`, one row per `MarketPrice` row and Market/PVT field.
 
+## Phase 75 Implementation Follow-up
+
+Phase 75 implements the Phase 74 recommendation with an additive `MarketPriceUnitMetadata` sidecar model/table and a migration that only creates the sidecar table, indexes, unique field-level constraint, and foreign key relation.
+
+Existing `MarketPrice` rows without sidecar rows remain readable and map to `unknown_unit`. Missing metadata does not become zero or a default VND/share unit. Invalid persisted metadata fails closed and cannot be bypassed by parallel persisted numeric market values.
+
+No unit is inferred by magnitude. No source approval, real market import, real BCTC import, external API/Vnstock call, provider, parser, UI change, valuation metric, target price, fair value, recommendation, or Risk scoring is added. Valuation can consume explicit Market/PVT sidecar metadata only when it passes the existing Market/PVT unit contract, and the broader Valuation DB-backed claim remains limited.
+
 ## 2. Files Audited
 
 - `prisma/schema.prisma`
@@ -67,11 +75,18 @@ Relevant source/readiness fields:
 - `warningCodes String`
 - `errorCodes String`
 
-Existing metadata storage:
+Existing metadata storage as of Phase 74:
 
 - No Market/PVT unit metadata JSON field exists.
 - No `MarketPriceUnitMetadata` sidecar table exists.
 - No `unitMetadata` relation exists on `MarketPrice`.
+
+Existing metadata storage as of Phase 75:
+
+- `MarketPrice.unitMetadata MarketPriceUnitMetadata[]` exists.
+- `MarketPriceUnitMetadata` stores one row per `marketPriceId` and Market/PVT field.
+- `@@unique([marketPriceId, field])` prevents duplicate metadata rows for a field on the same `MarketPrice`.
+- Existing `MarketPrice` rows do not require sidecar rows.
 
 Existing read path:
 
@@ -254,23 +269,60 @@ Reason: Phase 74 is design/helper/docs only. It does not change visible Technica
 
 ## 13. Limitations
 
-- This is design only.
-- Market/PVT metadata persistence is still not implemented.
-- A future phase must add the additive migration and read/write path.
+- Phase 74 was design only; Phase 75 implements the additive sidecar persistence structure and controlled helper/read path.
 - Real market provider integration is still not started.
-- This design does not approve any source or data mode.
+- No source or data mode is approved by the persistence sidecar.
+- Valuation DB-backed claims remain limited by source evidence and mixed ownership boundaries.
 
-## 14. Recommended Next Phase
+## 14. Phase 75 Implementation Record
 
-Recommended next phase: Phase 75 - Additive Market/PVT Unit Metadata Persistence Implementation.
+Implemented:
 
-Maximum scope:
+- `prisma/schema.prisma`
+- `prisma/migrations/20260621093000_phase_75_market_pvt_unit_metadata_sidecar/migration.sql`
+- `src/features/technical/lib/market-pvt-unit-metadata-persistence-boundary.ts`
+- `src/lib/data-sources/market-price-read-service.ts`
+- `src/features/technical/lib/build-technical-from-market-price-series.ts`
+- focused tests for persistence boundary, read path, builder handoff, migration safety, and Phase 73 compatibility
+
+Read/write behavior:
+
+- valid sidecar metadata produces ready `marketUnitMetadata`;
+- missing sidecar metadata produces `unknown_unit`;
+- invalid sidecar units produce warnings and fail closed;
+- write helper upserts only explicit valid `ready` metadata;
+- `productionApproved` remains `false`;
+- no import path, provider, parser, or real market fetch is added.
+
+Migration safety:
+
+- additive sidecar table only;
+- no `DROP`;
+- no `DELETE`;
+- no destructive `ALTER`;
+- no `UPDATE` of existing `MarketPrice` rows;
+- no guessed backfill;
+- no DB reset, seed, or `db push` used.
+
+## 15. Recommended Next Phase
+
+After Phase 75, the next phase should verify controlled local DB read-back with a temporary/local test database if needed, while still avoiding real market import and source approval. Any future import wiring must require explicit unit metadata at the controlled boundary and keep invalid or missing units fail-closed.
+
+Legacy Phase 74 recommendation:
+
+- Phase 75 - Additive Market/PVT Unit Metadata Persistence Implementation.
+
+Phase 75 completed:
 
 - add the approved `MarketPriceUnitMetadata` sidecar model and migration;
 - keep migration additive-only;
-- update controlled local market write/read-back paths;
+- update controlled local market read-back paths;
 - keep old rows backward compatible;
-- reject or fail closed on invalid persisted market metadata;
+- reject or fail closed on invalid persisted market metadata.
+
+Remaining guardrails:
+
+- Real market provider integration is still not started.
 - use synthetic/local data only;
 - do not run DB reset or seed;
 - do not import real market data or real BCTC;

@@ -125,3 +125,9 @@ The DB read schema still has no Market/PVT unit metadata persistence. The contro
 Phase 74 is tracked in `MARKET_PVT_METADATA_PERSISTENCE_DESIGN.md`.
 
 The recommended future design is an additive `MarketPriceUnitMetadata` sidecar table. The existing DB read path remains unchanged in Phase 74.
+
+## 11. Phase 75 Additive Market/PVT Unit Metadata Persistence
+
+Phase 75 implements the additive sidecar table and read-back mapping. `getMarketPriceSeries()` can now select `MarketPrice.unitMetadata` rows and expose valid persisted units as `marketUnitMetadata`.
+
+Existing `MarketPrice` rows without metadata remain readable as `unknown_unit`. Invalid persisted unit metadata fails closed and cannot be bypassed by persisted numeric market values. No reset, seed, `db push`, real market import, Vnstock/API call, source approval, UI change, or new metric is added.
