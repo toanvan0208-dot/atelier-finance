@@ -225,3 +225,9 @@ Phase 66 adds `FINANCIALS_UNIT_METADATA_PERSISTENCE_READBACK_BOUNDARY.md`. The t
 Phase 67 adds `ADDITIVE_FINANCIALS_UNIT_METADATA_STORAGE_DESIGN_AND_MIGRATION_SAFETY_REVIEW.md`. The recommended sidecar-table design would let a later phase persist field-level Financials unit metadata, but this review does not change Valuation readiness.
 
 Until a later implementation writes and reads validated explicit units, Phase 63 normalization still treats missing or invalid metadata as insufficient for scale-sensitive calculations.
+
+## 17. Phase 68 Follow-up
+
+Phase 68 adds `ADDITIVE_FINANCIALS_UNIT_METADATA_PERSISTENCE_IMPLEMENTATION.md`. Valid Financials sidecar rows can now flow through read-back and runtime unit metadata into the controlled Valuation boundary.
+
+Valuation readiness still requires explicit market input units where market inputs are needed. Missing or invalid Financials units remain insufficient, `marketPrice` and `marketCap` remain non-Financials-owned, and `canClaimValuationDbBacked:false` remains preserved.

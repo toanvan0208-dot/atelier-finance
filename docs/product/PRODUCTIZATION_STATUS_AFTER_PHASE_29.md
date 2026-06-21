@@ -280,6 +280,8 @@ Phase 66 adds a Financials unit metadata persistence/read-back boundary in `FINA
 
 Phase 67 adds an additive Financials unit metadata storage design and migration safety review in `ADDITIVE_FINANCIALS_UNIT_METADATA_STORAGE_DESIGN_AND_MIGRATION_SAFETY_REVIEW.md`. The review audits the SQLite `FinancialStatement` schema, compares JSON field, sidecar table, and deferred payload-only options, and recommends a future sidecar table with a machine-readable safety checklist. No migration, DB write, reset, seed, source approval, UI change, or new metric is added.
 
+Phase 68 adds additive Financials unit metadata sidecar persistence in `ADDITIVE_FINANCIALS_UNIT_METADATA_PERSISTENCE_IMPLEMENTATION.md`. `FinancialStatementUnitMetadata` is added as a sidecar model/table with unique statement-field protection, controlled local write/read-back wiring, and runtime/Valuation handoff tests. Old rows remain compatible, invalid metadata fails closed, and no reset, seed, real BCTC import, external API call, source approval, UI change, or new metric is added.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot

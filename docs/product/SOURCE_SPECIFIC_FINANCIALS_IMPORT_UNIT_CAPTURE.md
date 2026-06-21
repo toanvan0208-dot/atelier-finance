@@ -151,3 +151,9 @@ Phase 66 adds `FINANCIALS_UNIT_METADATA_PERSISTENCE_READBACK_BOUNDARY.md`. The c
 Phase 67 adds `ADDITIVE_FINANCIALS_UNIT_METADATA_STORAGE_DESIGN_AND_MIGRATION_SAFETY_REVIEW.md`. It recommends a future additive `FinancialStatementUnitMetadata` sidecar table after approval, while keeping Phase 65 CSV unit capture as import/runtime metadata only until persistence is implemented.
 
 No migration, DB write, reset, seed, real BCTC import, or source approval is added by the storage review.
+
+## 16. Phase 68 Follow-up
+
+Phase 68 adds `ADDITIVE_FINANCIALS_UNIT_METADATA_PERSISTENCE_IMPLEMENTATION.md`. Controlled local write now persists explicit Phase 65 unit metadata into the additive sidecar table for recognized Financials fields only, and read-back validates those rows before runtime use.
+
+Missing unit metadata remains compatible, invalid metadata fails closed, and marketPrice/marketCap remain outside Financials import unit ownership.

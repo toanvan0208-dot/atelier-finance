@@ -157,3 +157,9 @@ Maximum safe scope:
 Phase 67 adds `ADDITIVE_FINANCIALS_UNIT_METADATA_STORAGE_DESIGN_AND_MIGRATION_SAFETY_REVIEW.md` and a pure storage-plan helper. The review recommends a future additive sidecar table for `FinancialStatementUnitMetadata` because the current SQLite schema has no safe row-level metadata field and field-level trace is needed.
 
 No migration was applied, no DB write was performed, and the Phase 66 read-back boundary remains the runtime fallback for missing or invalid persisted metadata.
+
+## 14. Phase 68 Follow-up
+
+Phase 68 adds `ADDITIVE_FINANCIALS_UNIT_METADATA_PERSISTENCE_IMPLEMENTATION.md`. `FinancialStatementUnitMetadata` is now an additive sidecar model/table with unique statement-field protection, and the read-back path converts sidecar rows through the Phase 66 validation helper before exposing runtime unit metadata.
+
+Old rows without sidecar rows still read as `unknown_unit` or `missing`, invalid sidecar rows fail closed, and `productionApproved:false` remains preserved.

@@ -216,3 +216,9 @@ Maximum scope:
 - reject or ignore invalid persisted metadata;
 - keep `productionApproved:false` for local/research/sample rows;
 - run full validation before commit.
+
+## 15. Phase 68 Follow-up
+
+Phase 68 adds `ADDITIVE_FINANCIALS_UNIT_METADATA_PERSISTENCE_IMPLEMENTATION.md`. The approved sidecar design is now represented by an additive `FinancialStatementUnitMetadata` schema model, a sidecar-only migration, controlled write/read-back service wiring, and tests for old-row compatibility and invalid metadata fail-closed behavior.
+
+No reset, seed, real BCTC import, external API call, UI change, source approval, new metric, target price, fair value range, recommendation, or Risk scoring is added.

@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
+import { buildControlledValuationIntegrationBoundary } from "@/features/valuation/lib/controlled-valuation-integration-boundary";
 import type { FinancialStatementSeriesResult } from "../../../../lib/data-sources/financial-statement-read-service";
+import { buildFinancialsUnitMetadata } from "../financials-unit-metadata-contract";
 import { loadFinancialsRuntimeData } from "../load-financials-runtime-data";
 
 const sourceLabel = "phase45_synthetic_financial_statement_local_write";
@@ -46,6 +48,7 @@ const seriesResult = (
         netIncome: 100,
         totalAssets: 5000,
         totalLiabilities: null,
+        totalDebt: null,
         totalEquity: 2000,
         cashAndEquivalents: null,
         currentAssets: null,
@@ -215,6 +218,73 @@ describe("loadFinancialsRuntimeData", () => {
     expect(fallback.runtimeStatus).toBe("sample_fallback");
     expect(unavailable.runtimeStatus).toBe("read_error");
     expect(unavailable.dataQuality.errors).toContain("read failed");
+  });
+
+  it("passes persisted read-back sidecar units through runtime into controlled Valuation", async () => {
+    const row = seriesResult().records[0];
+    const runtime = await loadFinancialsRuntimeData(
+      { ticker: "FPT", preferDb: true, sourceLabel, dataMode: "research_only" },
+      {
+        readSeries: async () =>
+          seriesResult({
+            records: [
+              {
+                ...row,
+                values: {
+                  ...row.values,
+                  eps: 1200,
+                  sharesOutstanding: 10,
+                },
+                unitMetadata: buildFinancialsUnitMetadata({
+                  dataMode: "research_only",
+                  explicitUnits: {
+                    equity: "million_vnd",
+                    eps: "vnd_per_share",
+                    revenue: "million_vnd",
+                    sharesOutstanding: "million_shares",
+                  },
+                  snapshot: {
+                    eps: 1200,
+                    revenue: 1000,
+                    sharesOutstanding: 10,
+                    totalEquity: 2000,
+                  },
+                  sourceLabel,
+                }),
+              },
+            ],
+          }),
+      },
+    );
+    const valuation = buildControlledValuationIntegrationBoundary({
+      financialsRuntimeSnapshot: {
+        dataMode: runtime.source.dataMode,
+        equity: runtime.statementSnapshot?.totalEquity,
+        eps: runtime.statementSnapshot?.eps,
+        productionApproved: runtime.source.productionApproved,
+        readPath: runtime.source.readPath,
+        revenue: runtime.statementSnapshot?.revenue,
+        sharesOutstanding: runtime.statementSnapshot?.sharesOutstanding,
+        units: {
+          equity: runtime.unitMetadata.equity.unit,
+          eps: runtime.unitMetadata.eps.unit,
+          revenue: runtime.unitMetadata.revenue.unit,
+          sharesOutstanding: runtime.unitMetadata.sharesOutstanding.unit,
+        },
+      },
+      persistedValuationInputs: {
+        marketPrice: 50_000,
+        units: { marketPrice: "vnd_per_share" },
+      },
+    });
+
+    expect(runtime.unitMetadata.revenue.status).toBe("explicit");
+    expect(valuation.selectedInputs.revenue.normalizationStatus).toBe("ready");
+    expect(valuation.selectedInputs.marketPrice.source).toBe("persisted_bridge");
+    expect(valuation.calculation.metrics.pe.status).toBe("ready");
+    expect(valuation.calculation.metrics.bvps.status).toBe("ready");
+    expect(valuation.sourceBoundary.productionApproved).toBe(false);
+    expect(valuation.sourceBoundary.canClaimValuationDbBacked).toBe(false);
   });
 
   it("does not expose investment action wording in runtime metadata", async () => {

@@ -1,3 +1,7 @@
+import {
+  financialsUnitContracts,
+  type FinancialsNumericField,
+} from "@/features/financials/lib/financials-unit-metadata-contract";
 import type { NormalizedFinancialStatementImportRow } from "./financial-statement-import-contract";
 import {
   assessFinancialStatementLocalWriteDatabaseUrl,
@@ -54,7 +58,10 @@ type FinancialStatementLocalWriteTx = {
   };
   financialStatement: {
     findFirst: (args: unknown) => Promise<{ id: string } | null>;
-    create: (args: unknown) => Promise<unknown>;
+    create: (args: unknown) => Promise<{ id: string }>;
+  };
+  financialStatementUnitMetadata: {
+    upsert: (args: unknown) => Promise<unknown>;
   };
 };
 
@@ -181,6 +188,28 @@ const statementData = ({
   };
 };
 
+const unitMetadataRowsFor = ({
+  row,
+  sourceLabel,
+  dataMode,
+}: {
+  row: NormalizedFinancialStatementImportRow;
+  sourceLabel: string;
+  dataMode: string;
+}) =>
+  (Object.keys(financialsUnitContracts) as FinancialsNumericField[])
+    .map((field) => row.unitMetadata[field])
+    .filter((metadata) => metadata.status === "explicit")
+    .map((metadata) => ({
+      field: metadata.field,
+      unit: metadata.unit,
+      status: metadata.status,
+      sourceLabel: metadata.sourceLabel ?? sourceLabel,
+      dataMode: metadata.dataMode ?? dataMode,
+      warningCodes: JSON.stringify(metadata.warnings),
+      productionApproved: false,
+    }));
+
 export const runFinancialStatementLocalWriteTrial = async (
   input: FinancialStatementLocalWriteTrialInput,
   { db }: { db?: FinancialStatementLocalWriteDb } = {},
@@ -284,9 +313,26 @@ export const runFinancialStatementLocalWriteTrial = async (
           continue;
         }
 
-        await tx.financialStatement.create({
+        const statement = await tx.financialStatement.create({
           data: statementData({ companyId: company.id, sourceId: source.id, sourceLabel: source.name, dataMode, row }),
+          select: { id: true },
         });
+
+        for (const metadata of unitMetadataRowsFor({ row, sourceLabel: source.name, dataMode })) {
+          await tx.financialStatementUnitMetadata.upsert({
+            where: {
+              financialStatementId_field: {
+                financialStatementId: statement.id,
+                field: metadata.field,
+              },
+            },
+            update: metadata,
+            create: {
+              financialStatementId: statement.id,
+              ...metadata,
+            },
+          });
+        }
         insertedCount += 1;
       }
 

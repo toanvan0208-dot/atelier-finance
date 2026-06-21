@@ -115,5 +115,94 @@ describe("financial statement read service", () => {
 
     expect(output).not.toMatch(/nên mua|nên bán|nên nắm giữ|tín hiệu mua|tín hiệu bán|điểm mua|cổ phiếu an toàn|chắc chắn rẻ|chắc chắn xấu/);
   });
-});
 
+  it("reads explicit sidecar unit metadata into the local record", async () => {
+    const findMany = vi.fn().mockResolvedValue([
+      record({
+        unitMetadata: [
+          {
+            dataMode: "research_only",
+            field: "revenue",
+            productionApproved: false,
+            sourceLabel: "local_financial_statement_research",
+            status: "explicit",
+            unit: "million_vnd",
+            warningCodes: "[]",
+          },
+          {
+            dataMode: "research_only",
+            field: "equity",
+            productionApproved: false,
+            sourceLabel: "local_financial_statement_research",
+            status: "explicit",
+            unit: "million_vnd",
+            warningCodes: "[]",
+          },
+          {
+            dataMode: "research_only",
+            field: "eps",
+            productionApproved: false,
+            sourceLabel: "local_financial_statement_research",
+            status: "explicit",
+            unit: "vnd_per_share",
+            warningCodes: "[]",
+          },
+          {
+            dataMode: "research_only",
+            field: "sharesOutstanding",
+            productionApproved: false,
+            sourceLabel: "local_financial_statement_research",
+            status: "explicit",
+            unit: "million_shares",
+            warningCodes: "[]",
+          },
+        ],
+      }),
+    ]);
+    const result = await getFinancialStatementSeries({ ticker: "FPT" }, { db: { financialStatement: { findMany } } });
+
+    expect(result.records[0].unitMetadata?.revenue).toMatchObject({
+      productionApproved: false,
+      status: "explicit",
+      unit: "million_vnd",
+    });
+    expect(result.records[0].unitMetadata?.eps.unit).toBe("vnd_per_share");
+    expect(result.records[0].unitMetadata?.sharesOutstanding.unit).toBe("million_shares");
+  });
+
+  it("keeps old rows without sidecar metadata on unknown-unit behavior", async () => {
+    const findMany = vi.fn().mockResolvedValue([record()]);
+    const result = await getFinancialStatementSeries({ ticker: "FPT" }, { db: { financialStatement: { findMany } } });
+
+    expect(result.records[0].unitMetadata?.revenue).toMatchObject({
+      status: "unknown_unit",
+      unit: "unknown",
+    });
+    expect(result.records[0].unitMetadata?.operatingCashFlow.status).toBe("missing");
+    expect(result.records[0].values.operatingCashFlow).toBeNull();
+    expect(result.records[0].values.operatingCashFlow).not.toBe(0);
+  });
+
+  it("fails closed when persisted sidecar metadata has an invalid unit", async () => {
+    const findMany = vi.fn().mockResolvedValue([
+      record({
+        unitMetadata: [
+          {
+            dataMode: "research_only",
+            field: "revenue",
+            productionApproved: false,
+            sourceLabel: "local_financial_statement_research",
+            status: "explicit",
+            unit: "shares",
+            warningCodes: "[]",
+          },
+        ],
+      }),
+    ]);
+    const result = await getFinancialStatementSeries({ ticker: "FPT" }, { db: { financialStatement: { findMany } } });
+
+    expect(result.records[0].unitMetadata?.revenue.status).toBe("unknown_unit");
+    expect(result.records[0].unitMetadata?.revenue.unit).toBe("unknown");
+    expect(result.records[0].dataQuality.warnings).toContain("revenue_persisted_unit_metadata_invalid");
+  });
+});

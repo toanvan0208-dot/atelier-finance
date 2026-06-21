@@ -216,12 +216,32 @@ model FinancialStatement {
   company             Company               @relation(fields: [companyId], references: [id])
   source              DataSource            @relation(fields: [sourceId], references: [id])
   manualImportRecords ManualImportRecord[]
+  unitMetadata        FinancialStatementUnitMetadata[]
 
   @@index([companyId, period])
   @@index([ticker, period])
   @@index([sourceId, asOf])
   @@index([dataMode])
   @@index([readiness])
+}
+
+model FinancialStatementUnitMetadata {
+  id                   String             @id @default(cuid())
+  financialStatementId String
+  field                String
+  unit                 String
+  status               String
+  sourceLabel          String?
+  dataMode             String?
+  warningCodes         String             @default("[]")
+  productionApproved   Boolean            @default(false)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  financialStatement   FinancialStatement @relation(fields: [financialStatementId], references: [id], onDelete: Cascade)
+
+  @@unique([financialStatementId, field])
+  @@index([financialStatementId])
+  @@index([field])
 }
 
 model MarketPrice {

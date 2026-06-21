@@ -1,4 +1,14 @@
-import type { FinancialsUnitMetadataMap } from "@/features/financials/lib/financials-unit-metadata-contract";
+import {
+  financialsUnitContracts,
+  type FinancialsNumericField,
+  type FinancialsUnitMetadataStatus,
+  type FinancialsUnitMetadataMap,
+} from "@/features/financials/lib/financials-unit-metadata-contract";
+import {
+  readFinancialsUnitMetadataFromPersistencePayload,
+  type FinancialsUnitMetadataPersistencePayload,
+} from "@/features/financials/lib/financials-unit-metadata-persistence-boundary";
+import type { ValuationUnit } from "@/features/valuation/lib/valuation-input-unit-provenance";
 
 export type FinancialStatementReadStatus =
   | "available"
@@ -40,6 +50,7 @@ export type FinancialStatementNormalizedValues = {
   netIncome: number | null;
   totalAssets: number | null;
   totalLiabilities: number | null;
+  totalDebt: number | null;
   totalEquity: number | null;
   cashAndEquivalents: number | null;
   currentAssets: number | null;
@@ -116,6 +127,17 @@ type StoredFinancialStatement = {
   missingFields: string;
   warningCodes: string;
   errorCodes: string;
+  unitMetadata?: StoredFinancialStatementUnitMetadata[];
+};
+
+type StoredFinancialStatementUnitMetadata = {
+  field: string;
+  unit: string;
+  status: string;
+  sourceLabel: string | null;
+  dataMode: string | null;
+  warningCodes: string;
+  productionApproved: boolean;
 };
 
 type FinancialStatementReadDb = {
@@ -226,6 +248,7 @@ const buildValues = (record: StoredFinancialStatement): FinancialStatementNormal
   netIncome: toNullableNumber(record.netIncome),
   totalAssets: toNullableNumber(record.totalAssets),
   totalLiabilities: null,
+  totalDebt: toNullableNumber(record.totalDebt),
   totalEquity: toNullableNumber(record.equity),
   cashAndEquivalents: null,
   currentAssets: toNullableNumber(record.currentAssets),
@@ -236,9 +259,32 @@ const buildValues = (record: StoredFinancialStatement): FinancialStatementNormal
   eps: toNullableNumber(record.eps),
 });
 
+const unitMetadataPayloadFromSidecar = (
+  rows: StoredFinancialStatementUnitMetadata[] | null | undefined,
+): FinancialsUnitMetadataPersistencePayload | undefined => {
+  if (!rows?.length) return undefined;
+  const unitMetadata: FinancialsUnitMetadataPersistencePayload["unitMetadata"] = {};
+
+  for (const row of rows) {
+    if (!(row.field in financialsUnitContracts)) continue;
+    const field = row.field as FinancialsNumericField;
+    unitMetadata[field] = {
+      status: row.status as FinancialsUnitMetadataStatus,
+      unit: row.unit as ValuationUnit,
+    };
+  }
+
+  return {
+    productionApproved: false,
+    schemaVersion: 1,
+    unitMetadata,
+  };
+};
+
 const buildDataQuality = (
   values: FinancialStatementNormalizedValues,
   record: StoredFinancialStatement,
+  unitMetadataWarnings: string[] = [],
 ): FinancialStatementDataQuality => {
   const availableFields = Object.entries(values)
     .filter(([, value]) => value !== null)
@@ -250,6 +296,7 @@ const buildDataQuality = (
   const invalidFields = parseStringArray(record.errorCodes);
   const warnings = [
     ...parseStringArray(record.warningCodes),
+    ...unitMetadataWarnings,
     ...(values.operatingCashFlow === null ? ["operatingCashFlow is missing; cash-quality checks remain limited."] : []),
     ...(values.totalEquity !== null && values.totalEquity <= 0
       ? ["totalEquity is non-positive; equity-based interpretation must remain not_applicable."]
@@ -275,8 +322,26 @@ const buildDataQuality = (
 
 const mapRecord = (record: StoredFinancialStatement): FinancialStatementLocalRecord => {
   const values = buildValues(record);
-  const dataQuality = buildDataQuality(values, record);
   const periodType = normalizePeriodType(record.periodType);
+  const unitMetadataRead = readFinancialsUnitMetadataFromPersistencePayload({
+    dataMode: record.dataMode,
+    payload: unitMetadataPayloadFromSidecar(record.unitMetadata),
+    snapshot: {
+      currentAssets: values.currentAssets,
+      currentLiabilities: values.currentLiabilities,
+      eps: values.eps,
+      netProfit: values.netIncome,
+      operatingCashFlow: values.operatingCashFlow,
+      revenue: values.revenue,
+      sharesOutstanding: values.sharesOutstanding,
+      sourceName: record.sourceLabel,
+      totalAssets: values.totalAssets,
+      totalDebt: values.totalDebt,
+      totalEquity: values.totalEquity,
+    },
+    sourceLabel: record.sourceLabel,
+  });
+  const dataQuality = buildDataQuality(values, record, unitMetadataRead.warnings);
 
   return {
     id: record.id,
@@ -304,6 +369,7 @@ const mapRecord = (record: StoredFinancialStatement): FinancialStatementLocalRec
       warnings: [SOURCE_BOUNDARY_WARNING],
     },
     values,
+    unitMetadata: unitMetadataRead.unitMetadata,
     dataQuality,
   };
 };
@@ -369,6 +435,17 @@ export const getFinancialStatementSeries = async (
         missingFields: true,
         warningCodes: true,
         errorCodes: true,
+        unitMetadata: {
+          select: {
+            field: true,
+            unit: true,
+            status: true,
+            sourceLabel: true,
+            dataMode: true,
+            warningCodes: true,
+            productionApproved: true,
+          },
+        },
       },
     });
 

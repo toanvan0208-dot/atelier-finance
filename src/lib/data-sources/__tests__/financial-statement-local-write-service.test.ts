@@ -23,6 +23,15 @@ type StoredFinancialStatement = {
   equity?: number | null;
   missingFields?: string;
 };
+type StoredFinancialStatementUnitMetadata = {
+  financialStatementId: string;
+  field: string;
+  unit: string;
+  status: string;
+  sourceLabel?: string | null;
+  dataMode?: string | null;
+  productionApproved: false;
+};
 
 type FinancialStatementWriteTransaction = Parameters<FinancialStatementLocalWriteDb["$transaction"]>[0] extends (
   tx: infer Tx,
@@ -34,6 +43,7 @@ class FakeFinancialStatementWriteDb implements FinancialStatementLocalWriteDb {
   sources: StoredSource[] = [];
   companies: StoredCompany[] = [];
   financialStatements: StoredFinancialStatement[] = [];
+  financialStatementUnitMetadata: StoredFinancialStatementUnitMetadata[] = [];
   transactionCalls = 0;
 
   async $transaction<T>(fn: (tx: FinancialStatementWriteTransaction) => Promise<T>): Promise<T> {
@@ -106,10 +116,32 @@ class FakeFinancialStatementWriteDb implements FinancialStatementLocalWriteDb {
         },
         create: async (args) => {
           const input = args as { data: Omit<StoredFinancialStatement, "id"> };
-          this.financialStatements.push({
+          const statement = {
             id: `statement-${this.financialStatements.length + 1}`,
             ...input.data,
-          });
+          };
+          this.financialStatements.push(statement);
+          return { id: statement.id };
+        },
+      },
+      financialStatementUnitMetadata: {
+        upsert: async (args) => {
+          const input = args as {
+            where: { financialStatementId_field: { financialStatementId: string; field: string } };
+            create: StoredFinancialStatementUnitMetadata;
+            update: Omit<StoredFinancialStatementUnitMetadata, "financialStatementId">;
+          };
+          const existing = this.financialStatementUnitMetadata.find(
+            (row) =>
+              row.financialStatementId === input.where.financialStatementId_field.financialStatementId &&
+              row.field === input.where.financialStatementId_field.field,
+          );
+          if (existing) {
+            Object.assign(existing, input.update);
+            return existing;
+          }
+          this.financialStatementUnitMetadata.push(input.create);
+          return input.create;
         },
       },
     };
@@ -266,5 +298,57 @@ describe("financial statement local write service", () => {
     expect(result.databaseGuard.accepted).toBe(false);
     expect(db.transactionCalls).toBe(0);
     expect(db.financialStatements).toEqual([]);
+  });
+
+  it("persists explicit unit metadata sidecar rows for accepted rows", async () => {
+    await runFinancialStatementLocalWriteTrial(
+      {
+        acceptedRows: [
+          acceptedRow({
+            unitMetadata: buildFinancialsUnitMetadata({
+              dataMode: "research_only",
+              explicitUnits: {
+                equity: "million_vnd",
+                eps: "vnd_per_share",
+                revenue: "million_vnd",
+                sharesOutstanding: "million_shares",
+              },
+              snapshot: {
+                eps: 1200,
+                revenue: 1000,
+                sharesOutstanding: 10,
+                totalEquity: 2000,
+              },
+              sourceLabel: "phase68_test",
+            }),
+          }),
+        ],
+        sourceLabel: "phase68_test",
+        dataMode: "research_only",
+        databaseUrl: "file:./dev.db",
+        confirmations,
+      },
+      { db },
+    );
+
+    expect(db.financialStatementUnitMetadata).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          dataMode: "research_only",
+          field: "revenue",
+          financialStatementId: "statement-1",
+          productionApproved: false,
+          status: "explicit",
+          unit: "million_vnd",
+        }),
+        expect.objectContaining({
+          field: "sharesOutstanding",
+          status: "explicit",
+          unit: "million_shares",
+        }),
+      ]),
+    );
+    expect(db.financialStatementUnitMetadata.some((row) => row.field === "marketPrice")).toBe(false);
+    expect(db.financialStatementUnitMetadata.some((row) => row.field === "marketCap")).toBe(false);
   });
 });

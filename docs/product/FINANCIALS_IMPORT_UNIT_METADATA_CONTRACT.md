@@ -132,3 +132,9 @@ Phase 66 adds `FINANCIALS_UNIT_METADATA_PERSISTENCE_READBACK_BOUNDARY.md`. No sc
 Phase 67 adds `ADDITIVE_FINANCIALS_UNIT_METADATA_STORAGE_DESIGN_AND_MIGRATION_SAFETY_REVIEW.md`. The contract remains the validator for allowed Financials fields and units, while the storage review recommends a future additive sidecar table to persist one unit metadata record per statement field.
 
 The review does not apply a migration, write DB rows, or change the existing `unknown_unit` behavior for old rows.
+
+## 13. Phase 68 Follow-up
+
+Phase 68 adds `ADDITIVE_FINANCIALS_UNIT_METADATA_PERSISTENCE_IMPLEMENTATION.md`. The Phase 64 contract now gates both sidecar write selection and sidecar read-back validation: only recognized Financials fields can be persisted as explicit metadata, and invalid persisted units are downgraded rather than accepted.
+
+The sidecar implementation does not infer units from magnitude and does not make local/research/sample data production-approved.

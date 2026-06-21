@@ -42,6 +42,7 @@ const resultBase = (patch: Partial<FinancialStatementSeriesResult> = {}): Financ
         netIncome: null,
         totalAssets: 2000,
         totalLiabilities: null,
+        totalDebt: null,
         totalEquity: 0,
         cashAndEquivalents: null,
         currentAssets: 900,
@@ -114,4 +115,3 @@ describe("adaptFinancialStatementSeries", () => {
     expect(output).not.toMatch(/nên mua|nên bán|nên nắm giữ|tín hiệu mua|tín hiệu bán|điểm mua|cổ phiếu an toàn|chắc chắn rẻ|chắc chắn xấu/);
   });
 });
-
