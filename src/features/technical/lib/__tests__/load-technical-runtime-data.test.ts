@@ -126,6 +126,7 @@ describe("loadTechnicalRuntimeData", () => {
       ticker: "FPT",
       from: "2025-01-01",
       to: "2025-01-31",
+      sourceLabel: undefined,
       preferDb: false,
       allowFallback: true,
     });
@@ -146,6 +147,7 @@ describe("loadTechnicalRuntimeData", () => {
       ticker: "FPT",
       from: "2025-01-01",
       to: "2025-01-31",
+      sourceLabel: undefined,
       preferDb: true,
       allowFallback: true,
     });
@@ -172,7 +174,32 @@ describe("loadTechnicalRuntimeData", () => {
       ticker: "MWG",
       from: "2025-02-01",
       to: "2025-02-28",
+      sourceLabel: undefined,
       preferDb: false,
+      allowFallback: true,
+    });
+  });
+
+  it("passes the explicit VNStock source label for intended local DB activation", async () => {
+    const loadDeskData = vi.fn().mockResolvedValue(dbResult);
+
+    await loadTechnicalRuntimeData(
+      {
+        ticker: "FPT",
+        from: "2025-06-02",
+        to: "2025-06-30",
+        sourceLabel: "vnstock_research_candidate",
+        preferDb: true,
+      },
+      { loadDeskData },
+    );
+
+    expect(loadDeskData).toHaveBeenCalledWith({
+      ticker: "FPT",
+      from: "2025-06-02",
+      to: "2025-06-30",
+      sourceLabel: "vnstock_research_candidate",
+      preferDb: true,
       allowFallback: true,
     });
   });

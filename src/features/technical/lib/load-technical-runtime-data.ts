@@ -8,6 +8,7 @@ export type LoadTechnicalRuntimeDataInput = {
   ticker?: string;
   from?: string;
   to?: string;
+  sourceLabel?: string;
   preferDb?: boolean;
 };
 
@@ -34,6 +35,7 @@ const buildInput = (
   ticker: input.ticker ?? DEFAULT_TICKER,
   from: input.from ?? DEFAULT_FROM,
   to: input.to ?? DEFAULT_TO,
+  sourceLabel: input.sourceLabel,
   preferDb: input.preferDb ?? isDbSourceEnabled(env),
   allowFallback: true,
 });

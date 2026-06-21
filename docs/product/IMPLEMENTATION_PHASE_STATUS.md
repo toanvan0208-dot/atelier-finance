@@ -2,11 +2,11 @@
 
 ## 1. Current latest phase
 
-Phase 105 - Controlled Live VNStock Market/PVT Write and Multi-Ticker Smoke
+Phase 106 - VNStock Data Activation in Intended Local App DB and Browser Smoke
 
 ## 2. Latest commit
 
-Commit: Phase 105 write live vnstock market pvt data (this phase commit)
+Commit: Phase 106 activate vnstock data in local app db (this phase commit)
 
 ## 3. Current branch expectation
 
@@ -43,6 +43,7 @@ The working tree should be clean before starting a new phase.
 - Controlled provider coverage now verifies one ticker with 20 trading rows inside a 30-day request, while provider responses above 31 observations fail closed.
 - Controlled VNStock ingestion supports only FPT, MWG, and VNM, with explicit network opt-in, a bounded date/row scope, an installed Python `vnstock` local client, and deterministic injected-client tests.
 - Controlled VNStock Market/PVT CLI can run the small allowlisted ticker set in one bounded smoke command, remains dry-run by default, and can optionally verify the Technical/PVT DB-backed read path after a guarded confirmed write.
+- VNStock Market/PVT data is activated in the intended local app SQLite DB for the small allowlisted ticker set, and `/workspace?module=technical` can be smoke-tested against DB-backed VNStock-candidate rows via explicit Technical/PVT query parameters.
 
 ## 5. Current validated data pipeline state
 
@@ -86,6 +87,7 @@ The working tree should be clean before starting a new phase.
 - Phase 103 expands the controlled proof from 2 to 20 provider-like rows: all 20 write through the guarded Phase 101 pipeline and Technical/PVT consumes the 20 DB-backed observations without sample fallback when unit metadata is ready.
 - Phase 104 adds an opt-in local Python VNStock history client and normalizer. The successful controlled test writes 20 FPT rows through the Phase 96/97/101 pipeline; Technical/PVT reads FPT without fallback and does not mix absent MWG data.
 - Phase 105 proves the opt-in live VNStock path can confirmed-write bounded local/dev rows with both guards enabled. The live smoke wrote 21 FPT rows and 63 total rows for FPT/MWG/VNM on a temp local DB, then Technical/PVT read each ticker as DB-backed VNStock-candidate data with fallback disabled.
+- Phase 106 applies the existing Phase 75 sidecar migration SQL to the intended local app DB (`file:./dev.db`), writes 63 live VNStock rows for FPT/MWG/VNM into that DB through the guarded import pipeline, and verifies the production app route renders Technical/PVT from DB-backed VNStock-candidate rows with fallback disabled for FPT.
 
 ## 7. Current known limitations
 
@@ -110,6 +112,7 @@ The working tree should be clean before starting a new phase.
 - Phase 103 remains a deterministic single-ticker provider-like dataset; it does not add a live endpoint, broad ticker coverage, scheduling, source approval, or production data claims.
 - Phase 104 live execution remains local/manual and disabled unless `VNSTOCK_RESEARCH_ALLOW_NETWORK=true`; VNStock rows remain research candidates with `productionApproved:false`, and no scheduled ingestion or source approval is added.
 - Phase 105 live smoke used a temp local SQLite DB outside the repo because the checked-in dev DB copy is not a phase artifact and may not carry the latest sidecar table. No DB file, generated Prisma client, schema migration, crawler, scheduled job, source approval workflow, or approval claim was added.
+- Phase 106 mutates only the local ignored `dev.db` runtime database for activation/smoke evidence. The DB file remains ignored and uncommitted; VNStock rows remain research candidates with `productionApproved:false`, and no source approval, scheduled ingestion, crawler, or production data claim was added.
 
 ## 8. Recommended next phase
 

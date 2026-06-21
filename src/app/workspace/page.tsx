@@ -10,12 +10,30 @@ type WorkspacePageProps = {
 const firstParam = (value: string | string[] | undefined): string | undefined =>
   Array.isArray(value) ? value[0] : value;
 
+const boolParam = (value: string | string[] | undefined): boolean | undefined => {
+  const resolved = firstParam(value);
+  if (resolved === "true") return true;
+  if (resolved === "false") return false;
+  return undefined;
+};
+
 export default async function WorkspacePage({ searchParams }: WorkspacePageProps) {
   const params = (await searchParams) ?? {};
   const ticker = firstParam(params.ticker);
+  const technicalTicker = firstParam(params.technicalTicker) ?? ticker;
+  const technicalFrom = firstParam(params.technicalFrom);
+  const technicalTo = firstParam(params.technicalTo);
+  const technicalSourceLabel = firstParam(params.technicalSourceLabel);
+  const technicalPreferDb = boolParam(params.technicalPreferDb);
   const valuationScenario = resolveValuationUnitAwareReadyMetricsScenarioId(params.valuationScenario);
   const [initialTechnicalData, initialFinancialsRuntimeData] = await Promise.all([
-    loadTechnicalRuntimeData(),
+    loadTechnicalRuntimeData({
+      ticker: technicalTicker,
+      from: technicalFrom,
+      to: technicalTo,
+      sourceLabel: technicalSourceLabel,
+      preferDb: technicalPreferDb,
+    }),
     loadFinancialsRuntimeData({ ticker }),
   ]);
 
