@@ -2,11 +2,11 @@
 
 ## 1. Current latest phase
 
-Phase 99 - Local Import Access Guard and Runtime Kill Switch
+Phase 100 - Controlled Market/PVT External Fetch Trial, Dry-run Only
 
 ## 2. Latest commit
 
-Commit: Phase 99 add local import access guard (this phase commit)
+Commit: Phase 100 add controlled market pvt external fetch dry run (this phase commit)
 
 ## 3. Current branch expectation
 
@@ -37,6 +37,7 @@ The working tree should be clean before starting a new phase.
 - Shared local import audit result exists for Financial Statement and Market/PVT import MVPs with deterministic job metadata, row counts, duplicate/skipped tracking, warning/error status, and safety flags.
 - Internal `/data-import` UI now exposes a local CSV text preview-confirm flow for Financial Statement and Market/PVT imports: dry-run preview first, audit summary review, then explicit confirm write.
 - Local import UI and API route are gated behind a runtime kill switch (`ATELIER_LOCAL_IMPORTS_ENABLED`): disabled by default (fail closed), enabled only when env is exactly `true`. The existing `x-atelier-local-import` header guard remains as a lightweight internal guard (not real production auth).
+- A controlled Market/PVT external fetch trial module exists, which accepts an injected fetcher, normalizes candidate response shapes into CSV text, and strictly pipes them through the existing Market/PVT import validation in dry-run-only mode to produce an audit result without DB writes.
 
 ## 5. Current validated data pipeline state
 
@@ -74,6 +75,7 @@ The working tree should be clean before starting a new phase.
 - Phase 95 allows verified Financials inputs to feed the controlled Valuation boundary, but Valuation remains partial/mixed unless market inputs, shares, units, and source boundaries are also safe.
 - Phase 98 adds a browser-visible local/internal import panel showing audit counts, warning/error review, `productionApproved:false`, and local/imported source boundaries before confirm write.
 - Phase 99 adds a runtime kill switch (`ATELIER_LOCAL_IMPORTS_ENABLED`) gating the local import UI and API route. Disabled by default (fail closed). The `x-atelier-local-import` header guard is preserved as a lightweight internal guard only.
+- Phase 100 adds a controlled dry-run-only trial for external Market/PVT fetching. It validates that fetched candidate data can safely route through the existing Phase 96 import rules and Phase 97 audit result, writing zero rows to the DB.
 
 ## 7. Current known limitations
 
@@ -93,6 +95,7 @@ The working tree should be clean before starting a new phase.
 - Phase 97 audit results are returned by local import helpers only; they are not durable DB audit logs and do not approve sources or make imported data production-approved.
 - Phase 98 does not add external API/Vnstock/web import, public investor upload, schema/migration, durable audit DB tables, source approval, or production data claims.
 - Phase 99 does not add external API/Vnstock/web import, public investor upload, schema/migration, full auth/admin system, durable audit DB tables, source approval, or production data claims. The `x-atelier-local-import` header is a lightweight internal guard, not real production auth.
+- Phase 100 is explicitly dry-run only. It does not add DB writes for external fetched data, scheduled crawler jobs, public upload UI, or source/legal approval. Fetch trial results remain `productionApproved:false`.
 
 ## 8. Recommended next phase
 
