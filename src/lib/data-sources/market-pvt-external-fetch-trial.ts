@@ -1,7 +1,10 @@
 import {
   runMarketPvtSafeImportMvp,
+  type MarketPvtSafeImportDb,
   type MarketPvtSafeImportResult,
 } from "./market-pvt-safe-import-mvp";
+import { isLocalImportsEnabled } from "../config/local-imports-access";
+import { buildLocalImportAuditResult } from "./local-import-audit-trail";
 
 /**
  * The explicit candidate shape expected from the external source.
@@ -34,15 +37,24 @@ export type MarketPvtExternalFetchTrialOptions = {
   priceUnit?: string;
   /** The unit of the fetched volume (e.g., share). */
   volumeUnit?: string;
+  /** Explicit as-of date for the normalized import metadata. */
+  asOf?: string;
+  /** Phase 101: write only when explicitly confirmed and the Phase 99 guard is enabled. */
+  confirmWrite?: boolean;
+  /** Optional local/dev DB URL and DB dependency used by the existing safe import pipeline. */
+  databaseUrl?: string;
+  db?: MarketPvtSafeImportDb;
+  /** Injectable only to verify delegation to the existing Phase 96 pipeline. */
+  importRunner?: typeof runMarketPvtSafeImportMvp;
 };
 
 /**
- * Phase 100: Controlled Market/PVT External Fetch Trial.
+ * Phase 100/101: Controlled Market/PVT External Fetch Trial.
  *
  * 1. Fetches candidate data via injectable fetcher.
  * 2. Normalizes it into the Phase 96 Market/PVT CSV format.
  * 3. Pipes it through the existing safe import MVP.
- * 4. STRICTLY dry-run only. Writes zero DB rows.
+ * 4. Defaults to dry-run. A write requires explicit confirmation plus the Phase 99 guard.
  * 5. Returns the Phase 97 audit result.
  */
 export const runMarketPvtExternalFetchTrial = async ({
@@ -52,6 +64,11 @@ export const runMarketPvtExternalFetchTrial = async ({
   currency = "VND",
   priceUnit = "vnd_per_share",
   volumeUnit = "shares",
+  asOf,
+  confirmWrite = false,
+  databaseUrl,
+  db,
+  importRunner = runMarketPvtSafeImportMvp,
 }: MarketPvtExternalFetchTrialOptions): Promise<MarketPvtSafeImportResult> => {
   // 1. Fetch raw data from the controlled external candidate
   const rawData = await fetcher(ticker);
@@ -72,7 +89,7 @@ export const runMarketPvtExternalFetchTrial = async ({
     "asOf",
   ];
 
-  const nowAsOf = new Date().toISOString().slice(0, 10);
+  const normalizedAsOf = asOf ?? new Date().toISOString().slice(0, 10);
 
   const csvRows = rawData.map((row) => {
     return [
@@ -84,18 +101,59 @@ export const runMarketPvtExternalFetchTrial = async ({
       priceUnit,
       volumeUnit,
       sourceLabel,
-      nowAsOf,
+      normalizedAsOf,
     ].join(",");
   });
 
   const csvText = [headers.join(","), ...csvRows].join("\n");
 
-  // 3. Pipe through the existing Phase 96 import pipeline.
-  // Hardcoded to dry-run only, confirmWrite is strictly false.
-  // This guarantees zero DB writes while running full validation and generating the audit result.
-  return runMarketPvtSafeImportMvp({
+  // 3. Always validate through the existing Phase 96 import pipeline.
+  // Default and guard-disabled calls remain no-write dry runs.
+  if (!confirmWrite || !isLocalImportsEnabled()) {
+    const preview = await importRunner({
+      csvText,
+      dryRun: true,
+      confirmWrite: false,
+    });
+
+    if (!confirmWrite) return preview;
+
+    const guardError = "local_imports_disabled";
+    const blockedSummary = {
+      ...preview.summary,
+      dryRun: false,
+      errors: [...preview.summary.errors, guardError],
+      warnings: [
+        ...preview.summary.warnings,
+        "Confirmed external Market/PVT local write was blocked by the local import access guard.",
+      ],
+    };
+
+    return {
+      ...preview,
+      audit: buildLocalImportAuditResult({
+        blocked: true,
+        confirmWrite: true,
+        dryRun: false,
+        importType: "market_pvt",
+        sourceKind: "local_research",
+        sourceLabel,
+        summary: {
+          ...blockedSummary,
+          duplicateRows: preview.audit.duplicateSkippedRows,
+        },
+        tickers: preview.acceptedRows.map((row) => row.ticker),
+      }),
+      dryRun: false,
+      status: "import_rejected",
+      summary: blockedSummary,
+    };
+  }
+
+  return importRunner({
     csvText,
-    dryRun: true,
-    confirmWrite: false,
+    confirmWrite: true,
+    databaseUrl,
+    db,
   });
 };

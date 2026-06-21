@@ -21,6 +21,8 @@ export type LoadTechnicalDeskDataInput = {
   ticker: string;
   from: string;
   to: string;
+  sourceLabel?: string;
+  dataMode?: string;
   preferDb?: boolean;
   allowFallback?: boolean;
 };
@@ -33,7 +35,7 @@ export type LoadTechnicalDeskDataResult = {
   dataQuality: TechnicalDeskDataQuality;
   source: {
     sourceType: TechnicalDeskDataSourceType;
-    provider: "vnstock" | "sample_static";
+    provider: "local_import" | "vnstock" | "sample_static";
     sourceLabel: string;
     dataMode: string;
     productionApproved: false;
@@ -314,6 +316,8 @@ export const loadTechnicalDeskData = async (
     ticker: input.ticker,
     from: input.from,
     to: input.to,
+    sourceLabel: input.sourceLabel,
+    dataMode: input.dataMode,
   });
 
   if (!series.ok || series.count === 0) {
@@ -399,7 +403,7 @@ export const loadTechnicalDeskData = async (
     },
     source: {
       sourceType: "local_db_manual_import",
-      provider: "vnstock",
+      provider: series.sourceLabel === "vnstock" ? "vnstock" : "local_import",
       sourceLabel: series.sourceLabel,
       dataMode: series.dataMode,
       productionApproved: false,

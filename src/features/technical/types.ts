@@ -545,7 +545,7 @@ export type TechnicalIssuerMetadataVerificationStatus =
 
 export type TechnicalMarketDataSource = {
   sourceType: "local_db_manual_import" | "sample_static_fallback";
-  provider: "vnstock" | "sample_static";
+  provider: "local_import" | "vnstock" | "sample_static";
   sourceLabel: string;
   dataMode: string;
   productionApproved: false;

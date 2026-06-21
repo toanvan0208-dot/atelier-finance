@@ -15,7 +15,7 @@ export type TechnicalPageRuntimeData = {
   dataQuality: typeof pvtDataQuality;
   source?: {
     sourceType: "local_db_manual_import" | "sample_static_fallback";
-    provider?: "vnstock" | "sample_static";
+    provider?: "local_import" | "vnstock" | "sample_static";
     sourceLabel: string;
     dataMode: string;
     productionApproved: false;
@@ -71,7 +71,8 @@ export function TechnicalPage({ initialRuntimeData, onNavigate }: TechnicalPageP
   const fallbackUsed = initialRuntimeData?.fallbackUsed ?? true;
   const marketDataSource = initialRuntimeData?.marketDataSource ?? {
     sourceType: source.sourceType,
-    provider: source.sourceType === "local_db_manual_import" ? "vnstock" : "sample_static",
+    provider:
+      source.provider ?? (source.sourceType === "local_db_manual_import" ? "local_import" : "sample_static"),
     sourceLabel: source.sourceLabel,
     dataMode: source.dataMode,
     productionApproved: source.productionApproved,
