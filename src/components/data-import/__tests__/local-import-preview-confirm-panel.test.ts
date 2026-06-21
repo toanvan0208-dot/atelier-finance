@@ -68,4 +68,83 @@ describe("LocalImportPreviewConfirmPanel", () => {
       expect(content).not.toContain(phrase);
     }
   });
+
+  // --- Phase 99: Disabled state and kill switch tests ---
+
+  describe("disabled state (Phase 99)", () => {
+    it("accepts an enabled prop that defaults to false (fail-closed)", () => {
+      const content = readFileSync(componentPath, "utf8");
+
+      expect(content).toContain("enabled = false");
+      expect(content).toContain("{ enabled?:");
+    });
+
+    it("shows disabled-state copy when local imports are off", () => {
+      const content = readFileSync(componentPath, "utf8");
+
+      expect(content).toContain("Nhập dữ liệu local hiện đang tắt.");
+      expect(content).toContain("Chỉ bật chức năng này trong môi trường local/dev có kiểm soát.");
+      expect(content).toContain("Dữ liệu local/imported chưa được duyệt làm nguồn sản xuất.");
+    });
+
+    it("disables dry-run and confirm buttons when not enabled", () => {
+      const content = readFileSync(componentPath, "utf8");
+
+      // Both buttons include !enabled in their disabled condition
+      const previewButtonMatch = content.match(/disabled=\{!enabled \|\|[^}]*csvText/);
+      const confirmButtonMatch = content.match(/disabled=\{!enabled \|\|[^}]*canConfirm/);
+
+      expect(previewButtonMatch).not.toBeNull();
+      expect(confirmButtonMatch).not.toBeNull();
+    });
+
+    it("renders disabled state conditionally based on enabled prop", () => {
+      const content = readFileSync(componentPath, "utf8");
+
+      // The disabled-state block is rendered when !enabled
+      expect(content).toContain("{!enabled ?");
+    });
+
+    it("does not add forbidden Vietnamese advisory wording", () => {
+      const content = readFileSync(componentPath, "utf8").toLowerCase();
+
+      const forbidden = [
+        "nên mua",
+        "nên bán",
+        "nên nắm giữ",
+        "tín hiệu mua",
+        "tín hiệu bán",
+        "điểm mua",
+        "cổ phiếu an toàn",
+        "chắc chắn rẻ",
+        "chắc chắn xấu",
+        "định giá hấp dẫn",
+        "đang rẻ",
+        "đáng mua",
+        "giá mục tiêu",
+        "mục tiêu giá",
+        "dữ liệu chính thức",
+        "dữ liệu thời gian thực",
+      ];
+      for (const phrase of forbidden) {
+        expect(content).not.toContain(phrase);
+      }
+    });
+
+    it("does not add English forbidden advisory wording", () => {
+      const content = readFileSync(componentPath, "utf8").toLowerCase();
+
+      const forbidden = [
+        "upside",
+        "downside",
+        "fair value",
+        "target price",
+        "recommendation",
+        "production-ready",
+      ];
+      for (const phrase of forbidden) {
+        expect(content).not.toContain(phrase);
+      }
+    });
+  });
 });

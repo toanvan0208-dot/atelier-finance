@@ -1,5 +1,7 @@
 import { ManualDataImportWorkspace } from "@/components/data-import";
+import { isLocalImportsEnabled } from "@/lib/config/local-imports-access";
 
 export default function DataImportPage() {
-  return <ManualDataImportWorkspace />;
+  const localImportsEnabled = isLocalImportsEnabled();
+  return <ManualDataImportWorkspace localImportsEnabled={localImportsEnabled} />;
 }

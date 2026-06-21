@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const runFinancialStatementSafeImportMvp = vi.fn();
 const runMarketPvtSafeImportMvp = vi.fn();
@@ -6,6 +6,12 @@ const runMarketPvtSafeImportMvp = vi.fn();
 vi.mock("@/lib/data-sources", () => ({
   runFinancialStatementSafeImportMvp,
   runMarketPvtSafeImportMvp,
+}));
+
+const mockIsLocalImportsEnabled = vi.fn<() => boolean>();
+
+vi.mock("@/lib/config/local-imports-access", () => ({
+  isLocalImportsEnabled: () => mockIsLocalImportsEnabled(),
 }));
 
 const { POST } = await import("../route");
@@ -74,6 +80,7 @@ type RouteResponse = {
   };
   error?: {
     code: string;
+    message: string;
   };
 };
 
@@ -87,7 +94,92 @@ describe("POST /api/local-imports/preview-confirm", () => {
         audit: { ...importResult().audit, importType: "market_pvt" },
       }),
     );
+    mockIsLocalImportsEnabled.mockReturnValue(true);
   });
+
+  afterEach(() => {
+    mockIsLocalImportsEnabled.mockReset();
+  });
+
+  // --- Phase 99: Kill switch guard tests ---
+
+  describe("kill switch guard (Phase 99)", () => {
+    it("blocks preview when local imports are disabled", async () => {
+      mockIsLocalImportsEnabled.mockReturnValue(false);
+      const response = await postJson({
+        action: "preview",
+        csvText: "ticker,period\nFPT,2024",
+        importType: "financial_statement",
+      });
+      const json = await readJson<RouteResponse>(response);
+
+      expect(response.status).toBe(403);
+      expect(json.error?.code).toBe("LOCAL_IMPORTS_DISABLED");
+      expect(runFinancialStatementSafeImportMvp).not.toHaveBeenCalled();
+      expect(runMarketPvtSafeImportMvp).not.toHaveBeenCalled();
+    });
+
+    it("blocks confirm when local imports are disabled", async () => {
+      mockIsLocalImportsEnabled.mockReturnValue(false);
+      const response = await postJson({
+        action: "confirm",
+        csvText: "ticker,period\nFPT,2024",
+        importType: "financial_statement",
+      });
+      const json = await readJson<RouteResponse>(response);
+
+      expect(response.status).toBe(403);
+      expect(json.error?.code).toBe("LOCAL_IMPORTS_DISABLED");
+      expect(runFinancialStatementSafeImportMvp).not.toHaveBeenCalled();
+    });
+
+    it("does not call any import service when disabled", async () => {
+      mockIsLocalImportsEnabled.mockReturnValue(false);
+      await postJson({
+        action: "preview",
+        csvText: "ticker,tradingDate,closePrice\nFPT,2026-06-19,100",
+        importType: "market_pvt",
+      });
+
+      expect(runFinancialStatementSafeImportMvp).not.toHaveBeenCalled();
+      expect(runMarketPvtSafeImportMvp).not.toHaveBeenCalled();
+    });
+
+    it("still requires valid header when local imports are enabled", async () => {
+      mockIsLocalImportsEnabled.mockReturnValue(true);
+      const response = await postJson(
+        {
+          action: "preview",
+          csvText: "ticker,period\nFPT,2024",
+          importType: "financial_statement",
+        },
+        { "content-type": "application/json" },
+      );
+      const json = await readJson<RouteResponse>(response);
+
+      expect(response.status).toBe(403);
+      expect(json.error?.code).toBe("LOCAL_IMPORT_INTERNAL_HEADER_REQUIRED");
+      expect(runFinancialStatementSafeImportMvp).not.toHaveBeenCalled();
+    });
+
+    it("still rejects wrong header value when enabled", async () => {
+      mockIsLocalImportsEnabled.mockReturnValue(true);
+      const response = await postJson(
+        {
+          action: "preview",
+          csvText: "ticker,period\nFPT,2024",
+          importType: "financial_statement",
+        },
+        { "content-type": "application/json", "x-atelier-local-import": "wrong-value" },
+      );
+      const json = await readJson<RouteResponse>(response);
+
+      expect(response.status).toBe(403);
+      expect(json.error?.code).toBe("LOCAL_IMPORT_INTERNAL_HEADER_REQUIRED");
+    });
+  });
+
+  // --- Phase 98: Existing behavior tests (with enabled kill switch) ---
 
   it("runs Financial Statement preview as dry-run without confirmed write", async () => {
     const response = await postJson({

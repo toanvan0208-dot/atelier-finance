@@ -1,4 +1,5 @@
 import { apiError, apiInternalError, apiSuccess } from "@/lib/api/response";
+import { isLocalImportsEnabled } from "@/lib/config/local-imports-access";
 import {
   runFinancialStatementSafeImportMvp,
   runMarketPvtSafeImportMvp,
@@ -37,6 +38,14 @@ const isSupportedAction = (value: string | null): value is "preview" | "confirm"
 
 export const POST = async (request: Request): Promise<Response> => {
   try {
+    if (!isLocalImportsEnabled()) {
+      return apiError(
+        "LOCAL_IMPORTS_DISABLED",
+        "Local imports are currently disabled. Set ATELIER_LOCAL_IMPORTS_ENABLED=true in the environment to enable.",
+        { status: 403 },
+      );
+    }
+
     if (request.headers.get(INTERNAL_HEADER) !== INTERNAL_HEADER_VALUE) {
       return apiError("LOCAL_IMPORT_INTERNAL_HEADER_REQUIRED", "Local import preview requires an internal header.", {
         status: 403,

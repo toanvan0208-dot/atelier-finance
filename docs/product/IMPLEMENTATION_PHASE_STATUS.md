@@ -2,11 +2,11 @@
 
 ## 1. Current latest phase
 
-Phase 98 - Local Import UI Flow with Preview and Confirm
+Phase 99 - Local Import Access Guard and Runtime Kill Switch
 
 ## 2. Latest commit
 
-Commit: Phase 98 add local import preview confirm ui (this phase commit)
+Commit: Phase 99 add local import access guard (this phase commit)
 
 ## 3. Current branch expectation
 
@@ -36,6 +36,7 @@ The working tree should be clean before starting a new phase.
 - Technical/PVT DB-backed read path now requires usable local/imported market rows plus ready Market/PVT unit metadata before preferring DB data; otherwise it keeps sample fallback behavior.
 - Shared local import audit result exists for Financial Statement and Market/PVT import MVPs with deterministic job metadata, row counts, duplicate/skipped tracking, warning/error status, and safety flags.
 - Internal `/data-import` UI now exposes a local CSV text preview-confirm flow for Financial Statement and Market/PVT imports: dry-run preview first, audit summary review, then explicit confirm write.
+- Local import UI and API route are gated behind a runtime kill switch (`ATELIER_LOCAL_IMPORTS_ENABLED`): disabled by default (fail closed), enabled only when env is exactly `true`. The existing `x-atelier-local-import` header guard remains as a lightweight internal guard (not real production auth).
 
 ## 5. Current validated data pipeline state
 
@@ -72,6 +73,7 @@ The working tree should be clean before starting a new phase.
 - Phase 94 changes Financials runtime behavior to prefer usable local DB rows, but Financials DB-backed status still remains scoped to Financials and does not make Overview or Valuation fully DB-backed or production-approved.
 - Phase 95 allows verified Financials inputs to feed the controlled Valuation boundary, but Valuation remains partial/mixed unless market inputs, shares, units, and source boundaries are also safe.
 - Phase 98 adds a browser-visible local/internal import panel showing audit counts, warning/error review, `productionApproved:false`, and local/imported source boundaries before confirm write.
+- Phase 99 adds a runtime kill switch (`ATELIER_LOCAL_IMPORTS_ENABLED`) gating the local import UI and API route. Disabled by default (fail closed). The `x-atelier-local-import` header guard is preserved as a lightweight internal guard only.
 
 ## 7. Current known limitations
 
@@ -90,6 +92,7 @@ The working tree should be clean before starting a new phase.
 - Phase 96 does not add public upload UI/API, external API/Vnstock/web import, schema/migration, source/legal approval workflow, seed data, or production data claims.
 - Phase 97 audit results are returned by local import helpers only; they are not durable DB audit logs and do not approve sources or make imported data production-approved.
 - Phase 98 does not add external API/Vnstock/web import, public investor upload, schema/migration, durable audit DB tables, source approval, or production data claims.
+- Phase 99 does not add external API/Vnstock/web import, public investor upload, schema/migration, full auth/admin system, durable audit DB tables, source approval, or production data claims. The `x-atelier-local-import` header is a lightweight internal guard, not real production auth.
 
 ## 8. Recommended next phase
 

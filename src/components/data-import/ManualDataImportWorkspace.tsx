@@ -608,7 +608,7 @@ const userFacingError = (result: ManualUploadPreviewResult): string | null => {
   return null;
 };
 
-export function ManualDataImportWorkspace() {
+export function ManualDataImportWorkspace({ localImportsEnabled = false }: { localImportsEnabled?: boolean }) {
   const [csvText, setCsvText] = useState("");
   const [targetTicker, setTargetTicker] = useState("");
   const [targetPeriod, setTargetPeriod] = useState("");
@@ -721,7 +721,7 @@ export function ManualDataImportWorkspace() {
         </section>
 
         <DataSourceWarningCard />
-        <LocalImportPreviewConfirmPanel />
+        <LocalImportPreviewConfirmPanel enabled={localImportsEnabled} />
         <CsvTemplateCard onUseTemplate={useTemplate} />
         <FieldGuide />
 

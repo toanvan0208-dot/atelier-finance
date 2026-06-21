@@ -69,7 +69,7 @@ const messageList = (audit: LocalImportAudit | undefined, key: "warnings" | "err
   return Array.isArray(value) ? value : [];
 };
 
-export function LocalImportPreviewConfirmPanel() {
+export function LocalImportPreviewConfirmPanel({ enabled = false }: { enabled?: boolean }) {
   const [importType, setImportType] = useState<LocalImportType>("financial_statement");
   const [csvText, setCsvText] = useState("");
   const [preview, setPreview] = useState<LocalImportUiResult | null>(null);
@@ -135,6 +135,17 @@ export function LocalImportPreviewConfirmPanel() {
         chip={<Chip variant="warning">local/internal</Chip>}
       />
       <CardBody className="space-y-5">
+        {!enabled ? (
+          <div className="rounded-[4px] border border-warning bg-warning/10 px-4 py-4 text-sm leading-6 text-ink">
+            <p className="font-bold">Nhập dữ liệu local hiện đang tắt.</p>
+            <p className="mt-2 text-muted">
+              Chỉ bật chức năng này trong môi trường local/dev có kiểm soát.
+            </p>
+            <p className="mt-1 text-xs text-muted">
+              Dữ liệu local/imported chưa được duyệt làm nguồn sản xuất. productionApproved:false.
+            </p>
+          </div>
+        ) : null}
         <div className="grid gap-3 rounded-[4px] border border-border-soft bg-surface-soft p-3 text-xs leading-5 text-muted md:grid-cols-4">
           <div>
             <p className="font-bold uppercase text-ink">Approval</p>
@@ -208,7 +219,7 @@ export function LocalImportPreviewConfirmPanel() {
         <div className="flex flex-wrap gap-2">
           <Button
             onClick={() => runImportAction("preview")}
-            disabled={csvText.trim().length === 0 || pendingAction !== null}
+            disabled={!enabled || csvText.trim().length === 0 || pendingAction !== null}
             isLoading={pendingAction === "preview"}
           >
             Run dry-run preview
@@ -216,7 +227,7 @@ export function LocalImportPreviewConfirmPanel() {
           <Button
             variant="secondary"
             onClick={() => runImportAction("confirm")}
-            disabled={!canConfirm || pendingAction !== null}
+            disabled={!enabled || !canConfirm || pendingAction !== null}
             isLoading={pendingAction === "confirm"}
           >
             Confirm write
