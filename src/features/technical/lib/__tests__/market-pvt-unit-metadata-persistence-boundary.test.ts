@@ -2,7 +2,10 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { buildControlledValuationIntegrationBoundary } from "../../../valuation/lib/controlled-valuation-integration-boundary";
+import {
+  buildControlledValuationIntegrationBoundary,
+  type ControlledValuationFinancialsRuntimeSnapshot,
+} from "../../../valuation/lib/controlled-valuation-integration-boundary";
 import {
   buildMarketPvtUnitMetadata,
   type MarketPvtFieldUnitMetadata,
@@ -21,6 +24,22 @@ const values = {
   tradingValue: 5_000_000_000,
   volume: 100_000,
 };
+
+const verifiedRuntime = (
+  patch: ControlledValuationFinancialsRuntimeSnapshot,
+): ControlledValuationFinancialsRuntimeSnapshot => ({
+  asOf: "2026-06-21",
+  dataMode: "research_only",
+  fallbackUsed: false,
+  fiscalYear: 2026,
+  period: "2026",
+  periodType: "annual",
+  productionApproved: false,
+  readPath: "local_db",
+  runtimeStatus: "db_backed",
+  sourceLabel: "phase95_market_pvt_persistence_boundary",
+  ...patch,
+});
 
 const validMetadata = () =>
   buildMarketPvtUnitMetadata({
@@ -133,7 +152,7 @@ describe("Phase 75 Market/PVT unit metadata persistence boundary", () => {
       values: { marketPrice: 50_000 },
     });
     const valuation = buildControlledValuationIntegrationBoundary({
-      financialsRuntimeSnapshot: { eps: 2_500, units: { eps: "vnd_per_share" } },
+      financialsRuntimeSnapshot: verifiedRuntime({ eps: 2_500, units: { eps: "vnd_per_share" } }),
       persistedValuationInputs: {
         marketPrice: 50_000,
         marketUnitMetadata: result.marketUnitMetadata,
@@ -146,12 +165,12 @@ describe("Phase 75 Market/PVT unit metadata persistence boundary", () => {
 
   it("keeps Financials ownership of marketPrice and marketCap blocked", () => {
     const valuation = buildControlledValuationIntegrationBoundary({
-      financialsRuntimeSnapshot: {
+      financialsRuntimeSnapshot: verifiedRuntime({
         eps: 2_500,
         marketCap: 5_000_000_000,
         marketPrice: 50_000,
         units: { eps: "vnd_per_share" },
-      } as never,
+      } as never),
     });
 
     expect(valuation.selectedInputs.marketPrice.source).toBe("unavailable");

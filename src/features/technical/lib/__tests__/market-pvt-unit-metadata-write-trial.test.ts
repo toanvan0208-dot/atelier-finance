@@ -3,13 +3,32 @@ import { join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 
 import type { MarketPriceSeriesResult, MarketPriceSeriesRow } from "../../../../lib/data-sources";
-import { buildControlledValuationIntegrationBoundary } from "../../../valuation/lib/controlled-valuation-integration-boundary";
+import {
+  buildControlledValuationIntegrationBoundary,
+  type ControlledValuationFinancialsRuntimeSnapshot,
+} from "../../../valuation/lib/controlled-valuation-integration-boundary";
 import type { PVTObservationData } from "../../types";
 import { buildTechnicalFromMarketPriceSeries } from "../build-technical-from-market-price-series";
 import { loadTechnicalDeskData } from "../load-technical-desk-data";
 
 const TRIAL_SOURCE_LABEL = "phase73_synthetic_market_pvt_metadata_trial";
 const TRIAL_AS_OF = "2026-06-21";
+
+const verifiedRuntime = (
+  patch: ControlledValuationFinancialsRuntimeSnapshot,
+): ControlledValuationFinancialsRuntimeSnapshot => ({
+  asOf: TRIAL_AS_OF,
+  dataMode: "research_only",
+  fallbackUsed: false,
+  fiscalYear: 2026,
+  period: "2026",
+  periodType: "annual",
+  productionApproved: false,
+  readPath: "local_db",
+  runtimeStatus: "db_backed",
+  sourceLabel: "phase95_market_pvt_financials_counterparty",
+  ...patch,
+});
 
 const baseData: PVTObservationData = {
   ticker: "UNIT73",
@@ -244,7 +263,7 @@ describe("Phase 73 controlled Market/PVT metadata write/read-through trial", () 
   it("hands read-through Market/PVT metadata to Valuation ready and blocked paths", () => {
     const trial = buildSyntheticTrial();
     const valuation = buildControlledValuationIntegrationBoundary({
-      financialsRuntimeSnapshot: {
+      financialsRuntimeSnapshot: verifiedRuntime({
         equity: 2_000_000_000,
         eps: 2_500,
         revenue: 1_000_000_000,
@@ -257,7 +276,7 @@ describe("Phase 73 controlled Market/PVT metadata write/read-through trial", () 
           revenue: "vnd",
           sharesOutstanding: "shares",
         },
-      },
+      }),
       persistedValuationInputs: {
         dataMode: "research_only",
         marketCap: 5_000_000_000,
@@ -293,10 +312,10 @@ describe("Phase 73 controlled Market/PVT metadata write/read-through trial", () 
       },
     });
     const valuation = buildControlledValuationIntegrationBoundary({
-      financialsRuntimeSnapshot: {
+      financialsRuntimeSnapshot: verifiedRuntime({
         sharesOutstanding: 100_000,
         units: { sharesOutstanding: "shares" },
-      },
+      }),
       persistedValuationInputs: {
         marketPrice: 50_000,
         marketUnitMetadata: trial.marketUnitMetadata,
@@ -312,14 +331,14 @@ describe("Phase 73 controlled Market/PVT metadata write/read-through trial", () 
 
   it("blocks unknown, invalid, and Financials-owned market handoff cases", () => {
     const unknown = buildControlledValuationIntegrationBoundary({
-      financialsRuntimeSnapshot: { eps: 2_500, units: { eps: "vnd_per_share" } },
+      financialsRuntimeSnapshot: verifiedRuntime({ eps: 2_500, units: { eps: "vnd_per_share" } }),
       persistedValuationInputs: {
         marketPrice: 50_000,
         marketUnitMetadata: buildTechnicalFromMarketPriceSeries(baseData, syntheticSeries()).marketUnitMetadata,
       },
     });
     const invalid = buildControlledValuationIntegrationBoundary({
-      financialsRuntimeSnapshot: { eps: 2_500, units: { eps: "vnd_per_share" } },
+      financialsRuntimeSnapshot: verifiedRuntime({ eps: 2_500, units: { eps: "vnd_per_share" } }),
       persistedValuationInputs: {
         marketPrice: 50_000,
         marketUnitMetadata: buildTechnicalFromMarketPriceSeries(baseData, syntheticSeries(), {
@@ -329,12 +348,12 @@ describe("Phase 73 controlled Market/PVT metadata write/read-through trial", () 
       },
     });
     const financialsOwned = buildControlledValuationIntegrationBoundary({
-      financialsRuntimeSnapshot: {
+      financialsRuntimeSnapshot: verifiedRuntime({
         eps: 2_500,
         marketCap: 5_000_000_000,
         marketPrice: 50_000,
         units: { eps: "vnd_per_share" },
-      } as never,
+      } as never),
     });
 
     expect(unknown.selectedInputs.marketPrice.normalizationStatus).toBe("unknown_unit");
@@ -352,7 +371,7 @@ describe("Phase 73 controlled Market/PVT metadata write/read-through trial", () 
       values: { marketPrice: -50_000 },
     });
     const valuation = buildControlledValuationIntegrationBoundary({
-      financialsRuntimeSnapshot: { eps: 2_500, units: { eps: "vnd_per_share" } },
+      financialsRuntimeSnapshot: verifiedRuntime({ eps: 2_500, units: { eps: "vnd_per_share" } }),
       persistedValuationInputs: {
         marketPrice: 50_000,
         marketUnitMetadata: invalidTrial.marketUnitMetadata,
@@ -367,10 +386,10 @@ describe("Phase 73 controlled Market/PVT metadata write/read-through trial", () 
     const output = JSON.stringify({
       technical: buildSyntheticTrial().marketUnitMetadata,
       valuation: buildControlledValuationIntegrationBoundary({
-        financialsRuntimeSnapshot: {
+        financialsRuntimeSnapshot: verifiedRuntime({
           eps: 2_500,
           units: { eps: "vnd_per_share" },
-        },
+        }),
         persistedValuationInputs: {
           marketPrice: 50_000,
           marketUnitMetadata: buildSyntheticTrial().marketUnitMetadata,

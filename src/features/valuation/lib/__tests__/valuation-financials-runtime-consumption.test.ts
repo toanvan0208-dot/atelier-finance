@@ -65,7 +65,7 @@ describe("valuation financials runtime consumption boundary", () => {
     expect(result.canClaimValuationDbBacked).toBe(false);
     expect(result.productionApproved).toBe(false);
     expect(result.warnings).toContain("Valuation calculations still use the persisted input bridge.");
-    expect(result.warnings).toContain("Financials runtime is consumed only as controlled metadata and safe snapshot fields.");
+    expect(result.warnings).toContain("Financials runtime is consumed only as verified DB-backed local/imported snapshot fields.");
   });
 
   it("reports consumed and unavailable safe fields without inventing values", () => {

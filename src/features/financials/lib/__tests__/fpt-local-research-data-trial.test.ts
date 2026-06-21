@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { buildControlledValuationIntegrationBoundary } from "../../../valuation/lib/controlled-valuation-integration-boundary";
+import {
+  buildControlledValuationIntegrationBoundary,
+  type ControlledValuationFinancialsRuntimeSnapshot,
+} from "../../../valuation/lib/controlled-valuation-integration-boundary";
 import {
   buildFptLocalResearchPreWriteChecklist,
   buildFptLocalResearchTrialFixture,
@@ -10,6 +13,22 @@ import {
 } from "../fpt-local-research-data-trial";
 
 const fixture = () => buildFptLocalResearchTrialFixture();
+
+const verifiedRuntime = (
+  patch: ControlledValuationFinancialsRuntimeSnapshot,
+): ControlledValuationFinancialsRuntimeSnapshot => ({
+  asOf: "2024-12-31",
+  dataMode: "research_only",
+  fallbackUsed: false,
+  fiscalYear: 2024,
+  period: "2024",
+  periodType: "annual",
+  productionApproved: false,
+  readPath: "local_db",
+  runtimeStatus: "db_backed",
+  sourceLabel: "phase78_fpt_local_research_financial_statement_trial",
+  ...patch,
+});
 
 describe("Phase 78 FPT local research financial statement data trial", () => {
   it("keeps the trial fixture limited to one ticker only", () => {
@@ -179,21 +198,21 @@ describe("Phase 78 FPT local research financial statement data trial", () => {
   it("allows Valuation handoff only for valid explicit Financials units", () => {
     const draft = mapValidTrialRowsToFinancialStatementDrafts(fixture())[0];
     const valid = buildControlledValuationIntegrationBoundary({
-      financialsRuntimeSnapshot: {
+      financialsRuntimeSnapshot: verifiedRuntime({
         eps: draft.values.eps,
         revenue: draft.values.revenue,
         sharesOutstanding: draft.values.sharesOutstanding,
         units: draft.valuationUnits,
-      },
+      }),
       persistedValuationInputs: null,
     });
     const invalid = buildControlledValuationIntegrationBoundary({
-      financialsRuntimeSnapshot: {
+      financialsRuntimeSnapshot: verifiedRuntime({
         eps: draft.values.eps,
         revenue: draft.values.revenue,
         sharesOutstanding: draft.values.sharesOutstanding,
         units: { ...draft.valuationUnits, eps: "unknown" },
-      },
+      }),
       persistedValuationInputs: null,
     });
 
@@ -206,15 +225,14 @@ describe("Phase 78 FPT local research financial statement data trial", () => {
   it("keeps Financials DB-backed separate from a fully DB-backed Valuation claim", () => {
     const draft = mapValidTrialRowsToFinancialStatementDrafts(fixture())[0];
     const valuation = buildControlledValuationIntegrationBoundary({
-      financialsRuntimeSnapshot: {
+      financialsRuntimeSnapshot: verifiedRuntime({
         dataMode: draft.dataMode,
         eps: draft.values.eps,
         readPath: "local_db",
         revenue: draft.values.revenue,
-        runtimeStatus: "available",
         sourceLabel: draft.sourceLabel,
         units: draft.valuationUnits,
-      },
+      }),
     });
 
     expect(valuation.sourceBoundary.canClaimValuationDbBacked).toBe(false);

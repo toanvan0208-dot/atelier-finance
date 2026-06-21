@@ -284,6 +284,10 @@ export function ValuationPage({ initialFinancialsRuntimeData, initialScenario, o
             fallbackUsed: effectiveFinancialsRuntimeData.source.fallbackUsed,
             productionApproved: effectiveFinancialsRuntimeData.source.productionApproved,
             sourceLabel: effectiveFinancialsRuntimeData.source.sourceLabel,
+            asOf: effectiveFinancialsRuntimeData.source.asOf,
+            fiscalYear: effectiveFinancialsRuntimeData.source.fiscalYear,
+            period: runtimeSnapshot.period,
+            periodType: effectiveFinancialsRuntimeData.source.periodType,
             units: {
               equity: effectiveFinancialsRuntimeData.unitMetadata.equity.unit,
               eps: effectiveFinancialsRuntimeData.unitMetadata.eps.unit,

@@ -114,6 +114,27 @@ describe("overview cross-module readiness summary", () => {
     expect(text.toLowerCase()).not.toContain("fully db-backed ready");
   });
 
+  it("marks Valuation partial, not complete, when only Financials input is DB-backed", () => {
+    const dbBackedRuntime = {
+      ...runtimeData(),
+      runtimeStatus: "db_backed",
+      source: {
+        ...runtimeData().source,
+        dataMode: "research_only",
+        fallbackUsed: false,
+        readPath: "local_db",
+      },
+    } satisfies FinancialsRuntimeData;
+    const valuation = itemFor("valuation", dbBackedRuntime);
+    const text = JSON.stringify(valuation);
+
+    expect(valuation.status).toBe("partial");
+    expect(valuation.productionApproved).toBe(false);
+    expect(text).toContain("Market price missing");
+    expect(text).toContain("canClaimValuationDbBacked:false");
+    expect(text.toLowerCase()).not.toContain("fully db-backed");
+  });
+
   it("includes Technical/PVT source and unit readiness status", () => {
     const technical = item("technical");
 

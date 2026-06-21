@@ -260,13 +260,20 @@ export const runFptFinancialStatementDbWriteTrial = async (
   const units = record?.unitMetadata ? financialsUnitsForValuation(record.unitMetadata) : financialsUnitsForValuation(null);
   const valuationBoundary = buildControlledValuationIntegrationBoundary({
     financialsRuntimeSnapshot: {
+      asOf: record?.source.asOf,
       dataMode: record?.source.dataMode,
       equity: record?.values.totalEquity,
       eps: record?.values.eps,
+      fallbackUsed: false,
+      fiscalYear: record?.fiscalYear,
+      period: record?.period,
+      periodType: record?.periodType,
       productionApproved: false,
       readPath: "local_db",
       revenue: record?.values.revenue,
+      runtimeStatus: "db_backed",
       sharesOutstanding: record?.values.sharesOutstanding,
+      sourceLabel: record?.source.sourceLabel,
       units,
     },
     persistedValuationInputs: {

@@ -89,16 +89,18 @@ const financialsItem = (financialsRuntimeData?: FinancialsRuntimeData | null): O
 
 const valuationItem = (financialsRuntimeData?: FinancialsRuntimeData | null): OverviewModuleReadinessItem => {
   const readiness = buildValuationFinancialsRuntimeReadiness({ financialsRuntimeData });
+  const hasOnlyFinancialsDbBackedInput =
+    readiness.financialsReadPath === "local_db" && readiness.canClaimValuationDbBacked === false;
 
   return {
     moduleKey: "valuation",
     label: "Valuation",
-    status: "blocked",
+    status: hasOnlyFinancialsDbBackedInput ? "partial" : "blocked",
     dataMode: normalizeDataMode(readiness.dataMode),
     productionApproved: false,
     sourceStatus: readiness.sourceLabel ? "not_approved" : "partial",
     unitStatus: "partial",
-    summary: "Valuation van la boundary rieng; Financials hoac PVT co data khong lam Valuation thanh fully DB-backed.",
+    summary: "Valuation van la boundary rieng; Financials hoac PVT co data khong tao trang thai day du cho Valuation.",
     blockedReasons: unique([
       ...readiness.blockedReasons,
       "canClaimValuationDbBacked:false",

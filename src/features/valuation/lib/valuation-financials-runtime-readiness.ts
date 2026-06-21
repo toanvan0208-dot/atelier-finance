@@ -9,6 +9,7 @@ export type ValuationRuntimeStatus =
   | "sample_static"
   | "sample_fallback"
   | "persisted_local_input"
+  | "financials_input_db_backed"
   | "financials_runtime_available"
   | "financials_runtime_ready"
   | "mixed_source"
@@ -80,6 +81,18 @@ const normalizeInputs = (
   sharesOutstanding: inputs.sharesOutstanding ?? financialsRuntimeData?.statementSnapshot?.sharesOutstanding ?? null,
 });
 
+const isVerifiedFinancialsRuntime = (runtimeData?: FinancialsRuntimeData | null): boolean =>
+  Boolean(
+    runtimeData &&
+      runtimeData.runtimeStatus === "db_backed" &&
+      runtimeData.source.readPath === "local_db" &&
+      runtimeData.source.fallbackUsed === false &&
+      runtimeData.source.productionApproved === false &&
+      runtimeData.source.sourceLabel &&
+      runtimeData.source.periodType &&
+      (runtimeData.source.asOf || typeof runtimeData.source.fiscalYear === "number" || runtimeData.statementSnapshot?.period),
+  );
+
 const statusFromInputs = (input: Required<ValuationRuntimeInputs>): ValuationCalculationReadiness => {
   const epsMissing = input.eps === null;
   const epsNonPositive = typeof input.eps === "number" && input.eps <= 0;
@@ -112,8 +125,8 @@ const valuationRuntimeStatus = ({
   if (!financialsRuntimeData) return hasPersistedLocalInputBridge ? "persisted_local_input" : "not_wired";
   if (financialsRuntimeData.runtimeStatus === "sample_fallback") return "sample_fallback";
   if (financialsRuntimeData.source.readPath === "sample_static") return "sample_static";
-  if (valuationConsumesFinancialsRuntime && financialsRuntimeData.source.readPath === "local_db") {
-    return "financials_runtime_ready";
+  if (valuationConsumesFinancialsRuntime && isVerifiedFinancialsRuntime(financialsRuntimeData)) {
+    return hasPersistedLocalInputBridge ? "financials_runtime_ready" : "financials_input_db_backed";
   }
   return hasPersistedLocalInputBridge ? "mixed_source" : "financials_runtime_available";
 };
@@ -147,12 +160,13 @@ export const buildValuationFinancialsRuntimeReadiness = ({
   inputs,
   valuationConsumesFinancialsRuntime = false,
 }: BuildValuationFinancialsRuntimeReadinessInput = {}): ValuationFinancialsRuntimeReadiness => {
-  const normalizedInputs = normalizeInputs(inputs, financialsRuntimeData);
+  const verifiedFinancialsRuntime = isVerifiedFinancialsRuntime(financialsRuntimeData);
+  const normalizedInputs = normalizeInputs(inputs, verifiedFinancialsRuntime ? financialsRuntimeData : null);
   const derived = buildFinancialsDerivedModuleReadiness({
     moduleKey: "valuation",
     financialsRuntimeData,
-    consumesFinancialsRuntimeSnapshot: valuationConsumesFinancialsRuntime,
-    moduleDataSourceMode: valuationConsumesFinancialsRuntime ? "financials_runtime_ready" : "not_wired",
+    consumesFinancialsRuntimeSnapshot: valuationConsumesFinancialsRuntime && verifiedFinancialsRuntime,
+    moduleDataSourceMode: valuationConsumesFinancialsRuntime && verifiedFinancialsRuntime ? "financials_runtime_ready" : "not_wired",
     eps: normalizedInputs.eps,
     equity: normalizedInputs.equity,
     bvps: normalizedInputs.bvps,
@@ -162,6 +176,9 @@ export const buildValuationFinancialsRuntimeReadiness = ({
     ...blockedReasons,
     ...(financialsRuntimeData && !valuationConsumesFinancialsRuntime
       ? ["Financials runtime available, but Valuation calculation is not yet wired."]
+      : []),
+    ...(financialsRuntimeData && valuationConsumesFinancialsRuntime && !verifiedFinancialsRuntime
+      ? ["Financials runtime was not consumed because verified local DB metadata was unavailable."]
       : []),
     ...(financialsRuntimeData?.source.fallbackUsed
       ? ["Financials fallback is active; Valuation readiness must treat it as fallback-derived."]
@@ -175,7 +192,7 @@ export const buildValuationFinancialsRuntimeReadiness = ({
     valuationRuntimeStatus: valuationRuntimeStatus({
       financialsRuntimeData,
       hasPersistedLocalInputBridge,
-      valuationConsumesFinancialsRuntime,
+      valuationConsumesFinancialsRuntime: valuationConsumesFinancialsRuntime && verifiedFinancialsRuntime,
     }),
     financialsRuntimeStatus: financialsRuntimeData?.runtimeStatus ?? "not_provided",
     financialsReadPath: financialsRuntimeData?.source.readPath ?? "not_provided",
@@ -184,7 +201,7 @@ export const buildValuationFinancialsRuntimeReadiness = ({
     fallbackUsed: financialsRuntimeData?.source.fallbackUsed ?? null,
     productionApproved: false,
     canClaimValuationDbBacked: false,
-    valuationConsumesFinancialsRuntime,
+    valuationConsumesFinancialsRuntime: valuationConsumesFinancialsRuntime && verifiedFinancialsRuntime,
     calculationReadiness: statusFromInputs(normalizedInputs),
     missingValuePolicy,
     inputSnapshot: normalizedInputs,

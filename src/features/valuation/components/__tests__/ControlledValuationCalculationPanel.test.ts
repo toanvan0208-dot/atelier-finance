@@ -4,22 +4,41 @@ import { describe, expect, it } from "vitest";
 
 import { ControlledValuationCalculationPanel } from "../ControlledValuationCalculationPanel";
 import { buildControlledValuationIntegrationBoundary } from "../../lib/controlled-valuation-integration-boundary";
-import type { ControlledValuationIntegrationBoundary } from "../../lib/controlled-valuation-integration-boundary";
+import type {
+  ControlledValuationFinancialsRuntimeSnapshot,
+  ControlledValuationIntegrationBoundary,
+} from "../../lib/controlled-valuation-integration-boundary";
 import { buildValuationUnitAwareReadyMetricsScenario } from "../../lib/valuation-unit-aware-ready-metrics-scenario";
 
 const renderPanel = (boundary: ControlledValuationIntegrationBoundary = buildControlledValuationIntegrationBoundary()) =>
   renderToStaticMarkup(createElement(ControlledValuationCalculationPanel, { boundary }));
 
+const verifiedRuntime = (
+  patch: ControlledValuationFinancialsRuntimeSnapshot,
+): ControlledValuationFinancialsRuntimeSnapshot => ({
+  asOf: "2024-12-31",
+  dataMode: "research_only",
+  fallbackUsed: false,
+  fiscalYear: 2024,
+  period: "2024",
+  periodType: "annual",
+  productionApproved: false,
+  readPath: "local_db",
+  runtimeStatus: "db_backed",
+  sourceLabel: "phase95_verified_financials_runtime",
+  ...patch,
+});
+
 describe("ControlledValuationCalculationPanel", () => {
   it("renders the source boundary without DB-backed or production approval claims", () => {
     const html = renderPanel(
       buildControlledValuationIntegrationBoundary({
-        financialsRuntimeSnapshot: {
+        financialsRuntimeSnapshot: verifiedRuntime({
           dataMode: "research_only",
           eps: 5,
           readPath: "local_db",
           units: { eps: "vnd_per_share" },
-        },
+        }),
         persistedValuationInputs: { marketPrice: 100, units: { marketPrice: "vnd_per_share" } },
       }),
     );
@@ -35,12 +54,12 @@ describe("ControlledValuationCalculationPanel", () => {
   it("renders ready metric values only when status is ready", () => {
     const html = renderPanel(
       buildControlledValuationIntegrationBoundary({
-        financialsRuntimeSnapshot: {
+        financialsRuntimeSnapshot: verifiedRuntime({
           equity: 1000,
           eps: 5,
           sharesOutstanding: 100,
           units: { equity: "vnd", eps: "vnd_per_share", sharesOutstanding: "shares" },
-        },
+        }),
         persistedValuationInputs: { marketPrice: 20, units: { marketPrice: "vnd_per_share" } },
       }),
     );
@@ -56,10 +75,15 @@ describe("ControlledValuationCalculationPanel", () => {
     const scenario = buildValuationUnitAwareReadyMetricsScenario();
     const html = renderPanel(
       buildControlledValuationIntegrationBoundary({
-        financialsRuntimeSnapshot: {
+        financialsRuntimeSnapshot: verifiedRuntime({
+          asOf: scenario.financialsRuntimeData.source.asOf,
           dataMode: scenario.financialsRuntimeData.source.dataMode,
           eps: scenario.financialsRuntimeData.statementSnapshot?.eps,
+          fallbackUsed: false,
+          period: scenario.financialsRuntimeData.statementSnapshot?.period,
+          periodType: scenario.financialsRuntimeData.source.periodType,
           revenue: scenario.financialsRuntimeData.statementSnapshot?.revenue,
+          runtimeStatus: "db_backed",
           sharesOutstanding: scenario.financialsRuntimeData.statementSnapshot?.sharesOutstanding,
           sourceLabel: scenario.financialsRuntimeData.source.sourceLabel,
           totalEquity: scenario.financialsRuntimeData.statementSnapshot?.totalEquity,
@@ -69,13 +93,13 @@ describe("ControlledValuationCalculationPanel", () => {
             revenue: scenario.financialsRuntimeData.unitMetadata.revenue.unit,
             sharesOutstanding: scenario.financialsRuntimeData.unitMetadata.sharesOutstanding.unit,
           },
-        },
+        }),
         persistedValuationInputs: scenario.persistedValuationInputs,
       }),
     );
 
     expect(html).toContain("sourceMode:mixed_source");
-    expect(html).toContain("financialsSource:financials_runtime_partial");
+    expect(html).toContain("financialsSource:financials_input_db_backed_local_imported");
     expect(html).toContain("marketSource:market_pvt");
     expect(html).toContain("productionApproved:false");
     expect(html).toContain("canClaimValuationDbBacked:false");
@@ -106,12 +130,12 @@ describe("ControlledValuationCalculationPanel", () => {
   it("does not round small positive ready values down to zero", () => {
     const html = renderPanel(
       buildControlledValuationIntegrationBoundary({
-        financialsRuntimeSnapshot: {
+        financialsRuntimeSnapshot: verifiedRuntime({
           equity: 1,
           eps: 5,
           sharesOutstanding: 10_000,
           units: { equity: "vnd", eps: "vnd_per_share", sharesOutstanding: "shares" },
-        },
+        }),
         persistedValuationInputs: { marketPrice: 20, units: { marketPrice: "vnd_per_share" } },
       }),
     );
@@ -123,12 +147,12 @@ describe("ControlledValuationCalculationPanel", () => {
   it("renders not applicable states for non-positive EPS and equity", () => {
     const html = renderPanel(
       buildControlledValuationIntegrationBoundary({
-        financialsRuntimeSnapshot: {
+        financialsRuntimeSnapshot: verifiedRuntime({
           equity: 0,
           eps: -1,
           sharesOutstanding: 100,
           units: { equity: "vnd", eps: "vnd_per_share", sharesOutstanding: "shares" },
-        },
+        }),
         persistedValuationInputs: { marketPrice: 20, units: { marketPrice: "vnd_per_share" } },
       }),
     );
@@ -154,7 +178,7 @@ describe("ControlledValuationCalculationPanel", () => {
   it("does not render forbidden wording", () => {
     const html = renderPanel(
       buildControlledValuationIntegrationBoundary({
-        financialsRuntimeSnapshot: {
+        financialsRuntimeSnapshot: verifiedRuntime({
           revenue: 1000,
           equity: 1000,
           eps: 5,
@@ -162,7 +186,7 @@ describe("ControlledValuationCalculationPanel", () => {
           dataMode: "research_only",
           readPath: "local_db",
           units: { equity: "vnd", eps: "vnd_per_share", revenue: "vnd", sharesOutstanding: "shares" },
-        },
+        }),
         persistedValuationInputs: { marketCap: 10_000, marketPrice: 100, units: { marketCap: "vnd", marketPrice: "vnd_per_share" } },
       }),
     ).toLowerCase();

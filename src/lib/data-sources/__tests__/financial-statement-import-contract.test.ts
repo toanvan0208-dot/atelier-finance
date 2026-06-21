@@ -5,6 +5,23 @@ import { describe, expect, it } from "vitest";
 
 import { buildFinancialStatementImportDryRun } from "../financial-statement-import-contract";
 import { buildControlledValuationIntegrationBoundary } from "@/features/valuation/lib/controlled-valuation-integration-boundary";
+import type { ControlledValuationFinancialsRuntimeSnapshot } from "@/features/valuation/lib/controlled-valuation-integration-boundary";
+
+const verifiedRuntime = (
+  patch: ControlledValuationFinancialsRuntimeSnapshot,
+): ControlledValuationFinancialsRuntimeSnapshot => ({
+  asOf: "2025-12-31",
+  dataMode: "research_only",
+  fallbackUsed: false,
+  fiscalYear: 2025,
+  period: "2025",
+  periodType: "annual",
+  productionApproved: false,
+  readPath: "local_db",
+  runtimeStatus: "db_backed",
+  sourceLabel: "phase95_import_contract_test",
+  ...patch,
+});
 
 describe("financial statement import dry-run contract", () => {
   it("normalizes valid rows without planning any write", () => {
@@ -207,7 +224,7 @@ describe("financial statement import dry-run contract", () => {
       },
     ]).acceptedRows[0];
     const explicitValuation = buildControlledValuationIntegrationBoundary({
-      financialsRuntimeSnapshot: {
+      financialsRuntimeSnapshot: verifiedRuntime({
         equity: explicit.totalEquity,
         eps: explicit.eps,
         revenue: explicit.revenue,
@@ -218,17 +235,17 @@ describe("financial statement import dry-run contract", () => {
           revenue: explicit.unitMetadata.revenue.unit,
           sharesOutstanding: explicit.unitMetadata.sharesOutstanding.unit,
         },
-      },
+      }),
       persistedValuationInputs: { marketPrice: 50_000, units: { marketPrice: "vnd_per_share" } },
     });
     const unknown = buildFinancialStatementImportDryRun([
       { ticker: "FPT", fiscalYear: 2025, periodType: "annual", totalEquity: "200" },
     ]).acceptedRows[0];
     const unknownValuation = buildControlledValuationIntegrationBoundary({
-      financialsRuntimeSnapshot: {
+      financialsRuntimeSnapshot: verifiedRuntime({
         equity: unknown.totalEquity,
         units: { equity: unknown.unitMetadata.equity.unit },
-      },
+      }),
       persistedValuationInputs: { marketPrice: 50_000, units: { marketPrice: "vnd_per_share" } },
     });
 

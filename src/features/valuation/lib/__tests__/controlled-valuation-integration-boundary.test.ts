@@ -1,18 +1,35 @@
 import { describe, expect, it } from "vitest";
 
 import { buildMarketPvtUnitMetadata } from "@/features/technical/lib/market-pvt-unit-metadata-contract";
+import type { ControlledValuationFinancialsRuntimeSnapshot } from "../controlled-valuation-integration-boundary";
 import { buildControlledValuationIntegrationBoundary } from "../controlled-valuation-integration-boundary";
+
+const verifiedRuntime = (
+  patch: ControlledValuationFinancialsRuntimeSnapshot,
+): ControlledValuationFinancialsRuntimeSnapshot => ({
+  asOf: "2024-12-31",
+  dataMode: "research_only",
+  fallbackUsed: false,
+  fiscalYear: 2024,
+  period: "2024",
+  periodType: "annual",
+  productionApproved: false,
+  readPath: "local_db",
+  runtimeStatus: "db_backed",
+  sourceLabel: "phase95_verified_financials_runtime",
+  ...patch,
+});
 
 describe("controlled valuation integration boundary", () => {
   it("uses Financials runtime revenue and equity when available", () => {
     const result = buildControlledValuationIntegrationBoundary({
-      financialsRuntimeSnapshot: {
+      financialsRuntimeSnapshot: verifiedRuntime({
         revenue: 1000,
         equity: 1200,
         dataMode: "research_only",
         readPath: "local_db",
         units: { equity: "vnd", revenue: "vnd" },
-      },
+      }),
     });
 
     expect(result.selectedInputs.revenue).toMatchObject({
@@ -31,14 +48,43 @@ describe("controlled valuation integration boundary", () => {
     expect(result.sourceBoundary.canClaimValuationDbBacked).toBe(false);
   });
 
-  it("uses persisted market price ownership with runtime financials as mixed source", () => {
+  it("does not consume Financials runtime values until local DB metadata is verified", () => {
     const result = buildControlledValuationIntegrationBoundary({
       financialsRuntimeSnapshot: {
+        equity: 1200,
+        revenue: 1000,
+        units: { equity: "vnd", revenue: "vnd" },
+      },
+    });
+
+    expect(result.selectedInputs.revenue).toMatchObject({
+      normalizationStatus: "missing",
+      source: "unavailable",
+      value: null,
+    });
+    expect(result.selectedInputs.equity).toMatchObject({
+      normalizationStatus: "missing",
+      source: "unavailable",
+      value: null,
+    });
+    expect(result.sourceBoundary.warnings).toEqual(
+      expect.arrayContaining([
+        "runtime_revenue_not_verified_for_valuation_input",
+        "runtime_equity_not_verified_for_valuation_input",
+      ]),
+    );
+    expect(result.sourceBoundary.productionApproved).toBe(false);
+    expect(result.sourceBoundary.canClaimValuationDbBacked).toBe(false);
+  });
+
+  it("uses persisted market price ownership with runtime financials as mixed source", () => {
+    const result = buildControlledValuationIntegrationBoundary({
+      financialsRuntimeSnapshot: verifiedRuntime({
         revenue: 1000,
         eps: 5,
         dataMode: "research_only",
         units: { eps: "vnd_per_share", revenue: "vnd" },
-      },
+      }),
       persistedValuationInputs: {
         dataMode: "research_only",
         marketPrice: 100,
@@ -58,7 +104,7 @@ describe("controlled valuation integration boundary", () => {
 
   it("computes P/E when runtime EPS and persisted market price are valid", () => {
     const result = buildControlledValuationIntegrationBoundary({
-      financialsRuntimeSnapshot: { eps: 5, units: { eps: "vnd_per_share" } },
+      financialsRuntimeSnapshot: verifiedRuntime({ eps: 5, units: { eps: "vnd_per_share" } }),
       persistedValuationInputs: { marketPrice: 100, units: { marketPrice: "vnd_per_share" } },
     });
 
@@ -84,7 +130,7 @@ describe("controlled valuation integration boundary", () => {
   it("keeps P/E not applicable when runtime EPS is non-positive", () => {
     for (const eps of [0, -1]) {
       const result = buildControlledValuationIntegrationBoundary({
-        financialsRuntimeSnapshot: { eps, units: { eps: "vnd_per_share" } },
+        financialsRuntimeSnapshot: verifiedRuntime({ eps, units: { eps: "vnd_per_share" } }),
         persistedValuationInputs: { marketPrice: 100, units: { marketPrice: "vnd_per_share" } },
       });
 
@@ -95,7 +141,7 @@ describe("controlled valuation integration boundary", () => {
 
   it("computes BVPS and P/B from runtime equity and shares plus persisted market price", () => {
     const result = buildControlledValuationIntegrationBoundary({
-      financialsRuntimeSnapshot: { equity: 1000, sharesOutstanding: 100, units: { equity: "vnd", sharesOutstanding: "shares" } },
+      financialsRuntimeSnapshot: verifiedRuntime({ equity: 1000, sharesOutstanding: 100, units: { equity: "vnd", sharesOutstanding: "shares" } }),
       persistedValuationInputs: { marketPrice: 20, units: { marketPrice: "vnd_per_share" } },
     });
 
@@ -108,7 +154,7 @@ describe("controlled valuation integration boundary", () => {
   it("keeps BVPS and P/B not applicable when equity is non-positive", () => {
     for (const equity of [0, -1]) {
       const result = buildControlledValuationIntegrationBoundary({
-        financialsRuntimeSnapshot: { equity, sharesOutstanding: 100, units: { equity: "vnd", sharesOutstanding: "shares" } },
+        financialsRuntimeSnapshot: verifiedRuntime({ equity, sharesOutstanding: 100, units: { equity: "vnd", sharesOutstanding: "shares" } }),
         persistedValuationInputs: { marketPrice: 20, units: { marketPrice: "vnd_per_share" } },
       });
 
@@ -119,7 +165,7 @@ describe("controlled valuation integration boundary", () => {
 
   it("computes P/S from runtime revenue and direct persisted market cap", () => {
     const result = buildControlledValuationIntegrationBoundary({
-      financialsRuntimeSnapshot: { revenue: 1000, units: { revenue: "vnd" } },
+      financialsRuntimeSnapshot: verifiedRuntime({ revenue: 1000, units: { revenue: "vnd" } }),
       persistedValuationInputs: { marketCap: 5000, units: { marketCap: "vnd" } },
     });
 
@@ -130,7 +176,7 @@ describe("controlled valuation integration boundary", () => {
 
   it("computes market cap from persisted market price and runtime shares outstanding", () => {
     const result = buildControlledValuationIntegrationBoundary({
-      financialsRuntimeSnapshot: { sharesOutstanding: 100, units: { sharesOutstanding: "shares" } },
+      financialsRuntimeSnapshot: verifiedRuntime({ sharesOutstanding: 100, units: { sharesOutstanding: "shares" } }),
       persistedValuationInputs: { marketPrice: 50, units: { marketPrice: "vnd_per_share" } },
     });
 
@@ -141,7 +187,7 @@ describe("controlled valuation integration boundary", () => {
 
   it("keeps market cap and BVPS insufficient when shares outstanding is missing", () => {
     const result = buildControlledValuationIntegrationBoundary({
-      financialsRuntimeSnapshot: { equity: 1000, units: { equity: "vnd" } },
+      financialsRuntimeSnapshot: verifiedRuntime({ equity: 1000, units: { equity: "vnd" } }),
       persistedValuationInputs: { marketPrice: 50, units: { marketPrice: "vnd_per_share" } },
     });
 
@@ -158,7 +204,7 @@ describe("controlled valuation integration boundary", () => {
 
   it("falls back to persisted financial field when runtime field is explicitly missing", () => {
     const result = buildControlledValuationIntegrationBoundary({
-      financialsRuntimeSnapshot: { revenue: null, dataMode: "research_only" },
+      financialsRuntimeSnapshot: verifiedRuntime({ revenue: null, dataMode: "research_only" }),
       persistedValuationInputs: { marketCap: 5000, revenue: 1000, units: { marketCap: "vnd", revenue: "vnd" } },
     });
 
@@ -174,7 +220,7 @@ describe("controlled valuation integration boundary", () => {
 
   it("marks runtime local research data as not approved for production use", () => {
     const result = buildControlledValuationIntegrationBoundary({
-      financialsRuntimeSnapshot: { dataMode: "research_only", readPath: "local_db", revenue: 1000, units: { revenue: "vnd" } },
+      financialsRuntimeSnapshot: verifiedRuntime({ dataMode: "research_only", readPath: "local_db", revenue: 1000, units: { revenue: "vnd" } }),
     });
 
     expect(result.sourceBoundary.productionApproved).toBe(false);
@@ -194,13 +240,13 @@ describe("controlled valuation integration boundary", () => {
 
   it("keeps EV, EV/EBITDA, DCF, and intrinsic value band blocked", () => {
     const result = buildControlledValuationIntegrationBoundary({
-      financialsRuntimeSnapshot: {
+      financialsRuntimeSnapshot: verifiedRuntime({
         equity: 1000,
         eps: 5,
         revenue: 1000,
         sharesOutstanding: 100,
         units: { equity: "vnd", eps: "vnd_per_share", revenue: "vnd", sharesOutstanding: "shares" },
-      },
+      }),
       persistedValuationInputs: { marketCap: 10_000, marketPrice: 100, units: { marketCap: "vnd", marketPrice: "vnd_per_share" } },
     });
 
@@ -221,7 +267,7 @@ describe("controlled valuation integration boundary", () => {
   it("does not emit forbidden wording in boundary output", () => {
     const output = JSON.stringify(
       buildControlledValuationIntegrationBoundary({
-        financialsRuntimeSnapshot: {
+        financialsRuntimeSnapshot: verifiedRuntime({
           revenue: 1000,
           equity: 1000,
           eps: 5,
@@ -229,7 +275,7 @@ describe("controlled valuation integration boundary", () => {
           dataMode: "research_only",
           readPath: "local_db",
           units: { equity: "vnd", eps: "vnd_per_share", revenue: "vnd", sharesOutstanding: "shares" },
-        },
+        }),
         persistedValuationInputs: { marketCap: 10_000, marketPrice: 100, units: { marketCap: "vnd", marketPrice: "vnd_per_share" } },
       }),
     ).toLowerCase();
@@ -259,7 +305,7 @@ describe("controlled valuation integration boundary", () => {
 
   it("blocks calculation when a present input has unknown unit", () => {
     const result = buildControlledValuationIntegrationBoundary({
-      financialsRuntimeSnapshot: { equity: 1000, sharesOutstanding: 100, units: { sharesOutstanding: "shares" } },
+      financialsRuntimeSnapshot: verifiedRuntime({ equity: 1000, sharesOutstanding: 100, units: { sharesOutstanding: "shares" } }),
       persistedValuationInputs: { marketPrice: 20, units: { marketPrice: "vnd_per_share" } },
     });
 
@@ -276,12 +322,12 @@ describe("controlled valuation integration boundary", () => {
 
   it("normalizes explicit scaled units before calculation", () => {
     const result = buildControlledValuationIntegrationBoundary({
-      financialsRuntimeSnapshot: {
+      financialsRuntimeSnapshot: verifiedRuntime({
         equity: 2,
         revenue: 100,
         sharesOutstanding: 10,
         units: { equity: "billion_vnd", revenue: "billion_vnd", sharesOutstanding: "million_shares" },
-      },
+      }),
       persistedValuationInputs: { marketPrice: 50_000, units: { marketPrice: "vnd_per_share" } },
     });
 
@@ -308,7 +354,7 @@ describe("controlled valuation integration boundary", () => {
       values: { marketPrice: 50_000 },
     });
     const result = buildControlledValuationIntegrationBoundary({
-      financialsRuntimeSnapshot: { eps: 2500, units: { eps: "vnd_per_share" } },
+      financialsRuntimeSnapshot: verifiedRuntime({ eps: 2500, units: { eps: "vnd_per_share" } }),
       persistedValuationInputs: {
         dataMode: "research_only",
         marketPrice: 50_000,
@@ -333,7 +379,7 @@ describe("controlled valuation integration boundary", () => {
       values: { marketPrice: 50_000 },
     });
     const result = buildControlledValuationIntegrationBoundary({
-      financialsRuntimeSnapshot: { eps: 2500, units: { eps: "vnd_per_share" } },
+      financialsRuntimeSnapshot: verifiedRuntime({ eps: 2500, units: { eps: "vnd_per_share" } }),
       persistedValuationInputs: {
         marketPrice: 50_000,
         marketUnitMetadata,
@@ -356,12 +402,12 @@ describe("controlled valuation integration boundary", () => {
       values: { marketCap: 5000, marketPrice: 50_000 },
     });
     const result = buildControlledValuationIntegrationBoundary({
-      financialsRuntimeSnapshot: {
+      financialsRuntimeSnapshot: verifiedRuntime({
         eps: 2500,
         revenue: 100,
         sharesOutstanding: 10,
         units: { eps: "vnd_per_share", revenue: "billion_vnd", sharesOutstanding: "million_shares" },
-      },
+      }),
       persistedValuationInputs: {
         marketCap: 5000,
         marketPrice: 50_000,
@@ -388,7 +434,7 @@ describe("controlled valuation integration boundary", () => {
       values: { marketPrice: -50_000 },
     });
     const result = buildControlledValuationIntegrationBoundary({
-      financialsRuntimeSnapshot: { eps: 2500, units: { eps: "vnd_per_share" } },
+      financialsRuntimeSnapshot: verifiedRuntime({ eps: 2500, units: { eps: "vnd_per_share" } }),
       persistedValuationInputs: {
         marketPrice: 50_000,
         marketUnitMetadata,
@@ -411,11 +457,11 @@ describe("controlled valuation integration boundary", () => {
       values: { marketCap: 2, marketPrice: 50_000 },
     });
     const result = buildControlledValuationIntegrationBoundary({
-      financialsRuntimeSnapshot: {
+      financialsRuntimeSnapshot: verifiedRuntime({
         revenue: 100,
         sharesOutstanding: 10,
         units: { revenue: "billion_vnd", sharesOutstanding: "million_shares" },
-      },
+      }),
       persistedValuationInputs: {
         marketCap: 2,
         marketPrice: 50_000,
@@ -445,10 +491,10 @@ describe("controlled valuation integration boundary", () => {
       values: { marketCap: 5, marketPrice: 50_000 },
     });
     const result = buildControlledValuationIntegrationBoundary({
-      financialsRuntimeSnapshot: {
+      financialsRuntimeSnapshot: verifiedRuntime({
         revenue: 1000,
         units: { revenue: "million_vnd" },
-      },
+      }),
       persistedValuationInputs: {
         marketCap: 5,
         marketPrice: 50_000,
@@ -472,7 +518,7 @@ describe("controlled valuation integration boundary", () => {
 
   it("derives market cap only when market price and shares units are explicit", () => {
     const explicitMarket = buildControlledValuationIntegrationBoundary({
-      financialsRuntimeSnapshot: { sharesOutstanding: 10, units: { sharesOutstanding: "million_shares" } },
+      financialsRuntimeSnapshot: verifiedRuntime({ sharesOutstanding: 10, units: { sharesOutstanding: "million_shares" } }),
       persistedValuationInputs: {
         marketPrice: 50_000,
         marketUnitMetadata: buildMarketPvtUnitMetadata({
@@ -482,7 +528,7 @@ describe("controlled valuation integration boundary", () => {
       },
     });
     const unknownShares = buildControlledValuationIntegrationBoundary({
-      financialsRuntimeSnapshot: { sharesOutstanding: 10 },
+      financialsRuntimeSnapshot: verifiedRuntime({ sharesOutstanding: 10 }),
       persistedValuationInputs: {
         marketPrice: 50_000,
         marketUnitMetadata: buildMarketPvtUnitMetadata({

@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { buildControlledValuationIntegrationBoundary } from "@/features/valuation/lib/controlled-valuation-integration-boundary";
+import {
+  buildControlledValuationIntegrationBoundary,
+  type ControlledValuationFinancialsRuntimeSnapshot,
+} from "@/features/valuation/lib/controlled-valuation-integration-boundary";
 import { loadFinancialsRuntimeData } from "../load-financials-runtime-data";
 import { buildFinancialsUnitMetadata } from "../financials-unit-metadata-contract";
 import {
@@ -10,6 +13,22 @@ import {
 import type { AdaptFinancialStatementSeriesResult } from "../adapt-financial-statement-records";
 import type { FinancialsStatementSnapshot } from "../map-financials-to-logic-input";
 import type { FinancialStatementSeriesResult } from "../../../../lib/data-sources/financial-statement-read-service";
+
+const verifiedRuntime = (
+  patch: ControlledValuationFinancialsRuntimeSnapshot,
+): ControlledValuationFinancialsRuntimeSnapshot => ({
+  asOf: "2025-12-31",
+  dataMode: "research_only",
+  fallbackUsed: false,
+  fiscalYear: 2025,
+  period: "2025",
+  periodType: "annual",
+  productionApproved: false,
+  readPath: "local_db",
+  runtimeStatus: "db_backed",
+  sourceLabel: "phase65_csv_unit_capture",
+  ...patch,
+});
 
 const snapshot = {
   ticker: "FPT",
@@ -214,21 +233,28 @@ describe("financials unit metadata persistence boundary", () => {
       },
     );
     const valuation = buildControlledValuationIntegrationBoundary({
-      financialsRuntimeSnapshot: {
+      financialsRuntimeSnapshot: verifiedRuntime({
+        asOf: runtime.source.asOf,
         dataMode: runtime.source.dataMode,
         equity: runtime.statementSnapshot?.totalEquity,
         eps: runtime.statementSnapshot?.eps,
+        fallbackUsed: runtime.source.fallbackUsed,
+        fiscalYear: runtime.source.fiscalYear,
+        period: runtime.statementSnapshot?.period,
+        periodType: runtime.source.periodType,
         productionApproved: runtime.source.productionApproved,
         readPath: runtime.source.readPath,
         revenue: runtime.statementSnapshot?.revenue,
+        runtimeStatus: runtime.runtimeStatus,
         sharesOutstanding: runtime.statementSnapshot?.sharesOutstanding,
+        sourceLabel: runtime.source.sourceLabel,
         units: {
           equity: runtime.unitMetadata.equity.unit,
           eps: runtime.unitMetadata.eps.unit,
           revenue: runtime.unitMetadata.revenue.unit,
           sharesOutstanding: runtime.unitMetadata.sharesOutstanding.unit,
         },
-      },
+      }),
       persistedValuationInputs: {
         marketPrice: 50_000,
         units: { marketPrice: "vnd_per_share" },
@@ -245,10 +271,10 @@ describe("financials unit metadata persistence boundary", () => {
 
   it("keeps unknown runtime sidecar units from making Valuation metrics ready", () => {
     const valuation = buildControlledValuationIntegrationBoundary({
-      financialsRuntimeSnapshot: {
+      financialsRuntimeSnapshot: verifiedRuntime({
         equity: 80,
         units: { equity: "unknown" },
-      },
+      }),
       persistedValuationInputs: {
         marketPrice: 50_000,
         units: { marketPrice: "vnd_per_share" },

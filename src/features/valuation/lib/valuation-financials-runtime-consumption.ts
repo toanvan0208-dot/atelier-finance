@@ -7,6 +7,7 @@ import {
 
 export type ValuationSourceMode =
   | "persisted_bridge"
+  | "financials_input_db_backed"
   | "financials_runtime_partial"
   | "mixed_source"
   | "sample_fallback"
@@ -58,6 +59,18 @@ const fieldValue = (
   return snapshot[field] ?? null;
 };
 
+const isVerifiedFinancialsRuntime = (runtimeData?: FinancialsRuntimeData | null): boolean =>
+  Boolean(
+    runtimeData &&
+      runtimeData.runtimeStatus === "db_backed" &&
+      runtimeData.source.readPath === "local_db" &&
+      runtimeData.source.fallbackUsed === false &&
+      runtimeData.source.productionApproved === false &&
+      runtimeData.source.sourceLabel &&
+      runtimeData.source.periodType &&
+      (runtimeData.source.asOf || typeof runtimeData.source.fiscalYear === "number" || runtimeData.statementSnapshot?.period),
+  );
+
 const sourceMode = ({
   financialsRuntimeData,
   hasPersistedBridge,
@@ -69,6 +82,9 @@ const sourceMode = ({
   if (financialsRuntimeData.runtimeStatus === "sample_fallback" || financialsRuntimeData.source.fallbackUsed) {
     return "sample_fallback";
   }
+  if (isVerifiedFinancialsRuntime(financialsRuntimeData) && !hasPersistedBridge) {
+    return "financials_input_db_backed";
+  }
   return hasPersistedBridge ? "mixed_source" : "financials_runtime_partial";
 };
 
@@ -77,24 +93,38 @@ export const buildValuationFinancialsRuntimeConsumption = ({
   hasPersistedBridge = true,
   persistedBridgeInputs = {},
 }: BuildValuationFinancialsRuntimeConsumptionInput = {}): ValuationFinancialsRuntimeConsumption => {
-  const consumedFields = safeFinancialFields.filter((field) => fieldValue(field, financialsRuntimeData) !== null);
-  const unavailableFields = safeFinancialFields.filter((field) => fieldValue(field, financialsRuntimeData) === null);
+  const verifiedFinancialsRuntime = isVerifiedFinancialsRuntime(financialsRuntimeData);
+  const consumedFields = verifiedFinancialsRuntime
+    ? safeFinancialFields.filter((field) => fieldValue(field, financialsRuntimeData) !== null)
+    : [];
+  const unavailableFields = safeFinancialFields.filter(
+    (field) => !verifiedFinancialsRuntime || fieldValue(field, financialsRuntimeData) === null,
+  );
   const readiness = buildValuationFinancialsRuntimeReadiness({
     financialsRuntimeData,
     hasPersistedLocalInputBridge: hasPersistedBridge,
     inputs: {
-      eps: fieldValue("eps", financialsRuntimeData) ?? persistedBridgeInputs.eps ?? null,
-      equity: fieldValue("equity", financialsRuntimeData) ?? persistedBridgeInputs.equity ?? null,
+      eps: (verifiedFinancialsRuntime ? fieldValue("eps", financialsRuntimeData) : null) ?? persistedBridgeInputs.eps ?? null,
+      equity:
+        (verifiedFinancialsRuntime ? fieldValue("equity", financialsRuntimeData) : null) ??
+        persistedBridgeInputs.equity ??
+        null,
       marketPrice: persistedBridgeInputs.marketPrice ?? null,
       sharesOutstanding:
-        fieldValue("sharesOutstanding", financialsRuntimeData) ?? persistedBridgeInputs.sharesOutstanding ?? null,
+        (verifiedFinancialsRuntime ? fieldValue("sharesOutstanding", financialsRuntimeData) : null) ??
+        persistedBridgeInputs.sharesOutstanding ??
+        null,
     },
-    valuationConsumesFinancialsRuntime: Boolean(financialsRuntimeData),
+    valuationConsumesFinancialsRuntime: verifiedFinancialsRuntime,
   });
   const warnings = [
     ...readiness.blockedReasons,
-    "Valuation calculations still use the persisted input bridge.",
-    "Financials runtime is consumed only as controlled metadata and safe snapshot fields.",
+    ...(hasPersistedBridge ? ["Valuation calculations still use the persisted input bridge."] : []),
+    ...(verifiedFinancialsRuntime
+      ? ["Financials runtime is consumed only as verified DB-backed local/imported snapshot fields."]
+      : financialsRuntimeData
+        ? ["Financials runtime was not consumed because verified local DB metadata was unavailable."]
+        : []),
     "Valuation source state remains mixed or partial while the calculation path is not fully wired.",
     ...(financialsRuntimeData?.source.fallbackUsed
       ? ["Financials fallback is active; source state must remain labeled as fallback."]
@@ -105,7 +135,7 @@ export const buildValuationFinancialsRuntimeConsumption = ({
   return {
     valuationSourceMode: sourceMode({ financialsRuntimeData, hasPersistedBridge }),
     financialsRuntimeAvailable: Boolean(financialsRuntimeData),
-    valuationConsumesFinancialsRuntime: Boolean(financialsRuntimeData),
+    valuationConsumesFinancialsRuntime: verifiedFinancialsRuntime,
     consumedFields,
     unavailableFields,
     canClaimValuationDbBacked: false,

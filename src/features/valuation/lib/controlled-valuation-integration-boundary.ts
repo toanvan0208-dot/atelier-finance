@@ -56,6 +56,10 @@ export type ControlledValuationFinancialsRuntimeSnapshot = {
   runtimeStatus?: string | null;
   fallbackUsed?: boolean | null;
   productionApproved?: boolean | null;
+  asOf?: string | null;
+  fiscalYear?: number | null;
+  period?: string | null;
+  periodType?: string | null;
   units?: ControlledValuationInputUnitMap | null;
 };
 
@@ -110,6 +114,23 @@ export type ControlledValuationIntegrationBoundary = {
 
 const isPresentNumber = (value: number | null | undefined): value is number =>
   typeof value === "number" && Number.isFinite(value);
+
+const hasUsablePeriodMetadata = (runtime?: ControlledValuationFinancialsRuntimeSnapshot | null): boolean =>
+  Boolean(runtime?.asOf || typeof runtime?.fiscalYear === "number" || runtime?.period);
+
+const isVerifiedFinancialsRuntimeSnapshot = (
+  runtime?: ControlledValuationFinancialsRuntimeSnapshot | null,
+): boolean =>
+  Boolean(
+    runtime &&
+      runtime.runtimeStatus === "db_backed" &&
+      runtime.readPath === "local_db" &&
+      runtime.fallbackUsed !== true &&
+      runtime.productionApproved !== true &&
+      runtime.sourceLabel &&
+      runtime.periodType &&
+      hasUsablePeriodMetadata(runtime),
+  );
 
 const inputUnit = (
   units: ControlledValuationInputUnitMap | null | undefined,
@@ -185,7 +206,9 @@ const selectFinancialInput = ({
   persisted?: ControlledValuationPersistedInputs | null;
   warnings: string[];
 }): ControlledValuationSelectedInput => {
-  if (isPresentNumber(runtimeValue)) {
+  const runtimeVerified = isVerifiedFinancialsRuntimeSnapshot(runtime);
+
+  if (isPresentNumber(runtimeValue) && runtimeVerified) {
     const input = selectedInput({
       dataMode: runtime?.dataMode,
       expected,
@@ -198,6 +221,10 @@ const selectFinancialInput = ({
     });
     warnings.push(...input.warnings);
     return input;
+  }
+
+  if (isPresentNumber(runtimeValue) && !runtimeVerified) {
+    warnings.push(`runtime_${field}_not_verified_for_valuation_input`);
   }
 
   if (isPresentNumber(persistedValue)) {
@@ -315,7 +342,7 @@ const resolveSourceMode = ({
 }): ValuationSourceMode => {
   if (fallbackUsed || mode === "fallback") return "sample_fallback";
   if (mode === "mixed_source" || (hasRuntime && hasPersisted)) return "mixed_source";
-  if (hasRuntime) return "financials_runtime_partial";
+  if (hasRuntime) return "financials_input_db_backed";
   if (hasPersisted || mode === "persisted_bridge") return "persisted_bridge";
   return "not_wired";
 };
@@ -335,9 +362,11 @@ const sourceWarnings = ({
   const hasPersisted = hasSource(selectedInputs, "persisted_bridge");
   const runtimeIsLocalResearch =
     runtime?.dataMode === "research_only" || runtime?.dataMode === "local" || runtime?.readPath === "local_db";
+  const runtimeVerified = isVerifiedFinancialsRuntimeSnapshot(runtime);
   const output = [
     ...warnings,
     ...(hasRuntime && hasPersisted ? ["valuation_remains_mixed_source"] : []),
+    ...(hasRuntime && runtimeVerified ? ["financials_input_db_backed_local_imported"] : []),
     ...(runtimeIsLocalResearch ? ["local_research_data_not_production_approved"] : []),
     ...(fallbackUsed ? ["fallback_data_not_production_approved"] : []),
     "can_claim_valuation_db_backed_false",
@@ -427,7 +456,7 @@ export const buildControlledValuationIntegrationBoundary = ({
     mode,
   });
   const mixedSource = valuationSourceMode === "mixed_source";
-  const financialsSourceMode = hasRuntimeInput ? "financials_runtime_partial" : selectedInputs.revenue.source;
+  const financialsSourceMode = hasRuntimeInput ? "financials_input_db_backed_local_imported" : selectedInputs.revenue.source;
   const marketSourceMode =
     selectedInputs.marketPrice.source === "market_pvt" || selectedInputs.marketCap.source === "market_pvt"
       ? "market_pvt"
