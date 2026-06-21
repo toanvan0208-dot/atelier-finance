@@ -2,6 +2,7 @@ export { FinancialsPage } from "./components/FinancialsPage";
 export type { FinancialsRuntimeData } from "./lib/financials-runtime-types";
 export * from "./lib/financials-derived-module-readiness";
 export * from "./lib/financial-statement-csv-import-trial-plan";
+export * from "./lib/fpt-local-research-data-trial";
 export * from "./lib/financials-unit-metadata-contract";
 export * from "./lib/financials-unit-metadata-persistence-boundary";
 export * from "./lib/financials-unit-metadata-storage-plan";

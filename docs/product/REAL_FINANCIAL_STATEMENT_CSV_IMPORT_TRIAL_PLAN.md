@@ -211,3 +211,9 @@ Phase 77 does not:
 - calculate EV, EV/EBITDA, DCF, fair value, target price, upside, downside, or recommendation;
 - add Risk scoring;
 - claim official, realtime, production-approved, or production-ready data.
+
+## Phase 78 Follow-up
+
+Phase 78 adds `CONTROLLED_FPT_LOCAL_RESEARCH_DATA_TRIAL.md`. It validates a tiny inline FPT local research fixture against the Phase 77 pre-write gates and maps valid rows to draft/write-intent objects only.
+
+No real CSV import, raw CSV file, DB write, schema migration, external API call, source approval, UI change, or new metric is added.

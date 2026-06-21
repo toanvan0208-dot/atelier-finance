@@ -300,6 +300,8 @@ Phase 76 adds a controlled synthetic/local Market/PVT metadata persistence write
 
 Phase 77 adds a controlled real financial statement CSV import trial plan in `REAL_FINANCIAL_STATEMENT_CSV_IMPORT_TRIAL_PLAN.md`. The phase defines required CSV columns, explicit Financials unit metadata, source/evidence metadata, period/ticker/statement mapping, duplicate handling, and future Phase 78 gates. It is plan-only: no real CSV import, raw CSV file, DB write, schema migration, external API call, source approval, UI change, or new metric is added.
 
+Phase 78 adds a controlled FPT local research financial statement data trial in `CONTROLLED_FPT_LOCAL_RESEARCH_DATA_TRIAL.md`. It uses a tiny inline test-only FPT fixture to validate pre-write gates, missing/invalid fail-closed behavior, draft/write-intent mapping, Financials unit metadata handoff, and Valuation boundary behavior. No real CSV import, raw CSV file, DB write, schema migration, external API/Vnstock call, source approval, UI change, or new metric is added.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot
