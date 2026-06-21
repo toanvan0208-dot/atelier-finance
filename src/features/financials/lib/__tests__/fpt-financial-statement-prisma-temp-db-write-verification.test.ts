@@ -209,6 +209,6 @@ describe("Prisma-backed FPT financial statement temp DB write verification", () 
 
     expect(status).not.toMatch(/\.db\b/i);
     expect(status).not.toMatch(/dev\.db/i);
-    expect(status).not.toMatch(/csv/i);
+    expect(status).not.toMatch(/\.csv\b/i);
   });
 });

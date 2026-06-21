@@ -217,3 +217,9 @@ Phase 77 does not:
 Phase 78 adds `CONTROLLED_FPT_LOCAL_RESEARCH_DATA_TRIAL.md`. It validates a tiny inline FPT local research fixture against the Phase 77 pre-write gates and maps valid rows to draft/write-intent objects only.
 
 No real CSV import, raw CSV file, DB write, schema migration, external API call, source approval, UI change, or new metric is added.
+
+## Phase 81 Follow-up
+
+Phase 81 adds `FINANCIAL_STATEMENT_CSV_PARSER_BOUNDARY.md`. It implements a narrow CSV string parser boundary for controlled local/research/manual financial statement rows. The boundary validates required columns, source/evidence metadata, explicit units, numeric values, duplicate keys, and `productionApproved:false`, then returns draft/write-intent rows only.
+
+No filesystem CSV reading, real CSV import, raw CSV file, DB write, schema migration, external API call, source approval, public upload API/UI, or new metric is added.

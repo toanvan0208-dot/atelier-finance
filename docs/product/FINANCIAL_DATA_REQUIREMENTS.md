@@ -65,3 +65,21 @@ Prisma-backed temp DB verification must preserve these requirements:
 - revenue, equity/totalEquity, sharesOutstanding, and EPS units must be explicit and valid;
 - temp DB files must never be committed or left visible in git status;
 - source/evidence status remains not approved and `productionApproved:false`.
+
+## Phase 81 CSV Parser Boundary Requirements
+
+Phase 81 records the Financial Statement CSV parser boundary in `FINANCIAL_STATEMENT_CSV_PARSER_BOUNDARY.md`.
+
+CSV parser boundary requirements:
+
+- parser input must be an inline CSV string, not a filesystem path;
+- required Phase 77 columns must be present;
+- at least one of `sourceUrl` or `sourceDocumentRef` must be present;
+- supported fields, period type, statement type, basis, and data mode must be validated;
+- missing values must not become `0`;
+- invalid numeric values must block the row;
+- missing or invalid units must block the row;
+- no unit or scale may be inferred from magnitude;
+- duplicate row keys must fail closed;
+- output must remain `writeIntent: draft_only_no_db_write`;
+- parser output must not write DB rows or expose upload/import endpoints.

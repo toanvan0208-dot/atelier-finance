@@ -306,6 +306,8 @@ Phase 79 adds a controlled FPT FinancialStatement DB write trial in `CONTROLLED_
 
 Phase 80 adds Prisma-backed FPT FinancialStatement temp DB write verification in `PRISMA_BACKED_FPT_FINANCIAL_STATEMENT_TEMP_DB_WRITE_VERIFICATION.md`. It creates an OS temp SQLite DB outside the repo, applies existing migration SQL with `prisma db execute --file`, writes the controlled FPT payload through Prisma Client, reads back explicit sidecar metadata, and cleans the temp DB. No production/dev DB mutation, DB file commit, real CSV import, raw CSV file, schema migration, external API/Vnstock call, source approval, UI change, or new metric is added.
 
+Phase 81 adds the Financial Statement CSV parser boundary in `FINANCIAL_STATEMENT_CSV_PARSER_BOUNDARY.md`. It accepts inline CSV string input only, validates required columns, source/evidence metadata, explicit units, numeric values, duplicate keys, and `productionApproved:false`, then emits draft/write-intent rows without DB writes. No filesystem CSV reading, real CSV import, raw CSV file, DB write, schema migration, external API/Vnstock call, source approval, UI change, public upload API, or new metric is added.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot

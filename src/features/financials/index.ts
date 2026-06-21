@@ -2,6 +2,7 @@ export { FinancialsPage } from "./components/FinancialsPage";
 export type { FinancialsRuntimeData } from "./lib/financials-runtime-types";
 export * from "./lib/financials-derived-module-readiness";
 export * from "./lib/financial-statement-csv-import-trial-plan";
+export * from "./lib/financial-statement-csv-parser-boundary";
 export * from "./lib/fpt-local-research-data-trial";
 export * from "./lib/fpt-financial-statement-db-write-trial";
 export * from "./lib/fpt-financial-statement-prisma-temp-db-write-verification";
