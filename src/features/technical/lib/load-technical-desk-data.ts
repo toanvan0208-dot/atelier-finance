@@ -81,6 +81,9 @@ const fallbackIssuerMetadata = (fallbackData: PVTObservationData): TechnicalIssu
     dataMode: "sample",
     productionApproved: false,
     verificationStatus: "static_sample",
+    sharesOutstanding: null,
+    sharesUnit: null,
+    sharesStatus: "unavailable",
     limitations: [
       "Static sample issuer metadata is for local product behavior checks only.",
       "It is not verified production issuer metadata.",
@@ -98,6 +101,9 @@ const unavailableIssuerMetadata = (ticker: string): TechnicalIssuerMetadata => (
   dataMode: "unknown",
   productionApproved: false,
   verificationStatus: "unavailable",
+  sharesOutstanding: null,
+  sharesUnit: null,
+  sharesStatus: "unavailable",
   limitations: [
     "Company/issuer metadata is unavailable for this DB-backed ticker.",
     "Sample company, industry, and sector metadata were not reused because the ticker differs from the sample base ticker.",
@@ -115,6 +121,9 @@ const toTechnicalIssuerMetadata = (metadata: IssuerMetadataRecord): TechnicalIss
   dataMode: metadata.dataMode,
   productionApproved: false,
   verificationStatus: metadata.verificationStatus,
+  sharesOutstanding: metadata.sharesOutstanding,
+  sharesUnit: metadata.sharesUnit,
+  sharesStatus: metadata.sharesStatus,
   limitations: metadata.limitations,
   warnings: metadata.warnings,
 });

@@ -536,6 +536,7 @@ export type PVTChartSeries = {
 };
 
 export type TechnicalIssuerMetadataVerificationStatus =
+  | "controlled_local_research"
   | "verified"
   | "local_research_seed"
   | "static_sample"
@@ -568,6 +569,9 @@ export type TechnicalIssuerMetadata = {
   dataMode: string;
   productionApproved: false;
   verificationStatus: TechnicalIssuerMetadataVerificationStatus;
+  sharesOutstanding?: number | null;
+  sharesUnit?: "shares" | null;
+  sharesStatus?: "unavailable" | "available";
   limitations: string[];
   warnings: string[];
 };

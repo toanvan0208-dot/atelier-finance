@@ -238,26 +238,30 @@ describe("TechnicalPage source transparency", () => {
     expect(html).not.toContain("MA20 · MA50");
   });
 
-  it("displays local research seed issuer metadata without claiming official metadata", () => {
+  it("displays controlled local company metadata without overclaiming", () => {
     const html = renderPage({
       ...dbRuntimeBase,
       issuerMetadata: {
         ticker: "FPT",
         displayName: "FPT",
-        issuerName: "FPT",
-        industry: null,
+        issuerName: "FPT Corporation",
+        industry: "Information technology",
         sector: null,
-        sourceLabel: "local_issuer_metadata_seed",
+        sourceLabel: "controlled_local_company_metadata",
         dataMode: "research_only",
         productionApproved: false,
-        verificationStatus: "local_research_seed",
-        limitations: ["Local research-only issuer metadata seed."],
+        verificationStatus: "controlled_local_research",
+        sharesOutstanding: null,
+        sharesUnit: null,
+        sharesStatus: "unavailable",
+        limitations: ["Controlled local/research company metadata backbone."],
         warnings: [],
       },
     });
 
-    expect(html).toContain("Metadata doanh nghiep: local research seed");
-    expect(html).toContain("metadata:local_research_seed");
+    expect(html).toContain("Metadata doanh nghiep: controlled local research");
+    expect(html).toContain("metadata:controlled_local_research");
+    expect(html).toContain("sharesOutstanding: unavailable");
     expect(html).toContain("Chi dung cho academic/local research");
     expect(html).toContain("productionApproved:false");
     expect(html.toLowerCase()).not.toContain("official metadata");

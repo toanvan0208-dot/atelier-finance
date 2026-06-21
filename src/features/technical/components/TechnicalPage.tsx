@@ -45,6 +45,9 @@ const fallbackIssuerMetadata = (
   dataMode: sourceType === "sample_static_fallback" ? "sample" : "unknown",
   productionApproved: false,
   verificationStatus: sourceType === "sample_static_fallback" ? "static_sample" : "unavailable",
+  sharesOutstanding: null,
+  sharesUnit: null,
+  sharesStatus: "unavailable",
   limitations: [
     sourceType === "sample_static_fallback"
       ? "Static sample issuer metadata is not verified production metadata."
@@ -145,8 +148,14 @@ function SourceTransparencyStrip({
     issuerMetadata.verificationStatus === "unknown";
   const industryText = issuerMetadata.industry ?? "chua co du lieu xac minh";
   const sectorText = issuerMetadata.sector ?? "chua co du lieu xac minh";
+  const sharesText =
+    issuerMetadata.sharesOutstanding === null || issuerMetadata.sharesOutstanding === undefined
+      ? "sharesOutstanding: unavailable"
+      : `sharesOutstanding: ${issuerMetadata.sharesOutstanding} ${issuerMetadata.sharesUnit ?? ""}`.trim();
   const metadataText =
-    issuerMetadata.verificationStatus === "local_research_seed"
+    issuerMetadata.verificationStatus === "controlled_local_research"
+      ? "Metadata doanh nghiep: controlled local research"
+      : issuerMetadata.verificationStatus === "local_research_seed"
       ? "Metadata doanh nghiep: local research seed"
       : metadataUnavailable
         ? "Metadata doanh nghiep/nganh chua duoc xac minh"
@@ -172,7 +181,9 @@ function SourceTransparencyStrip({
           <p>
             Metadata: {issuerMetadata.verificationStatus} · Industry: {industryText} · Sector: {sectorText}
           </p>
-          {issuerMetadata.verificationStatus === "local_research_seed" ? (
+          <p>{sharesText}</p>
+          {issuerMetadata.verificationStatus === "local_research_seed" ||
+          issuerMetadata.verificationStatus === "controlled_local_research" ? (
             <p>Chi dung cho academic/local research; productionApproved:false</p>
           ) : null}
         </div>

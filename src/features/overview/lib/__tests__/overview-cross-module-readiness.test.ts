@@ -135,6 +135,31 @@ describe("overview cross-module readiness summary", () => {
     expect(text.toLowerCase()).not.toContain("fully db-backed");
   });
 
+  it("keeps Valuation insufficient for share-based metrics when sharesOutstanding is missing", () => {
+    const dbBackedRuntime = {
+      ...runtimeData(),
+      runtimeStatus: "db_backed",
+      source: {
+        ...runtimeData().source,
+        dataMode: "research_only",
+        fallbackUsed: false,
+        readPath: "local_db",
+      },
+      statementSnapshot: {
+        ...runtimeData().statementSnapshot,
+        sharesOutstanding: null,
+      },
+    } satisfies FinancialsRuntimeData;
+    const valuation = itemFor("valuation", dbBackedRuntime);
+    const text = JSON.stringify(valuation);
+
+    expect(valuation.status).toBe("partial");
+    expect(valuation.productionApproved).toBe(false);
+    expect(text).toContain("Shares outstanding missing");
+    expect(text).toContain("canClaimValuationDbBacked:false");
+    expect(text).not.toContain('"sharesOutstanding":0');
+  });
+
   it("includes Technical/PVT source and unit readiness status", () => {
     const technical = item("technical");
 

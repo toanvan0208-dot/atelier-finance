@@ -226,14 +226,19 @@ describe("loadTechnicalDeskData", () => {
     expect(result.issuerMetadata).toMatchObject({
       ticker: "FPT",
       displayName: "FPT",
-      industry: null,
+      issuerName: "FPT Corporation",
+      industry: "Information technology",
       sector: null,
-      sourceLabel: "local_issuer_metadata_seed",
+      sourceLabel: "controlled_local_company_metadata",
       dataMode: "research_only",
       productionApproved: false,
-      verificationStatus: "local_research_seed",
+      verificationStatus: "controlled_local_research",
+      sharesOutstanding: null,
+      sharesUnit: null,
+      sharesStatus: "unavailable",
     });
     expect(result.issuerMetadata.sourceLabel).not.toBe(result.marketDataSource.sourceLabel);
+    expect(result.issuerMetadata.sharesOutstanding).not.toBe(0);
     expect(result.warnings.join(" ")).toContain("local academic/research");
   });
 
