@@ -2,11 +2,11 @@
 
 ## 1. Current latest phase
 
-Phase 89 - Macro/Industry Sample Readiness Copy and Navigation Polish
+Phase 90 - Overview Cross-Module Readiness Summary
 
 ## 2. Latest commit
 
-Commit: Phase 89 polish macro industry readiness copy (this phase commit)
+Commit: Phase 90 add overview readiness summary (this phase commit)
 
 ## 3. Current branch expectation
 
@@ -26,6 +26,7 @@ The working tree should be clean before starting a new phase.
 - `productionApproved:false` remains visible for local/research/manual data.
 - Macro/Industry boundary helper exists for field candidates, explicit units, source/evidence metadata, readiness states, blocked reasons, and future gates.
 - Macro/Industry readiness UI copy is polished in the existing Macro and Industry workspace modules.
+- Overview cross-module readiness summary exists for Financials, Valuation, Technical/PVT, Macro, and Industry.
 
 ## 5. Current validated data pipeline state
 
@@ -38,6 +39,7 @@ The working tree should be clean before starting a new phase.
 - Macro/Industry data boundary validation is helper/test-only and does not import data, write DB rows, add schema, call APIs, or approve sources.
 - Macro/Industry readiness UI uses boundary/sample readiness states only and does not add ingestion, parser, DB persistence, or source approval.
 - Macro/Industry readiness copy exposes `productionApproved:false`, missing source/evidence, explicit unit requirements, blocked readiness, and future gates without raw helper labels.
+- Overview can summarize major module readiness states without importing data, writing DB rows, changing calculations, or approving sources.
 
 ## 6. Current UI/readiness state
 
@@ -46,6 +48,7 @@ The working tree should be clean before starting a new phase.
 - Overview, Valuation, and Risk must not inherit a full DB-backed/source-approved claim from Financials.
 - Valuation remains mixed/bounded where market inputs, unit metadata, or source approval are incomplete.
 - Macro/Industry UI now surfaces source/evidence gaps, explicit unit requirements, future gates, blocked readiness, and `productionApproved:false` in clearer browser-facing copy for the existing `macro` and `industry` modules.
+- Overview now surfaces Financials, Valuation, Technical/PVT, Macro, and Industry readiness in one compact browser-visible summary while keeping `productionApproved:false` and blocked/boundary-only states clear.
 
 ## 7. Current known limitations
 
@@ -55,6 +58,7 @@ The working tree should be clean before starting a new phase.
 - No official/realtime data claim.
 - No general real market/BCTC production ingestion.
 - Macro/Industry pipelines have a boundary/checklist helper and polished readiness UI, but no production ingestion, parser, DB persistence, or source approval yet.
+- Overview readiness is a summary only; users still need to inspect each source module before relying on module-specific data.
 
 ## 8. Recommended next phase
 

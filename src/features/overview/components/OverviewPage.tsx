@@ -16,6 +16,11 @@ import {
   buildOverviewFinancialsRuntimeBoundary,
   type OverviewFinancialsRuntimeBoundary,
 } from "../lib/overview-financials-runtime-boundary";
+import {
+  buildOverviewCrossModuleReadinessSummary,
+  type OverviewCrossModuleReadinessSummary,
+  type OverviewModuleReadinessItem,
+} from "../lib/overview-cross-module-readiness";
 import type {
   OverviewActionStatusData,
   OverviewBottleneck,
@@ -54,6 +59,18 @@ const metadataLabel = (value: string): string => value.replace(/_/g, " ");
 const boundaryValue = (value: string | number | boolean | null | undefined): string => {
   if (value === null || value === undefined || value === "") return "unavailable";
   return String(value);
+};
+
+const readinessStatusLabel: Record<OverviewModuleReadinessItem["status"], string> = {
+  blocked: "Chua san sang",
+  boundary_only: "Boundary only",
+  partial: "Can kiem tra them",
+};
+
+const readinessStatusTone: Record<OverviewModuleReadinessItem["status"], "warning" | "neutral" | "accent"> = {
+  blocked: "warning",
+  boundary_only: "neutral",
+  partial: "accent",
 };
 
 const buildBridgeData = (result: OverviewApiInputs): OverviewCaseDashboardData => {
@@ -229,7 +246,7 @@ function OverviewFinancialsRuntimeNote({ boundary }: { boundary: OverviewFinanci
             Overview dang dung nguon hon hop: API bridge rieng, cac phan ho tro hien co, va Financials runtime metadata neu co.
           </p>
           <p className="mt-1">
-            Financials local research data khong phai nguon production-approved. Gia tri thieu giu la null/unavailable, khong thay bang 0.
+            Financials local research data chua duoc duyet lam nguon san xuat. Gia tri thieu giu la null/unavailable, khong thay bang 0.
           </p>
           {boundary.missingFields.length > 0 ? (
             <p className="mt-2">Financials missing fields: {boundary.missingFields.join(", ")}.</p>
@@ -258,6 +275,64 @@ function OverviewFinancialsRuntimeNote({ boundary }: { boundary: OverviewFinanci
         </div>
       </div>
     </section>
+  );
+}
+
+function OverviewCrossModuleReadiness({ summary }: { summary: OverviewCrossModuleReadinessSummary }) {
+  return (
+    <Card data-testid="overview-cross-module-readiness">
+      <CardHeader
+        title={summary.title}
+        description={summary.description}
+        chip={<Chip variant="warning">{summary.productionApprovedLabel}</Chip>}
+      />
+      <CardBody className="space-y-4">
+        <div className="grid gap-3 lg:grid-cols-5">
+          {summary.items.map((item) => (
+            <div key={item.moduleKey} className="rounded-[5px] border border-border-soft bg-surface-soft p-3">
+              <div className="flex min-h-[54px] flex-col justify-between gap-2">
+                <p className="text-sm font-extrabold text-ink">{item.label}</p>
+                <Chip size="sm" variant={readinessStatusTone[item.status]}>
+                  {readinessStatusLabel[item.status]}
+                </Chip>
+              </div>
+              <dl className="mt-3 grid gap-1.5 text-[11px] leading-5 text-muted">
+                <div className="flex justify-between gap-2">
+                  <dt className="font-bold text-subtle">mode</dt>
+                  <dd className="break-words text-right">{item.dataMode}</dd>
+                </div>
+                <div className="flex justify-between gap-2">
+                  <dt className="font-bold text-subtle">source</dt>
+                  <dd className="break-words text-right">{item.sourceStatus}</dd>
+                </div>
+                <div className="flex justify-between gap-2">
+                  <dt className="font-bold text-subtle">unit</dt>
+                  <dd className="break-words text-right">{item.unitStatus}</dd>
+                </div>
+              </dl>
+              <p className="mt-3 text-xs leading-5 text-muted">{item.summary}</p>
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {item.blockedReasons.slice(0, 3).map((reason) => (
+                  <Chip key={reason} size="sm" variant="neutral">
+                    {reason}
+                  </Chip>
+                ))}
+              </div>
+              <p className="mt-3 text-[11px] font-semibold leading-5 text-muted">
+                Next: {item.nextChecks.slice(0, 2).join(" | ")}
+              </p>
+            </div>
+          ))}
+        </div>
+        <div className="grid gap-2 md:grid-cols-3">
+          {summary.safeNotes.map((note) => (
+            <p key={note} className="rounded-[4px] border border-border-soft bg-surface px-3 py-2 text-xs leading-5 text-muted">
+              {note}
+            </p>
+          ))}
+        </div>
+      </CardBody>
+    </Card>
   );
 }
 
@@ -532,6 +607,10 @@ export function OverviewPage({ initialFinancialsRuntimeData, onNavigate }: Overv
     () => buildOverviewFinancialsRuntimeBoundary(initialFinancialsRuntimeData),
     [initialFinancialsRuntimeData],
   );
+  const crossModuleReadiness = useMemo(
+    () => buildOverviewCrossModuleReadinessSummary(initialFinancialsRuntimeData),
+    [initialFinancialsRuntimeData],
+  );
 
   useEffect(() => {
     let isActive = true;
@@ -636,6 +715,7 @@ export function OverviewPage({ initialFinancialsRuntimeData, onNavigate }: Overv
         <>
           <DataQualityBanner {...bridgeState.result.dataQuality} />
           <OverviewFinancialsRuntimeNote boundary={financialsRuntimeBoundary} />
+          <OverviewCrossModuleReadiness summary={crossModuleReadiness} />
           <div className="flex flex-wrap gap-2">
             {metadataChips.map((chip) => (
               <Chip key={chip} variant="neutral">

@@ -166,7 +166,7 @@ export const buildOverviewDeskData = (
       title: "Định giá",
       status: valuationStatusLabel(valuationReadiness.status),
       value: `Tin cậy: ${confidenceLabel(valuationConfidence)}`,
-      summary: `${valuationReadiness.beginnerInterpretation} P/E: ${metricValue(peRatio)}; P/B: ${metricValue(pbRatio)}. Không tạo fair value hoặc margin of safety khi chưa có dữ liệu hợp lệ.`,
+      summary: `${valuationReadiness.beginnerInterpretation} P/E: ${metricValue(peRatio)}; P/B: ${metricValue(pbRatio)}. Khong tao ket luan dinh gia khi chua co du lieu hop le.`,
       warnings: unique([...valuationReadiness.warnings, ...valuationSummary.warnings]).slice(0, 3),
       missingFields: valuationReadiness.missingFields,
       nextChecks: ["Mở Định giá để kiểm tra EPS, BVPS, P/E, P/B và dữ liệu còn thiếu."],

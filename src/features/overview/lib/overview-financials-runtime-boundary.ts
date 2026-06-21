@@ -75,12 +75,17 @@ const snapshotFieldsFromFinancials = (
   };
 };
 
+const uiSafeWarning = (warning: string): string =>
+  warning
+    .replace(/not production-approved/gi, "not approved for production source use")
+    .replace(/production-approved/gi, "approved for production source use");
+
 export const buildOverviewFinancialsRuntimeBoundary = (
   runtimeData?: FinancialsRuntimeData | null,
 ): OverviewFinancialsRuntimeBoundary => {
   const overviewRuntimeStatus = overviewStatusFromFinancials(runtimeData);
   const snapshotFields = snapshotFieldsFromFinancials(runtimeData);
-  const derivedReadiness = buildFinancialsDerivedModuleReadiness({
+  const rawDerivedReadiness = buildFinancialsDerivedModuleReadiness({
     moduleKey: "overview",
     financialsRuntimeData: runtimeData,
     consumesFinancialsRuntimeSnapshot: Boolean(runtimeData),
@@ -88,15 +93,19 @@ export const buildOverviewFinancialsRuntimeBoundary = (
     eps: runtimeData?.statementSnapshot?.eps ?? null,
     equity: runtimeData?.statementSnapshot?.totalEquity ?? null,
   });
+  const derivedReadiness = {
+    ...rawDerivedReadiness,
+    warnings: rawDerivedReadiness.warnings.map(uiSafeWarning),
+  };
   const warnings = [
     ...derivedReadiness.warnings,
     "Overview consumes Financials runtime as a partial boundary only; the full Overview module is not DB-backed.",
-    "Overview also uses persisted local API inputs and existing static/support sections, so the source state is mixed.",
+    "Overview also uses persisted local inputs and existing static/support sections, so the source state is mixed.",
     ...(runtimeData?.source.fallbackUsed ? ["Financials fallback is active; Overview must label this as fallback-derived."] : []),
     ...(runtimeData?.dataQuality.missingFields.length
       ? ["Financials missing fields stay unavailable/null and are not zero-filled."]
       : []),
-  ];
+  ].map(uiSafeWarning);
 
   return {
     overviewRuntimeStatus,

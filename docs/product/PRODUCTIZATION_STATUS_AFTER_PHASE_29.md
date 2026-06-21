@@ -322,6 +322,8 @@ Phase 88 adds a Macro/Industry readiness UI skeleton in `MACRO_INDUSTRY_READINES
 
 Phase 89 polishes Macro/Industry readiness browser copy and evidence alignment in `MACRO_INDUSTRY_READINESS_UI_SKELETON.md`. The existing Macro and Industry modules now use clearer readiness language for missing source/evidence, explicit unit metadata, blocked/not-ready status, future gates, and `productionApproved:false`, while avoiding raw helper labels in the browser. No new route, real macro/industry import, parser, filesystem read, DB write, schema migration, external API/Vnstock call, source approval, recommendation, target, fair-value, risk-scoring, or production claim is added.
 
+Phase 90 adds an Overview cross-module readiness summary in `OVERVIEW_CROSS_MODULE_READINESS_SUMMARY.md`. The existing Overview route now summarizes Financials, Valuation, Technical/PVT, Macro, and Industry readiness in one compact panel with source status, unit status, missing/blocked reasons, and `productionApproved:false`. It does not make Valuation fully DB-backed, does not approve any source, and does not add real data import, parser, filesystem read, DB write, schema migration, external API/Vnstock call, source approval, recommendation, target, fair-value, risk-scoring, or production claim.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot

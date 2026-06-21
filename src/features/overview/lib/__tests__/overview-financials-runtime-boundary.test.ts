@@ -71,7 +71,7 @@ describe("overview financials runtime boundary", () => {
     expect(boundary.productionApproved).toBe(false);
     expect(boundary.derivedReadiness.productionApproved).toBe(false);
     expect(boundary.derivedReadiness.canClaimDbBacked).toBe(false);
-    expect(boundary.warnings.join(" ")).toContain("not production-approved");
+    expect(boundary.warnings.join(" ")).toContain("not approved for production source use");
   });
 
   it("adds a clear fallback warning when Financials fallback is active", () => {
@@ -113,7 +113,7 @@ describe("overview financials runtime boundary", () => {
     const blockedPhrases = [
       "official source",
       "realtime",
-      "production-approved claim",
+      "production-approved",
       "nen mua",
       "nen ban",
       "tin hieu mua",
@@ -138,7 +138,7 @@ describe("overview financials runtime boundary", () => {
     const boundary = buildOverviewFinancialsRuntimeBoundary(financialsRuntime);
 
     expect(boundary.warnings).toContain(
-      "Overview also uses persisted local API inputs and existing static/support sections, so the source state is mixed.",
+      "Overview also uses persisted local inputs and existing static/support sections, so the source state is mixed.",
     );
   });
 });
