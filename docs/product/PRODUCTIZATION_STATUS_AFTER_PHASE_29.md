@@ -312,6 +312,8 @@ Phase 82 adds the Financial Statement CSV to Prisma temp DB write trial in `FINA
 
 Phase 83 adds Financials data source transparency UI readiness in `FINANCIALS_DATA_SOURCE_TRANSPARENCY_UI_READINESS.md`. It introduces a UI-safe Financials transparency helper and extends the existing Financials source card with data mode, source/evidence status, unit metadata status, missing fields, blocked reasons, Valuation handoff readiness, `productionApproved:false`, and `canClaimValuationDbBacked:false`. No ingestion, real CSV import, filesystem CSV read, DB write, schema migration, external API/Vnstock call, source approval, public upload UI/API, or new metric is added.
 
+Phase 85 polishes Financials transparency browser copy and aligns evidence docs with rendered behavior. The Financials source card now adds a compact summary for data mode, source/evidence state, unit metadata readiness, and Valuation handoff readiness while keeping `productionApproved:false`, missing fields, blocked reasons, and `canClaimValuationDbBacked:false` visible. No ingestion, real CSV import, filesystem CSV read, DB write, schema migration, external API/Vnstock call, source approval, public upload UI/API, or new metric is added.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot

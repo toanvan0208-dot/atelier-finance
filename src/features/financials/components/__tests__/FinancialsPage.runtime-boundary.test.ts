@@ -121,6 +121,10 @@ describe("Financials runtime UI boundary", () => {
     expect(html).toContain("Unit metadata");
     expect(html).toContain("Valuation handoff");
     expect(html).toContain("canClaimValuationDbBacked");
+    expect(html).toContain("local DB boundary, research-only scope");
+    expect(html).toContain("present fields do not have explicit units yet");
+    expect(html).toContain("blocked until required fields and explicit units are available");
+    expect(html).toContain("source markers are present");
   });
 
   it("renders research-only data quality wording without overclaiming the source", () => {
@@ -148,7 +152,8 @@ describe("Financials runtime UI boundary", () => {
     expect(html).toContain("operatingCashFlow");
     expect(html).toContain("null/unavailable");
     expect(html).toContain("Ly do dang chan");
-    expect(html).toContain("revenue_missing_for_valuation_handoff");
+    expect(html).toContain("revenue missing for valuation handoff");
+    expect(html).toContain("present fields do not have explicit units yet");
     expect(html).not.toContain("0 ty");
     expect(html).not.toContain("0 tỷ");
   });

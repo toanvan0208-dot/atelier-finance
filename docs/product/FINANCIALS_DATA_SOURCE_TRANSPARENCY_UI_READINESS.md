@@ -121,3 +121,22 @@ Browser verification is required because Phase 83 changes Financials browser-vis
 ## 13. Future Phase 84 Recommendation
 
 Phase 84 should review the Valuation-side displayed runtime note against the same transparency model and decide whether to share a small status vocabulary across Financials, Valuation, Overview, and Risk while keeping each module's source boundary separate.
+
+## 14. Phase 85 Browser Polish and Evidence Alignment
+
+Phase 85 keeps the Phase 83 transparency model but makes the Financials source card easier to read in the browser.
+
+The card now adds a compact summary for:
+
+- data mode;
+- source/evidence state;
+- unit metadata readiness;
+- Valuation handoff readiness.
+
+The detailed machine-readable flags remain visible, including `productionApproved:false`, `unitMetadataStatus`, missing fields, blocked reasons, and `canClaimValuationDbBacked:false`.
+
+Blocked reasons are displayed in a readable form while preserving their underlying guardrail meaning. Missing fields remain listed as field names and are not converted to `0`.
+
+Phase 85 does not add ingestion, filesystem CSV reading, DB writes, schema changes, external API/Vnstock calls, upload UI/API, source approval, or new metrics.
+
+Browser verification on 2026-06-21 checked `/workspace?module=financials` and `/workspace?module=valuation` with the in-app Browser. Both routes loaded without framework overlay or console errors. Financials showed `productionApproved:false`, data mode/source evidence/unit metadata/Valuation handoff summary cards, missing fields, readable blocked reasons, and `canClaimValuationDbBacked:false`. Valuation showed its mixed/controlled runtime boundary, `productionApproved:false`, and `canClaimValuationDbBacked:false`. No forbidden browser-visible wording was found in the checked routes.

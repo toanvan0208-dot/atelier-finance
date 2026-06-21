@@ -116,3 +116,18 @@ Financials transparency requirements:
 - missing important fields must be listed and must not be converted to `0`;
 - browser-visible warnings must avoid recommendation, target-price, fair-value, DCF, EV/EBITDA, trading-signal, and risk-scoring wording;
 - the phase must not add ingestion, real CSV import, filesystem CSV reading, DB writes, schema changes, external API/Vnstock calls, upload UI/API, or new metrics.
+
+## Phase 85 Financials Transparency Browser Polish Requirements
+
+Phase 85 records browser-facing polish for the Phase 83 Financials transparency card.
+
+Financials transparency polish requirements:
+
+- `productionApproved:false` must remain visible;
+- data mode/source evidence/unit metadata/Valuation handoff status must be understandable without relying only on raw enum values;
+- missing fields must remain visible and must not be filled with `0`;
+- blocked/not-applicable reasons may be made readable, but their guardrail meaning must remain intact;
+- Financials DB-backed status must remain scoped to Financials only;
+- Valuation must continue to show `canClaimValuationDbBacked:false` where appropriate;
+- browser-visible copy must not add recommendation, target-price, fair-value, DCF, EV/EBITDA, trading-signal, risk-scoring, source approval, or production data claims;
+- the phase must not add ingestion, real CSV import, filesystem CSV reading, DB writes, schema changes, external API/Vnstock calls, upload UI/API, or new metrics.

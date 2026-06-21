@@ -32,11 +32,62 @@ const readPathLabel = (runtimeData: FinancialsRuntimeData): string => {
 const fallbackLabel = (runtimeData: FinancialsRuntimeData): string =>
   runtimeData.source.fallbackUsed ? "Fallback dang bat" : "Fallback khong dung";
 
+const readableStatus = (value: string): string => value.replace(/_/g, " ");
+
+const dataModeExplanation: Record<string, string> = {
+  db_backed: "local DB boundary, research-only scope",
+  local_research: "local research data, source review pending",
+  manual: "manual/user-provided data, review pending",
+  research_only: "research-only data, review pending",
+  sample: "static sample fallback",
+  unknown: "unknown data mode",
+};
+
+const sourceEvidenceExplanation: Record<string, string> = {
+  available: "source markers are present; approval still follows productionApproved flag",
+  missing: "source markers are missing",
+  not_approved: "source markers are present, but productionApproved:false remains",
+  partial: "some source markers are present; review is incomplete",
+};
+
+const unitMetadataExplanation: Record<string, string> = {
+  explicit: "explicit valid units are available for present Financials fields",
+  invalid: "invalid unit metadata blocks unit-sensitive use",
+  partial: "some present fields have explicit units; other fields still need units",
+  unknown: "present fields do not have explicit units yet",
+};
+
+const valuationHandoffExplanation: Record<string, string> = {
+  blocked: "blocked until required fields and explicit units are available",
+  not_applicable: "not applicable because no statement snapshot is available",
+  partial: "partial handoff only; Valuation keeps its own boundary",
+  ready_with_explicit_units: "Financials fields have explicit units; Valuation still keeps its own boundary",
+};
+
+const reasonLabel = (reason: string): string => readableStatus(reason);
+
 export function FinancialsSourceTransparency({ runtimeData }: FinancialsSourceTransparencyProps) {
   const transparency = buildFinancialsDataSourceTransparency(runtimeData);
   const hasMissingFields = runtimeData.dataQuality.missingFields.length > 0;
   const hasWarnings = runtimeData.dataQuality.warnings.length > 0;
   const hasErrors = runtimeData.dataQuality.errors.length > 0;
+  const summaryRows = [
+    ["Data mode", dataModeExplanation[transparency.dataMode] ?? readableStatus(transparency.dataMode)],
+    [
+      "Source/evidence",
+      sourceEvidenceExplanation[transparency.sourceEvidenceStatus] ??
+        readableStatus(transparency.sourceEvidenceStatus),
+    ],
+    [
+      "Unit metadata",
+      unitMetadataExplanation[transparency.unitMetadataStatus] ?? readableStatus(transparency.unitMetadataStatus),
+    ],
+    [
+      "Valuation handoff",
+      valuationHandoffExplanation[transparency.valuationHandoffStatus] ??
+        readableStatus(transparency.valuationHandoffStatus),
+    ],
+  ] as const;
 
   const fields = [
     ["Nguon du lieu", runtimeData.source.sourceLabel],
@@ -86,13 +137,21 @@ export function FinancialsSourceTransparency({ runtimeData }: FinancialsSourceTr
             Boundary nay chi ap dung cho module Financials; Overview, Valuation va Risk co metadata rieng va khong tu
             dong tro thanh DB-backed theo Financials.
           </p>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            {summaryRows.map(([label, value]) => (
+              <div className="rounded-[4px] border border-[#E8CC82] bg-white/55 px-3 py-2" key={label}>
+                <p className="text-[11px] font-bold uppercase tracking-[0.02em]">{label}</p>
+                <p className="mt-1 leading-5">{value}</p>
+              </div>
+            ))}
+          </div>
           {visibleMissingFields.length > 0 ? (
             <p className="mt-2">
               Truong du lieu con thieu: {visibleMissingFields.join(", ")}.
             </p>
           ) : null}
           {visibleBlockedReasons.length > 0 ? (
-            <p className="mt-2">Ly do dang chan: {visibleBlockedReasons.slice(0, 6).join(" | ")}.</p>
+            <p className="mt-2">Ly do dang chan: {visibleBlockedReasons.slice(0, 6).map(reasonLabel).join(" | ")}.</p>
           ) : null}
           {transparency.uiWarnings.length > 0 ? (
             <p className="mt-2">Ghi chu UI: {transparency.uiWarnings.join(" | ")}</p>
