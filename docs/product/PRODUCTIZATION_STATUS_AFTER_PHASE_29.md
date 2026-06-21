@@ -290,6 +290,8 @@ Phase 71 adds unit-aware ready metrics browser verification in `VALUATION_UNIT_A
 
 Phase 72 adds a Market/PVT unit metadata capture boundary in `MARKET_PVT_UNIT_METADATA_CAPTURE_BOUNDARY.md`. Technical/PVT runtime and persisted market bridge payloads can now carry `marketUnitMetadata` sidecars that preserve explicit units when supplied and mark present-but-untyped values as `unknown_unit`. No DB write, schema migration, real market import, external API call, source approval, UI change, or new metric is added.
 
+Phase 73 adds a controlled Market/PVT metadata write/read-through trial in `CONTROLLED_MARKET_PVT_METADATA_WRITE_TRIAL.md`. The current `MarketPrice` schema has no field-level market unit metadata storage, so the trial uses synthetic/local read-through fixtures instead of a DB write. Explicit Market/PVT metadata reaches Technical/PVT runtime sidecars and the controlled Valuation boundary; persistence remains deferred.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot

@@ -251,3 +251,7 @@ The unknown-unit and invalid-unit fail-closed rules are unchanged.
 ## 21. Phase 72 Follow-up
 
 Phase 72 adds `MARKET_PVT_UNIT_METADATA_CAPTURE_BOUNDARY.md`. Market/PVT runtime and bridge payloads can now provide unit metadata sidecars to the existing normalization boundary. Missing units still normalize to unavailable inputs, and invalid units or invalid values remain not ready.
+
+## 22. Phase 73 Follow-up
+
+Phase 73 adds `CONTROLLED_MARKET_PVT_METADATA_WRITE_TRIAL.md`. The read-through trial verifies explicit synthetic Market/PVT metadata can normalize into ready market inputs, while unknown, invalid, or invalid-value metadata still blocks dependent Valuation metrics.

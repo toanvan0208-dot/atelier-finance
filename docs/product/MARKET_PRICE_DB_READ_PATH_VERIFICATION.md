@@ -113,3 +113,9 @@ The market-price DB read path remains unchanged, but Valuation handoff now has a
 Phase 72 is tracked in `MARKET_PVT_UNIT_METADATA_CAPTURE_BOUNDARY.md`.
 
 The DB read schema is unchanged. The Technical/PVT builder wraps read rows with a `marketUnitMetadata` sidecar so present values without explicit unit metadata are marked `unknown_unit`, while a future explicit-unit adapter path can pass accepted units through without changing Valuation guardrails.
+
+## 9. Phase 73 Controlled Market/PVT Metadata Write Trial
+
+Phase 73 is tracked in `CONTROLLED_MARKET_PVT_METADATA_WRITE_TRIAL.md`.
+
+The DB read schema still has no Market/PVT unit metadata persistence. The controlled trial therefore uses synthetic/local read-through metadata rather than writing market unit metadata to DB.

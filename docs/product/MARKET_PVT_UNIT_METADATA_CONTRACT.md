@@ -162,3 +162,7 @@ The Market/PVT contract is unchanged. The browser scenario is synthetic/local, k
 Phase 72 adds `MARKET_PVT_UNIT_METADATA_CAPTURE_BOUNDARY.md`. The contract now has a capture boundary that can attach `marketUnitMetadata` to Technical/PVT runtime and persisted market bridge payloads while preserving missing-unit and invalid-unit fail-closed behavior.
 
 No schema migration, DB write, real market import, API fetch, source approval, or new metric is added.
+
+## 15. Phase 73 Follow-up
+
+Phase 73 adds `CONTROLLED_MARKET_PVT_METADATA_WRITE_TRIAL.md`. The controlled trial verifies a synthetic/local read-through path for explicit `marketPrice`, `marketCap`, `volume`, `tradingValue`, and `averageTradingValue20d` unit metadata. Because `MarketPrice` has no unit metadata sidecar storage yet, Market/PVT metadata persistence remains deferred.

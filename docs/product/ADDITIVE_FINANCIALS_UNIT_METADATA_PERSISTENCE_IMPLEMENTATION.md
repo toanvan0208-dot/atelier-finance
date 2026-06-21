@@ -255,3 +255,7 @@ The Financials sidecar persistence implementation is not changed, and no schema 
 ## 17. Phase 72 Follow-up
 
 Phase 72 adds `MARKET_PVT_UNIT_METADATA_CAPTURE_BOUNDARY.md`. Market/PVT capture remains separate from the Financials sidecar table and does not alter Financials persistence, migrations, or DB rows.
+
+## 18. Phase 73 Follow-up
+
+Phase 73 adds `CONTROLLED_MARKET_PVT_METADATA_WRITE_TRIAL.md`. It confirms Market/PVT metadata persistence is still separate from Financials sidecar persistence: explicit synthetic market units are verified through read-through runtime sidecars, while Market/PVT DB persistence is deferred.

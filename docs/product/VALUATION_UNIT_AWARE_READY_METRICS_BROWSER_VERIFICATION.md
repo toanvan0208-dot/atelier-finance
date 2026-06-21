@@ -174,3 +174,9 @@ Maximum scope:
 Phase 72 adds `MARKET_PVT_UNIT_METADATA_CAPTURE_BOUNDARY.md`. The Phase 71 synthetic browser scenario remains intact, while Market/PVT runtime and bridge payloads now have a non-UI capture helper for explicit or unknown market unit metadata.
 
 Browser verification is not repeated in Phase 72 because visible Valuation behavior is unchanged.
+
+## 14. Phase 73 Follow-up
+
+Phase 73 adds `CONTROLLED_MARKET_PVT_METADATA_WRITE_TRIAL.md`. The browser scenario is unchanged; the new evidence is a non-UI synthetic/local read-through trial proving explicit Market/PVT metadata can reach Valuation guardrails while EV, EV/EBITDA, DCF, and fair value range remain blocked.
+
+Browser verification is not repeated in Phase 73 because visible Valuation behavior is unchanged.

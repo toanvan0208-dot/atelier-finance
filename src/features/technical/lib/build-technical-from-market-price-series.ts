@@ -23,21 +23,25 @@ export type TechnicalPvtFromMarketPriceSeriesResult = {
 export const buildTechnicalFromMarketPriceSeries = (
   baseData: PVTObservationData,
   series: MarketPriceSeriesResult,
-  capture: Pick<MarketPvtUnitMetadataCaptureInput, "source" | "units"> = {},
+  capture: Pick<
+    MarketPvtUnitMetadataCaptureInput,
+    "asOf" | "dataMode" | "source" | "sourceLabel" | "units" | "values"
+  > = {},
 ): TechnicalPvtFromMarketPriceSeriesResult => {
   const adapter = adaptMarketPriceSeriesToPvt(series);
   const latestDate = adapter.latestDate ?? series.rows.at(-1)?.date ?? series.to;
   const captured = captureMarketPvtUnitMetadata({
-    asOf: latestDate,
-    dataMode: series.dataMode,
+    asOf: capture.asOf ?? latestDate,
+    dataMode: capture.dataMode ?? series.dataMode,
     source: capture.source ?? "local_research",
-    sourceLabel: series.sourceLabel,
+    sourceLabel: capture.sourceLabel ?? series.sourceLabel,
     units: capture.units,
     values: {
       averageTradingValue20d: adapter.pvtInput?.avgTradingValue20d ?? null,
       marketPrice: adapter.latestClose,
       tradingValue: adapter.latestTradingValue,
       volume: adapter.latestVolume,
+      ...capture.values,
     },
   });
 

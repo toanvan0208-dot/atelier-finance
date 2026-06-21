@@ -283,3 +283,7 @@ No new sidecar rows, DB files, generated output, real BCTC, or real market data 
 ## 17. Phase 72 Follow-up
 
 Phase 72 adds `MARKET_PVT_UNIT_METADATA_CAPTURE_BOUNDARY.md`. It mirrors the Financials unit-metadata safety pattern for Market/PVT runtime payloads, but it does not write market metadata to DB or add a schema migration.
+
+## 18. Phase 73 Follow-up
+
+Phase 73 adds `CONTROLLED_MARKET_PVT_METADATA_WRITE_TRIAL.md`. Unlike the Phase 69 Financials sidecar DB write trial, Market/PVT metadata uses a read-through/runtime fixture trial because `MarketPrice` has no unit metadata sidecar storage yet. No market metadata DB write is performed.

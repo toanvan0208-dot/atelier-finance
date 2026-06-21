@@ -136,3 +136,9 @@ It adds a helper/type contract for Market/PVT numeric unit metadata without chan
 Phase 72 is tracked in `docs/product/MARKET_PVT_UNIT_METADATA_CAPTURE_BOUNDARY.md`.
 
 The Technical/PVT runtime loader can now return a `marketUnitMetadata` sidecar. Existing local DB market price rows without explicit unit fields are represented as `unknown_unit` instead of being assigned a default unit by magnitude.
+
+## 11. Phase 73 Controlled Market/PVT Metadata Write Trial
+
+Phase 73 is tracked in `docs/product/CONTROLLED_MARKET_PVT_METADATA_WRITE_TRIAL.md`.
+
+The Technical/PVT builder now supports controlled capture overrides for synthetic/local read-through trials. Because `MarketPrice` has no field-level unit metadata storage, Market/PVT metadata persistence is deferred and no DB write is performed.

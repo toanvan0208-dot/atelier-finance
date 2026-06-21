@@ -156,3 +156,9 @@ Maximum scope:
 - keep DB files, generated output, raw CSV/JSON, and screenshots out of commit;
 - preserve `productionApproved:false`;
 - do not add new metrics, target price, fair value range, recommendation, Risk scoring, API fetches, DB reset, seed, or real-data import.
+
+## 13. Phase 73 Follow-up
+
+Phase 73 adds `CONTROLLED_MARKET_PVT_METADATA_WRITE_TRIAL.md`. The trial uses Mode 2 read-through/runtime fixtures because `MarketPrice` has no field-level unit metadata storage. Explicit synthetic Market/PVT metadata can still pass through the Technical/PVT sidecar into Valuation, while persistence is deferred.
+
+No DB write, schema migration, real market import, Vnstock/API fetch, source approval, UI change, or new metric is added.

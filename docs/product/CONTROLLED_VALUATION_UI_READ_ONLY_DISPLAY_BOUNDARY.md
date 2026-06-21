@@ -181,3 +181,7 @@ The panel remains read-only and does not add any new metric, source approval, ta
 ## 18. Phase 72 Follow-up
 
 Phase 72 adds `MARKET_PVT_UNIT_METADATA_CAPTURE_BOUNDARY.md`. The Valuation UI is unchanged; the new work is a helper/runtime metadata sidecar boundary that feeds the existing read-only calculation guardrails when market unit metadata exists.
+
+## 19. Phase 73 Follow-up
+
+Phase 73 adds `CONTROLLED_MARKET_PVT_METADATA_WRITE_TRIAL.md`. The Valuation UI remains unchanged; the controlled read-through trial verifies Market/PVT metadata handoff into the existing read-only guardrails without new visible behavior.
