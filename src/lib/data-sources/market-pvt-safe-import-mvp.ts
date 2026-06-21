@@ -75,6 +75,7 @@ export type MarketPvtSafeImportResult = {
 };
 
 type MarketPvtSafeImportTx = {
+  $executeRawUnsafe?: (query: string, ...values: unknown[]) => Promise<unknown>;
   dataSource: {
     upsert: (args: unknown) => Promise<{ id: string; name: string }>;
   };
@@ -86,7 +87,7 @@ type MarketPvtSafeImportTx = {
     findFirst: (args: unknown) => Promise<{ id: string } | null>;
     create: (args: unknown) => Promise<{ id: string }>;
   };
-  marketPriceUnitMetadata: {
+  marketPriceUnitMetadata?: {
     upsert: (args: unknown) => Promise<unknown>;
   };
 };
@@ -329,37 +330,80 @@ const persistReadyUnitMetadata = async (
     const metadata = row.marketUnitMetadata[field];
     if (!metadata || metadata.status !== "ready") continue;
 
-    await tx.marketPriceUnitMetadata.upsert({
-      where: {
-        marketPriceId_field: {
-          field,
-          marketPriceId,
+    const payload = {
+      asOf: row.asOf,
+      dataMode: row.dataMode,
+      field,
+      marketPriceId,
+      productionApproved: false,
+      source: "local_research",
+      sourceLabel: row.sourceLabel,
+      status: metadata.status,
+      unit: metadata.unit,
+      warningCodes: JSON.stringify(metadata.warnings),
+    };
+
+    if (tx.marketPriceUnitMetadata?.upsert) {
+      await tx.marketPriceUnitMetadata.upsert({
+        where: {
+          marketPriceId_field: {
+            field,
+            marketPriceId,
+          },
         },
-      },
-      update: {
-        asOf: row.asOf,
-        dataMode: row.dataMode,
-        field,
-        productionApproved: false,
-        source: "local_research",
-        sourceLabel: row.sourceLabel,
-        status: metadata.status,
-        unit: metadata.unit,
-        warningCodes: JSON.stringify(metadata.warnings),
-      },
-      create: {
-        asOf: row.asOf,
-        dataMode: row.dataMode,
-        field,
-        marketPriceId,
-        productionApproved: false,
-        source: "local_research",
-        sourceLabel: row.sourceLabel,
-        status: metadata.status,
-        unit: metadata.unit,
-        warningCodes: JSON.stringify(metadata.warnings),
-      },
-    });
+        update: {
+          asOf: payload.asOf,
+          dataMode: payload.dataMode,
+          field: payload.field,
+          productionApproved: payload.productionApproved,
+          source: payload.source,
+          sourceLabel: payload.sourceLabel,
+          status: payload.status,
+          unit: payload.unit,
+          warningCodes: payload.warningCodes,
+        },
+        create: payload,
+      });
+      continue;
+    }
+
+    if (!tx.$executeRawUnsafe) {
+      throw new Error("market_pvt_unit_metadata_writer_unavailable");
+    }
+
+    await tx.$executeRawUnsafe(
+      `
+      INSERT INTO "MarketPriceUnitMetadata"
+        ("id", "marketPriceId", "field", "unit", "status", "source", "sourceLabel", "dataMode", "asOf", "warningCodes", "productionApproved", "createdAt", "updatedAt")
+      VALUES
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+      ON CONFLICT("marketPriceId", "field") DO UPDATE SET
+        "unit" = excluded."unit",
+        "status" = excluded."status",
+        "source" = excluded."source",
+        "sourceLabel" = excluded."sourceLabel",
+        "dataMode" = excluded."dataMode",
+        "asOf" = excluded."asOf",
+        "warningCodes" = excluded."warningCodes",
+        "productionApproved" = excluded."productionApproved",
+        "updatedAt" = CURRENT_TIMESTAMP
+      `,
+      `market-unit-${marketPriceId}-${field}`,
+      payload.marketPriceId,
+      payload.field,
+      payload.unit,
+      payload.status,
+      payload.source,
+      payload.sourceLabel,
+      payload.dataMode,
+      payload.asOf.toISOString(),
+      payload.warningCodes,
+      payload.productionApproved,
+    );
+    /*
+    The raw-SQL branch is intentionally narrow: it only covers generated-client
+    skew where the schema/table exists but the Prisma delegate is unavailable.
+    */
   }
 };
 

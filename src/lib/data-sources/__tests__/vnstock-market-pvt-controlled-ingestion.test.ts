@@ -6,6 +6,7 @@ import type { MarketPvtSafeImportDb } from "../market-pvt-safe-import-mvp";
 import {
   CONTROLLED_VNSTOCK_TICKERS,
   normalizeVnstockHistoryResponse,
+  runControlledVnstockMarketPvtIngestionBatch,
   runControlledVnstockMarketPvtIngestion,
   VNSTOCK_RESEARCH_SOURCE_LABEL,
   type RawVnstockHistoryRow,
@@ -143,7 +144,7 @@ class VnstockImportDb implements MarketPvtSafeImportDb {
   }
 }
 
-const vnstockRows = (): RawVnstockHistoryRow[] =>
+const vnstockRows = (ticker = "FPT"): RawVnstockHistoryRow[] =>
   Array.from({ length: 29 }, (_, index) => {
     const date = new Date(Date.UTC(2025, 5, index + 2));
     return { date, weekday: date.getUTCDay() };
@@ -151,7 +152,7 @@ const vnstockRows = (): RawVnstockHistoryRow[] =>
     .filter(({ weekday }) => weekday !== 0 && weekday !== 6)
     .slice(0, ROW_COUNT)
     .map(({ date }, index) => ({
-      ticker: "FPT",
+      ticker,
       time: `${date.toISOString().slice(0, 10)}T00:00:00.000`,
       close: 98 + index * 0.5,
       volume: 2_000_000 + index * 10_000,
@@ -280,6 +281,52 @@ describe("controlled VNStock Market/PVT ingestion", () => {
       productionApproved: false,
     });
     expect(result.acceptedRows[0].asOf.toISOString()).toContain("2025-06-30");
+  });
+
+  it("runs a tiny controlled multi-ticker smoke through the same guarded pipeline", async () => {
+    process.env[ENV_KEY] = "true";
+    const db = new VnstockImportDb();
+    const fetchHistory = vi.fn(async ({ ticker }: { ticker: string }) => vnstockRows(ticker));
+
+    const results = await runControlledVnstockMarketPvtIngestionBatch({
+      tickers: ["FPT", "MWG", "VNM", "FPT"],
+      from: request.from,
+      to: request.to,
+      allowNetwork: true,
+      fetchHistory,
+      confirmWrite: true,
+      databaseUrl: DATABASE_URL,
+      db,
+    });
+
+    expect(results.map((item) => item.ticker)).toEqual(["FPT", "MWG", "VNM"]);
+    expect(fetchHistory).toHaveBeenCalledTimes(3);
+    expect(results.map((item) => item.result.summary.writtenRows)).toEqual([
+      ROW_COUNT,
+      ROW_COUNT,
+      ROW_COUNT,
+    ]);
+    expect(db.prices).toHaveLength(ROW_COUNT * 3);
+    expect(new Set(db.prices.map((row) => row.ticker))).toEqual(new Set(["FPT", "MWG", "VNM"]));
+    expect(results.every((item) => item.result.productionApproved === false)).toBe(true);
+  });
+
+  it("blocks the controlled multi-ticker smoke when live network opt-in is missing", async () => {
+    const db = new VnstockImportDb();
+    const fetchHistory = vi.fn(async ({ ticker }: { ticker: string }) => vnstockRows(ticker));
+
+    await expect(
+      runControlledVnstockMarketPvtIngestionBatch({
+        tickers: ["FPT", "MWG"],
+        from: request.from,
+        to: request.to,
+        fetchHistory,
+        databaseUrl: DATABASE_URL,
+        db,
+      }),
+    ).rejects.toThrow("controlled_vnstock_network_not_enabled");
+    expect(fetchHistory).not.toHaveBeenCalled();
+    expect(db.prices).toHaveLength(0);
   });
 
   it("fails closed when explicit VNStock unit metadata is missing or invalid", async () => {

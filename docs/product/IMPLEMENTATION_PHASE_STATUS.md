@@ -2,11 +2,11 @@
 
 ## 1. Current latest phase
 
-Phase 104 - Controlled VNStock Market/PVT Ingestion for Small Ticker Set
+Phase 105 - Controlled Live VNStock Market/PVT Write and Multi-Ticker Smoke
 
 ## 2. Latest commit
 
-Commit: Phase 104 add controlled vnstock market pvt ingestion (this phase commit)
+Commit: Phase 105 write live vnstock market pvt data (this phase commit)
 
 ## 3. Current branch expectation
 
@@ -42,6 +42,7 @@ The working tree should be clean before starting a new phase.
 - A single-ticker, bounded-range Market/PVT provider adapter accepts an injected provider fetcher, normalizes an explicit provider response into the Phase 100/101 candidate shape, and delegates dry-run or guarded confirmed local writes to the existing pipeline.
 - Controlled provider coverage now verifies one ticker with 20 trading rows inside a 30-day request, while provider responses above 31 observations fail closed.
 - Controlled VNStock ingestion supports only FPT, MWG, and VNM, with explicit network opt-in, a bounded date/row scope, an installed Python `vnstock` local client, and deterministic injected-client tests.
+- Controlled VNStock Market/PVT CLI can run the small allowlisted ticker set in one bounded smoke command, remains dry-run by default, and can optionally verify the Technical/PVT DB-backed read path after a guarded confirmed write.
 
 ## 5. Current validated data pipeline state
 
@@ -84,6 +85,7 @@ The working tree should be clean before starting a new phase.
 - Phase 102 adds a provider-response boundary for one ticker and at most 31 days. It preserves provider metadata, performs no direct DB writes, uses deterministic injected fetchers in tests, and keeps all output `productionApproved:false`.
 - Phase 103 expands the controlled proof from 2 to 20 provider-like rows: all 20 write through the guarded Phase 101 pipeline and Technical/PVT consumes the 20 DB-backed observations without sample fallback when unit metadata is ready.
 - Phase 104 adds an opt-in local Python VNStock history client and normalizer. The successful controlled test writes 20 FPT rows through the Phase 96/97/101 pipeline; Technical/PVT reads FPT without fallback and does not mix absent MWG data.
+- Phase 105 proves the opt-in live VNStock path can confirmed-write bounded local/dev rows with both guards enabled. The live smoke wrote 21 FPT rows and 63 total rows for FPT/MWG/VNM on a temp local DB, then Technical/PVT read each ticker as DB-backed VNStock-candidate data with fallback disabled.
 
 ## 7. Current known limitations
 
@@ -107,6 +109,7 @@ The working tree should be clean before starting a new phase.
 - Phase 102 does not select or automatically call a live provider endpoint. A reviewed real fetcher can be plugged into the adapter later; no crawler, schedule, broad ticker import, source approval, or production data claim was added.
 - Phase 103 remains a deterministic single-ticker provider-like dataset; it does not add a live endpoint, broad ticker coverage, scheduling, source approval, or production data claims.
 - Phase 104 live execution remains local/manual and disabled unless `VNSTOCK_RESEARCH_ALLOW_NETWORK=true`; VNStock rows remain research candidates with `productionApproved:false`, and no scheduled ingestion or source approval is added.
+- Phase 105 live smoke used a temp local SQLite DB outside the repo because the checked-in dev DB copy is not a phase artifact and may not carry the latest sidecar table. No DB file, generated Prisma client, schema migration, crawler, scheduled job, source approval workflow, or approval claim was added.
 
 ## 8. Recommended next phase
 

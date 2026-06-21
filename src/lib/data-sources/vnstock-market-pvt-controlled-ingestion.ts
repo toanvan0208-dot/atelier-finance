@@ -38,6 +38,18 @@ export type RunControlledVnstockMarketPvtOptions = ControlledMarketPvtProviderRe
     unitMetadata?: ControlledVnstockUnitMetadata;
   };
 
+export type ControlledVnstockMarketPvtBatchResult = {
+  ticker: ControlledVnstockTicker;
+  result: MarketPvtSafeImportResult;
+};
+
+export type RunControlledVnstockMarketPvtBatchOptions = Omit<
+  RunControlledVnstockMarketPvtOptions,
+  "ticker"
+> & {
+  tickers: string[];
+};
+
 const VNSTOCK_QUOTED_PRICE_TO_VND = 1_000;
 const LIVE_OUTPUT_MARKER = "ATELIER_VNSTOCK_JSON=";
 const DEFAULT_VNSTOCK_UNITS: ControlledVnstockUnitMetadata = {
@@ -179,4 +191,25 @@ export const runControlledVnstockMarketPvtIngestion = async ({
     db,
     importRunner,
   });
+};
+
+export const runControlledVnstockMarketPvtIngestionBatch = async ({
+  tickers,
+  ...options
+}: RunControlledVnstockMarketPvtBatchOptions): Promise<ControlledVnstockMarketPvtBatchResult[]> => {
+  const normalizedTickers = Array.from(new Set(tickers.map(controlledTicker)));
+  if (normalizedTickers.length === 0) throw new Error("controlled_vnstock_ticker_required");
+  if (normalizedTickers.length > CONTROLLED_VNSTOCK_TICKERS.length) {
+    throw new Error("controlled_vnstock_ticker_set_too_large");
+  }
+
+  const results: ControlledVnstockMarketPvtBatchResult[] = [];
+  for (const ticker of normalizedTickers) {
+    const result = await runControlledVnstockMarketPvtIngestion({
+      ...options,
+      ticker,
+    });
+    results.push({ ticker, result });
+  }
+  return results;
 };

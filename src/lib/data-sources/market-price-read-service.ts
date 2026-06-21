@@ -67,6 +67,7 @@ type ReadableDecimal = {
 };
 
 type StoredMarketPrice = {
+  id?: string;
   ticker: string;
   tradingDate: Date | string;
   openPrice: number | string | ReadableDecimal | null;
@@ -84,9 +85,14 @@ type StoredMarketPrice = {
 };
 
 type MarketPriceReadDb = {
+  $queryRawUnsafe?: <T = unknown>(query: string, ...values: unknown[]) => Promise<T>;
   marketPrice: {
     findMany: (args: unknown) => Promise<StoredMarketPrice[]>;
   };
+};
+
+type RawMarketPriceUnitMetadataSidecarRow = StoredMarketPvtUnitMetadataSidecarRow & {
+  marketPriceId: string;
 };
 
 export type MarketPriceReadServiceOptions = {
@@ -184,6 +190,99 @@ const valuesForMarketUnitMetadata = (
   };
 };
 
+const rawMarketPriceRecords = async ({
+  dataMode,
+  db,
+  fromDate,
+  sourceLabel,
+  ticker,
+  toDate,
+}: {
+  dataMode: string;
+  db: MarketPriceReadDb;
+  fromDate: Date;
+  sourceLabel: string;
+  ticker: string;
+  toDate: Date;
+}): Promise<StoredMarketPrice[]> => {
+  if (!db.$queryRawUnsafe) throw new Error("market_price_raw_read_unavailable");
+
+  const rows = await db.$queryRawUnsafe<Array<StoredMarketPrice & { id: string }>>(
+    `
+    SELECT
+      "id",
+      "ticker",
+      "tradingDate",
+      "openPrice",
+      "highPrice",
+      "lowPrice",
+      "closePrice",
+      "volume",
+      "tradingValue",
+      "marketCap",
+      "sourceLabel",
+      "dataMode",
+      "asOf",
+      "collectedAt"
+    FROM "MarketPrice"
+    WHERE "ticker" = ?
+      AND "tradingDate" >= ?
+      AND "tradingDate" <= ?
+      AND "dataMode" = ?
+      AND "sourceLabel" = ?
+    ORDER BY "tradingDate" ASC
+    `,
+    ticker,
+    fromDate.toISOString(),
+    toDate.toISOString(),
+    dataMode,
+    sourceLabel,
+  );
+
+  if (rows.length === 0) return rows;
+
+  const placeholders = rows.map(() => "?").join(", ");
+  const sidecarRows = await db.$queryRawUnsafe<RawMarketPriceUnitMetadataSidecarRow[]>(
+    `
+    SELECT
+      "marketPriceId",
+      "field",
+      "unit",
+      "status",
+      "source",
+      "sourceLabel",
+      "dataMode",
+      "asOf",
+      "warningCodes",
+      "productionApproved"
+    FROM "MarketPriceUnitMetadata"
+    WHERE "marketPriceId" IN (${placeholders})
+    `,
+    ...rows.map((row) => row.id),
+  );
+  const sidecarsByMarketPriceId = new Map<string, StoredMarketPvtUnitMetadataSidecarRow[]>();
+  for (const sidecar of sidecarRows) {
+    const existing = sidecarsByMarketPriceId.get(sidecar.marketPriceId) ?? [];
+    existing.push({
+      asOf: sidecar.asOf,
+      dataMode: sidecar.dataMode,
+      field: sidecar.field,
+      productionApproved: sidecar.productionApproved,
+      source: sidecar.source,
+      sourceLabel: sidecar.sourceLabel,
+      status: sidecar.status,
+      unit: sidecar.unit,
+      warningCodes: sidecar.warningCodes,
+    });
+    sidecarsByMarketPriceId.set(sidecar.marketPriceId, existing);
+  }
+
+  return rows.map((row) => ({
+    ...row,
+    unitMetadata: sidecarsByMarketPriceId.get(row.id) ?? [],
+  }));
+};
+
 export const getMarketPriceSeries = async (
   params: MarketPriceReadParams,
   options: MarketPriceReadServiceOptions = {},
@@ -216,48 +315,54 @@ export const getMarketPriceSeries = async (
 
   try {
     const db = await resolveDb(options.db);
-    const records = await db.marketPrice.findMany({
-      where: {
-        ticker,
-        tradingDate: {
-          gte: fromDate,
-          lte: toDate,
+    let records: StoredMarketPrice[];
+    try {
+      records = await db.marketPrice.findMany({
+        where: {
+          ticker,
+          tradingDate: {
+            gte: fromDate,
+            lte: toDate,
+          },
+          dataMode,
+          sourceLabel,
         },
-        dataMode,
-        sourceLabel,
-      },
-      orderBy: {
-        tradingDate: "asc",
-      },
-      select: {
-        ticker: true,
-        tradingDate: true,
-        openPrice: true,
-        highPrice: true,
-        lowPrice: true,
-        closePrice: true,
-        volume: true,
-        tradingValue: true,
-        marketCap: true,
-        sourceLabel: true,
-        dataMode: true,
-        asOf: true,
-        collectedAt: true,
-        unitMetadata: {
-          select: {
-            field: true,
-            unit: true,
-            status: true,
-            source: true,
-            sourceLabel: true,
-            dataMode: true,
-            asOf: true,
-            warningCodes: true,
-            productionApproved: true,
+        orderBy: {
+          tradingDate: "asc",
+        },
+        select: {
+          ticker: true,
+          tradingDate: true,
+          openPrice: true,
+          highPrice: true,
+          lowPrice: true,
+          closePrice: true,
+          volume: true,
+          tradingValue: true,
+          marketCap: true,
+          sourceLabel: true,
+          dataMode: true,
+          asOf: true,
+          collectedAt: true,
+          unitMetadata: {
+            select: {
+              field: true,
+              unit: true,
+              status: true,
+              source: true,
+              sourceLabel: true,
+              dataMode: true,
+              asOf: true,
+              warningCodes: true,
+              productionApproved: true,
+            },
           },
         },
-      },
-    });
+      });
+    } catch (error) {
+      if (!db.$queryRawUnsafe) throw error;
+      records = await rawMarketPriceRecords({ dataMode, db, fromDate, sourceLabel, ticker, toDate });
+    }
 
     const rows = records.map((record) => ({
       ticker: record.ticker.trim().toUpperCase(),

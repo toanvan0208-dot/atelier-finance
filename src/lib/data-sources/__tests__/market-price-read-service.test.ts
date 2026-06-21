@@ -214,6 +214,89 @@ describe("market price read service", () => {
     });
   });
 
+  it("uses a raw sidecar read fallback when the generated relation delegate is unavailable", async () => {
+    const rawQueries: string[] = [];
+    const rawDb = {
+      marketPrice: {
+        findMany: vi.fn(async () => {
+          throw new Error("Unknown field unitMetadata");
+        }),
+      },
+      $queryRawUnsafe: async <T = unknown>(query: string): Promise<T> => {
+        rawQueries.push(query);
+        if (query.includes('"MarketPriceUnitMetadata"')) {
+          return [
+            {
+              marketPriceId: "price-1",
+              field: "marketPrice",
+              unit: "vnd_per_share",
+              status: "ready",
+              source: "local_research",
+              sourceLabel: "vnstock_research_candidate",
+              dataMode: "research_only",
+              asOf: "2025-01-02T00:00:00.000Z",
+              warningCodes: "[]",
+              productionApproved: false,
+            },
+            {
+              marketPriceId: "price-1",
+              field: "volume",
+              unit: "shares",
+              status: "ready",
+              source: "local_research",
+              sourceLabel: "vnstock_research_candidate",
+              dataMode: "research_only",
+              asOf: "2025-01-02T00:00:00.000Z",
+              warningCodes: "[]",
+              productionApproved: false,
+            },
+          ] as T;
+        }
+
+        return [
+          {
+            id: "price-1",
+            ticker: "FPT",
+            tradingDate: "2025-01-02T00:00:00.000Z",
+            openPrice: null,
+            highPrice: null,
+            lowPrice: null,
+            closePrice: 105000,
+            volume: 1000,
+            tradingValue: null,
+            marketCap: null,
+            sourceLabel: "vnstock_research_candidate",
+            dataMode: "research_only",
+            asOf: "2025-01-02T00:00:00.000Z",
+            collectedAt: "2026-06-21T00:00:00.000Z",
+          },
+        ] as T;
+      },
+    };
+
+    const result = await getMarketPriceSeries(
+      params({ sourceLabel: "vnstock_research_candidate" }),
+      { db: rawDb },
+    );
+
+    expect(rawDb.marketPrice.findMany).toHaveBeenCalled();
+    expect(rawQueries).toHaveLength(2);
+    expect(result.status).toBe("completed");
+    expect(result.count).toBe(1);
+    expect(result.marketUnitMetadata?.marketPrice).toMatchObject({
+      source: "persisted_market_bridge",
+      status: "ready",
+      unit: "vnd_per_share",
+      value: 105000,
+    });
+    expect(result.marketUnitMetadata?.volume).toMatchObject({
+      status: "ready",
+      unit: "shares",
+      value: 1000,
+    });
+    expect(result.productionApproved).toBe(false);
+  });
+
   it("keeps invalid persisted units fail-closed even when numeric values exist", async () => {
     db.marketPrices.push(
       row({
