@@ -316,6 +316,8 @@ Phase 85 polishes Financials transparency browser copy and aligns evidence docs 
 
 Phase 86 polishes Valuation transparency boundary UI in `VALUATION_TRANSPARENCY_BOUNDARY_UI_POLISH.md`. The Valuation runtime note and controlled calculation panel now make source state, DB-backed claim status, input coverage, source approval, input unit status, readable blocked/not-applicable reasons, `productionApproved:false`, and `canClaimValuationDbBacked:false` easier to understand. No new valuation metric, EV/EVEBITDA/DCF/fair-value/target-price calculation, recommendation, risk scoring, real import, DB write, schema migration, external API/Vnstock call, source approval, public upload UI/API, or production claim is added.
 
+Phase 87 adds the Macro/Industry data boundary in `MACRO_INDUSTRY_DATA_BOUNDARY.md` and `src/features/macro/lib/macro-industry-data-boundary.ts`. It defines supported Macro and Industry field candidates, accepted explicit units, required source/evidence metadata, readiness states, blocked reasons, and future gates while keeping production ingestion blocked by default. No real macro/industry import, parser, filesystem read, DB write, schema migration, external API/Vnstock call, source approval, browser UI change, recommendation, target, fair-value, risk-scoring, or production claim is added.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot
