@@ -7,6 +7,7 @@ export * from "./financial-statement-local-write-guard";
 export * from "./financial-statement-local-write-service";
 export * from "./financial-statement-read-service";
 export * from "./issuer-metadata-service";
+export * from "./local-import-audit-trail";
 export * from "./manual-upload-adapter";
 export * from "./manual-import-api-client";
 export * from "./manual-upload-parser";

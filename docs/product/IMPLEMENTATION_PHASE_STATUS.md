@@ -2,11 +2,11 @@
 
 ## 1. Current latest phase
 
-Phase 96 - Real Market/PVT Local Data Import and Technical Read Path
+Phase 97 - Local Import Job Audit Trail for Financials and Market/PVT
 
 ## 2. Latest commit
 
-Commit: Phase 96 add safe market pvt import and read path (this phase commit)
+Commit: Phase 97 add local import audit trail (this phase commit)
 
 ## 3. Current branch expectation
 
@@ -34,6 +34,7 @@ The working tree should be clean before starting a new phase.
 - Valuation can consume verified Financials runtime fields only when the Financials read path is DB-backed/local DB with source, period/as-of, and explicit unit metadata; otherwise it fails closed or uses existing persisted bridges.
 - Market/PVT CSV text import MVP exists for controlled local/research rows: preview/dry-run, valid/invalid separation, confirmed local DB write, duplicate skip, explicit unit metadata persistence, and `productionApproved:false`.
 - Technical/PVT DB-backed read path now requires usable local/imported market rows plus ready Market/PVT unit metadata before preferring DB data; otherwise it keeps sample fallback behavior.
+- Shared local import audit result exists for Financial Statement and Market/PVT import MVPs with deterministic job metadata, row counts, duplicate/skipped tracking, warning/error status, and safety flags.
 
 ## 5. Current validated data pipeline state
 
@@ -53,6 +54,7 @@ The working tree should be clean before starting a new phase.
 - Phase 94 hardens the Financials UI read path so verified local/imported DB rows are preferred when usable, missing numeric values remain null/unavailable, and sample fallback remains safe when DB rows are absent or insufficient.
 - Phase 95 gates Valuation Financials input consumption behind verified local DB metadata, keeps market/share-dependent metrics unavailable when inputs are missing or invalid, and preserves `canClaimValuationDbBacked:false`.
 - Phase 96 adds controlled local Market/PVT CSV text import and keeps imported/local market data research-only with explicit unit checks, duplicate skip, no source approval, no public upload/API, and no official/realtime claim.
+- Phase 97 adds a service-level local import audit trail return object for Financials and Market/PVT import runs without schema changes, durable persistence, public UI/API, or source approval.
 
 ## 6. Current UI/readiness state
 
@@ -83,6 +85,7 @@ The working tree should be clean before starting a new phase.
 - Phase 94 does not add public upload UI/API, filesystem CSV import, source approval, production provider ingestion, or new valuation metrics; local DB reads still depend on rows already present in the dev/local database.
 - Phase 95 does not add new valuation methods, source approval, public upload UI/API, external API/Vnstock import, schema/migration, or production data claims.
 - Phase 96 does not add public upload UI/API, external API/Vnstock/web import, schema/migration, source/legal approval workflow, seed data, or production data claims.
+- Phase 97 audit results are returned by local import helpers only; they are not durable DB audit logs and do not approve sources or make imported data production-approved.
 
 ## 8. Recommended next phase
 

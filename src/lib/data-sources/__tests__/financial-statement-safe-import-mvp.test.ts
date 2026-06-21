@@ -236,7 +236,15 @@ describe("financial statement safe import MVP", () => {
   });
 
   it("returns a dry-run preview without writing to DB", async () => {
-    const result = await runFinancialStatementSafeImportMvp({ csvText: validCsv(), db });
+    const result = await runFinancialStatementSafeImportMvp({
+      audit: {
+        completedAt: "2026-06-21T01:05:00.000Z",
+        importJobId: "financial-dry-run",
+        startedAt: "2026-06-21T01:00:00.000Z",
+      },
+      csvText: validCsv(),
+      db,
+    });
 
     expect(result.status).toBe("preview_ready");
     expect(result.dryRun).toBe(true);
@@ -247,6 +255,20 @@ describe("financial statement safe import MVP", () => {
       validRows: 7,
       writtenRows: 0,
     });
+    expect(result.audit).toMatchObject({
+      completedAt: "2026-06-21T01:05:00.000Z",
+      confirmWrite: false,
+      dryRun: true,
+      importJobId: "financial-dry-run",
+      importType: "financial_statement",
+      productionApproved: false,
+      sourceLabel: "phase93_local_research_csv",
+      startedAt: "2026-06-21T01:00:00.000Z",
+      status: "dry_run_completed",
+      validRows: 7,
+      writtenRows: 0,
+    });
+    expect(result.audit.safetyFlags.invalidRowsNotWritten).toBe(true);
     expect(db.transactionCalls).toBe(0);
     expect(db.financialStatements).toEqual([]);
   });
@@ -256,6 +278,9 @@ describe("financial statement safe import MVP", () => {
 
     expect(result.status).toBe("import_completed");
     expect(result.summary.writtenRows).toBe(1);
+    expect(result.audit.status).toBe("completed_with_warnings");
+    expect(result.audit.writtenRows).toBe(1);
+    expect(result.audit.tickers).toEqual(["FPT"]);
     expect(result.productionApproved).toBe(false);
     expect(result.sourceType).toBe("user_input");
     expect(result.sourceApprovalCreated).toBe(false);
@@ -285,6 +310,9 @@ describe("financial statement safe import MVP", () => {
 
     expect(result.status).toBe("import_rejected");
     expect(result.summary.invalidRows).toBe(1);
+    expect(result.audit.status).toBe("failed_validation");
+    expect(result.audit.errors.join(" ")).toContain("invalid_unit");
+    expect(result.audit.safetyFlags.missingUnitFailsClosed).toBe(true);
     expect(result.summary.errors.join(" ")).toContain("invalid_unit");
     expect(result.summary.writtenRows).toBe(0);
     expect(db.transactionCalls).toBe(0);
@@ -299,6 +327,7 @@ describe("financial statement safe import MVP", () => {
     const result = await runFinancialStatementSafeImportMvp(importInput(db, partialCsv));
 
     expect(result.status).toBe("import_completed");
+    expect(result.audit.safetyFlags.noZeroFillForMissing).toBe(true);
     expect(db.financialStatements[0].operatingCashFlow).toBeNull();
     expect(db.financialStatements[0].operatingCashFlow).not.toBe(0);
     expect(result.acceptedRows[0].missingFields).toEqual(expect.arrayContaining(["netIncome", "operatingCashFlow"]));
@@ -312,6 +341,10 @@ describe("financial statement safe import MVP", () => {
     expect(second.status).toBe("import_completed_with_skips");
     expect(second.summary.writtenRows).toBe(0);
     expect(second.summary.skippedRows).toBe(1);
+    expect(second.audit.status).toBe("blocked");
+    expect(second.audit.skippedRows).toBe(1);
+    expect(second.audit.duplicateSkippedRows).toBe(1);
+    expect(second.audit.safetyFlags.noOverwrite).toBe(true);
     expect(db.financialStatements).toHaveLength(1);
   });
 
@@ -332,6 +365,7 @@ describe("financial statement safe import MVP", () => {
     );
 
     expect(result.productionApproved).toBe(false);
+    expect(result.audit.productionApproved).toBe(false);
     expect(result.sourceApprovalCreated).toBe(false);
     expect(result.summary.errors.join(" ")).toContain("production_approval_not_allowed");
     expect(db.financialStatements).toEqual([]);

@@ -15,6 +15,10 @@ import {
   type FinancialStatementLocalWriteTrialReport,
 } from "./financial-statement-local-write-service";
 import type { NormalizedFinancialStatementImportRow } from "./financial-statement-import-contract";
+import {
+  buildLocalImportAuditResult,
+  type LocalImportAuditResult,
+} from "./local-import-audit-trail";
 
 export type FinancialStatementSafeImportMvpInput = {
   csvText: string;
@@ -23,6 +27,12 @@ export type FinancialStatementSafeImportMvpInput = {
   confirmations?: FinancialStatementLocalWriteConfirmations;
   databaseUrl?: string;
   db?: FinancialStatementLocalWriteDb;
+  audit?: {
+    importJobId?: string;
+    startedAt?: Date | string;
+    completedAt?: Date | string;
+    now?: () => Date;
+  };
 };
 
 export type FinancialStatementSafeImportMvpSummary = {
@@ -47,6 +57,7 @@ export type FinancialStatementSafeImportMvpResult = {
   acceptedRows: NormalizedFinancialStatementImportRow[];
   invalidRows: FinancialStatementCsvParserBoundaryResult["blockedRows"];
   writeReport: FinancialStatementLocalWriteTrialReport | null;
+  audit: LocalImportAuditResult;
   valuationClaimCreated: false;
   sourceApprovalCreated: false;
 };
@@ -214,6 +225,53 @@ const buildSummary = ({
   writtenRows: writeReport?.insertedCount ?? 0,
 });
 
+const tickersForAudit = (
+  acceptedRows: NormalizedFinancialStatementImportRow[],
+  parserResult: FinancialStatementCsvParserBoundaryResult,
+): string[] => [
+  ...acceptedRows.map((row) => row.ticker),
+  ...parserResult.drafts.map((draft) => draft.ticker),
+];
+
+const sourceLabelForAudit = (
+  acceptedRows: NormalizedFinancialStatementImportRow[],
+  parserResult: FinancialStatementCsvParserBoundaryResult,
+): string =>
+  acceptedRows[0]?.sourceLabel ??
+  parserResult.drafts[0]?.sourceLabel ??
+  "unknown";
+
+const financialsAudit = ({
+  acceptedRows,
+  confirmWrite,
+  input,
+  parserResult,
+  summary,
+  writeReport,
+}: {
+  acceptedRows: NormalizedFinancialStatementImportRow[];
+  confirmWrite: boolean;
+  input: FinancialStatementSafeImportMvpInput;
+  parserResult: FinancialStatementCsvParserBoundaryResult;
+  summary: FinancialStatementSafeImportMvpSummary;
+  writeReport: FinancialStatementLocalWriteTrialReport | null;
+}) =>
+  buildLocalImportAuditResult({
+    completedAt: input.audit?.completedAt,
+    confirmWrite,
+    dryRun: summary.dryRun,
+    importJobId: input.audit?.importJobId,
+    importType: "financial_statement",
+    now: input.audit?.now,
+    sourceKind: "user_input",
+    sourceLabel: sourceLabelForAudit(acceptedRows, parserResult),
+    startedAt: input.audit?.startedAt,
+    summary,
+    tickers: tickersForAudit(acceptedRows, parserResult),
+    validationFailed: acceptedRows.length === 0 && summary.invalidRows > 0,
+    writeFailed: writeReport?.status === "write_failed",
+  });
+
 export const runFinancialStatementSafeImportMvp = async (
   input: FinancialStatementSafeImportMvpInput,
 ): Promise<FinancialStatementSafeImportMvpResult> => {
@@ -230,8 +288,17 @@ export const runFinancialStatementSafeImportMvp = async (
   });
 
   if (dryRun || !input.confirmWrite) {
+    const summary = buildSummary({ dryRun: true, parserResult, writeErrors: mappingErrors, writeReport: null });
     return {
       acceptedRows,
+      audit: financialsAudit({
+        acceptedRows,
+        confirmWrite: input.confirmWrite === true,
+        input,
+        parserResult,
+        summary,
+        writeReport: null,
+      }),
       dataMode: "research_only",
       dryRun: true,
       invalidRows: parserResult.blockedRows,
@@ -240,15 +307,24 @@ export const runFinancialStatementSafeImportMvp = async (
       sourceApprovalCreated: false,
       sourceType: "user_input",
       status: "preview_ready",
-      summary: buildSummary({ dryRun: true, parserResult, writeErrors: mappingErrors, writeReport: null }),
+      summary,
       valuationClaimCreated: false,
       writeReport: null,
     };
   }
 
   if (acceptedRows.length === 0 || mappingErrors.length > 0) {
+    const summary = buildSummary({ dryRun: false, parserResult, writeErrors: mappingErrors, writeReport: null });
     return {
       acceptedRows,
+      audit: financialsAudit({
+        acceptedRows,
+        confirmWrite: true,
+        input,
+        parserResult,
+        summary,
+        writeReport: null,
+      }),
       dataMode: "research_only",
       dryRun: false,
       invalidRows: parserResult.blockedRows,
@@ -257,7 +333,7 @@ export const runFinancialStatementSafeImportMvp = async (
       sourceApprovalCreated: false,
       sourceType: "user_input",
       status: "import_rejected",
-      summary: buildSummary({ dryRun: false, parserResult, writeErrors: mappingErrors, writeReport: null }),
+      summary,
       valuationClaimCreated: false,
       writeReport: null,
     };
@@ -280,9 +356,18 @@ export const runFinancialStatementSafeImportMvp = async (
       : writeReport.status === "write_completed_with_skips"
         ? "import_completed_with_skips"
         : "import_rejected";
+  const summary = buildSummary({ dryRun: false, parserResult, writeReport });
 
   return {
     acceptedRows,
+    audit: financialsAudit({
+      acceptedRows,
+      confirmWrite: true,
+      input,
+      parserResult,
+      summary,
+      writeReport,
+    }),
     dataMode: "research_only",
     dryRun: false,
     invalidRows: parserResult.blockedRows,
@@ -291,7 +376,7 @@ export const runFinancialStatementSafeImportMvp = async (
     sourceApprovalCreated: false,
     sourceType: "user_input",
     status,
-    summary: buildSummary({ dryRun: false, parserResult, writeReport }),
+    summary,
     valuationClaimCreated: false,
     writeReport,
   };

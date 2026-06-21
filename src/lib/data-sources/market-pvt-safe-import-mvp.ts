@@ -6,6 +6,10 @@ import {
   type MarketPvtNumericField,
 } from "@/features/technical/lib/market-pvt-unit-metadata-contract";
 import { assessFinancialStatementLocalWriteDatabaseUrl } from "./financial-statement-local-write-guard";
+import {
+  buildLocalImportAuditResult,
+  type LocalImportAuditResult,
+} from "./local-import-audit-trail";
 
 export type MarketPvtSafeImportMvpInput = {
   csvText: string;
@@ -13,6 +17,12 @@ export type MarketPvtSafeImportMvpInput = {
   confirmWrite?: boolean;
   databaseUrl?: string;
   db?: MarketPvtSafeImportDb;
+  audit?: {
+    importJobId?: string;
+    startedAt?: Date | string;
+    completedAt?: Date | string;
+    now?: () => Date;
+  };
 };
 
 export type MarketPvtSafeImportSummary = {
@@ -60,6 +70,7 @@ export type MarketPvtSafeImportResult = {
   summary: MarketPvtSafeImportSummary;
   acceptedRows: MarketPvtAcceptedImportRow[];
   invalidRows: MarketPvtInvalidImportRow[];
+  audit: LocalImportAuditResult;
   sourceApprovalCreated: false;
 };
 
@@ -507,6 +518,45 @@ const summary = ({
   writtenRows,
 });
 
+const marketPvtAudit = ({
+  acceptedRows,
+  blocked = false,
+  confirmWrite,
+  duplicateSkipped,
+  input,
+  invalidRows,
+  summary,
+  writeFailed = false,
+}: {
+  acceptedRows: MarketPvtAcceptedImportRow[];
+  blocked?: boolean;
+  confirmWrite: boolean;
+  duplicateSkipped: number;
+  input: MarketPvtSafeImportMvpInput;
+  invalidRows: MarketPvtInvalidImportRow[];
+  summary: MarketPvtSafeImportSummary;
+  writeFailed?: boolean;
+}) =>
+  buildLocalImportAuditResult({
+    blocked,
+    completedAt: input.audit?.completedAt,
+    confirmWrite,
+    dryRun: summary.dryRun,
+    importJobId: input.audit?.importJobId,
+    importType: "market_pvt",
+    now: input.audit?.now,
+    sourceKind: "user_input",
+    sourceLabel: acceptedRows[0]?.sourceLabel ?? "unknown",
+    startedAt: input.audit?.startedAt,
+    summary: {
+      ...summary,
+      duplicateRows: duplicateSkipped,
+    },
+    tickers: acceptedRows.map((row) => row.ticker),
+    validationFailed: acceptedRows.length === 0 && invalidRows.length > 0,
+    writeFailed,
+  });
+
 export const runMarketPvtSafeImportMvp = async (
   input: MarketPvtSafeImportMvpInput,
 ): Promise<MarketPvtSafeImportResult> => {
@@ -523,8 +573,17 @@ export const runMarketPvtSafeImportMvp = async (
   ];
 
   if (dryRun || !input.confirmWrite) {
+    const builtSummary = summary({ acceptedRows, dryRun: true, invalidRows: split.invalidRows, skippedRows: duplicateSkipped, warnings });
     return {
       acceptedRows,
+      audit: marketPvtAudit({
+        acceptedRows,
+        confirmWrite: input.confirmWrite === true,
+        duplicateSkipped,
+        input,
+        invalidRows: split.invalidRows,
+        summary: builtSummary,
+      }),
       dataMode: "research_only",
       dryRun: true,
       invalidRows: split.invalidRows,
@@ -532,13 +591,23 @@ export const runMarketPvtSafeImportMvp = async (
       sourceApprovalCreated: false,
       sourceType: "user_input",
       status: "preview_ready",
-      summary: summary({ acceptedRows, dryRun: true, invalidRows: split.invalidRows, skippedRows: duplicateSkipped, warnings }),
+      summary: builtSummary,
     };
   }
 
   if (acceptedRows.length === 0 || split.invalidRows.some((row) => row.rowIndex === 0)) {
+    const builtSummary = summary({ acceptedRows, dryRun: false, invalidRows: split.invalidRows, skippedRows: duplicateSkipped, warnings });
     return {
       acceptedRows,
+      audit: marketPvtAudit({
+        acceptedRows,
+        blocked: acceptedRows.length === 0 && duplicateSkipped > 0 && split.invalidRows.length === 0,
+        confirmWrite: true,
+        duplicateSkipped,
+        input,
+        invalidRows: split.invalidRows,
+        summary: builtSummary,
+      }),
       dataMode: "research_only",
       dryRun: false,
       invalidRows: split.invalidRows,
@@ -546,7 +615,7 @@ export const runMarketPvtSafeImportMvp = async (
       sourceApprovalCreated: false,
       sourceType: "user_input",
       status: "import_rejected",
-      summary: summary({ acceptedRows, dryRun: false, invalidRows: split.invalidRows, skippedRows: duplicateSkipped, warnings }),
+      summary: builtSummary,
     };
   }
 
@@ -559,9 +628,28 @@ export const runMarketPvtSafeImportMvp = async (
       : skippedRows > 0
         ? "import_completed_with_skips"
         : "import_completed";
+  const builtSummary = summary({
+    acceptedRows,
+    dryRun: false,
+    errors: write.errors,
+    invalidRows: split.invalidRows,
+    skippedRows,
+    warnings: [...warnings, ...write.warnings],
+    writtenRows,
+  });
 
   return {
     acceptedRows,
+    audit: marketPvtAudit({
+      acceptedRows,
+      blocked: status === "import_rejected" && writtenRows === 0 && skippedRows > 0,
+      confirmWrite: true,
+      duplicateSkipped,
+      input,
+      invalidRows: split.invalidRows,
+      summary: builtSummary,
+      writeFailed: write.errors.length > 0,
+    }),
     dataMode: "research_only",
     dryRun: false,
     invalidRows: split.invalidRows,
@@ -569,14 +657,6 @@ export const runMarketPvtSafeImportMvp = async (
     sourceApprovalCreated: false,
     sourceType: "user_input",
     status,
-    summary: summary({
-      acceptedRows,
-      dryRun: false,
-      errors: write.errors,
-      invalidRows: split.invalidRows,
-      skippedRows,
-      warnings: [...warnings, ...write.warnings],
-      writtenRows,
-    }),
+    summary: builtSummary,
   };
 };

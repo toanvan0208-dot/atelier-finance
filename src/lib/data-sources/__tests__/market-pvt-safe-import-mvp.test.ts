@@ -134,7 +134,16 @@ describe("Market/PVT safe import MVP", () => {
       "VCB,2026-06-19,0,1000,100000,VND,vnd_per_share,shares,vnd,local_research_csv,2026-06-19",
     ].join("\n");
 
-    const result = await runMarketPvtSafeImportMvp({ csvText: csv, db, dryRun: true });
+    const result = await runMarketPvtSafeImportMvp({
+      audit: {
+        completedAt: "2026-06-21T02:05:00.000Z",
+        importJobId: "market-dry-run",
+        startedAt: "2026-06-21T02:00:00.000Z",
+      },
+      csvText: csv,
+      db,
+      dryRun: true,
+    });
 
     expect(result.status).toBe("preview_ready");
     expect(result.summary).toMatchObject({
@@ -145,6 +154,20 @@ describe("Market/PVT safe import MVP", () => {
       skippedRows: 0,
       dryRun: true,
     });
+    expect(result.audit).toMatchObject({
+      completedAt: "2026-06-21T02:05:00.000Z",
+      confirmWrite: false,
+      dryRun: true,
+      importJobId: "market-dry-run",
+      importType: "market_pvt",
+      productionApproved: false,
+      sourceLabel: "local_research_csv",
+      startedAt: "2026-06-21T02:00:00.000Z",
+      status: "dry_run_completed",
+      validRows: 1,
+      writtenRows: 0,
+    });
+    expect(result.audit.errors.join(" ")).toContain("market_price_must_be_positive");
     expect(db.marketPrices).toHaveLength(0);
     expect(result.productionApproved).toBe(false);
   });
@@ -166,6 +189,10 @@ describe("Market/PVT safe import MVP", () => {
     expect(result.status).toBe("import_completed");
     expect(result.summary.writtenRows).toBe(1);
     expect(result.summary.invalidRows).toBe(1);
+    expect(result.audit.status).toBe("completed_with_warnings");
+    expect(result.audit.writtenRows).toBe(1);
+    expect(result.audit.invalidRows).toBe(1);
+    expect(result.audit.errors.join(" ")).toContain("market_price_must_be_positive");
     expect(db.marketPrices).toHaveLength(1);
     expect(db.marketPrices[0]).toMatchObject({
       ticker: "FPT",
@@ -212,6 +239,8 @@ describe("Market/PVT safe import MVP", () => {
     expect(result.status).toBe("import_rejected");
     expect(result.summary.validRows).toBe(0);
     expect(result.summary.invalidRows).toBe(2);
+    expect(result.audit.status).toBe("failed_validation");
+    expect(result.audit.safetyFlags.missingUnitFailsClosed).toBe(true);
     expect(result.summary.errors.join(" ")).toContain("marketPrice_unit_missing");
     expect(result.summary.errors.join(" ")).toContain("marketPrice_unit_invalid");
     expect(db.marketPrices).toHaveLength(0);
@@ -232,6 +261,7 @@ describe("Market/PVT safe import MVP", () => {
     });
 
     expect(result.summary.writtenRows).toBe(1);
+    expect(result.audit.safetyFlags.noZeroFillForMissing).toBe(true);
     expect(db.marketPrices[0].volume).toBeNull();
     expect(db.marketPrices[0].tradingValue).toBeNull();
     expect(db.marketPrices[0].volume).not.toBe(0);
@@ -251,6 +281,9 @@ describe("Market/PVT safe import MVP", () => {
 
     expect(duplicatePreview.summary.writtenRows).toBe(0);
     expect(duplicatePreview.summary.skippedRows).toBe(2);
+    expect(duplicatePreview.audit.status).toBe("blocked");
+    expect(duplicatePreview.audit.duplicateSkippedRows).toBe(2);
+    expect(duplicatePreview.audit.safetyFlags.noOverwrite).toBe(true);
     expect(db.marketPrices).toHaveLength(0);
 
     const first = await runMarketPvtSafeImportMvp({
@@ -269,6 +302,8 @@ describe("Market/PVT safe import MVP", () => {
     expect(first.summary.writtenRows).toBe(1);
     expect(second.summary.writtenRows).toBe(0);
     expect(second.summary.skippedRows).toBe(1);
+    expect(second.audit.status).toBe("blocked");
+    expect(second.audit.skippedRows).toBe(1);
     expect(db.marketPrices).toHaveLength(1);
     expect(db.marketPrices[0].closePrice).toBe(105.5);
   });
