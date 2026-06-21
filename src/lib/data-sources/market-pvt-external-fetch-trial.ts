@@ -13,8 +13,8 @@ import { buildLocalImportAuditResult } from "./local-import-audit-trail";
 export type ExternalMarketCandidateRow = {
   symbol: string;         // mapped to ticker
   timestamp: string;      // mapped to tradingDate
-  close_price: number;    // mapped to closePrice
-  volume_shares: number;  // mapped to volume
+  close_price: number | null;    // mapped to closePrice
+  volume_shares: number | null;  // mapped to volume
 };
 
 /**

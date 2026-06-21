@@ -2,11 +2,11 @@
 
 ## 1. Current latest phase
 
-Phase 101 - Controlled Market/PVT External Fetch to Local DB
+Phase 102 - Controlled Live Market/PVT Provider Adapter, Single Ticker
 
 ## 2. Latest commit
 
-Commit: Phase 101 write controlled market pvt external data (this phase commit)
+Commit: Phase 102 add controlled market pvt provider adapter (this phase commit)
 
 ## 3. Current branch expectation
 
@@ -39,6 +39,7 @@ The working tree should be clean before starting a new phase.
 - Local import UI and API route are gated behind a runtime kill switch (`ATELIER_LOCAL_IMPORTS_ENABLED`): disabled by default (fail closed), enabled only when env is exactly `true`. The existing `x-atelier-local-import` header guard remains as a lightweight internal guard (not real production auth).
 - A controlled Market/PVT external fetch module exists, which accepts an injected fetcher, normalizes candidate response shapes into CSV text, and pipes them through the existing Market/PVT validation and audit pipeline.
 - The controlled external Market/PVT fetch service remains dry-run by default and can write validated rows to a local/dev DB only with explicit confirmation and `ATELIER_LOCAL_IMPORTS_ENABLED=true`; Technical/PVT can select the preserved imported source label for its DB-backed read path.
+- A single-ticker, bounded-range Market/PVT provider adapter accepts an injected provider fetcher, normalizes an explicit provider response into the Phase 100/101 candidate shape, and delegates dry-run or guarded confirmed local writes to the existing pipeline.
 
 ## 5. Current validated data pipeline state
 
@@ -78,6 +79,7 @@ The working tree should be clean before starting a new phase.
 - Phase 99 adds a runtime kill switch (`ATELIER_LOCAL_IMPORTS_ENABLED`) gating the local import UI and API route. Disabled by default (fail closed). The `x-atelier-local-import` header guard is preserved as a lightweight internal guard only.
 - Phase 100 adds a controlled dry-run-only trial for external Market/PVT fetching. It validates that fetched candidate data can safely route through the existing Phase 96 import rules and Phase 97 audit result, writing zero rows to the DB.
 - Phase 101 extends that trial with a Phase 99-guarded confirmed mode that still delegates validation, duplicate handling, unit persistence, writes, and audit counts to the Phase 96/97 pipeline; imported external rows remain local research data with `productionApproved:false`.
+- Phase 102 adds a provider-response boundary for one ticker and at most 31 days. It preserves provider metadata, performs no direct DB writes, uses deterministic injected fetchers in tests, and keeps all output `productionApproved:false`.
 
 ## 7. Current known limitations
 
@@ -98,6 +100,7 @@ The working tree should be clean before starting a new phase.
 - Phase 98 does not add external API/Vnstock/web import, public investor upload, schema/migration, durable audit DB tables, source approval, or production data claims.
 - Phase 99 does not add external API/Vnstock/web import, public investor upload, schema/migration, full auth/admin system, durable audit DB tables, source approval, or production data claims. The `x-atelier-local-import` header is a lightweight internal guard, not real production auth.
 - Phase 101 adds only controlled confirmed local/dev writes. It does not add live provider integration, scheduled or bulk crawling, public upload, durable audit storage, or source/legal approval; fetched and imported results remain `productionApproved:false`.
+- Phase 102 does not select or automatically call a live provider endpoint. A reviewed real fetcher can be plugged into the adapter later; no crawler, schedule, broad ticker import, source approval, or production data claim was added.
 
 ## 8. Recommended next phase
 

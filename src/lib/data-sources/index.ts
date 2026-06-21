@@ -17,6 +17,7 @@ export * from "./manual-upload-report";
 export * from "./manual-upload-schema";
 export * from "./market-price-pvt-adapter";
 export * from "./market-price-read-service";
+export * from "./market-pvt-controlled-provider-adapter";
 export * from "./market-pvt-external-fetch-trial";
 export * from "./market-pvt-safe-import-mvp";
 export * from "./mock-source-adapter";

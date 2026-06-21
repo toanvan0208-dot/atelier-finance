@@ -141,7 +141,7 @@ const dbMarketDataSource = (
   series: MarketPriceSeriesResult,
 ): TechnicalMarketDataSource => ({
   sourceType: "local_db_manual_import",
-  provider: "vnstock",
+  provider: series.sourceLabel === "vnstock" ? "vnstock" : "local_import",
   sourceLabel: series.sourceLabel,
   dataMode: series.dataMode,
   productionApproved: false,
