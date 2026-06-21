@@ -156,3 +156,11 @@ Phase 75 implements the additive sidecar path from Phase 74.
 `getMarketPriceSeries()` now selects `MarketPrice.unitMetadata` rows when present and converts them through the Market/PVT unit contract into `marketUnitMetadata`. `buildTechnicalFromMarketPriceSeries()` uses persisted `marketUnitMetadata` from the DB-backed series when no explicit capture override is supplied.
 
 Rows without sidecar metadata remain readable as `unknown_unit`. Invalid sidecar units fail closed and emit warnings; numeric market values alone do not unlock unit-sensitive Valuation calculations. This does not add a provider, parser, real import, source approval, UI change, or new metric.
+
+## 14. Phase 76 Controlled Persistence Write Trial
+
+Phase 76 is tracked in `MARKET_PVT_METADATA_PERSISTENCE_WRITE_TRIAL.md`.
+
+The controlled trial verifies that explicit valid `MarketPriceUnitMetadata` rows can be upserted for a synthetic `UNIT76` market row, read back through `getMarketPriceSeries()`, consumed by `buildTechnicalFromMarketPriceSeries()`, and handed to the controlled Valuation persisted-market bridge.
+
+The trial uses an in-memory test fixture only. No schema change, migration, DB reset, seed, `db push`, real market import, external API/Vnstock call, UI change, source approval, or new metric is added.

@@ -16,6 +16,12 @@ Existing `MarketPrice` rows without sidecar rows remain readable and map to `unk
 
 No unit is inferred by magnitude. No source approval, real market import, real BCTC import, external API/Vnstock call, provider, parser, UI change, valuation metric, target price, fair value, recommendation, or Risk scoring is added. Valuation can consume explicit Market/PVT sidecar metadata only when it passes the existing Market/PVT unit contract, and the broader Valuation DB-backed claim remains limited.
 
+## Phase 76 Write Trial Follow-up
+
+Phase 76 adds `MARKET_PVT_METADATA_PERSISTENCE_WRITE_TRIAL.md`, a controlled synthetic/local write trial for the Phase 75 sidecar. The trial verifies explicit valid `MarketPriceUnitMetadata` upsert/read-back into Technical/PVT `marketUnitMetadata` and controlled Valuation persisted-market-bridge consumption.
+
+No new schema migration, schema change, DB reset, seed, `db push`, real market import, real BCTC import, external API/Vnstock call, source approval, UI change, or new metric is added.
+
 ## 2. Files Audited
 
 - `prisma/schema.prisma`

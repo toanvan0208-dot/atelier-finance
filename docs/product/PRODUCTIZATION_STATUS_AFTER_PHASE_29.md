@@ -296,6 +296,8 @@ Phase 74 adds a Market/PVT metadata persistence design in `MARKET_PVT_METADATA_P
 
 Phase 75 adds additive Market/PVT unit metadata sidecar persistence. `MarketPriceUnitMetadata` is added as a sidecar model/table with unique `marketPriceId` + `field` protection, read-back mapping into Technical/PVT `marketUnitMetadata`, and a narrow helper that upserts only explicit valid metadata. Old rows remain `unknown_unit`, invalid metadata fails closed, Valuation can consume only valid Market/PVT-owned metadata, and no reset, seed, `db push`, real market import, real BCTC import, external API/Vnstock call, source approval, UI change, or new metric is added.
 
+Phase 76 adds a controlled synthetic/local Market/PVT metadata persistence write trial in `MARKET_PVT_METADATA_PERSISTENCE_WRITE_TRIAL.md`. The trial verifies explicit `MarketPriceUnitMetadata` sidecar upsert/read-back into Technical/PVT `marketUnitMetadata` and controlled Valuation persisted-market-bridge consumption. It uses an in-memory test fixture only; no schema change, migration, DB file, reset, seed, `db push`, real market import, real BCTC import, external API/Vnstock call, source approval, UI change, or new metric is added.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot
