@@ -320,6 +320,8 @@ Phase 87 adds the Macro/Industry data boundary in `MACRO_INDUSTRY_DATA_BOUNDARY.
 
 Phase 88 adds a Macro/Industry readiness UI skeleton in `MACRO_INDUSTRY_READINESS_UI_SKELETON.md`. The existing `/workspace?module=macro` and `/workspace?module=industry` modules now show the boundary state from the Phase 87 helper: missing/partial source evidence, explicit unit requirements, future gates, blocked readiness, and `productionApproved:false`. No new route, real macro/industry import, parser, filesystem read, DB write, schema migration, external API/Vnstock call, source approval, recommendation, target, fair-value, risk-scoring, or production claim is added.
 
+Phase 89 polishes Macro/Industry readiness browser copy and evidence alignment in `MACRO_INDUSTRY_READINESS_UI_SKELETON.md`. The existing Macro and Industry modules now use clearer readiness language for missing source/evidence, explicit unit metadata, blocked/not-ready status, future gates, and `productionApproved:false`, while avoiding raw helper labels in the browser. No new route, real macro/industry import, parser, filesystem read, DB write, schema migration, external API/Vnstock call, source approval, recommendation, target, fair-value, risk-scoring, or production claim is added.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot

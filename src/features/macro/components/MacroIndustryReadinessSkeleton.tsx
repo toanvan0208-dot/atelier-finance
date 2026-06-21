@@ -14,7 +14,7 @@ export function MacroIndustryReadinessSkeleton({ domain }: MacroIndustryReadines
       <CardHeader
         title={model.title}
         description={model.summary}
-        chip={<Chip variant="warning">Boundary skeleton</Chip>}
+        chip={<Chip variant="warning">{model.badgeLabel}</Chip>}
       />
       <CardBody className="space-y-5">
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
@@ -29,7 +29,7 @@ export function MacroIndustryReadinessSkeleton({ domain }: MacroIndustryReadines
 
         <div className="grid gap-4 lg:grid-cols-[1.2fr_1fr]">
           <div className="rounded-[5px] border border-border-soft bg-surface p-4">
-            <h3 className="text-sm font-extrabold text-ink">Truong du lieu can co</h3>
+            <h3 className="text-sm font-extrabold text-ink">Truong du lieu can chuan bi</h3>
             <div className="mt-3 flex flex-wrap gap-2">
               {model.requiredFields.map((field) => (
                 <Chip key={field} size="sm" variant="neutral">
@@ -40,10 +40,13 @@ export function MacroIndustryReadinessSkeleton({ domain }: MacroIndustryReadines
           </div>
 
           <div className="rounded-[5px] border border-border-soft bg-surface p-4">
-            <h3 className="text-sm font-extrabold text-ink">Future data gates</h3>
+            <h3 className="text-sm font-extrabold text-ink">Cac buoc can hoan tat</h3>
             <ul className="mt-3 space-y-2 text-xs leading-5 text-muted">
               {model.futureGates.map((gate) => (
-                <li key={gate}>- {gate}: blocked by default</li>
+                <li key={gate.label}>
+                  <span className="font-semibold text-ink">{gate.label}</span>
+                  <span className="block">{gate.detail}</span>
+                </li>
               ))}
             </ul>
           </div>

@@ -2,11 +2,11 @@
 
 ## 1. Current latest phase
 
-Phase 88 - Macro/Industry Readiness UI Skeleton
+Phase 89 - Macro/Industry Sample Readiness Copy and Navigation Polish
 
 ## 2. Latest commit
 
-Commit: Phase 88 add macro industry readiness ui skeleton (this phase commit)
+Commit: Phase 89 polish macro industry readiness copy (this phase commit)
 
 ## 3. Current branch expectation
 
@@ -25,7 +25,7 @@ The working tree should be clean before starting a new phase.
 - Valuation boundary remains `canClaimValuationDbBacked:false` where appropriate.
 - `productionApproved:false` remains visible for local/research/manual data.
 - Macro/Industry boundary helper exists for field candidates, explicit units, source/evidence metadata, readiness states, blocked reasons, and future gates.
-- Macro/Industry readiness UI skeleton exists in the existing Macro and Industry workspace modules.
+- Macro/Industry readiness UI copy is polished in the existing Macro and Industry workspace modules.
 
 ## 5. Current validated data pipeline state
 
@@ -37,6 +37,7 @@ The working tree should be clean before starting a new phase.
 - Local/research/manual/synthetic data remains `productionApproved:false`.
 - Macro/Industry data boundary validation is helper/test-only and does not import data, write DB rows, add schema, call APIs, or approve sources.
 - Macro/Industry readiness UI uses boundary/sample readiness states only and does not add ingestion, parser, DB persistence, or source approval.
+- Macro/Industry readiness copy exposes `productionApproved:false`, missing source/evidence, explicit unit requirements, blocked readiness, and future gates without raw helper labels.
 
 ## 6. Current UI/readiness state
 
@@ -44,7 +45,7 @@ The working tree should be clean before starting a new phase.
 - Financials DB-backed status is scoped to the Financials boundary.
 - Overview, Valuation, and Risk must not inherit a full DB-backed/source-approved claim from Financials.
 - Valuation remains mixed/bounded where market inputs, unit metadata, or source approval are incomplete.
-- Macro/Industry UI now surfaces source/evidence gaps, explicit unit requirements, future gates, blocked readiness, and `productionApproved:false` in the existing `macro` and `industry` modules.
+- Macro/Industry UI now surfaces source/evidence gaps, explicit unit requirements, future gates, blocked readiness, and `productionApproved:false` in clearer browser-facing copy for the existing `macro` and `industry` modules.
 
 ## 7. Current known limitations
 
@@ -53,7 +54,7 @@ The working tree should be clean before starting a new phase.
 - No source approval/legal approval workflow.
 - No official/realtime data claim.
 - No general real market/BCTC production ingestion.
-- Macro/Industry pipelines have a boundary/checklist helper and UI skeleton, but no production ingestion, parser, DB persistence, or source approval yet.
+- Macro/Industry pipelines have a boundary/checklist helper and polished readiness UI, but no production ingestion, parser, DB persistence, or source approval yet.
 
 ## 8. Recommended next phase
 
