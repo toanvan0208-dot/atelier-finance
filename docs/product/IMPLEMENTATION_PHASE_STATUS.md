@@ -2,11 +2,11 @@
 
 ## 1. Current latest phase
 
-Phase 106 - VNStock Data Activation in Intended Local App DB and Browser Smoke
+Phase 108 - Financials Real/Local Data Activation for FPT
 
 ## 2. Latest commit
 
-Commit: Phase 106 activate vnstock data in local app db (this phase commit)
+Commit: Phase 108 activate FPT financials data (this phase commit)
 
 ## 3. Current branch expectation
 
@@ -89,6 +89,7 @@ The working tree should be clean before starting a new phase.
 - Phase 105 proves the opt-in live VNStock path can confirmed-write bounded local/dev rows with both guards enabled. The live smoke wrote 21 FPT rows and 63 total rows for FPT/MWG/VNM on a temp local DB, then Technical/PVT read each ticker as DB-backed VNStock-candidate data with fallback disabled.
 - Phase 106 applies the existing Phase 75 sidecar migration SQL to the intended local app DB (`file:./dev.db`), writes 63 live VNStock rows for FPT/MWG/VNM into that DB through the guarded import pipeline, and verifies the production app route renders Technical/PVT from DB-backed VNStock-candidate rows with fallback disabled for FPT.
 - Phase 107 adds a controlled local/research company metadata backbone for FPT/MWG/VNM using the existing issuer metadata runtime path. It exposes company name, exchange, industry, source label, as-of, data mode, `productionApproved:false`, and keeps `sharesOutstanding` null/unavailable because no traceable shares source is stored in the repo.
+- Phase 108 adds a controlled local/research FPT financials activation path that routes inline reviewed FPT financial rows through the existing Financial Statement safe import MVP, writes to the intended local app DB only by explicit confirm, and lets Financials runtime prefer the DB-backed `phase108_controlled_local_financials` rows without sample fallback. EPS and sharesOutstanding remain null/unavailable.
 
 ## 7. Current known limitations
 
@@ -115,6 +116,7 @@ The working tree should be clean before starting a new phase.
 - Phase 105 live smoke used a temp local SQLite DB outside the repo because the checked-in dev DB copy is not a phase artifact and may not carry the latest sidecar table. No DB file, generated Prisma client, schema migration, crawler, scheduled job, source approval workflow, or approval claim was added.
 - Phase 106 mutates only the local ignored `dev.db` runtime database for activation/smoke evidence. The DB file remains ignored and uncommitted; VNStock rows remain research candidates with `productionApproved:false`, and no source approval, scheduled ingestion, crawler, or production data claim was added.
 - Phase 107 does not add a source/legal approval workflow, schema migration, scheduled ingestion, crawler, official profile source, or share-count source. Missing `sharesOutstanding` remains null/unavailable and does not unlock market-cap, BVPS/share metrics, or a fully DB-backed Valuation state.
+- Phase 108 controlled FPT financials are local/research data only. Applying the existing FinancialStatementUnitMetadata sidecar migration to ignored `dev.db` may be required before local activation; no reset, seed, db push, schema change, source approval, external financials fetch, or share-count source is added. Valuation remains partial where EPS, sharesOutstanding, market inputs, or source approvals are missing.
 
 ## 8. Recommended next phase
 
