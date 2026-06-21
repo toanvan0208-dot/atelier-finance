@@ -16,6 +16,7 @@
     "financials:dry-run": "tsx scripts/financial-statements-dry-run.ts",
     "financials:write-trial": "tsx scripts/financial-statements-write-trial.ts",
     "import:market-prices:vnstock:local": "tsx scripts/import-vnstock-market-prices.ts",
+    "import:market-pvt:vnstock:controlled": "tsx scripts/import-vnstock-market-pvt-controlled.ts",
     "test": "vitest run",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui"

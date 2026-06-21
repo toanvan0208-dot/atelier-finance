@@ -141,7 +141,7 @@ const dbMarketDataSource = (
   series: MarketPriceSeriesResult,
 ): TechnicalMarketDataSource => ({
   sourceType: "local_db_manual_import",
-  provider: series.sourceLabel === "vnstock" ? "vnstock" : "local_import",
+  provider: series.sourceLabel === "vnstock" || series.sourceLabel.startsWith("vnstock_") ? "vnstock" : "local_import",
   sourceLabel: series.sourceLabel,
   dataMode: series.dataMode,
   productionApproved: false,
@@ -403,7 +403,7 @@ export const loadTechnicalDeskData = async (
     },
     source: {
       sourceType: "local_db_manual_import",
-      provider: series.sourceLabel === "vnstock" ? "vnstock" : "local_import",
+      provider: series.sourceLabel === "vnstock" || series.sourceLabel.startsWith("vnstock_") ? "vnstock" : "local_import",
       sourceLabel: series.sourceLabel,
       dataMode: series.dataMode,
       productionApproved: false,

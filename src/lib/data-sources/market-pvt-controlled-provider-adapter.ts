@@ -54,7 +54,7 @@ export type RunControlledMarketPvtProviderOptions = ControlledMarketPvtProviderR
 
 const MAX_RANGE_DAYS = 31;
 const MAX_PROVIDER_OBSERVATIONS = 31;
-const SAFE_SOURCE_LABEL = /^(provider_candidate|research_external_candidate|local_external_candidate)(?:[_-][a-z0-9_-]+)?$/;
+const SAFE_SOURCE_LABEL = /^(provider_candidate|research_external_candidate|local_external_candidate|vnstock_research_candidate|vnstock_local_candidate)(?:[_-][a-z0-9_-]+)?$/;
 
 const dateOnly = (value: string): string | null => {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
