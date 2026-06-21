@@ -251,3 +251,7 @@ No Financials schema, migration, sidecar table, DB row, generated Prisma output,
 Phase 71 adds `VALUATION_UNIT_AWARE_READY_METRICS_BROWSER_VERIFICATION.md`. The browser scenario uses explicit Financials units from a synthetic/local fixture and explicit Market/PVT units from the Phase 70 contract to verify ready controlled metrics.
 
 The Financials sidecar persistence implementation is not changed, and no schema migration, DB write, generated Prisma output, or DB artifact is committed.
+
+## 17. Phase 72 Follow-up
+
+Phase 72 adds `MARKET_PVT_UNIT_METADATA_CAPTURE_BOUNDARY.md`. Market/PVT capture remains separate from the Financials sidecar table and does not alter Financials persistence, migrations, or DB rows.

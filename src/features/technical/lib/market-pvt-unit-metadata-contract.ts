@@ -7,7 +7,14 @@ export type MarketPvtNumericField =
   | "tradingValue"
   | "averageTradingValue20d";
 
-export type MarketPvtUnitMetadataStatus = "ready" | "missing" | "unknown_unit" | "invalid_unit";
+export type MarketPvtUnitMetadataStatus = "ready" | "missing" | "unknown_unit" | "invalid_unit" | "invalid_value";
+
+export type MarketPvtUnitMetadataSource =
+  | "market_pvt"
+  | "persisted_market_bridge"
+  | "sample_fallback"
+  | "local_research"
+  | "unknown";
 
 export type MarketPvtUnitContract = {
   field: MarketPvtNumericField;
@@ -24,6 +31,7 @@ export type MarketPvtFieldUnitMetadata = {
   status: MarketPvtUnitMetadataStatus;
   acceptedUnits: ValuationUnit[];
   owner: "market_pvt";
+  source: MarketPvtUnitMetadataSource;
   usedByValuation: boolean;
   sourceLabel?: string | null;
   dataMode?: string | null;
@@ -37,6 +45,7 @@ export type MarketPvtUnitMetadataMap = Record<MarketPvtNumericField, MarketPvtFi
 export type BuildMarketPvtUnitMetadataOptions = {
   values?: Partial<Record<MarketPvtNumericField, number | null>>;
   units?: Partial<Record<MarketPvtNumericField, ValuationUnit | null>>;
+  source?: MarketPvtUnitMetadataSource;
   sourceLabel?: string | null;
   dataMode?: string | null;
   asOf?: string | null;
@@ -94,12 +103,14 @@ const metadataForField = ({
   dataMode,
   field,
   sourceLabel,
+  source = "market_pvt",
   unit,
   value,
 }: {
   field: MarketPvtNumericField;
   value?: number | null;
   unit?: ValuationUnit | null;
+  source?: MarketPvtUnitMetadataSource;
   sourceLabel?: string | null;
   dataMode?: string | null;
   asOf?: string | null;
@@ -113,6 +124,7 @@ const metadataForField = ({
     field,
     owner: contract.owner,
     productionApproved: false as const,
+    source,
     sourceLabel,
     usedByValuation: contract.usedByValuation,
     value: isPresentNumber(value) ? value : null,
@@ -130,7 +142,16 @@ const metadataForField = ({
   if (!isPresentNumber(value)) {
     return {
       ...base,
-      status: "invalid_unit",
+      status: "invalid_value",
+      unit: resolvedUnit,
+      warnings: [`${field}_market_pvt_value_invalid`],
+    };
+  }
+
+  if (value <= 0) {
+    return {
+      ...base,
+      status: "invalid_value",
       unit: resolvedUnit,
       warnings: [`${field}_market_pvt_value_invalid`],
     };
@@ -165,6 +186,7 @@ const metadataForField = ({
 export const buildMarketPvtUnitMetadata = ({
   asOf,
   dataMode,
+  source,
   sourceLabel,
   units = {},
   values = {},
@@ -178,6 +200,7 @@ export const buildMarketPvtUnitMetadata = ({
           asOf,
           dataMode,
           field: key,
+          source,
           sourceLabel,
           unit: units[key],
           value: values[key],

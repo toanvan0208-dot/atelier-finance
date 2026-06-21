@@ -168,3 +168,9 @@ Maximum scope:
 - keep all data local/research-only unless source evidence is approved;
 - preserve `productionApproved:false`;
 - do not add new metrics, target price, fair value range, recommendation, Risk scoring, DB reset, seed, or real-data import.
+
+## 13. Phase 72 Follow-up
+
+Phase 72 adds `MARKET_PVT_UNIT_METADATA_CAPTURE_BOUNDARY.md`. The Phase 71 synthetic browser scenario remains intact, while Market/PVT runtime and bridge payloads now have a non-UI capture helper for explicit or unknown market unit metadata.
+
+Browser verification is not repeated in Phase 72 because visible Valuation behavior is unchanged.

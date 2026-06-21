@@ -382,6 +382,29 @@ describe("controlled valuation integration boundary", () => {
     expect(result.calculation.metrics.ps.status).toBe("insufficient_data");
   });
 
+  it("does not bypass invalid Market/PVT value metadata with persisted market numbers", () => {
+    const marketUnitMetadata = buildMarketPvtUnitMetadata({
+      units: { marketPrice: "vnd_per_share" },
+      values: { marketPrice: -50_000 },
+    });
+    const result = buildControlledValuationIntegrationBoundary({
+      financialsRuntimeSnapshot: { eps: 2500, units: { eps: "vnd_per_share" } },
+      persistedValuationInputs: {
+        marketPrice: 50_000,
+        marketUnitMetadata,
+      },
+    });
+
+    expect(result.selectedInputs.marketPrice).toMatchObject({
+      normalizationStatus: "invalid",
+      rawValue: null,
+      source: "market_pvt",
+      value: null,
+    });
+    expect(result.sourceBoundary.warnings).toContain("marketPrice_market_pvt_value_invalid");
+    expect(result.calculation.metrics.pe.status).toBe("insufficient_data");
+  });
+
   it("uses direct explicit Market/PVT market cap before deriving from price and shares", () => {
     const marketUnitMetadata = buildMarketPvtUnitMetadata({
       units: { marketCap: "billion_vnd", marketPrice: "vnd_per_share" },
@@ -410,6 +433,39 @@ describe("controlled valuation integration boundary", () => {
       reason: "ready_from_direct_market_cap",
       status: "ready",
       value: 2_000_000_000,
+    });
+    expect(result.calculation.metrics.ps.status).toBe("ready");
+  });
+
+  it("uses persisted market bridge metadata without changing ownership to Financials", () => {
+    const marketUnitMetadata = buildMarketPvtUnitMetadata({
+      source: "persisted_market_bridge",
+      sourceLabel: "persisted_market_bridge_unit_test",
+      units: { marketCap: "billion_vnd", marketPrice: "vnd_per_share" },
+      values: { marketCap: 5, marketPrice: 50_000 },
+    });
+    const result = buildControlledValuationIntegrationBoundary({
+      financialsRuntimeSnapshot: {
+        revenue: 1000,
+        units: { revenue: "million_vnd" },
+      },
+      persistedValuationInputs: {
+        marketCap: 5,
+        marketPrice: 50_000,
+        marketUnitMetadata,
+      },
+    });
+
+    expect(result.selectedInputs.marketPrice).toMatchObject({
+      normalizationStatus: "ready",
+      source: "persisted_bridge",
+      unit: "vnd_per_share",
+    });
+    expect(result.sourceBoundary.marketSourceMode).toBe("persisted_bridge");
+    expect(result.calculation.metrics.marketCap).toMatchObject({
+      reason: "ready_from_direct_market_cap",
+      status: "ready",
+      value: 5_000_000_000,
     });
     expect(result.calculation.metrics.ps.status).toBe("ready");
   });

@@ -286,6 +286,65 @@ describe("buildTechnicalFromMarketPriceSeries", () => {
     expect(result.data?.volume.label).toMatch(/20/);
   });
 
+  it("attaches unknown market unit metadata when DB-backed rows do not provide explicit units", () => {
+    const result = buildTechnicalFromMarketPriceSeries(
+      baseData,
+      series([
+        row({ date: "2025-01-02", close: 100, volume: 1000, tradingValue: 100000 }),
+        row({ date: "2025-01-03", close: 110, volume: 2000, tradingValue: 220000 }),
+      ]),
+    );
+
+    expect(result.marketUnitMetadata.marketPrice).toMatchObject({
+      status: "unknown_unit",
+      unit: "unknown",
+      value: 110,
+    });
+    expect(result.marketUnitMetadata.volume).toMatchObject({
+      status: "unknown_unit",
+      value: 2000,
+    });
+    expect(result.marketUnitMetadata.tradingValue.warnings).toContain(
+      "tradingValue_market_pvt_unit_metadata_missing",
+    );
+  });
+
+  it("captures explicit market unit metadata when the adapter boundary supplies units", () => {
+    const result = buildTechnicalFromMarketPriceSeries(
+      baseData,
+      series(
+        Array.from({ length: 20 }, (_, index) =>
+          row({
+            date: `2025-01-${String(index + 1).padStart(2, "0")}`,
+            close: 100 + index,
+            volume: 1000 + index,
+            tradingValue: 100000 + index,
+          }),
+        ),
+      ),
+      {
+        source: "local_research",
+        units: {
+          averageTradingValue20d: "vnd",
+          marketPrice: "vnd_per_share",
+          tradingValue: "vnd",
+          volume: "shares",
+        },
+      },
+    );
+
+    expect(result.marketUnitMetadata.marketPrice).toMatchObject({
+      source: "local_research",
+      sourceLabel: "vnstock",
+      status: "ready",
+      unit: "vnd_per_share",
+      value: 119,
+    });
+    expect(result.marketUnitMetadata.volume.status).toBe("ready");
+    expect(result.marketUnitMetadata.tradingValue.status).toBe("ready");
+    expect(result.marketUnitMetadata.averageTradingValue20d.status).toBe("ready");
+  });
+
   it("returns an adapter-ready failure when the series is not completed", () => {
     const result = buildTechnicalFromMarketPriceSeries(
       baseData,

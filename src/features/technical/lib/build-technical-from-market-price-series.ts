@@ -6,25 +6,47 @@ import {
 import type { PVTObservationData } from "../types";
 import { buildTechnicalDeskData } from "./build-technical-desk-data";
 import type { TechnicalMarketSnapshot } from "./map-technical-to-logic-input";
+import {
+  captureMarketPvtUnitMetadata,
+  type MarketPvtUnitMetadataCaptureInput,
+} from "./market-pvt-unit-metadata-capture";
+import type { MarketPvtUnitMetadataMap } from "./market-pvt-unit-metadata-contract";
 
 export type TechnicalPvtFromMarketPriceSeriesResult = {
   ok: boolean;
   status: MarketPricePvtAdapterResult["status"];
   adapter: MarketPricePvtAdapterResult;
+  marketUnitMetadata: MarketPvtUnitMetadataMap;
   data: PVTObservationData | null;
 };
 
 export const buildTechnicalFromMarketPriceSeries = (
   baseData: PVTObservationData,
   series: MarketPriceSeriesResult,
+  capture: Pick<MarketPvtUnitMetadataCaptureInput, "source" | "units"> = {},
 ): TechnicalPvtFromMarketPriceSeriesResult => {
   const adapter = adaptMarketPriceSeriesToPvt(series);
+  const latestDate = adapter.latestDate ?? series.rows.at(-1)?.date ?? series.to;
+  const captured = captureMarketPvtUnitMetadata({
+    asOf: latestDate,
+    dataMode: series.dataMode,
+    source: capture.source ?? "local_research",
+    sourceLabel: series.sourceLabel,
+    units: capture.units,
+    values: {
+      averageTradingValue20d: adapter.pvtInput?.avgTradingValue20d ?? null,
+      marketPrice: adapter.latestClose,
+      tradingValue: adapter.latestTradingValue,
+      volume: adapter.latestVolume,
+    },
+  });
 
   if (!adapter.ok || !adapter.pvtInput) {
     return {
       ok: false,
       status: adapter.status,
       adapter,
+      marketUnitMetadata: captured.marketUnitMetadata,
       data: null,
     };
   }
@@ -50,6 +72,7 @@ export const buildTechnicalFromMarketPriceSeries = (
     ok: true,
     status: "completed",
     adapter,
+    marketUnitMetadata: captured.marketUnitMetadata,
     data: buildTechnicalDeskData(baseData, snapshot),
   };
 };

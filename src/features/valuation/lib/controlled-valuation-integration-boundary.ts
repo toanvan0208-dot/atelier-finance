@@ -252,15 +252,24 @@ const selectPersistedMarketInput = ({
 
   const metadata = persisted?.marketUnitMetadata?.[field];
   const hasMarketMetadata = Boolean(metadata);
+  const metadataStatus = metadata?.status;
+  const metadataSource =
+    metadata?.source === "persisted_market_bridge" ? "persisted_bridge" : "market_pvt";
+  const selectedValue =
+    metadataStatus === "invalid_value"
+      ? Number.NaN
+      : hasMarketMetadata && metadataStatus !== "ready"
+        ? metadata?.value ?? null
+        : value;
   const input = selectedInput({
     dataMode: metadata?.dataMode ?? persisted?.dataMode,
     expected,
     field,
     productionApproved: persisted?.productionApproved,
-    source: hasMarketMetadata ? "market_pvt" : "persisted_bridge",
+    source: hasMarketMetadata ? metadataSource : "persisted_bridge",
     sourceLabel: metadata?.sourceLabel ?? persisted?.sourceLabel,
     unit: metadata?.unit ?? inputUnit(persisted?.units, field),
-    value,
+    value: selectedValue,
     warnings: metadata?.warnings ?? [],
   });
   warnings.push(...input.warnings);

@@ -247,3 +247,7 @@ Unknown or invalid market units still normalize to unavailable inputs and keep d
 Phase 71 adds `VALUATION_UNIT_AWARE_READY_METRICS_BROWSER_VERIFICATION.md`. Browser evidence now confirms the Phase 63 normalization behavior on a synthetic explicit-unit route: ready values render only when required Financials and Market/PVT units are explicit, while blocked metrics render unavailable.
 
 The unknown-unit and invalid-unit fail-closed rules are unchanged.
+
+## 21. Phase 72 Follow-up
+
+Phase 72 adds `MARKET_PVT_UNIT_METADATA_CAPTURE_BOUNDARY.md`. Market/PVT runtime and bridge payloads can now provide unit metadata sidecars to the existing normalization boundary. Missing units still normalize to unavailable inputs, and invalid units or invalid values remain not ready.

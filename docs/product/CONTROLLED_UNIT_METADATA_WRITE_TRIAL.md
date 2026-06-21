@@ -279,3 +279,7 @@ The Phase 69 Financials sidecar write trial remains unchanged. Phase 70 adds hel
 Phase 71 adds `VALUATION_UNIT_AWARE_READY_METRICS_BROWSER_VERIFICATION.md`. The browser verification uses a synthetic/local explicit-unit scenario instead of another DB write trial, confirming that Financials unit metadata plus Market/PVT unit metadata can render ready controlled Valuation metrics without changing source approval.
 
 No new sidecar rows, DB files, generated output, real BCTC, or real market data are created by Phase 71.
+
+## 17. Phase 72 Follow-up
+
+Phase 72 adds `MARKET_PVT_UNIT_METADATA_CAPTURE_BOUNDARY.md`. It mirrors the Financials unit-metadata safety pattern for Market/PVT runtime payloads, but it does not write market metadata to DB or add a schema migration.

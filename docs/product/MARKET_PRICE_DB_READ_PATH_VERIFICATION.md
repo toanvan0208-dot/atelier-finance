@@ -107,3 +107,9 @@ Summary:
 Phase 70 is tracked in `MARKET_PVT_UNIT_METADATA_CONTRACT.md`.
 
 The market-price DB read path remains unchanged, but Valuation handoff now has a Market/PVT unit metadata contract. `marketPrice` must be explicit `vnd_per_share`; VND-scale fields such as direct `marketCap` or `tradingValue` must declare their scale; missing units stay unknown and are not inferred from numeric magnitude.
+
+## 8. Phase 72 Market/PVT Unit Metadata Capture Boundary
+
+Phase 72 is tracked in `MARKET_PVT_UNIT_METADATA_CAPTURE_BOUNDARY.md`.
+
+The DB read schema is unchanged. The Technical/PVT builder wraps read rows with a `marketUnitMetadata` sidecar so present values without explicit unit metadata are marked `unknown_unit`, while a future explicit-unit adapter path can pass accepted units through without changing Valuation guardrails.

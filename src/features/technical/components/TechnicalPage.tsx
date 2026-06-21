@@ -1,6 +1,7 @@
 import { DataQualityBanner } from "@/components/shared/DataQualityBanner";
 import { pvtDataQuality, pvtObservationData } from "../data/pvtObservation.data";
 import type { PVTObservationData, TechnicalIssuerMetadata, TechnicalMarketDataSource } from "../types";
+import type { MarketPvtUnitMetadataMap } from "../lib/market-pvt-unit-metadata-contract";
 import { PVTConfirmationScenarios } from "./PVTConfirmationScenarios";
 import { PVTFinalConclusion } from "./PVTFinalConclusion";
 import { PVTFomoThermometer } from "./PVTFomoThermometer";
@@ -20,6 +21,7 @@ export type TechnicalPageRuntimeData = {
     productionApproved: false;
   };
   marketDataSource?: TechnicalMarketDataSource;
+  marketUnitMetadata?: MarketPvtUnitMetadataMap;
   issuerMetadata?: TechnicalIssuerMetadata;
   fallbackUsed?: boolean;
   warnings?: string[];

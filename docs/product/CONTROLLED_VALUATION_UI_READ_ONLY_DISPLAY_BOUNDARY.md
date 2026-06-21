@@ -177,3 +177,7 @@ Browser verification is therefore not required for Phase 70. The panel's safety 
 Phase 71 adds `VALUATION_UNIT_AWARE_READY_METRICS_BROWSER_VERIFICATION.md`. The read-only panel now has a controlled synthetic browser scenario for unit-aware ready metrics and exposes source-mode chips for Financials and Market/PVT provenance.
 
 The panel remains read-only and does not add any new metric, source approval, target price, fair value, recommendation, or Risk scoring.
+
+## 18. Phase 72 Follow-up
+
+Phase 72 adds `MARKET_PVT_UNIT_METADATA_CAPTURE_BOUNDARY.md`. The Valuation UI is unchanged; the new work is a helper/runtime metadata sidecar boundary that feeds the existing read-only calculation guardrails when market unit metadata exists.

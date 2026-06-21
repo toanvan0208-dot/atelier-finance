@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { LoadTechnicalDeskDataResult } from "../load-technical-desk-data";
 import { loadTechnicalRuntimeData } from "../load-technical-runtime-data";
+import { buildUnknownMarketPvtUnitMetadata } from "../market-pvt-unit-metadata-capture";
 
 const fallbackResult: LoadTechnicalDeskDataResult = {
   ok: true,
@@ -36,6 +37,15 @@ const fallbackResult: LoadTechnicalDeskDataResult = {
       to: null,
     },
   },
+  marketUnitMetadata: buildUnknownMarketPvtUnitMetadata(
+    {},
+    {
+      asOf: "2026-06-01",
+      dataMode: "sample",
+      source: "sample_fallback",
+      sourceLabel: "sample_static_fallback",
+    },
+  ),
   issuerMetadata: {
     ticker: "FPT",
     displayName: "FPT",
@@ -78,6 +88,15 @@ const dbResult: LoadTechnicalDeskDataResult = {
       to: "2025-01-31",
     },
   },
+  marketUnitMetadata: buildUnknownMarketPvtUnitMetadata(
+    { marketPrice: 100, tradingValue: 100_000, volume: 1000 },
+    {
+      asOf: "2025-01-31",
+      dataMode: "research_only",
+      source: "local_research",
+      sourceLabel: "vnstock",
+    },
+  ),
   issuerMetadata: {
     ticker: "FPT",
     displayName: null,

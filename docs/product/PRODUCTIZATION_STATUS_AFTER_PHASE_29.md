@@ -288,6 +288,8 @@ Phase 70 adds a Market/PVT unit metadata contract in `MARKET_PVT_UNIT_METADATA_C
 
 Phase 71 adds unit-aware ready metrics browser verification in `VALUATION_UNIT_AWARE_READY_METRICS_BROWSER_VERIFICATION.md`. A synthetic/local route verifies that explicit Financials units plus explicit Market/PVT units can render ready controlled marketCap, P/E, BVPS, P/B, and P/S rows in the Valuation panel, while EV, EV/EBITDA, DCF, and fair value range remain blocked. The route is controlled, synthetic, and local; no real BCTC, real market import, DB write, schema migration, source approval, target price, fair value, recommendation, or new metric is added.
 
+Phase 72 adds a Market/PVT unit metadata capture boundary in `MARKET_PVT_UNIT_METADATA_CAPTURE_BOUNDARY.md`. Technical/PVT runtime and persisted market bridge payloads can now carry `marketUnitMetadata` sidecars that preserve explicit units when supplied and mark present-but-untyped values as `unknown_unit`. No DB write, schema migration, real market import, external API call, source approval, UI change, or new metric is added.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot

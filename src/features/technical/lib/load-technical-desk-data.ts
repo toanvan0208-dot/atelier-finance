@@ -10,6 +10,8 @@ import {
   buildTechnicalFromMarketPriceSeries,
   type TechnicalPvtFromMarketPriceSeriesResult,
 } from "./build-technical-from-market-price-series";
+import { buildUnknownMarketPvtUnitMetadata } from "./market-pvt-unit-metadata-capture";
+import type { MarketPvtUnitMetadataMap } from "./market-pvt-unit-metadata-contract";
 
 export type TechnicalDeskDataSourceType =
   | "local_db_manual_import"
@@ -37,6 +39,7 @@ export type LoadTechnicalDeskDataResult = {
     productionApproved: false;
   };
   marketDataSource: TechnicalMarketDataSource;
+  marketUnitMetadata: MarketPvtUnitMetadataMap;
   issuerMetadata: TechnicalIssuerMetadata;
   fallbackUsed: boolean;
   warnings: string[];
@@ -174,6 +177,15 @@ const fallbackResult = ({
     productionApproved: false,
   },
   marketDataSource: fallbackMarketDataSource(fallbackData.ticker, stringOrNull(fallbackDataQuality.asOf)),
+  marketUnitMetadata: buildUnknownMarketPvtUnitMetadata(
+    {},
+    {
+      asOf: stringOrNull(fallbackDataQuality.asOf),
+      dataMode: "sample",
+      source: "sample_fallback",
+      sourceLabel: "sample_static_fallback",
+    },
+  ),
   issuerMetadata: fallbackIssuerMetadata(fallbackData),
   fallbackUsed: true,
   warnings: [STATIC_FALLBACK_WARNING, ...warnings],
@@ -203,6 +215,15 @@ const safeErrorResult = ({
     productionApproved: false,
   },
   marketDataSource: fallbackMarketDataSource(null, stringOrNull(fallbackDataQuality.asOf)),
+  marketUnitMetadata: buildUnknownMarketPvtUnitMetadata(
+    {},
+    {
+      asOf: stringOrNull(fallbackDataQuality.asOf),
+      dataMode: "sample",
+      source: "sample_fallback",
+      sourceLabel: "sample_static_fallback",
+    },
+  ),
   issuerMetadata: unavailableIssuerMetadata("UNKNOWN"),
   fallbackUsed: false,
   warnings,
@@ -340,6 +361,7 @@ export const loadTechnicalDeskData = async (
       productionApproved: false,
     },
     marketDataSource: dbMarketDataSource(series),
+    marketUnitMetadata: built.marketUnitMetadata,
     issuerMetadata,
     fallbackUsed: false,
     warnings: [

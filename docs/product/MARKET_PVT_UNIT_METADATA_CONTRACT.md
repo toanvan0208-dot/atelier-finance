@@ -156,3 +156,9 @@ Maximum scope:
 Phase 71 adds `VALUATION_UNIT_AWARE_READY_METRICS_BROWSER_VERIFICATION.md`. A synthetic/local route verifies that explicit Market/PVT `marketPrice` and direct `marketCap` metadata can make only the already-approved controlled Valuation metrics ready in the browser, while EV/DCF/fair-value outputs remain blocked.
 
 The Market/PVT contract is unchanged. The browser scenario is synthetic/local, keeps `productionApproved:false`, and does not import real market data or write DB rows.
+
+## 14. Phase 72 Follow-up
+
+Phase 72 adds `MARKET_PVT_UNIT_METADATA_CAPTURE_BOUNDARY.md`. The contract now has a capture boundary that can attach `marketUnitMetadata` to Technical/PVT runtime and persisted market bridge payloads while preserving missing-unit and invalid-unit fail-closed behavior.
+
+No schema migration, DB write, real market import, API fetch, source approval, or new metric is added.

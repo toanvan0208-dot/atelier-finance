@@ -130,3 +130,9 @@ Phase 33 browser verification is tracked in `docs/product/TECHNICAL_PVT_BROWSER_
 Phase 70 is tracked in `docs/product/MARKET_PVT_UNIT_METADATA_CONTRACT.md`.
 
 It adds a helper/type contract for Market/PVT numeric unit metadata without changing the Technical/PVT runtime loader or UI. Market price remains Market/PVT-owned, explicit unit metadata remains required for Valuation handoff, and local/research runtime data remains `productionApproved:false`.
+
+## 10. Phase 72 Market/PVT Unit Metadata Capture Boundary
+
+Phase 72 is tracked in `docs/product/MARKET_PVT_UNIT_METADATA_CAPTURE_BOUNDARY.md`.
+
+The Technical/PVT runtime loader can now return a `marketUnitMetadata` sidecar. Existing local DB market price rows without explicit unit fields are represented as `unknown_unit` instead of being assigned a default unit by magnitude.

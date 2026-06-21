@@ -236,3 +236,7 @@ Market/PVT inputs with missing or invalid units keep dependent metrics unavailab
 Phase 71 adds `VALUATION_UNIT_AWARE_READY_METRICS_BROWSER_VERIFICATION.md`. In-app Browser verification covered baseline Valuation routes and a synthetic explicit-unit route. The controlled panel rendered ready marketCap, P/E, BVPS, P/B, and P/S only for explicit-unit inputs, while EV, EV/EBITDA, DCF, and fair value range stayed blocked.
 
 No browser-visible forbidden wording, framework overlay, console error, source overclaim, or zero-fill issue was found.
+
+## 20. Phase 72 Follow-up
+
+Phase 72 adds `MARKET_PVT_UNIT_METADATA_CAPTURE_BOUNDARY.md`. Browser evidence is not refreshed because no visible UI behavior changes. The Phase 71 browser guardrails remain the latest Valuation UI evidence.
