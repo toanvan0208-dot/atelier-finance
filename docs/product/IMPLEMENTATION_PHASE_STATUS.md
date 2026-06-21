@@ -2,11 +2,11 @@
 
 ## 1. Current latest phase
 
-Phase 91 - Product Demo Flow and Browser Smoke Verification
+Phase 92 - Productization Evidence Index and Demo Narrative
 
 ## 2. Latest commit
 
-Commit: Phase 91 verify product demo flow smoke (this phase commit)
+Commit: Phase 92 add productization evidence index (this phase commit)
 
 ## 3. Current branch expectation
 
@@ -28,6 +28,7 @@ The working tree should be clean before starting a new phase.
 - Macro/Industry readiness UI copy is polished in the existing Macro and Industry workspace modules.
 - Overview cross-module readiness summary exists for Financials, Valuation, Technical/PVT, Macro, and Industry.
 - Product demo flow browser smoke evidence exists across Overview, Financials, Valuation, Technical/PVT, Macro, and Industry.
+- Productization evidence index and safe demo narrative now connect Overview, Financials, Valuation, Technical/PVT, Macro, Industry, AI/RAG, browser smoke, guardrails, known limitations, and future gates.
 
 ## 5. Current validated data pipeline state
 
@@ -42,6 +43,7 @@ The working tree should be clean before starting a new phase.
 - Macro/Industry readiness copy exposes `productionApproved:false`, missing source/evidence, explicit unit requirements, blocked readiness, and future gates without raw helper labels.
 - Overview can summarize major module readiness states without importing data, writing DB rows, changing calculations, or approving sources.
 - Phase 91 browser smoke verification confirmed the core workspace demo routes render without source approval or ingestion changes.
+- Phase 92 adds docs-only evidence organization and a safe walkthrough; it does not add runtime behavior, ingestion, writes, metrics, APIs, source approval, or browser-visible UI changes.
 
 ## 6. Current UI/readiness state
 
@@ -52,6 +54,7 @@ The working tree should be clean before starting a new phase.
 - Macro/Industry UI now surfaces source/evidence gaps, explicit unit requirements, future gates, blocked readiness, and `productionApproved:false` in clearer browser-facing copy for the existing `macro` and `industry` modules.
 - Overview now surfaces Financials, Valuation, Technical/PVT, Macro, and Industry readiness in one compact browser-visible summary while keeping `productionApproved:false` and blocked/boundary-only states clear.
 - Phase 91 verified Overview, Financials, Valuation, Technical/PVT, Macro, and Industry routes load normally with no framework overlay, no blocking console errors, and no forbidden browser-visible wording observed in the smoke pass.
+- Phase 92 documents how to present that UI in a thesis/demo without overclaiming production source status or investment conclusions.
 
 ## 7. Current known limitations
 
@@ -63,6 +66,7 @@ The working tree should be clean before starting a new phase.
 - Macro/Industry pipelines have a boundary/checklist helper and polished readiness UI, but no production ingestion, parser, DB persistence, or source approval yet.
 - Overview readiness is a summary only; users still need to inspect each source module before relying on module-specific data.
 - Browser smoke evidence is local verification only; it does not replace a future deployed environment QA pass.
+- Productization evidence docs are an index/narrative only; they do not replace source/legal approval or deployed QA.
 
 ## 8. Recommended next phase
 
@@ -71,6 +75,7 @@ Prefer choosing one of these based on the next product priority:
 - Approved source adapter pilot planning
 - Macro/Industry source evidence and unit metadata persistence design
 - Deployed demo flow QA after an approved source workflow exists
+- Controlled local file parser/import trial only after explicit approval
 
 Do not force the decision before the next phase goal is known.
 
