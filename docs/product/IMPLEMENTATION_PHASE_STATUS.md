@@ -2,11 +2,11 @@
 
 ## 1. Current latest phase
 
-Phase 92 - Productization Evidence Index and Demo Narrative
+Phase 93 - Real Financial Statement Import MVP with Safe Local DB Write
 
 ## 2. Latest commit
 
-Commit: Phase 92 add productization evidence index (this phase commit)
+Commit: Phase 93 add safe financial statement import mvp (this phase commit)
 
 ## 3. Current branch expectation
 
@@ -29,6 +29,7 @@ The working tree should be clean before starting a new phase.
 - Overview cross-module readiness summary exists for Financials, Valuation, Technical/PVT, Macro, and Industry.
 - Product demo flow browser smoke evidence exists across Overview, Financials, Valuation, Technical/PVT, Macro, and Industry.
 - Productization evidence index and safe demo narrative now connect Overview, Financials, Valuation, Technical/PVT, Macro, Industry, AI/RAG, browser smoke, guardrails, known limitations, and future gates.
+- Safe Financial Statement CSV import MVP exists for controlled local/research CSV text: preview/dry-run, valid/invalid separation, confirmed local DB write, duplicate skip, and import summary reporting.
 
 ## 5. Current validated data pipeline state
 
@@ -44,6 +45,7 @@ The working tree should be clean before starting a new phase.
 - Overview can summarize major module readiness states without importing data, writing DB rows, changing calculations, or approving sources.
 - Phase 91 browser smoke verification confirmed the core workspace demo routes render without source approval or ingestion changes.
 - Phase 92 adds docs-only evidence organization and a safe walkthrough; it does not add runtime behavior, ingestion, writes, metrics, APIs, source approval, or browser-visible UI changes.
+- Phase 93 reuses the existing Phase 81 parser boundary and local write service to write only valid research-only rows after code-level confirmation; invalid rows remain out of DB and imported rows remain `productionApproved:false`.
 
 ## 6. Current UI/readiness state
 
@@ -55,6 +57,7 @@ The working tree should be clean before starting a new phase.
 - Overview now surfaces Financials, Valuation, Technical/PVT, Macro, and Industry readiness in one compact browser-visible summary while keeping `productionApproved:false` and blocked/boundary-only states clear.
 - Phase 91 verified Overview, Financials, Valuation, Technical/PVT, Macro, and Industry routes load normally with no framework overlay, no blocking console errors, and no forbidden browser-visible wording observed in the smoke pass.
 - Phase 92 documents how to present that UI in a thesis/demo without overclaiming production source status or investment conclusions.
+- Phase 93 does not change UI/browser-visible behavior and does not make Valuation or Overview inherit production/source approval from imported Financials rows.
 
 ## 7. Current known limitations
 
@@ -67,6 +70,7 @@ The working tree should be clean before starting a new phase.
 - Overview readiness is a summary only; users still need to inspect each source module before relying on module-specific data.
 - Browser smoke evidence is local verification only; it does not replace a future deployed environment QA pass.
 - Productization evidence docs are an index/narrative only; they do not replace source/legal approval or deployed QA.
+- Phase 93 import MVP is code-level/local only; no public upload UI/API, production CSV importer, source approval workflow, real web/API fetcher, or official/realtime data claim exists.
 
 ## 8. Recommended next phase
 
@@ -75,7 +79,7 @@ Prefer choosing one of these based on the next product priority:
 - Approved source adapter pilot planning
 - Macro/Industry source evidence and unit metadata persistence design
 - Deployed demo flow QA after an approved source workflow exists
-- Controlled local file parser/import trial only after explicit approval
+- Narrow local file importer/CLI hardening after explicit approval, still research-only and fail-closed
 
 Do not force the decision before the next phase goal is known.
 

@@ -328,6 +328,8 @@ Phase 91 adds product demo flow browser smoke verification in `PRODUCT_DEMO_FLOW
 
 Phase 92 adds a productization evidence index and safe demo walkthrough in `PRODUCTIZATION_EVIDENCE_INDEX.md` and `DEMO_NARRATIVE_AND_MODULE_WALKTHROUGH.md`. The docs organize existing evidence across Overview, Financials, Valuation, Technical/PVT, Macro, Industry, AI/RAG, browser smoke, guardrails, known limitations, and future gates for thesis/demo presentation. No runtime UI change, DB write, schema migration, real data import, parser, filesystem read, external API/Vnstock call, source approval, recommendation, target, fair-value, risk-scoring, or production claim is added.
 
+Phase 93 adds a safe Financial Statement CSV import MVP in `src/lib/data-sources/financial-statement-safe-import-mvp.ts`. It reuses the Phase 81 controlled CSV parser boundary and existing local write service to support preview/dry-run, valid/invalid row separation, code-confirmed local research DB writes, duplicate skips, import summaries, explicit units, null preservation for missing numeric fields, and `productionApproved:false`. No UI change, public upload UI/API, schema migration, raw CSV commit, external API/Vnstock call, source approval, recommendation, target, fair-value, risk-scoring, official/realtime, or production-approved claim is added.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot
