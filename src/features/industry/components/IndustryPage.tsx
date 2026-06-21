@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { EmptyState, LoadingState } from "@/components/ui";
+import { MacroIndustryReadinessSkeleton } from "@/features/macro/components/MacroIndustryReadinessSkeleton";
 import { industryPageData } from "../data/industry.data";
 import { industryCompassData } from "../data/industryCompass.data";
 import {
@@ -50,6 +51,7 @@ export function IndustryPage({ onNavigate }: IndustryPageProps) {
 
   return (
     <div className="mx-auto w-full max-w-[1180px] space-y-8">
+      <MacroIndustryReadinessSkeleton domain="industry" />
       <IndustryCurrentHeader
         industries={industryCompassData.industries}
         selectedIndustry={selectedIndustry}

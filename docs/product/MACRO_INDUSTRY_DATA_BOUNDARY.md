@@ -187,3 +187,7 @@ npx vitest run src/features/macro/lib/__tests__/macro-industry-data-boundary.tes
 Result: passed, 1 file, 13 tests.
 
 Full validation is recorded in the Phase 87 final report.
+
+## 14. Phase 88 UI skeleton follow-up
+
+Phase 88 adds a browser-visible readiness skeleton in `MACRO_INDUSTRY_READINESS_UI_SKELETON.md`. The Phase 87 boundary remains unchanged: no real import, DB write, schema/migration, parser, filesystem read, external API/Vnstock call, source approval, recommendation, target, fair value, risk scoring, or production claim is added.
