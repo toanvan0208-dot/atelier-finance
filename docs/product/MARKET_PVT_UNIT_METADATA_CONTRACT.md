@@ -166,3 +166,7 @@ No schema migration, DB write, real market import, API fetch, source approval, o
 ## 15. Phase 73 Follow-up
 
 Phase 73 adds `CONTROLLED_MARKET_PVT_METADATA_WRITE_TRIAL.md`. The controlled trial verifies a synthetic/local read-through path for explicit `marketPrice`, `marketCap`, `volume`, `tradingValue`, and `averageTradingValue20d` unit metadata. Because `MarketPrice` has no unit metadata sidecar storage yet, Market/PVT metadata persistence remains deferred.
+
+## 16. Phase 74 Follow-up
+
+Phase 74 adds `MARKET_PVT_METADATA_PERSISTENCE_DESIGN.md`. The recommended future persistence model is `MarketPriceUnitMetadata`, one sidecar row per `MarketPrice` field, with old rows continuing to fail closed as `unknown_unit`.

@@ -255,3 +255,7 @@ Phase 72 adds `MARKET_PVT_UNIT_METADATA_CAPTURE_BOUNDARY.md`. Market/PVT runtime
 ## 22. Phase 73 Follow-up
 
 Phase 73 adds `CONTROLLED_MARKET_PVT_METADATA_WRITE_TRIAL.md`. The read-through trial verifies explicit synthetic Market/PVT metadata can normalize into ready market inputs, while unknown, invalid, or invalid-value metadata still blocks dependent Valuation metrics.
+
+## 23. Phase 74 Follow-up
+
+Phase 74 adds `MARKET_PVT_METADATA_PERSISTENCE_DESIGN.md`. The recommended sidecar design would feed the existing normalization boundary in a future implementation phase; Phase 74 itself does not change normalization runtime behavior.

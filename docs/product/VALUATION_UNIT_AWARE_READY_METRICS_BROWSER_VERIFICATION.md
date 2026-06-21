@@ -180,3 +180,7 @@ Browser verification is not repeated in Phase 72 because visible Valuation behav
 Phase 73 adds `CONTROLLED_MARKET_PVT_METADATA_WRITE_TRIAL.md`. The browser scenario is unchanged; the new evidence is a non-UI synthetic/local read-through trial proving explicit Market/PVT metadata can reach Valuation guardrails while EV, EV/EBITDA, DCF, and fair value range remain blocked.
 
 Browser verification is not repeated in Phase 73 because visible Valuation behavior is unchanged.
+
+## 15. Phase 74 Follow-up
+
+Phase 74 adds `MARKET_PVT_METADATA_PERSISTENCE_DESIGN.md`. Browser verification is not repeated because Phase 74 is storage design/helper/docs only and has no visible Valuation UI behavior change.

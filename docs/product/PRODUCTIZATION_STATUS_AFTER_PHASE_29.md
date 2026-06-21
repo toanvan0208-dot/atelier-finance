@@ -292,6 +292,8 @@ Phase 72 adds a Market/PVT unit metadata capture boundary in `MARKET_PVT_UNIT_ME
 
 Phase 73 adds a controlled Market/PVT metadata write/read-through trial in `CONTROLLED_MARKET_PVT_METADATA_WRITE_TRIAL.md`. The current `MarketPrice` schema has no field-level market unit metadata storage, so the trial uses synthetic/local read-through fixtures instead of a DB write. Explicit Market/PVT metadata reaches Technical/PVT runtime sidecars and the controlled Valuation boundary; persistence remains deferred.
 
+Phase 74 adds a Market/PVT metadata persistence design in `MARKET_PVT_METADATA_PERSISTENCE_DESIGN.md`. The recommended future implementation is an additive `MarketPriceUnitMetadata` sidecar table, but no schema migration, DB write, reset, seed, real market import, source approval, UI change, or new metric is added in Phase 74.
+
 ## 8. Roadmap After Phase 29
 
 ### Phase 30A - Approved Source Adapter Pilot

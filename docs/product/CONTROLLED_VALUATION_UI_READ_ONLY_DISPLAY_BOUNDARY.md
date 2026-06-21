@@ -185,3 +185,7 @@ Phase 72 adds `MARKET_PVT_UNIT_METADATA_CAPTURE_BOUNDARY.md`. The Valuation UI i
 ## 19. Phase 73 Follow-up
 
 Phase 73 adds `CONTROLLED_MARKET_PVT_METADATA_WRITE_TRIAL.md`. The Valuation UI remains unchanged; the controlled read-through trial verifies Market/PVT metadata handoff into the existing read-only guardrails without new visible behavior.
+
+## 20. Phase 74 Follow-up
+
+Phase 74 adds `MARKET_PVT_METADATA_PERSISTENCE_DESIGN.md`. The Valuation UI remains unchanged because this phase only designs future Market/PVT metadata storage.

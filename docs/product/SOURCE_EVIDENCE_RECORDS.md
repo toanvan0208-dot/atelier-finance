@@ -228,3 +228,5 @@ Phase 71 records Valuation unit-aware ready metrics browser verification in `VAL
 Phase 72 records the Market/PVT unit metadata capture boundary in `MARKET_PVT_UNIT_METADATA_CAPTURE_BOUNDARY.md`. Captured unit sidecars do not approve a source and do not create official, realtime, or production-approved market data. No real market import, external API call, DB write, schema migration, or source approval was performed.
 
 Phase 73 records the controlled Market/PVT metadata write/read-through trial in `CONTROLLED_MARKET_PVT_METADATA_WRITE_TRIAL.md`. The trial is synthetic/local and read-through only because Market/PVT unit metadata persistence is not yet supported by schema. It does not approve a source, import real market data, call an external API, write DB rows, or add production-approved market data.
+
+Phase 74 records the Market/PVT metadata persistence design in `MARKET_PVT_METADATA_PERSISTENCE_DESIGN.md`. The design recommends an additive `MarketPriceUnitMetadata` sidecar for a future phase, but source evidence status remains unchanged. No schema migration, DB write, real market import, external API call, or source approval was performed.

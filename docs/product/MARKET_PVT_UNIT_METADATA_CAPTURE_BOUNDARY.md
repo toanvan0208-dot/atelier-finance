@@ -162,3 +162,7 @@ Maximum scope:
 Phase 73 adds `CONTROLLED_MARKET_PVT_METADATA_WRITE_TRIAL.md`. The trial uses Mode 2 read-through/runtime fixtures because `MarketPrice` has no field-level unit metadata storage. Explicit synthetic Market/PVT metadata can still pass through the Technical/PVT sidecar into Valuation, while persistence is deferred.
 
 No DB write, schema migration, real market import, Vnstock/API fetch, source approval, UI change, or new metric is added.
+
+## 14. Phase 74 Follow-up
+
+Phase 74 adds `MARKET_PVT_METADATA_PERSISTENCE_DESIGN.md`. It keeps the capture boundary unchanged and designs a future additive sidecar storage path so captured Market/PVT metadata can later be persisted without guessing units for old rows.

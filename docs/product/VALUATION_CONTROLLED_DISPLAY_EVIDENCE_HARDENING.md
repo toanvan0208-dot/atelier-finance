@@ -244,3 +244,7 @@ Phase 72 adds `MARKET_PVT_UNIT_METADATA_CAPTURE_BOUNDARY.md`. Browser evidence i
 ## 21. Phase 73 Follow-up
 
 Phase 73 adds `CONTROLLED_MARKET_PVT_METADATA_WRITE_TRIAL.md`. Browser evidence is not refreshed because the trial changes tests/docs and non-UI metadata handoff only.
+
+## 22. Phase 74 Follow-up
+
+Phase 74 adds `MARKET_PVT_METADATA_PERSISTENCE_DESIGN.md`. Browser evidence is not refreshed because no visible UI behavior changes.

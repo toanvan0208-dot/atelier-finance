@@ -259,3 +259,7 @@ Phase 72 adds `MARKET_PVT_UNIT_METADATA_CAPTURE_BOUNDARY.md`. Market/PVT capture
 ## 18. Phase 73 Follow-up
 
 Phase 73 adds `CONTROLLED_MARKET_PVT_METADATA_WRITE_TRIAL.md`. It confirms Market/PVT metadata persistence is still separate from Financials sidecar persistence: explicit synthetic market units are verified through read-through runtime sidecars, while Market/PVT DB persistence is deferred.
+
+## 19. Phase 74 Follow-up
+
+Phase 74 adds `MARKET_PVT_METADATA_PERSISTENCE_DESIGN.md`. Market/PVT metadata remains separate from Financials sidecar persistence; the recommended future table is `MarketPriceUnitMetadata`, not an extension of `FinancialStatementUnitMetadata`.

@@ -142,3 +142,9 @@ The Technical/PVT runtime loader can now return a `marketUnitMetadata` sidecar. 
 Phase 73 is tracked in `docs/product/CONTROLLED_MARKET_PVT_METADATA_WRITE_TRIAL.md`.
 
 The Technical/PVT builder now supports controlled capture overrides for synthetic/local read-through trials. Because `MarketPrice` has no field-level unit metadata storage, Market/PVT metadata persistence is deferred and no DB write is performed.
+
+## 12. Phase 74 Market/PVT Metadata Persistence Design
+
+Phase 74 is tracked in `docs/product/MARKET_PVT_METADATA_PERSISTENCE_DESIGN.md`.
+
+The recommended future storage path is an additive `MarketPriceUnitMetadata` sidecar. Runtime behavior remains unchanged in Phase 74.

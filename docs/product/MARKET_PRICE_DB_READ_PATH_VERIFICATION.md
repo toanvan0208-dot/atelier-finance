@@ -119,3 +119,9 @@ The DB read schema is unchanged. The Technical/PVT builder wraps read rows with 
 Phase 73 is tracked in `CONTROLLED_MARKET_PVT_METADATA_WRITE_TRIAL.md`.
 
 The DB read schema still has no Market/PVT unit metadata persistence. The controlled trial therefore uses synthetic/local read-through metadata rather than writing market unit metadata to DB.
+
+## 10. Phase 74 Market/PVT Metadata Persistence Design
+
+Phase 74 is tracked in `MARKET_PVT_METADATA_PERSISTENCE_DESIGN.md`.
+
+The recommended future design is an additive `MarketPriceUnitMetadata` sidecar table. The existing DB read path remains unchanged in Phase 74.

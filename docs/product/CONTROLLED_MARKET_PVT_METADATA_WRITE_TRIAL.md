@@ -204,3 +204,9 @@ Maximum scope:
 - do not call Vnstock/API/external providers;
 - preserve `productionApproved:false`;
 - do not add metrics, target price, fair value range, recommendation, Risk scoring, or source approval.
+
+## 14. Phase 74 Follow-up
+
+Phase 74 adds `MARKET_PVT_METADATA_PERSISTENCE_DESIGN.md`. It recommends an additive `MarketPriceUnitMetadata` sidecar table for future implementation, mirroring the Financials sidecar pattern while keeping Phase 74 design-only.
+
+No schema migration, DB write, real market import, Vnstock/API fetch, source approval, UI change, or new metric is added.

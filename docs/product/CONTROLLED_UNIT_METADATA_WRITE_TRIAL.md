@@ -287,3 +287,7 @@ Phase 72 adds `MARKET_PVT_UNIT_METADATA_CAPTURE_BOUNDARY.md`. It mirrors the Fin
 ## 18. Phase 73 Follow-up
 
 Phase 73 adds `CONTROLLED_MARKET_PVT_METADATA_WRITE_TRIAL.md`. Unlike the Phase 69 Financials sidecar DB write trial, Market/PVT metadata uses a read-through/runtime fixture trial because `MarketPrice` has no unit metadata sidecar storage yet. No market metadata DB write is performed.
+
+## 19. Phase 74 Follow-up
+
+Phase 74 adds `MARKET_PVT_METADATA_PERSISTENCE_DESIGN.md`. It recommends a future Market/PVT sidecar table analogous to the Financials sidecar pattern, but does not implement a market metadata migration or write trial.
