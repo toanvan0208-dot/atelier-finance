@@ -2,11 +2,11 @@
 
 ## 1. Current latest phase
 
-Phase 95 - Valuation Consumes Verified Financials Inputs Safely
+Phase 96 - Real Market/PVT Local Data Import and Technical Read Path
 
 ## 2. Latest commit
 
-Commit: Phase 95 consume verified financials in valuation safely (this phase commit)
+Commit: Phase 96 add safe market pvt import and read path (this phase commit)
 
 ## 3. Current branch expectation
 
@@ -32,6 +32,8 @@ The working tree should be clean before starting a new phase.
 - Safe Financial Statement CSV import MVP exists for controlled local/research CSV text: preview/dry-run, valid/invalid separation, confirmed local DB write, duplicate skip, and import summary reporting.
 - Financials UI runtime now tries the local DB-backed read path first and safely falls back to static sample data when no usable local/imported financial statement rows are available.
 - Valuation can consume verified Financials runtime fields only when the Financials read path is DB-backed/local DB with source, period/as-of, and explicit unit metadata; otherwise it fails closed or uses existing persisted bridges.
+- Market/PVT CSV text import MVP exists for controlled local/research rows: preview/dry-run, valid/invalid separation, confirmed local DB write, duplicate skip, explicit unit metadata persistence, and `productionApproved:false`.
+- Technical/PVT DB-backed read path now requires usable local/imported market rows plus ready Market/PVT unit metadata before preferring DB data; otherwise it keeps sample fallback behavior.
 
 ## 5. Current validated data pipeline state
 
@@ -50,6 +52,7 @@ The working tree should be clean before starting a new phase.
 - Phase 93 reuses the existing Phase 81 parser boundary and local write service to write only valid research-only rows after code-level confirmation; invalid rows remain out of DB and imported rows remain `productionApproved:false`.
 - Phase 94 hardens the Financials UI read path so verified local/imported DB rows are preferred when usable, missing numeric values remain null/unavailable, and sample fallback remains safe when DB rows are absent or insufficient.
 - Phase 95 gates Valuation Financials input consumption behind verified local DB metadata, keeps market/share-dependent metrics unavailable when inputs are missing or invalid, and preserves `canClaimValuationDbBacked:false`.
+- Phase 96 adds controlled local Market/PVT CSV text import and keeps imported/local market data research-only with explicit unit checks, duplicate skip, no source approval, no public upload/API, and no official/realtime claim.
 
 ## 6. Current UI/readiness state
 
@@ -79,6 +82,7 @@ The working tree should be clean before starting a new phase.
 - Phase 93 import MVP is code-level/local only; no public upload UI/API, production CSV importer, source approval workflow, real web/API fetcher, or official/realtime data claim exists.
 - Phase 94 does not add public upload UI/API, filesystem CSV import, source approval, production provider ingestion, or new valuation metrics; local DB reads still depend on rows already present in the dev/local database.
 - Phase 95 does not add new valuation methods, source approval, public upload UI/API, external API/Vnstock import, schema/migration, or production data claims.
+- Phase 96 does not add public upload UI/API, external API/Vnstock/web import, schema/migration, source/legal approval workflow, seed data, or production data claims.
 
 ## 8. Recommended next phase
 

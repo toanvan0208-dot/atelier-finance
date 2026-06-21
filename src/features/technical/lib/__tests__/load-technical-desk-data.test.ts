@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { MarketPriceSeriesResult, MarketPriceSeriesRow } from "../../../../lib/data-sources";
 import type { PVTObservationData } from "../../types";
+import { buildMarketPvtUnitMetadata } from "../market-pvt-unit-metadata-contract";
 import { loadTechnicalDeskData } from "../load-technical-desk-data";
 
 const baseData: PVTObservationData = {
@@ -137,6 +138,22 @@ const series = (
   productionApproved: false,
   count: rows.length,
   rows,
+  marketUnitMetadata: buildMarketPvtUnitMetadata({
+    asOf: rows.at(-1)?.date ?? "2025-01-31",
+    dataMode: "research_only",
+    source: "local_research",
+    sourceLabel: "vnstock",
+    units: {
+      marketPrice: "vnd_per_share",
+      tradingValue: "vnd",
+      volume: "shares",
+    },
+    values: {
+      marketPrice: rows.at(-1)?.close ?? null,
+      tradingValue: rows.at(-1)?.tradingValue ?? null,
+      volume: rows.at(-1)?.volume ?? null,
+    },
+  }),
   warnings: [],
   errors: [],
   ...patch,
@@ -317,6 +334,46 @@ describe("loadTechnicalDeskData", () => {
     expect(result.warnings.join(" ")).toContain("static fallback");
   });
 
+  it("falls back safely when DB rows fail Market/PVT unit metadata checks", async () => {
+    const readMarketPriceSeries = vi.fn().mockResolvedValue(
+      series(
+        [
+          row({ date: "2025-01-02", close: 100, volume: 1000, tradingValue: 100000 }),
+          row({ date: "2025-01-03", close: 110, volume: 2000, tradingValue: 220000 }),
+        ],
+        {
+          marketUnitMetadata: buildMarketPvtUnitMetadata({
+            asOf: "2025-01-03",
+            dataMode: "research_only",
+            source: "local_research",
+            sourceLabel: "vnstock",
+            values: {
+              marketPrice: 110,
+              tradingValue: 220000,
+              volume: 2000,
+            },
+          }),
+        },
+      ),
+    );
+
+    const result = await loadTechnicalDeskData(
+      { ...input, preferDb: true },
+      {
+        readMarketPriceSeries,
+        fallbackData: baseData,
+        fallbackDataQuality,
+      },
+    );
+
+    expect(result.ok).toBe(true);
+    expect(result.fallbackUsed).toBe(true);
+    expect(result.source.sourceType).toBe("sample_static_fallback");
+    expect(result.source.productionApproved).toBe(false);
+    expect(result.warnings.join(" ")).toContain("unit metadata checks");
+    expect(result.warnings).toContain("marketPrice_market_pvt_unit_metadata_not_ready");
+  });
+
   it("handles invalid input without reading DB and falls back with warnings", async () => {
     const readMarketPriceSeries = vi.fn();
     const fetchSpy = vi.spyOn(globalThis, "fetch");
@@ -341,8 +398,8 @@ describe("loadTechnicalDeskData", () => {
   it("keeps null values unavailable instead of fabricating zero values", async () => {
     const readMarketPriceSeries = vi.fn().mockResolvedValue(
       series([
-        row({ date: "2025-01-02", close: null, volume: null, tradingValue: null }),
-        row({ date: "2025-01-03", close: null, volume: null, tradingValue: null }),
+        row({ date: "2025-01-02", close: 100, volume: null, tradingValue: null }),
+        row({ date: "2025-01-03", close: 101, volume: null, tradingValue: null }),
       ]),
     );
 
@@ -354,14 +411,14 @@ describe("loadTechnicalDeskData", () => {
         fallbackDataQuality,
       },
     );
-    const priceChange = result.data?.logicSummary?.metrics.find((metric) => metric.id === "priceChangePct");
     const tradingValue = result.data?.logicSummary?.metrics.find((metric) => metric.id === "tradingValue");
 
     expect(result.ok).toBe(true);
     expect(result.fallbackUsed).toBe(false);
-    expect(priceChange?.rawValue).toBeNull();
     expect(tradingValue?.rawValue).toBeNull();
-    expect(priceChange?.rawValue).not.toBe(0);
+    expect(result.data?.volume.currentVsAvg20).toBeNull();
+    expect(tradingValue?.rawValue).not.toBe(0);
+    expect(result.data?.volume.currentVsAvg20).not.toBe(0);
   });
 
   it("does not expose prohibited investment fields", async () => {

@@ -11,7 +11,7 @@ import {
   type TechnicalPvtFromMarketPriceSeriesResult,
 } from "./build-technical-from-market-price-series";
 import { buildUnknownMarketPvtUnitMetadata } from "./market-pvt-unit-metadata-capture";
-import type { MarketPvtUnitMetadataMap } from "./market-pvt-unit-metadata-contract";
+import type { MarketPvtNumericField, MarketPvtUnitMetadataMap } from "./market-pvt-unit-metadata-contract";
 
 export type TechnicalDeskDataSourceType =
   | "local_db_manual_import"
@@ -246,6 +246,24 @@ const invalidInputErrors = (input: LoadTechnicalDeskDataInput): string[] => {
   return errors;
 };
 
+const requiredReadyUnitFields = (series: MarketPriceSeriesResult): MarketPvtNumericField[] => {
+  const latest = series.rows.at(-1);
+  return [
+    "marketPrice",
+    latest?.volume !== null && latest?.volume !== undefined ? "volume" : null,
+    latest?.tradingValue !== null && latest?.tradingValue !== undefined ? "tradingValue" : null,
+  ].filter((field): field is MarketPvtNumericField => Boolean(field));
+};
+
+const unitMetadataErrors = (series: MarketPriceSeriesResult): string[] => {
+  if (!series.marketUnitMetadata) return ["market_pvt_unit_metadata_missing"];
+
+  return requiredReadyUnitFields(series).flatMap((field) => {
+    const metadata = series.marketUnitMetadata?.[field];
+    return metadata?.status === "ready" ? [] : [`${field}_market_pvt_unit_metadata_not_ready`];
+  });
+};
+
 export const loadTechnicalDeskData = async (
   input: LoadTechnicalDeskDataInput,
   dependencies: LoadTechnicalDeskDataDependencies = {},
@@ -314,6 +332,32 @@ export const loadTechnicalDeskData = async (
     return safeErrorResult({
       fallbackDataQuality,
       warnings: ["Technical/PVT DB read did not return usable rows and fallback is disabled.", ...series.warnings],
+      errors: series.errors,
+    });
+  }
+
+  const metadataErrors = unitMetadataErrors(series);
+  if (metadataErrors.length > 0) {
+    if (allowFallback) {
+      return fallbackResult({
+        fallbackData,
+        fallbackDataQuality,
+        warnings: [
+          "Technical/PVT DB rows failed Market/PVT unit metadata checks; static fallback was used.",
+          ...metadataErrors,
+          ...series.warnings,
+        ],
+        errors: series.errors,
+      });
+    }
+
+    return safeErrorResult({
+      fallbackDataQuality,
+      warnings: [
+        "Technical/PVT DB rows failed Market/PVT unit metadata checks and fallback is disabled.",
+        ...metadataErrors,
+        ...series.warnings,
+      ],
       errors: series.errors,
     });
   }

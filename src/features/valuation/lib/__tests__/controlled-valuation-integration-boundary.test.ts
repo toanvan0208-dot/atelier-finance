@@ -349,6 +349,7 @@ describe("controlled valuation integration boundary", () => {
   it("uses Market/PVT metadata for market price handoff into P/E", () => {
     const marketUnitMetadata = buildMarketPvtUnitMetadata({
       dataMode: "research_only",
+      source: "local_research",
       sourceLabel: "market_pvt_unit_test",
       units: { marketPrice: "vnd_per_share" },
       values: { marketPrice: 50_000 },
@@ -370,6 +371,8 @@ describe("controlled valuation integration boundary", () => {
     });
     expect(result.calculation.metrics.pe.status).toBe("ready");
     expect(result.calculation.metrics.pe.value).toBe(20);
+    expect(result.sourceBoundary.marketSourceMode).toBe("market_pvt");
+    expect(result.sourceBoundary.valuationSourceMode).not.toBe("db_backed");
     expect(result.sourceBoundary.productionApproved).toBe(false);
     expect(result.sourceBoundary.canClaimValuationDbBacked).toBe(false);
   });

@@ -10,6 +10,7 @@ import {
 import type { PVTObservationData } from "../../types";
 import { buildTechnicalFromMarketPriceSeries } from "../build-technical-from-market-price-series";
 import { loadTechnicalDeskData } from "../load-technical-desk-data";
+import { buildMarketPvtUnitMetadata } from "../market-pvt-unit-metadata-contract";
 
 const TRIAL_SOURCE_LABEL = "phase73_synthetic_market_pvt_metadata_trial";
 const TRIAL_AS_OF = "2026-06-21";
@@ -119,6 +120,39 @@ const syntheticSeries = (
   errors: [],
   ...patch,
 });
+
+const syntheticSeriesWithReadyUnits = (): MarketPriceSeriesResult => {
+  const rows = Array.from({ length: 20 }, (_, index) =>
+    row({
+      date: `2026-06-${String(index + 1).padStart(2, "0")}`,
+      close: index === 19 ? 50_000 : 49_000 + index,
+      tradingValue: index === 19 ? 5_000_000_000 : 4_500_000_000,
+    }),
+  );
+
+  return syntheticSeries(rows, {
+    marketUnitMetadata: buildMarketPvtUnitMetadata({
+      asOf: TRIAL_AS_OF,
+      dataMode: "research_only",
+      source: "market_pvt",
+      sourceLabel: TRIAL_SOURCE_LABEL,
+      units: {
+        averageTradingValue20d: "vnd",
+        marketCap: "vnd",
+        marketPrice: "vnd_per_share",
+        tradingValue: "vnd",
+        volume: "shares",
+      },
+      values: {
+        averageTradingValue20d: 4_500_000_000,
+        marketCap: 5_000_000_000,
+        marketPrice: rows.at(-1)?.close ?? null,
+        tradingValue: rows.at(-1)?.tradingValue ?? null,
+        volume: rows.at(-1)?.volume ?? null,
+      },
+    }),
+  });
+};
 
 const buildSyntheticTrial = () =>
   buildTechnicalFromMarketPriceSeries(baseData, syntheticSeries(), {
@@ -232,7 +266,7 @@ describe("Phase 73 controlled Market/PVT metadata write/read-through trial", () 
   it("returns marketUnitMetadata through loadTechnicalDeskData read-through, fallback, and safe-error paths", async () => {
     const trial = buildSyntheticTrial();
     const buildFromMarketPriceSeries = vi.fn().mockReturnValue(trial);
-    const readMarketPriceSeries = vi.fn().mockResolvedValue(syntheticSeries());
+    const readMarketPriceSeries = vi.fn().mockResolvedValue(syntheticSeriesWithReadyUnits());
 
     const readThrough = await loadTechnicalDeskData(
       { ticker: "UNIT73", from: "2026-06-01", to: "2026-06-20", preferDb: true },
