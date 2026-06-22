@@ -220,7 +220,12 @@ export type MacroCompassDataStatus =
   | "stale"
   | "unverified";
 
-export type MacroCompassDataMode = "reviewed" | "research_only" | "sample" | "unavailable";
+export type MacroCompassDataMode =
+  | "reviewed"
+  | "manual_reviewed"
+  | "research_only"
+  | "sample"
+  | "unavailable";
 
 export type MacroCompassMetric = {
   id: string;
@@ -231,6 +236,7 @@ export type MacroCompassMetric = {
   asOf: string | null;
   sourceName: string | null;
   sourceLabel: string | null;
+  sourceRef: string | null;
   dataMode: MacroCompassDataMode;
   productionApproved: boolean;
   status: MacroCompassDataStatus;

@@ -1,4 +1,5 @@
 import type { MacroCompassData } from "../types";
+import { macroIndicators } from "./macroIndicators.data";
 
 const missingMetricData = {
   value: null,
@@ -7,6 +8,7 @@ const missingMetricData = {
   asOf: null,
   sourceName: null,
   sourceLabel: null,
+  sourceRef: null,
   dataMode: "unavailable",
   productionApproved: false,
   status: "missing",
@@ -15,6 +17,29 @@ const missingMetricData = {
   whatToCheckNext: "Đối chiếu nguồn, kỳ dữ liệu và mốc cập nhật trước khi diễn giải.",
   warnings: ["Chưa có đủ nguồn, kỳ dữ liệu và mốc cập nhật đã rà soát."],
 } as const;
+
+function reviewedMetricData(indicatorKey: "gdp_growth" | "cpi" | "usd_vnd") {
+  const indicator = macroIndicators.find((item) => item.indicatorKey === indicatorKey);
+
+  if (!indicator || indicator.status !== "available") return missingMetricData;
+
+  return {
+    value: indicator.value,
+    unit: indicator.unit,
+    period: indicator.period,
+    asOf: indicator.asOf,
+    sourceName: indicator.sourceName,
+    sourceLabel: indicator.sourceLabel,
+    sourceRef: indicator.sourceRef,
+    dataMode: indicator.dataMode === "manual_reviewed" ? "manual_reviewed" : "research_only",
+    productionApproved: false,
+    status: "available",
+    statusLabel: "Dữ liệu đã rà soát thủ công",
+    confidence: "Dữ liệu nghiên cứu, đã rà soát thủ công",
+    whatToCheckNext: indicator.whatToCheckNext,
+    warnings: indicator.warnings,
+  } as const;
+}
 
 export const macroCompassData: MacroCompassData = {
   header: {
@@ -27,7 +52,7 @@ export const macroCompassData: MacroCompassData = {
     state: "Chưa đủ dữ liệu để phân loại",
     tone: "neutral",
     summary:
-      "Các biến tín dụng, PMI, đầu tư công, tỷ giá, DXY và dòng vốn ngoại đang chờ nguồn, kỳ dữ liệu và mốc cập nhật được rà soát. Chưa đủ dữ liệu để kết luận bối cảnh hiện tại.",
+      "Đã có dữ liệu tham chiếu năm 2024 cho GDP, CPI và tỷ giá bình quân. Lãi suất cùng các biến ngắn hạn vẫn đang xác nhận, nên chưa đủ dữ liệu để kết luận bối cảnh hiện tại.",
     supports: [
       { label: "Tín dụng", value: "Đang xác nhận; cần nguồn rà soát trước khi đánh giá lực hỗ trợ.", tone: "neutral" },
       { label: "Đầu tư công", value: "Đang xác nhận; cần kỳ giải ngân và nguồn rà soát.", tone: "neutral" },
@@ -39,9 +64,9 @@ export const macroCompassData: MacroCompassData = {
       { label: "CPI", value: "Chưa đủ dữ liệu để đánh giá áp lực lạm phát.", tone: "neutral" },
     ],
     unconfirmed: [
-      { label: "PMI tháng tới", value: "Cần thêm dữ liệu để biết sản xuất phục hồi bền hay chỉ hồi kỹ thuật.", tone: "neutral" },
-      { label: "Dòng tiền thị trường", value: "Cần xem thanh khoản và độ rộng thị trường có cùng xác nhận không.", tone: "neutral" },
-      { label: "Tỷ giá", value: "Cần theo dõi DXY và USD/VND trước khi giảm mức thận trọng.", tone: "watch" },
+      { label: "Lãi suất", value: "Chưa đủ dữ liệu có nguồn và kỳ phù hợp để mô tả bối cảnh hiện tại.", tone: "neutral" },
+      { label: "PMI", value: "Chưa đủ dữ liệu để biết trạng thái sản xuất gần nhất.", tone: "neutral" },
+      { label: "Dòng vốn ngoại", value: "Cần nguồn, kỳ dữ liệu và mốc cập nhật trước khi diễn giải.", tone: "neutral" },
     ],
     actions: [
       { label: "Xem ngành bị ảnh hưởng", targetAnchor: "affected-sectors", variant: "secondary" },
@@ -143,7 +168,7 @@ export const macroCompassData: MacroCompassData = {
     {
       id: "gdp",
       name: "GDP",
-      ...missingMetricData,
+      ...reviewedMetricData("gdp_growth"),
       tone: "neutral",
       simpleMeaning: "GDP phản ánh tốc độ tăng trưởng chung của nền kinh tế.",
       marketImpact: "Có thể hỗ trợ doanh thu nhiều ngành nếu lan tỏa vào tiêu dùng và sản xuất.",
@@ -173,7 +198,7 @@ export const macroCompassData: MacroCompassData = {
     {
       id: "cpi",
       name: "CPI",
-      ...missingMetricData,
+      ...reviewedMetricData("cpi"),
       tone: "neutral",
       simpleMeaning: "CPI là lạm phát/giá tiêu dùng.",
       marketImpact: "CPI tăng lại có thể làm lãi suất khó giảm nhanh và gây áp lực sức mua.",
@@ -193,7 +218,7 @@ export const macroCompassData: MacroCompassData = {
     {
       id: "usd-vnd",
       name: "USD/VND",
-      ...missingMetricData,
+      ...reviewedMetricData("usd_vnd"),
       tone: "neutral",
       simpleMeaning: "USD/VND cho biết tương quan giá trị giữa đô la Mỹ và đồng Việt Nam.",
       marketImpact: "Có thể gây áp lực chi phí nhập khẩu, nợ ngoại tệ và dòng vốn ngoại.",
@@ -343,7 +368,7 @@ export const macroCompassData: MacroCompassData = {
     blocks: [
       {
         title: "Bối cảnh hiện tại",
-        content: "Chưa đủ dữ liệu có nguồn, kỳ và mốc cập nhật để phân loại bối cảnh hiện tại.",
+        content: "GDP, CPI và tỷ giá bình quân năm 2024 là bối cảnh tham chiếu; chưa đủ dữ liệu gần nhất để phân loại hiện tại.",
         tone: "neutral",
       },
       {
@@ -363,7 +388,7 @@ export const macroCompassData: MacroCompassData = {
       },
       {
         title: "Điều kiện làm nhận định thay đổi",
-        content: "Góc nhìn chỉ thay đổi sau khi dữ liệu tỷ giá, dòng vốn, lạm phát và tăng trưởng có đủ metadata và được rà soát.",
+        content: "Góc nhìn chỉ thay đổi sau khi dữ liệu lãi suất và các biến ngắn hạn có đủ metadata và được rà soát.",
         tone: "neutral",
       },
     ],

@@ -20,7 +20,7 @@ describe("Macro MVP indicator contract", () => {
   });
 
   it("keeps missing values null and never formats them as zero", () => {
-    for (const indicator of macroIndicators) {
+    for (const indicator of macroIndicators.filter((item) => item.status === "missing")) {
       expect(indicator.value).toBeNull();
       expect(formatMacroIndicatorValue(indicator)).toBe(MACRO_MISSING_VALUE_LABEL);
       expect(formatMacroIndicatorValue(indicator)).not.toContain("0");
@@ -38,11 +38,29 @@ describe("Macro MVP indicator contract", () => {
     expect(formatMacroIndicatorValue(invalidUnitRecord)).toBe(MACRO_MISSING_VALUE_LABEL);
   });
 
-  it("keeps missing, sample, and research records outside production approval", () => {
+  it("keeps missing and manual reviewed records outside production approval", () => {
     for (const indicator of macroIndicators) {
       expect(indicator.productionApproved).toBe(false);
-      expect(indicator.status).toBe("missing");
-      expect(indicator.dataMode).toBe("missing");
+    }
+  });
+
+  it("contains the expected manual reviewed indicator keys", () => {
+    expect(
+      macroIndicators
+        .filter((indicator) => indicator.dataMode === "manual_reviewed")
+        .map((indicator) => indicator.indicatorKey)
+    ).toEqual(["gdp_growth", "cpi", "usd_vnd"]);
+  });
+
+  it("requires complete metadata for every available indicator", () => {
+    for (const indicator of macroIndicators.filter((item) => item.status === "available")) {
+      expect(indicator.value).not.toBeNull();
+      expect(indicator.unit).toBeTruthy();
+      expect(indicator.period).toBeTruthy();
+      expect(indicator.asOf).toBeTruthy();
+      expect(indicator.sourceName).toBeTruthy();
+      expect(indicator.sourceLabel || indicator.sourceRef).toBeTruthy();
+      expect(indicator.productionApproved).toBe(false);
     }
   });
 
@@ -98,7 +116,7 @@ describe("Macro MVP indicator contract", () => {
   });
 
   it("keeps missing compass values null and never formats them as zero", () => {
-    for (const metric of compassMetrics) {
+    for (const metric of compassMetrics.filter((item) => item.status === "missing")) {
       expect(metric.value).toBeNull();
       expect(formatMacroCompassMetricValue(metric)).toBe(MACRO_COMPASS_MISSING_LABEL);
       expect(formatMacroCompassMetricValue(metric)).not.toContain("0");
@@ -107,7 +125,7 @@ describe("Macro MVP indicator contract", () => {
 
   it("keeps non-production data states outside production approval", () => {
     for (const metric of compassMetrics) {
-      if (["sample", "research_only", "unavailable"].includes(metric.dataMode) || metric.status !== "available") {
+      if (["sample", "research_only", "manual_reviewed", "unavailable"].includes(metric.dataMode) || metric.status !== "available") {
         expect(metric.productionApproved).toBe(false);
       }
     }
@@ -115,9 +133,16 @@ describe("Macro MVP indicator contract", () => {
 
   it("provides a warning whenever metric metadata is incomplete", () => {
     for (const metric of compassMetrics) {
-      if (!metric.sourceName || !metric.sourceLabel || !metric.period || !metric.asOf) {
+      if (!metric.sourceName || (!metric.sourceLabel && !metric.sourceRef) || !metric.period || !metric.asOf) {
         expect(metric.warnings.length).toBeGreaterThan(0);
       }
+    }
+  });
+
+  it("does not restore legacy mock numbers without metadata", () => {
+    const serialized = JSON.stringify(macroCompassData);
+    for (const legacyMock of ["6.1%", "51.2", "104.2", "3.4%", "25,450", "3,200 tỷ"]) {
+      expect(serialized).not.toContain(legacyMock);
     }
   });
 

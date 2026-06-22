@@ -20,14 +20,13 @@ export function macroCompassMetricStatusLabel(metric: MacroCompassMetric): strin
 }
 
 export function hasRequiredMacroMetricMetadata(metric: MacroCompassMetric): boolean {
-  return Boolean(metric.sourceName && metric.sourceLabel && metric.period && metric.asOf);
+  return Boolean(metric.sourceName && (metric.sourceLabel || metric.sourceRef) && metric.period && metric.asOf);
 }
 
 export function macroCompassMetricCanBeAvailable(metric: MacroCompassMetric): boolean {
   return (
     metric.value !== null &&
     hasRequiredMacroMetricMetadata(metric) &&
-    metric.dataMode === "reviewed" &&
-    metric.productionApproved
+    (metric.dataMode === "reviewed" || metric.dataMode === "manual_reviewed")
   );
 }

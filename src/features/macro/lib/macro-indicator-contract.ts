@@ -9,6 +9,7 @@ export type MacroIndicatorDataMode =
   | "sample"
   | "research_only"
   | "manual"
+  | "manual_reviewed"
   | "reviewed_candidate";
 
 export type MacroIndicator = {
@@ -20,6 +21,7 @@ export type MacroIndicator = {
   asOf: string | null;
   sourceName: string | null;
   sourceLabel: string | null;
+  sourceRef: string | null;
   dataMode: MacroIndicatorDataMode;
   productionApproved: false;
   status: MacroIndicatorStatus;

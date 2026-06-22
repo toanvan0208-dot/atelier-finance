@@ -314,7 +314,26 @@ function MetricGrid({ metrics }: { metrics: MacroCompassMetric[] }) {
               <MiniBlock title="Ngành cần chú ý" items={metric.relatedSectors} />
               <div className="rounded-[4px] border border-border-soft bg-canvas p-3 text-xs leading-5 text-muted">
                 <strong className="text-ink">Trạng thái dữ liệu: </strong>
-                {metric.warnings[0] ?? metric.confidence}
+                {metric.confidence}
+                {metric.sourceName ? (
+                  <p className="mt-2">
+                    <strong className="text-ink">Nguồn: </strong>
+                    {metric.sourceRef ? (
+                      <a className="underline underline-offset-2" href={metric.sourceRef} rel="noreferrer" target="_blank">
+                        {metric.sourceLabel ?? metric.sourceName}
+                      </a>
+                    ) : (
+                      metric.sourceLabel ?? metric.sourceName
+                    )}
+                  </p>
+                ) : null}
+                {metric.period && metric.asOf ? (
+                  <p>
+                    <strong className="text-ink">Kỳ / as of: </strong>
+                    {metric.period} / {metric.asOf}
+                  </p>
+                ) : null}
+                {metric.warnings[0] ? <p className="mt-2">{metric.warnings[0]}</p> : null}
               </div>
             </div>
           </details>
