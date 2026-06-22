@@ -61,6 +61,26 @@ const stringOrNull = (value: string | Date | null | undefined): string | null =>
   return value instanceof Date ? value.toISOString() : value;
 };
 
+const technicalStatusLabel = (status: string | null | undefined): string => {
+  switch (status) {
+    case "computed_from_market_price_series":
+      return "Đã tính từ chuỗi giá đang hiển thị";
+    case "insufficient_data":
+      return "Chưa đủ dữ liệu";
+    case "static_sample":
+    case "presentation_only":
+      return "Dữ liệu minh họa";
+    case "controlled_local_research":
+      return "Dữ liệu nội bộ đã kiểm soát";
+    case "local_research_seed":
+      return "Dữ liệu nội bộ đã rà soát";
+    case "available":
+      return "Đã có dữ liệu";
+    default:
+      return "Nguồn đang được kiểm tra";
+  }
+};
+
 export function TechnicalPage({ initialRuntimeData, onNavigate }: TechnicalPageProps) {
   const data = initialRuntimeData?.data ?? pvtObservationData;
   const dataQuality = initialRuntimeData?.dataQuality ?? pvtDataQuality;
@@ -140,79 +160,81 @@ function SourceTransparencyStrip({
 }) {
   const sourceText =
     marketDataSource.sourceType === "local_db_manual_import"
-      ? `Local DB manual import · ${marketDataSource.sourceLabel} · ${marketDataSource.dataMode}`
-      : `Sample/static fallback · ${marketDataSource.dataMode}`;
+      ? marketDataSource.provider === "vnstock"
+        ? "Dữ liệu giá tham khảo từ nguồn nghiên cứu"
+        : "Nguồn dữ liệu nội bộ đã nhập có kiểm soát"
+      : "Dữ liệu minh họa dự phòng";
   const metadataUnavailable =
     issuerMetadata.verificationStatus === "unavailable" ||
     issuerMetadata.verificationStatus === "limited" ||
     issuerMetadata.verificationStatus === "unknown";
-  const industryText = issuerMetadata.industry ?? "chua co du lieu xac minh";
-  const sectorText = issuerMetadata.sector ?? "chua co du lieu xac minh";
+  const industryText = issuerMetadata.industry ?? "Chưa có dữ liệu xác minh";
+  const sectorText = issuerMetadata.sector ?? "Chưa có dữ liệu xác minh";
   const sharesText =
     issuerMetadata.sharesOutstanding === null || issuerMetadata.sharesOutstanding === undefined
-      ? "sharesOutstanding: unavailable"
-      : `sharesOutstanding: ${issuerMetadata.sharesOutstanding} ${issuerMetadata.sharesUnit ?? ""}`.trim();
+      ? "Số cổ phiếu lưu hành: Chưa đủ dữ liệu"
+      : `Số cổ phiếu lưu hành: ${issuerMetadata.sharesOutstanding} ${issuerMetadata.sharesUnit ?? ""}`.trim();
   const metadataText =
     issuerMetadata.verificationStatus === "controlled_local_research"
-      ? "Metadata doanh nghiep: controlled local research"
+      ? "Thông tin doanh nghiệp nội bộ đã kiểm soát"
       : issuerMetadata.verificationStatus === "local_research_seed"
-      ? "Metadata doanh nghiep: local research seed"
+      ? "Thông tin doanh nghiệp nội bộ đã rà soát"
       : metadataUnavailable
-        ? "Metadata doanh nghiep/nganh chua duoc xac minh"
-        : "Metadata sample/static, productionApproved:false";
+        ? "Thông tin doanh nghiệp và ngành đang được kiểm tra"
+        : "Thông tin doanh nghiệp minh họa, chưa phê duyệt sản xuất";
 
   return (
     <section
       aria-label="Technical/PVT source transparency"
       className="rounded-[4px] border border-ink/10 bg-surface px-4 py-3 text-xs leading-5 text-muted"
     >
-      <p className="mb-2 font-bold uppercase text-subtle">Source transparency</p>
+      <p className="mb-2 font-bold uppercase text-subtle">Minh bạch nguồn dữ liệu</p>
       <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <div>
           <p className="font-semibold text-ink">
-            Price/volume source: {sourceText}
+            Nguồn giá và khối lượng: {sourceText}
           </p>
           <p>
-            Ticker: {marketDataSource.ticker ?? "unknown"} · asOf: {marketDataSource.asOf ?? "unknown"}
+            Mã: {marketDataSource.ticker ?? "Chưa xác định"} · Cập nhật đến: {marketDataSource.asOf ?? "Chưa xác định"}
           </p>
         </div>
         <div>
           <p className="font-semibold text-ink">{metadataText}</p>
           <p>
-            Metadata: {issuerMetadata.verificationStatus} · Industry: {industryText} · Sector: {sectorText}
+            Ngành: {industryText} · Lĩnh vực: {sectorText}
           </p>
           <p>{sharesText}</p>
           {issuerMetadata.verificationStatus === "local_research_seed" ||
           issuerMetadata.verificationStatus === "controlled_local_research" ? (
-            <p>Chi dung cho academic/local research; productionApproved:false</p>
+            <p>Chỉ dùng cho nghiên cứu; chưa đủ điều kiện xác nhận sản xuất.</p>
           ) : null}
         </div>
         <div className="flex flex-wrap gap-2 lg:col-span-2">
           <span className="rounded-[3px] border border-ink/10 bg-muted/10 px-2 py-1 font-bold text-ink">
-            productionApproved:{String(marketDataSource.productionApproved)}
+            Dữ liệu nghiên cứu, chưa phê duyệt sản xuất
           </span>
           <span className="rounded-[3px] border border-ink/10 bg-muted/10 px-2 py-1 font-bold text-ink">
-            {marketDataSource.fallbackUsed ? "sampleFallback" : "researchOnly"}
+            {marketDataSource.fallbackUsed ? "Dữ liệu minh họa dự phòng" : "Dữ liệu nghiên cứu"}
           </span>
           <span className="rounded-[3px] border border-ink/10 bg-muted/10 px-2 py-1 font-bold text-ink">
-            metadata:{issuerMetadata.verificationStatus}
+            Thông tin doanh nghiệp: {technicalStatusLabel(issuerMetadata.verificationStatus)}
           </span>
           {pvtDerivedMetrics ? (
             <span className="rounded-[3px] border border-ink/10 bg-muted/10 px-2 py-1 font-bold text-ink">
-              derived:{pvtDerivedMetrics.dataStatus}
+              Chỉ số kỹ thuật: {technicalStatusLabel(pvtDerivedMetrics.dataStatus)}
             </span>
           ) : null}
           {pvtChartSeries ? (
             <span className="rounded-[3px] border border-ink/10 bg-muted/10 px-2 py-1 font-bold text-ink">
-              chart:{pvtChartSeries.status}
+              Biểu đồ: {technicalStatusLabel(pvtChartSeries.status)}
             </span>
           ) : null}
         </div>
         <p className="lg:col-span-2">
-          Derived PVT metrics are computed only from the active market price series; unavailable when insufficient.
+          Chỉ số PVT chỉ được tính từ chuỗi giá đang hiển thị; nếu thiếu dữ liệu, kết quả sẽ để trống.
         </p>
         <p className="lg:col-span-2">
-          Chart series must come from the active market price series or stay clearly marked as unavailable/static_sample/presentation_only.
+          Biểu đồ phải dùng cùng chuỗi dữ liệu đang hiển thị; dữ liệu chưa đủ sẽ được ghi rõ là chưa khả dụng hoặc chỉ mang tính minh họa.
         </p>
       </div>
     </section>

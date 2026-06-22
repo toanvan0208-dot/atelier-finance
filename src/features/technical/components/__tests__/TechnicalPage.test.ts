@@ -13,6 +13,25 @@ const renderPage = (initialRuntimeData: TechnicalPageRuntimeData) =>
     }),
   );
 
+const rawSourceStatusTerms = [
+  "productionApproved:false",
+  "productionApproved:true",
+  "productionApproved",
+  "researchOnly",
+  "research_only",
+  "dataMode",
+  "sourceType",
+  "local_db_manual_import",
+  "vnstock_research_candidate",
+  "phase116_reviewed_financial_missing_fields",
+  "manual_reviewed_financial_statement_2024",
+  "phase109_controlled_local_financials",
+];
+
+const expectNoRawSourceStatus = (html: string) => {
+  for (const term of rawSourceStatusTerms) expect(html).not.toContain(term);
+};
+
 const dbRuntimeBase = {
   data: {
     ...pvtObservationData,
@@ -140,14 +159,14 @@ const dbRuntimeBase = {
   },
   source: {
     sourceType: "local_db_manual_import" as const,
-    sourceLabel: "vnstock",
+    sourceLabel: "vnstock_research_candidate",
     dataMode: "research_only",
     productionApproved: false as const,
   },
   marketDataSource: {
     sourceType: "local_db_manual_import" as const,
     provider: "vnstock" as const,
-    sourceLabel: "vnstock",
+    sourceLabel: "vnstock_research_candidate",
     dataMode: "research_only",
     productionApproved: false as const,
     fallbackUsed: false,
@@ -180,13 +199,13 @@ describe("TechnicalPage source transparency", () => {
       warnings: ["Static fallback"],
     });
 
-    expect(html).toContain("Source transparency");
-    expect(html).toContain("Sample/static fallback");
-    expect(html).toContain("productionApproved:false");
-    expect(html).toContain("sampleFallback");
-    expect(html).toContain("metadata:static_sample");
-    expect(html).toContain("derived:static_sample");
-    expect(html).toContain("chart:static_sample");
+    expect(html).toContain("Minh bạch nguồn dữ liệu");
+    expect(html).toContain("Dữ liệu minh họa dự phòng");
+    expect(html).toContain("Dữ liệu nghiên cứu, chưa phê duyệt sản xuất");
+    expect(html).toContain("Thông tin doanh nghiệp minh họa, chưa phê duyệt sản xuất");
+    expect(html).toContain("Chỉ số kỹ thuật: Dữ liệu minh họa");
+    expect(html).toContain("Biểu đồ: Dữ liệu minh họa");
+    expectNoRawSourceStatus(html);
     expect(html).toContain("Biên tăng gần");
     expect(html).toContain("Biên giảm gần");
     expect(html.toLowerCase()).not.toContain("upside");
@@ -221,30 +240,27 @@ describe("TechnicalPage source transparency", () => {
       },
     });
 
-    expect(html).toContain("Local DB manual import");
-    expect(html).toContain("vnstock");
-    expect(html).toContain("research_only");
-    expect(html).toContain("productionApproved:false");
-    expect(html).toContain("researchOnly");
-    expect(html).toContain("Metadata doanh nghiep/nganh chua duoc xac minh");
-    expect(html).toContain("metadata:unavailable");
-    expect(html).toContain("derived:insufficient_data");
-    expect(html).toContain("chart:computed_from_market_price_series");
+    expect(html).toContain("Dữ liệu giá tham khảo từ nguồn nghiên cứu");
+    expect(html).toContain("Dữ liệu nghiên cứu, chưa phê duyệt sản xuất");
+    expect(html).toContain("Thông tin doanh nghiệp và ngành đang được kiểm tra");
+    expect(html).toContain("Thông tin doanh nghiệp: Nguồn đang được kiểm tra");
+    expect(html).toContain("Chỉ số kỹ thuật: Chưa đủ dữ liệu");
+    expect(html).toContain("Biểu đồ: Đã tính từ chuỗi giá đang hiển thị");
     expect(html).toContain("Chart uses active local DB market price series");
-    expect(html).toContain("Chart series must come from the active market price series");
-    expect(html).toContain("Derived PVT metrics are computed only from the active market price series");
+    expect(html).toContain("Biểu đồ phải dùng cùng chuỗi dữ liệu đang hiển thị");
+    expect(html).toContain("Chỉ số PVT chỉ được tính từ chuỗi giá đang hiển thị");
     expect(html).toContain("Chua du du lieu");
     expect(html).toContain("Chua du 20 phien");
     expect(html).toContain("Khong kha dung");
     expect(html).toContain("FOMO chua kha dung");
-    expect(html).toContain("Industry: chua co du lieu xac minh");
+    expect(html).toContain("Ngành: Chưa có dữ liệu xác minh");
+    expectNoRawSourceStatus(html);
     expect(html).not.toContain("Ban le");
     expect(html).not.toContain("38.000 - 40.000");
     expect(html).not.toContain("44.000 - 46.000");
     expect(html).not.toContain("1.4x TB20");
     expect(html).not.toContain("3/6");
     expect(html).not.toContain("KQKD");
-    expect(html).not.toContain("Ngành");
     expect(html).not.toContain("MA20 · MA50");
   });
 
@@ -269,11 +285,11 @@ describe("TechnicalPage source transparency", () => {
       },
     });
 
-    expect(html).toContain("Metadata doanh nghiep: controlled local research");
-    expect(html).toContain("metadata:controlled_local_research");
-    expect(html).toContain("sharesOutstanding: unavailable");
-    expect(html).toContain("Chi dung cho academic/local research");
-    expect(html).toContain("productionApproved:false");
+    expect(html).toContain("Thông tin doanh nghiệp nội bộ đã kiểm soát");
+    expect(html).toContain("Thông tin doanh nghiệp: Dữ liệu nội bộ đã kiểm soát");
+    expect(html).toContain("Số cổ phiếu lưu hành: Chưa đủ dữ liệu");
+    expect(html).toContain("Chỉ dùng cho nghiên cứu; chưa đủ điều kiện xác nhận sản xuất.");
+    expectNoRawSourceStatus(html);
     expect(html.toLowerCase()).not.toContain("official metadata");
   });
 });

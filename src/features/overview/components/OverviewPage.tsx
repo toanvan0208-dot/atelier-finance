@@ -57,8 +57,59 @@ const progressTone: Record<OverviewProgressStatus, "success" | "warning" | "neut
 const metadataLabel = (value: string): string => value.replace(/_/g, " ");
 
 const boundaryValue = (value: string | number | boolean | null | undefined): string => {
-  if (value === null || value === undefined || value === "") return "unavailable";
+  if (value === null || value === undefined || value === "") return "Chưa đủ dữ liệu";
   return String(value);
+};
+
+const userFacingDataModeLabel = (dataMode: string): string => {
+  if (dataMode === "local_research") return "Dữ liệu nội bộ phục vụ nghiên cứu";
+  if (dataMode === "manual") return "Dữ liệu nhập có kiểm soát";
+  if (dataMode === "research_only") return "Dữ liệu nghiên cứu";
+  if (dataMode === "sample") return "Dữ liệu minh họa";
+  if (dataMode === "unknown") return "Nguồn đang được kiểm tra";
+  return "Đã có trong hệ thống";
+};
+
+const userFacingSourceTypeLabel = (sourceType: string): string => {
+  const normalized = sourceType.toLowerCase();
+  if (normalized.includes("manual") || normalized.includes("local")) {
+    return "Nguồn dữ liệu nội bộ đã nhập có kiểm soát";
+  }
+  if (normalized.includes("sample")) return "Dữ liệu minh họa";
+  return "Nguồn đang được kiểm tra";
+};
+
+const userFacingReviewStatusLabel = (status: string): string => {
+  const normalized = status.toLowerCase();
+  if (normalized.includes("ready") || normalized.includes("usable")) return "Đã có dữ liệu, vẫn cần rà soát";
+  if (normalized.includes("missing") || normalized.includes("unavailable")) return "Chưa đủ dữ liệu";
+  return "Đang được kiểm tra";
+};
+
+const readinessSourceLabel: Record<OverviewModuleReadinessItem["sourceStatus"], string> = {
+  available: "Đã có thông tin nguồn",
+  missing: "Nguồn đang hoàn thiện",
+  not_approved: "Chưa phê duyệt sản xuất",
+  partial: "Nguồn đang được kiểm tra",
+};
+
+const readinessUnitLabel: Record<OverviewModuleReadinessItem["unitStatus"], string> = {
+  explicit: "Đơn vị đã rõ",
+  invalid: "Đơn vị chưa hợp lệ",
+  not_applicable: "Không áp dụng",
+  partial: "Một phần đơn vị đã rõ",
+  unknown: "Đơn vị đang được kiểm tra",
+};
+
+const readinessBlockedReasonLabel = (reason: string): string => {
+  const normalized = reason.toLowerCase();
+  if (normalized.includes("unit")) return "Đơn vị dữ liệu cần kiểm tra";
+  if (normalized.includes("missing")) return "Thiếu dữ liệu cần thiết";
+  if (normalized.includes("fallback") || normalized.includes("sample")) return "Đang dùng dữ liệu minh họa";
+  if (normalized.includes("source") || normalized.includes("approved") || normalized.includes("canclaim")) {
+    return "Chưa đủ điều kiện xác nhận sản xuất";
+  }
+  return "Cần kiểm tra thêm";
 };
 
 const readinessStatusLabel: Record<OverviewModuleReadinessItem["status"], string> = {
@@ -212,23 +263,19 @@ function ManualDataImportCta() {
 
 function OverviewFinancialsRuntimeNote({ boundary }: { boundary: OverviewFinancialsRuntimeBoundary }) {
   const fields = [
-    ["overviewRuntimeStatus", boundary.overviewRuntimeStatus],
-    ["financialsRuntimeStatus", boundary.financialsRuntimeStatus],
-    ["financialsReadPath", boundary.financialsReadPath],
-    ["sourceLabel", boundary.sourceLabel],
-    ["dataMode", boundary.dataMode],
-    ["fallbackUsed", boundary.fallbackUsed],
-    ["productionApproved", boundary.productionApproved],
-    ["canClaimOverviewDbBacked", boundary.canClaimOverviewDbBacked],
+    ["Trạng thái tổng quan", boundary.consumesFinancialsRuntime ? "Đang dùng dữ liệu tài chính có kiểm soát" : "Nguồn đang hoàn thiện"],
+    ["Nguồn tài chính", boundary.consumesFinancialsRuntime && !boundary.fallbackUsed ? "Nguồn dữ liệu nội bộ đã nhập có kiểm soát" : "Nguồn đang được kiểm tra"],
+    ["Phạm vi sử dụng", "Dữ liệu nghiên cứu, chưa phê duyệt sản xuất"],
+    ["Mức độ xác nhận", "Chưa đủ điều kiện xác nhận toàn bộ"],
   ] as const;
   const snapshotFields = [
-    ["ticker", boundary.snapshotFields.ticker],
-    ["period", boundary.snapshotFields.period],
-    ["revenue", boundary.snapshotFields.revenue],
-    ["netIncome", boundary.snapshotFields.netIncome],
-    ["operatingCashFlow", boundary.snapshotFields.operatingCashFlow],
-    ["totalAssets", boundary.snapshotFields.totalAssets],
-    ["equity", boundary.snapshotFields.equity],
+    ["Mã", boundary.snapshotFields.ticker],
+    ["Kỳ dữ liệu", boundary.snapshotFields.period],
+    ["Doanh thu", boundary.snapshotFields.revenue],
+    ["Lợi nhuận sau thuế", boundary.snapshotFields.netIncome],
+    ["Dòng tiền hoạt động", boundary.snapshotFields.operatingCashFlow],
+    ["Tổng tài sản", boundary.snapshotFields.totalAssets],
+    ["Vốn chủ sở hữu", boundary.snapshotFields.equity],
   ] as const;
 
   return (
@@ -236,12 +283,12 @@ function OverviewFinancialsRuntimeNote({ boundary }: { boundary: OverviewFinanci
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap gap-2">
-            <Chip variant="neutral">overview runtime boundary</Chip>
-            <Chip variant="neutral">{boundary.overviewRuntimeStatus}</Chip>
-            <Chip variant="neutral">productionApproved:false</Chip>
-            <Chip variant="neutral">partial financials runtime</Chip>
+            <Chip variant="neutral">Minh bạch nguồn dữ liệu</Chip>
+            <Chip variant="neutral">Nguồn đang được kiểm tra</Chip>
+            <Chip variant="neutral">Dữ liệu nghiên cứu, chưa phê duyệt sản xuất</Chip>
+            <Chip variant="neutral">Kết nối tài chính một phần</Chip>
           </div>
-          <p className="mt-3 font-semibold">{boundary.boundaryNote}</p>
+          <p className="mt-3 font-semibold">Dữ liệu tài chính hỗ trợ phần tổng quan nhưng chưa đủ để xác nhận toàn bộ module.</p>
           <p className="mt-1">
             Overview dang dung nguon hon hop: API bridge rieng, cac phan ho tro hien co, va Financials runtime metadata neu co.
           </p>
@@ -249,10 +296,10 @@ function OverviewFinancialsRuntimeNote({ boundary }: { boundary: OverviewFinanci
             Financials local research data chua duoc duyet lam nguon san xuat. Gia tri thieu giu la null/unavailable, khong thay bang 0.
           </p>
           {boundary.missingFields.length > 0 ? (
-            <p className="mt-2">Financials missing fields: {boundary.missingFields.join(", ")}.</p>
+            <p className="mt-2">Một số trường tài chính còn thiếu và được giữ ở trạng thái Chưa đủ dữ liệu.</p>
           ) : null}
           {boundary.warnings.length > 0 ? (
-            <p className="mt-2">Boundary warnings: {boundary.warnings.slice(0, 4).join(" | ")}</p>
+            <p className="mt-2">Nguồn dữ liệu đang được kiểm tra; không nên kết luận vội từ phần dữ liệu hiện có.</p>
           ) : null}
         </div>
         <div className="grid min-w-0 gap-3 text-xs lg:min-w-[360px]">
@@ -284,7 +331,7 @@ function OverviewCrossModuleReadiness({ summary }: { summary: OverviewCrossModul
       <CardHeader
         title={summary.title}
         description={summary.description}
-        chip={<Chip variant="warning">{summary.productionApprovedLabel}</Chip>}
+        chip={<Chip variant="warning">Dữ liệu nghiên cứu, chưa phê duyệt sản xuất</Chip>}
       />
       <CardBody className="space-y-4">
         <div className="grid gap-3 lg:grid-cols-5">
@@ -298,23 +345,23 @@ function OverviewCrossModuleReadiness({ summary }: { summary: OverviewCrossModul
               </div>
               <dl className="mt-3 grid gap-1.5 text-[11px] leading-5 text-muted">
                 <div className="flex justify-between gap-2">
-                  <dt className="font-bold text-subtle">mode</dt>
-                  <dd className="break-words text-right">{item.dataMode}</dd>
+                  <dt className="font-bold text-subtle">Phạm vi</dt>
+                  <dd className="break-words text-right">{userFacingDataModeLabel(item.dataMode)}</dd>
                 </div>
                 <div className="flex justify-between gap-2">
-                  <dt className="font-bold text-subtle">source</dt>
-                  <dd className="break-words text-right">{item.sourceStatus}</dd>
+                  <dt className="font-bold text-subtle">Nguồn</dt>
+                  <dd className="break-words text-right">{readinessSourceLabel[item.sourceStatus]}</dd>
                 </div>
                 <div className="flex justify-between gap-2">
-                  <dt className="font-bold text-subtle">unit</dt>
-                  <dd className="break-words text-right">{item.unitStatus}</dd>
+                  <dt className="font-bold text-subtle">Đơn vị</dt>
+                  <dd className="break-words text-right">{readinessUnitLabel[item.unitStatus]}</dd>
                 </div>
               </dl>
               <p className="mt-3 text-xs leading-5 text-muted">{item.summary}</p>
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {item.blockedReasons.slice(0, 3).map((reason) => (
                   <Chip key={reason} size="sm" variant="neutral">
-                    {reason}
+                    {readinessBlockedReasonLabel(reason)}
                   </Chip>
                 ))}
               </div>
@@ -648,11 +695,11 @@ export function OverviewPage({ initialFinancialsRuntimeData, onNavigate }: Overv
     if (bridgeState.status !== "ready" && bridgeState.status !== "insufficient") return [];
     const { metadata } = bridgeState.result;
     return [
-      `dataMode: ${metadataLabel(metadata.dataMode)}`,
-      `sourceType: ${metadataLabel(metadata.sourceType)}`,
-      `quality: ${metadataLabel(metadata.qualityStatus)}`,
-      `readiness: ${metadataLabel(metadata.readiness)}`,
-      `fallback: ${String(metadata.fallback)}`,
+      `Phạm vi: ${userFacingDataModeLabel(metadata.dataMode)}`,
+      `Nguồn: ${userFacingSourceTypeLabel(metadata.sourceType)}`,
+      `Chất lượng: ${userFacingReviewStatusLabel(metadata.qualityStatus)}`,
+      `Trạng thái: ${userFacingReviewStatusLabel(metadata.readiness)}`,
+      metadata.fallback ? "Đang dùng dữ liệu minh họa dự phòng" : "Không dùng dữ liệu minh họa thay thế",
     ];
   }, [bridgeState]);
 

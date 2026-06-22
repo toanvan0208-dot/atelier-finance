@@ -38,6 +38,13 @@ const numericValues = (points: PVTObservationPoint[]): number[] =>
     [point.price, point.ma20, point.ma50].filter((value): value is number => typeof value === "number"),
   );
 
+const chartStatusLabel = (status: PVTChartSeries["status"] | undefined): string => {
+  if (status === "computed_from_market_price_series") return "Đã tính từ chuỗi giá đang hiển thị";
+  if (status === "static_sample" || status === "presentation_only") return "Dữ liệu minh họa";
+  if (status === "insufficient_data") return "Chưa đủ dữ liệu";
+  return "Nguồn đang được kiểm tra";
+};
+
 export function PVTMainChart({ data, chartSeries, resistanceLabel, supportLabel }: PVTMainChartProps) {
   const width = 760;
   const priceHeight = 260;
@@ -53,7 +60,7 @@ export function PVTMainChart({ data, chartSeries, resistanceLabel, supportLabel 
     chartSeries?.status === "computed_from_market_price_series"
       ? "Chart uses active local DB market price series."
       : chartSeries?.status === "static_sample" || chartSeries?.status === "presentation_only"
-        ? `Chart source: ${chartSeries.status}; productionApproved:false.`
+        ? "Biểu đồ dùng dữ liệu minh họa và chưa phê duyệt sản xuất."
         : "Chart chua kha dung cho du lieu DB-backed.";
 
   if (!hasChartPoints) {
@@ -62,7 +69,7 @@ export function PVTMainChart({ data, chartSeries, resistanceLabel, supportLabel 
         <CardHeader
           title={data.title}
           description="Chart source boundary is shown before rendering any price/volume series."
-          chip={<Chip variant="neutral">{chartSeries?.status ?? "unavailable"}</Chip>}
+          chip={<Chip variant="neutral">{chartStatusLabel(chartSeries?.status)}</Chip>}
         />
         <CardBody className="space-y-4">
           <div className="rounded-[4px] border border-border-soft bg-surface-soft p-5">
@@ -96,7 +103,7 @@ export function PVTMainChart({ data, chartSeries, resistanceLabel, supportLabel 
       <CardHeader
         title={data.title}
         description={sourceNote}
-        chip={<Chip variant="neutral">{chartSeries?.status ?? "static_sample"}</Chip>}
+        chip={<Chip variant="neutral">{chartStatusLabel(chartSeries?.status)}</Chip>}
       />
       <CardBody className="space-y-4">
         {isDbChart ? (
