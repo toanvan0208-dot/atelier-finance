@@ -2,11 +2,11 @@
 
 ## 1. Current latest phase
 
-Phase 112 - Traceable Debt/EPS/Shares Data Path for FPT/MWG/VNM
+Phase 113 - Traceable Risk Input Activation Pilot for FPT/MWG/VNM
 
 ## 2. Latest commit
 
-Commit: Phase 112 add traceable input decisions (this phase commit)
+Commit: Phase 113 activate traceable risk input (this phase commit)
 
 ## 3. Current branch expectation
 
@@ -94,6 +94,7 @@ The working tree should be clean before starting a new phase.
 - Phase 110 adds a derived portfolio readiness backbone for FPT/MWG/VNM and wires it into Watchlist. It summarizes controlled company metadata, VNStock research-candidate Technical/PVT status, Phase 109 controlled local/research Financials status, missing shares/EPS, and guarded Valuation/Risk readiness without creating a new data source or approval claim.
 - Phase 111 activates Phase 109 total-liabilities values through the Financials read path without relabeling them as total debt, adds explicit per-field Financial Statement coverage to Portfolio Readiness, and exposes cash-flow, liquidity, and leverage readiness separately. Existing FPT/MWG/VNM local DB rows already contained the controlled values, so no new DB write was required.
 - Phase 112 adds a per-ticker source-decision layer for total debt, EPS, and shares outstanding. No repo-local value met the required source, explicit-unit, as-of, ticker, and period-alignment gates, so no DB write or activation occurred; Watchlist now shows each deferred decision and its metric blockers while keeping Risk leverage and Valuation fail-closed.
+- Phase 113 runs a traceable total-debt pilot assessment for FPT/MWG/VNM. No debt value met source, explicit-unit, as-of, period, ticker, and research-data-mode gates, so no DB write or activation occurred; Watchlist now shows checked pilot paths for Financials runtime, the official-disclosure adapter boundary, and the manual-import boundary while keeping leverage fail-closed unless a valid totalDebt candidate is supplied.
 
 ## 7. Current known limitations
 
@@ -125,6 +126,7 @@ The working tree should be clean before starting a new phase.
 - Phase 110 portfolio readiness is a derived status layer only. It does not add sharesOutstanding/EPS sources, source/legal approval, market-wide coverage, valuation unlocks, or new ingestion. Watchlist can display FPT/MWG/VNM readiness, but shares/EPS remain unavailable and Valuation/Risk remain guarded.
 - Phase 111 does not add new financial values or a traceable shares/EPS source. Controlled liabilities use the existing legacy storage bridge and remain distinct from total debt; leverage readiness therefore remains insufficient while cash-flow and liquidity readiness can reflect available inputs. Valuation remains guarded and all local/research data stays `productionApproved:false`.
 - Phase 112 finds no traceable repo-local total-debt, EPS, or shares-outstanding values for FPT/MWG/VNM. The source-decision layer is derived readiness only, keeps all three fields null/unavailable, does not relabel liabilities as debt, and does not make any source or production approval claim.
+- Phase 113 does not add activated debt, EPS, or shares data. Official-disclosure and manual-import paths remain boundary-only until reviewed source records are supplied; total liabilities remain separate from total debt, Risk leverage remains insufficient for FPT/MWG/VNM, and Valuation stays guarded.
 
 ## 8. Recommended next phase
 

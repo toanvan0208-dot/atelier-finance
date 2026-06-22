@@ -141,7 +141,7 @@ const buildSummary = (snapshot: WatchlistStatementSnapshot, companyName: string)
     valuationReadiness: valuationStatusLabel(valuationReadiness.status),
     valuationConfidence: confidenceLabel(valuationConfidence),
     valuationDetail: sanitizeForWatchlist(
-      `${valuationReadiness.beginnerInterpretation} P/E: ${metricDisplay(peRatio)}; P/B: ${metricDisplay(pbRatio)}. Không tạo fair value hoặc margin of safety khi chưa có dữ liệu hợp lệ.`
+      `${valuationReadiness.beginnerInterpretation} P/E: ${metricDisplay(peRatio)}; P/B: ${metricDisplay(pbRatio)}. Không tạo vùng giá trị nội tại hoặc biên an toàn khi chưa có dữ liệu hợp lệ.`
     ),
     overallRiskLevel: riskStatusLabel(overallRisk.level),
     overallRiskScore: overallRisk.score,

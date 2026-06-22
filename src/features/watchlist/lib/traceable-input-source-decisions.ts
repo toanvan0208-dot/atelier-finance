@@ -13,13 +13,20 @@ export type TraceableInputCandidate = {
   sourceLabel: string | null;
   asOf: string | null;
   period: string | null;
+  dataMode: string | null;
   productionApproved: false;
+};
+export type TraceableDebtPilotCheck = {
+  path: "financials_runtime" | "official_disclosure_adapter" | "manual_import_boundary" | "candidate_validation";
+  status: "passed" | "checked_no_value" | "boundary_only" | "rejected";
+  reason: string;
 };
 export type TraceableInputSourceDecision = TraceableInputCandidate & {
   status: "available" | "unavailable" | "blocked" | "insufficient_source";
   reasonCode: string;
   reason: string;
   activationStatus: "activated" | "not_activated" | "deferred";
+  pilotChecks?: TraceableDebtPilotCheck[];
 };
 export type TraceableInputSourceDecisions = Record<TraceableInputField, TraceableInputSourceDecision>;
 
@@ -49,6 +56,7 @@ const runtimeCandidate = (
 
   return {
     asOf: financials.source.asOf,
+    dataMode: financials.source.dataMode,
     field,
     period: financials.statementSnapshot?.period ?? null,
     productionApproved: false,
@@ -62,6 +70,7 @@ const runtimeCandidate = (
 const missingDecision = (ticker: string, field: TraceableInputField): TraceableInputSourceDecision => ({
   activationStatus: "deferred",
   asOf: null,
+  dataMode: null,
   field,
   period: null,
   productionApproved: false,
@@ -75,6 +84,24 @@ const missingDecision = (ticker: string, field: TraceableInputField): TraceableI
   unit: null,
   value: null,
 });
+
+const unavailableDebtPilotChecks = (ticker: string): TraceableDebtPilotCheck[] => [
+  {
+    path: "financials_runtime",
+    reason: `${ticker} Phase 109 runtime has no totalDebt value; totalLiabilities remains separate.`,
+    status: "checked_no_value",
+  },
+  {
+    path: "official_disclosure_adapter",
+    reason: "The adapter boundary supports totalDebt, but no reviewed runtime source record is present.",
+    status: "boundary_only",
+  },
+  {
+    path: "manual_import_boundary",
+    reason: "The import boundary supports totalDebt, but no reviewed traceable input artifact is present.",
+    status: "boundary_only",
+  },
+];
 
 const assessCandidate = ({
   candidate,
@@ -93,14 +120,22 @@ const assessCandidate = ({
     (field === "sharesOutstanding" && candidate.value <= 0) ||
     (field === "totalDebt" && candidate.value < 0);
   const sourceLabel = candidate.sourceLabel?.trim() ?? "";
+  const dataMode = candidate.dataMode?.trim() ?? "";
   const unitValid = candidate.unit !== null && isFinancialsUnitAccepted(unitField[field], candidate.unit);
-  const metadataComplete = sourceLabel.length > 0 && candidate.asOf !== null && candidate.period !== null;
+  const metadataComplete =
+    sourceLabel.length > 0 &&
+    (dataMode === "research_only" || dataMode === "local_research") &&
+    candidate.asOf !== null &&
+    candidate.period !== null;
   const identityAligned =
     candidate.ticker.trim().toUpperCase() === expectedTicker &&
     candidate.field === field &&
     financialsPeriod !== null &&
     candidate.period === financialsPeriod;
-  const sampleSource = sourceLabel.toLowerCase().includes("sample") || sourceLabel.toLowerCase().includes("mock");
+  const sampleSource =
+    sourceLabel.toLowerCase().includes("sample") ||
+    sourceLabel.toLowerCase().includes("mock") ||
+    dataMode.toLowerCase() === "sample";
 
   if (invalidValue) {
     return {
@@ -120,7 +155,7 @@ const assessCandidate = ({
       ...candidate,
       activationStatus: "deferred",
       productionApproved: false,
-      reason: "Source label, explicit unit, as-of, ticker, and aligned period are required before activation.",
+      reason: "Source label, research data mode, explicit unit, as-of, ticker, and aligned period are required before activation.",
       reasonCode: !unitValid
         ? "unit_missing_or_invalid"
         : !identityAligned
@@ -153,11 +188,26 @@ export const buildTraceableInputSourceDecisions = ({
   return Object.fromEntries(
     TRACEABLE_INPUT_FIELDS.map((field) => {
       const candidate = candidates[field] ?? runtimeCandidate(normalizedTicker, financials, field);
+      const decision = candidate
+        ? assessCandidate({ candidate, expectedTicker: normalizedTicker, field, financialsPeriod })
+        : missingDecision(normalizedTicker, field);
+      const pilotChecks =
+        field !== "totalDebt"
+          ? undefined
+          : candidate
+            ? [
+                ...unavailableDebtPilotChecks(normalizedTicker),
+                {
+                  path: "candidate_validation" as const,
+                  reason: decision.reason,
+                  status: decision.status === "available" ? ("passed" as const) : ("rejected" as const),
+                },
+              ]
+            : unavailableDebtPilotChecks(normalizedTicker);
+
       return [
         field,
-        candidate
-          ? assessCandidate({ candidate, expectedTicker: normalizedTicker, field, financialsPeriod })
-          : missingDecision(normalizedTicker, field),
+        pilotChecks ? { ...decision, pilotChecks } : decision,
       ];
     }),
   ) as TraceableInputSourceDecisions;

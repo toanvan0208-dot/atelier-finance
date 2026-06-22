@@ -62,6 +62,7 @@ const portfolioReadiness: PortfolioReadinessResult = {
       eps: {
         activationStatus: "deferred",
         asOf: null,
+        dataMode: null,
         field: "eps",
         period: null,
         productionApproved: false,
@@ -76,6 +77,7 @@ const portfolioReadiness: PortfolioReadinessResult = {
       sharesOutstanding: {
         activationStatus: "deferred",
         asOf: null,
+        dataMode: null,
         field: "sharesOutstanding",
         period: null,
         productionApproved: false,
@@ -90,8 +92,26 @@ const portfolioReadiness: PortfolioReadinessResult = {
       totalDebt: {
         activationStatus: "deferred",
         asOf: null,
+        dataMode: null,
         field: "totalDebt",
         period: null,
+        pilotChecks: [
+          {
+            path: "financials_runtime",
+            reason: `${ticker} Phase 109 runtime has no totalDebt value; totalLiabilities remains separate.`,
+            status: "checked_no_value",
+          },
+          {
+            path: "official_disclosure_adapter",
+            reason: "The adapter boundary supports totalDebt, but no reviewed runtime source record is present.",
+            status: "boundary_only",
+          },
+          {
+            path: "manual_import_boundary",
+            reason: "The import boundary supports totalDebt, but no reviewed traceable input artifact is present.",
+            status: "boundary_only",
+          },
+        ],
         productionApproved: false,
         reason: "No traceable total-debt value is available; total liabilities are not treated as debt.",
         reasonCode: "traceable_total_debt_unavailable",
@@ -147,6 +167,10 @@ describe("PortfolioReadinessPanel", () => {
     expect(html).toContain("liquidity:ready");
     expect(html).toContain("Traceable input decisions");
     expect(html).toContain("Total debt: unavailable");
+    expect(html).toContain("Pilot checked 3 paths");
+    expect(html).toContain("financials runtime:checked_no_value");
+    expect(html).toContain("official disclosure adapter:boundary_only");
+    expect(html).toContain("manual import boundary:boundary_only");
     expect(html).toContain("EPS: unavailable");
     expect(html).toContain("Shares outstanding: unavailable");
     expect(html).toContain("total liabilities are not treated as debt");

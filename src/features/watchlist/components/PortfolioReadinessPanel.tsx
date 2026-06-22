@@ -30,6 +30,8 @@ const sourceDecisionLabel: Record<keyof PortfolioReadinessItem["sourceDecisions"
   totalDebt: "Total debt",
 };
 
+const pilotPathLabel = (path: string): string => path.replaceAll("_", " ");
+
 function ReadinessRow({ item }: { item: PortfolioReadinessItem }) {
   const missingInputs = item.missingInputs.length ? item.missingInputs.join(", ") : "none";
   const blockedMetrics = item.blockedMetrics.length
@@ -133,7 +135,16 @@ function ReadinessRow({ item }: { item: PortfolioReadinessItem }) {
                 {sourceDecisionLabel[field as keyof PortfolioReadinessItem["sourceDecisions"]]}: {decision.status}
               </span>{" "}
               · {decision.reason}
-              {decision.sourceLabel ? ` · ${decision.sourceLabel} · ${decision.unit} · ${decision.period}` : ""}
+              {decision.sourceLabel
+                ? ` · ${decision.sourceLabel} · ${decision.dataMode} · ${decision.unit} · ${decision.period}`
+                : ""}
+              {decision.pilotChecks?.length ? (
+                <span className="mt-1 block text-subtle">
+                  Pilot checked {decision.pilotChecks.length} paths: {decision.pilotChecks
+                    .map((check) => `${pilotPathLabel(check.path)}:${check.status}`)
+                    .join("; ")}
+                </span>
+              ) : null}
             </p>
           ))}
         </div>

@@ -282,6 +282,7 @@ describe("loadPortfolioReadiness", () => {
         FPT: {
           eps: {
             asOf: "2026-06-22",
+            dataMode: "research_only",
             field: "eps",
             period: "2024",
             productionApproved: false,
@@ -320,6 +321,48 @@ describe("loadPortfolioReadiness", () => {
     expect(result.tickers[0].sourceDecisions.totalDebt.status).toBe("insufficient_source");
     expect(result.tickers[0].risk.leverageRisk).toBe("insufficient_data");
     expect(result.tickers[0].missingInputs).toContain("totalDebt");
+  });
+
+  it("improves leverage only for tickers with valid traceable debt candidates", async () => {
+    const debtCandidate = (ticker: "FPT" | "MWG", value: number) => ({
+      asOf: "2026-06-22",
+      dataMode: "research_only",
+      field: "totalDebt" as const,
+      period: "2024",
+      productionApproved: false as const,
+      sourceLabel: "traceable_research_debt_input",
+      ticker,
+      unit: "billion_vnd" as const,
+      value,
+    });
+
+    const result = await loadPortfolioReadiness({
+      loadFinancials: async (input = {}) => financialsRuntime(input.ticker ?? "UNKNOWN"),
+      loadTechnical: async (input = {}) => technicalRuntime(input.ticker ?? "UNKNOWN"),
+      readIssuerMetadata: getIssuerMetadata,
+      traceableInputCandidates: {
+        FPT: { totalDebt: debtCandidate("FPT", 500) },
+        MWG: { totalDebt: debtCandidate("MWG", 700) },
+      },
+    });
+
+    const fpt = result.tickers.find((item) => item.ticker === "FPT");
+    const mwg = result.tickers.find((item) => item.ticker === "MWG");
+    const vnm = result.tickers.find((item) => item.ticker === "VNM");
+
+    expect(fpt?.sourceDecisions.totalDebt.status).toBe("available");
+    expect(fpt?.sourceDecisions.totalDebt.activationStatus).toBe("activated");
+    expect(fpt?.risk.leverageRisk).toBe("ready");
+    expect(mwg?.sourceDecisions.totalDebt.status).toBe("available");
+    expect(mwg?.risk.leverageRisk).toBe("ready");
+    expect(vnm?.sourceDecisions.totalDebt.status).toBe("unavailable");
+    expect(vnm?.risk.leverageRisk).toBe("insufficient_data");
+    expect(fpt?.valuation.pe).toBe("insufficient_data");
+    expect(fpt?.valuation.marketCap).toBe("insufficient_data");
+    expect(fpt?.valuation.bvps).toBe("insufficient_data");
+    expect(fpt?.valuation.pb).toBe("insufficient_data");
+    expect(fpt?.valuation.ps).toBe("insufficient_data");
+    expect(fpt?.valuation.canClaimValuationDbBacked).toBe(false);
   });
 
   it("passes bounded VNStock technical read parameters for every ticker", async () => {

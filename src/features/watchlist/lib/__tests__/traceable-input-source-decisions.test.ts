@@ -48,6 +48,7 @@ const financialsRuntime = (patch: Partial<NonNullable<FinancialsRuntimeData["sta
 
 const candidate = (patch: Partial<TraceableInputCandidate> = {}): TraceableInputCandidate => ({
   asOf: "2026-06-22",
+  dataMode: "research_only",
   field: "eps",
   period: "2024",
   productionApproved: false,
@@ -71,10 +72,16 @@ describe("traceable input source decisions", () => {
       expect(decision.productionApproved).toBe(false);
     }
     expect(decisions.totalDebt.reason).toContain("total liabilities are not treated as debt");
+    expect(decisions.totalDebt.pilotChecks?.map((check) => check.status)).toEqual([
+      "checked_no_value",
+      "boundary_only",
+      "boundary_only",
+    ]);
   });
 
   it.each([
     ["missing unit", candidate({ unit: null }), "unit_missing_or_invalid"],
+    ["missing data mode", candidate({ dataMode: null }), "source_metadata_incomplete"],
     ["missing source", candidate({ sourceLabel: null }), "source_metadata_incomplete"],
     ["missing as-of", candidate({ asOf: null }), "source_metadata_incomplete"],
     ["missing period", candidate({ period: null }), "ticker_field_or_period_mismatch"],
@@ -107,5 +114,50 @@ describe("traceable input source decisions", () => {
     });
     expect(decisions.totalDebt.status).toBe("unavailable");
     expect(decisions.sharesOutstanding.status).toBe("unavailable");
+  });
+
+  it("activates a traceable totalDebt candidate without accepting liabilities as debt", () => {
+    const decisions = buildTraceableInputSourceDecisions({
+      candidates: { totalDebt: candidate({ field: "totalDebt", unit: "billion_vnd", value: 500 }) },
+      financials: financialsRuntime(),
+      ticker: "FPT",
+    });
+
+    expect(decisions.totalDebt).toMatchObject({
+      activationStatus: "activated",
+      field: "totalDebt",
+      productionApproved: false,
+      status: "available",
+      unit: "billion_vnd",
+      value: 500,
+    });
+    expect(decisions.totalDebt.pilotChecks?.at(-1)).toMatchObject({
+      path: "candidate_validation",
+      status: "passed",
+    });
+    expect(decisions.eps.status).toBe("unavailable");
+  });
+
+  it("rejects sample or mock totalDebt candidates during the pilot", () => {
+    const decisions = buildTraceableInputSourceDecisions({
+      candidates: {
+        totalDebt: candidate({
+          field: "totalDebt",
+          sourceLabel: "sample_financials",
+          unit: "billion_vnd",
+          value: 500,
+        }),
+      },
+      financials: financialsRuntime(),
+      ticker: "FPT",
+    });
+
+    expect(decisions.totalDebt.status).toBe("insufficient_source");
+    expect(decisions.totalDebt.activationStatus).toBe("deferred");
+    expect(decisions.totalDebt.reasonCode).toBe("sample_or_mock_source_rejected");
+    expect(decisions.totalDebt.pilotChecks?.at(-1)).toMatchObject({
+      path: "candidate_validation",
+      status: "rejected",
+    });
   });
 });
