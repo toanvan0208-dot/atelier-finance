@@ -104,7 +104,15 @@ const PYTHON_HISTORY_SCRIPT = String.raw`
 import json
 import math
 import sys
+import requests
+original_request = requests.Session.request
+def patched_request(*args, **kwargs):
+    kwargs['verify'] = False
+    return original_request(*args, **kwargs)
+requests.Session.request = patched_request
+requests.packages.urllib3.disable_warnings()
 from vnstock.api.quote import Quote
+
 
 ticker, start, end = sys.argv[1:4]
 frame = Quote(symbol=ticker, source="VCI", show_log=False).history(
@@ -112,6 +120,7 @@ frame = Quote(symbol=ticker, source="VCI", show_log=False).history(
     end=end,
     interval="1D",
 )
+
 
 def clean(value):
     if value is None:
