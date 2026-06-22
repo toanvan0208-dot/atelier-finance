@@ -63,20 +63,44 @@ const readableReasonMap: Record<string, string> = {
 };
 
 const statusExplanation: Record<ControlledValuationMetricStatus, string> = {
-  blocked: "Blocked by current Valuation guardrails.",
-  insufficient_data: "Chua du co so de tinh.",
-  not_applicable: "Khong ap dung voi du lieu hien tai.",
-  ready: "Ready for controlled display.",
+  blocked: "Đang chặn theo phạm vi an toàn.",
+  insufficient_data: "Chưa đủ dữ liệu để tính.",
+  not_applicable: "Không áp dụng với dữ liệu hiện tại.",
+  ready: "Có thể tính với đầu vào hiện tại.",
 };
 
 const readableReason = (reason: string): string => readableReasonMap[reason] ?? reason.replace(/_/g, " ");
 
 const readableWarning = (warning: string): string => warning.replace(/_/g, " ");
 
+const statusLabel: Record<ControlledValuationMetricStatus, string> = {
+  blocked: "Đang chặn",
+  insufficient_data: "Chưa đủ dữ liệu",
+  not_applicable: "Không áp dụng",
+  ready: "Có thể tính",
+};
+
+const sourceLabel = (source: string): string => {
+  if (source === "financials_runtime" || source.includes("financials")) return "Báo cáo tài chính đã rà soát";
+  if (source === "market_pvt" || source.includes("market")) return "Giá/khối lượng đã có trong hệ thống";
+  if (source === "persisted_bridge") return "Bản ghi đã lưu trong hệ thống";
+  if (source === "unavailable") return "Chưa có dữ liệu";
+  return "Nguồn có metadata";
+};
+
+const boundaryWarningLabel = (warning: string): string => {
+  const normalized = readableWarning(warning);
+  if (normalized.includes("mixed source")) return "Nguồn dữ liệu được kiểm tra theo nhiều lớp.";
+  if (normalized.includes("not production approved")) return "Nguồn hiện dùng cho nghiên cứu và chưa phê duyệt sản xuất.";
+  if (normalized.includes("db backed")) return "Có dữ liệu trong hệ thống, nhưng vẫn giữ ranh giới định giá.";
+  if (normalized.includes("claim")) return "Chưa claim đầy đủ theo DB ở lớp định giá.";
+  return readableWarning(warning);
+};
+
 const metricRows = (boundary: ControlledValuationIntegrationBoundary): MetricRow[] => [
-  {
+      {
     key: "marketCap",
-    label: "marketCap",
+    label: "Vốn hóa",
     status: boundary.calculation.metrics.marketCap.status,
     value: boundary.calculation.metrics.marketCap.value,
     reason: boundary.calculation.metrics.marketCap.reason,
@@ -175,70 +199,67 @@ export function ControlledValuationCalculationPanel({ boundary }: ControlledValu
   return (
     <Card data-testid="controlled-valuation-calculation-panel">
       <CardHeader
-        chip={<Chip variant="neutral">read-only</Chip>}
-        description="Controlled metric status only. Values appear only when required inputs are valid."
-        title="Controlled valuation calculation status"
+        chip={<Chip variant="neutral">Chỉ đọc</Chip>}
+        description="Chỉ số chỉ hiện giá trị khi đầu vào bắt buộc hợp lệ. Phần này không đưa kết luận đầu tư."
+        title="Trạng thái chỉ số định giá"
       />
       <CardBody className="space-y-4">
         <div className="flex flex-wrap gap-2">
-          <Chip variant="neutral">sourceMode:{boundary.sourceBoundary.valuationSourceMode}</Chip>
-          <Chip variant="neutral">financialsSource:{boundary.sourceBoundary.financialsSourceMode}</Chip>
-          <Chip variant="neutral">marketSource:{boundary.sourceBoundary.marketSourceMode}</Chip>
-          <Chip variant="neutral">productionApproved:false</Chip>
-          <Chip variant="neutral">canClaimValuationDbBacked:false</Chip>
-          <Chip variant="neutral">controlled status</Chip>
+          <Chip variant="neutral">Bản ghi đã rà soát</Chip>
+          <Chip variant="neutral">Dùng cho nghiên cứu</Chip>
+          <Chip variant="neutral">Chưa phê duyệt sản xuất</Chip>
+          <Chip variant="neutral">Có guardrail</Chip>
         </div>
         <p className="text-xs leading-5 text-muted">
-          This panel shows data readiness and blocked states only. It does not replace the persisted input bridge or
-          provide an action instruction.
+          Bảng này chỉ cho biết chỉ số nào có thể tính, chỉ số nào còn thiếu dữ liệu hoặc bị chặn theo phạm vi an toàn.
         </p>
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-2 text-xs leading-5">
-            <p className="font-bold uppercase text-muted">Ready metrics</p>
+            <p className="font-bold uppercase text-muted">Có thể tính</p>
             <p className="mt-1 font-semibold text-ink">{summary.readyCount}</p>
           </div>
           <div className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-2 text-xs leading-5">
-            <p className="font-bold uppercase text-muted">Need input data</p>
+            <p className="font-bold uppercase text-muted">Cần dữ liệu</p>
             <p className="mt-1 font-semibold text-ink">{summary.insufficientDataCount}</p>
           </div>
           <div className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-2 text-xs leading-5">
-            <p className="font-bold uppercase text-muted">Not applicable</p>
+            <p className="font-bold uppercase text-muted">Không áp dụng</p>
             <p className="mt-1 font-semibold text-ink">{summary.notApplicableCount}</p>
           </div>
           <div className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-2 text-xs leading-5">
-            <p className="font-bold uppercase text-muted">Blocked by scope</p>
+            <p className="font-bold uppercase text-muted">Bị chặn</p>
             <p className="mt-1 font-semibold text-ink">{summary.blockedCount}</p>
           </div>
         </div>
         <div className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-2 text-xs leading-5 text-muted">
-          Valuation cannot claim full DB-backed readiness here: Financials, Market/PVT, units, and source approval
-          are checked as separate boundaries. Local/research/sample inputs remain productionApproved:false.
+          Định giá vẫn giữ ranh giới riêng: Financials, Market/PVT, đơn vị và trạng thái nguồn được kiểm tra riêng.
+          Dữ liệu hiện tại dùng cho nghiên cứu và chưa phê duyệt sản xuất.
         </div>
         {boundary.sourceBoundary.warnings.length > 0 ? (
           <div className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-2 text-xs leading-5 text-muted">
-            Boundary warnings: {boundary.sourceBoundary.warnings.slice(0, 5).map(readableWarning).join(" | ")}
+            Ghi chú: {boundary.sourceBoundary.warnings.slice(0, 5).map(boundaryWarningLabel).join(" | ")}
           </div>
         ) : null}
         <div className="overflow-x-auto">
           <table className="w-full min-w-[720px] border-collapse text-sm">
             <thead>
               <tr className="border-b border-border-soft text-left text-xs uppercase text-muted">
-                <th className="py-2 pr-3 font-bold">Input</th>
-                <th className="px-3 py-2 font-bold">Source</th>
-                <th className="px-3 py-2 font-bold">Unit</th>
-                <th className="px-3 py-2 font-bold">Unit status</th>
-                <th className="py-2 pl-3 font-bold">Boundary note</th>
+                <th className="py-2 pr-3 font-bold">Đầu vào</th>
+                <th className="px-3 py-2 font-bold">Nguồn</th>
+                <th className="px-3 py-2 font-bold">Đơn vị</th>
+                <th className="px-3 py-2 font-bold">Trạng thái</th>
+                <th className="py-2 pl-3 font-bold">Ghi chú</th>
               </tr>
             </thead>
             <tbody>
               {inputs.map((row) => (
                 <tr className="border-b border-border-soft last:border-0" key={row.key}>
                   <td className="py-3 pr-3 font-bold text-ink">{row.label}</td>
-                  <td className="px-3 py-3 text-xs text-muted">{readableWarning(row.source)}</td>
+                  <td className="px-3 py-3 text-xs text-muted">{sourceLabel(row.source)}</td>
                   <td className="px-3 py-3 text-xs text-muted">{readableWarning(row.unit)}</td>
                   <td className="px-3 py-3">
                     <Chip size="sm" variant={row.status === "ready" ? "success" : "warning"}>
-                      {readableWarning(row.status)}
+                      {row.status === "ready" ? "Sẵn sàng" : readableWarning(row.status)}
                     </Chip>
                   </td>
                   <td className="py-3 pl-3 text-xs leading-5 text-muted">{row.warning}</td>
@@ -251,10 +272,10 @@ export function ControlledValuationCalculationPanel({ boundary }: ControlledValu
           <table className="w-full min-w-[720px] border-collapse text-sm">
             <thead>
               <tr className="border-b border-border-soft text-left text-xs uppercase text-muted">
-                <th className="py-2 pr-3 font-bold">Metric</th>
-                <th className="px-3 py-2 font-bold">Status</th>
-                <th className="px-3 py-2 text-right font-bold">Value</th>
-                <th className="py-2 pl-3 font-bold">Reason</th>
+                <th className="py-2 pr-3 font-bold">Chỉ số</th>
+                <th className="px-3 py-2 font-bold">Trạng thái</th>
+                <th className="px-3 py-2 text-right font-bold">Giá trị</th>
+                <th className="py-2 pl-3 font-bold">Giải thích</th>
               </tr>
             </thead>
             <tbody>
@@ -263,17 +284,17 @@ export function ControlledValuationCalculationPanel({ boundary }: ControlledValu
                   <td className="py-3 pr-3 font-bold text-ink">{row.label}</td>
                   <td className="px-3 py-3">
                     <Chip size="sm" variant={statusVariant[row.status]}>
-                      {row.status}
+                      {statusLabel[row.status]}
                     </Chip>
                   </td>
                   <td className="px-3 py-3 text-right font-semibold text-ink">
-                    {row.status === "ready" ? formatMetricValue(row.value) : "unavailable"}
+                    {row.status === "ready" ? formatMetricValue(row.value) : "Chưa có dữ liệu"}
                   </td>
                   <td className="py-3 pl-3 text-xs leading-5 text-muted">
                     <span className="font-semibold text-ink">{statusExplanation[row.status]}</span>{" "}
                     {readableReason(row.reason)}
-                    {row.missingInputs.length > 0 ? ` Missing: ${row.missingInputs.join(", ")}.` : ""}
-                    {row.requiredInputs.length > 0 ? ` Required: ${row.requiredInputs.join(", ")}.` : ""}
+                    {row.missingInputs.length > 0 ? ` Thiếu: ${row.missingInputs.join(", ")}.` : ""}
+                    {row.requiredInputs.length > 0 ? ` Cần: ${row.requiredInputs.join(", ")}.` : ""}
                   </td>
                 </tr>
               ))}

@@ -14,29 +14,66 @@ const statusVariant: Record<PortfolioReadinessStatus, "success" | "warning" | "n
   unavailable: "neutral",
 };
 
+const statusText: Record<string, string> = {
+  activated: "Đã kích hoạt",
+  available: "Có dữ liệu",
+  boundary_only: "Có đường kiểm tra, chưa có bản ghi",
+  checked_no_value: "Đã kiểm tra, chưa có giá trị",
+  deferred: "Chờ nguồn đủ kiểm chứng",
+  insufficient_data: "Chưa đủ dữ liệu",
+  partial: "Một phần",
+  ready: "Có thể kiểm tra",
+  unavailable: "Chưa có dữ liệu",
+};
+
+const readableStatus = (value: string): string => statusText[value] ?? value.replaceAll("_", " ");
+
 const valueOrUnavailable = (value: number | string | null | undefined): string =>
-  value === null || value === undefined || value === "" ? "unavailable" : String(value);
+  value === null || value === undefined || value === "" ? "Chưa có dữ liệu" : String(value);
 
 const blockedMetricLabel = (metric: string): string =>
   metric
-    .replace(":", " blocked by ")
+    .replace("pe:eps_unavailable", "P/E thiếu EPS")
+    .replace("marketCap:sharesOutstanding_unavailable", "vốn hóa thiếu số cổ phiếu")
+    .replace("marketCap:marketPrice_unavailable", "vốn hóa thiếu giá thị trường")
+    .replace("bvps:sharesOutstanding_unavailable", "BVPS thiếu số cổ phiếu")
+    .replace("pb:sharesOutstanding_unavailable", "P/B thiếu số cổ phiếu")
+    .replace("pb:marketPrice_unavailable", "P/B thiếu giá thị trường")
+    .replace("ps:marketCap_unavailable", "P/S cần thêm vốn hóa hoặc doanh thu")
     .replaceAll("_", " ");
 
 const coverageLabel = (field: string): string => (field === "operatingCashFlow" ? "CFO" : field);
 
 const sourceDecisionLabel: Record<keyof PortfolioReadinessItem["sourceDecisions"], string> = {
   eps: "EPS",
-  sharesOutstanding: "Shares outstanding",
-  totalDebt: "Total debt",
+  sharesOutstanding: "Số cổ phiếu",
+  totalDebt: "Nợ vay",
 };
 
 const pilotPathLabel = (path: string): string => path.replaceAll("_", " ");
 
+const reviewedSourceStatus = (item: PortfolioReadinessItem): string => {
+  const decisions = Object.values(item.sourceDecisions);
+  const allReviewedInputsAvailable = decisions.every((decision) => decision.status === "available");
+  return allReviewedInputsAvailable
+    ? "Bản ghi đã rà soát · dùng cho nghiên cứu · chưa phê duyệt sản xuất"
+    : "Đang chờ nguồn đủ kiểm chứng cho một số đầu vào";
+};
+
+const sourceDecisionNote = (
+  decision: PortfolioReadinessItem["sourceDecisions"][keyof PortfolioReadinessItem["sourceDecisions"]],
+): string => {
+  if (decision.status === "available") {
+    return `Bản ghi đã rà soát · ${decision.unit ?? "đơn vị chưa rõ"} · kỳ ${decision.period ?? "chưa rõ"}`;
+  }
+  return decision.reason;
+};
+
 function ReadinessRow({ item }: { item: PortfolioReadinessItem }) {
-  const missingInputs = item.missingInputs.length ? item.missingInputs.join(", ") : "none";
+  const missingInputs = item.missingInputs.length ? item.missingInputs.join(", ") : "Không còn thiếu đầu vào chính";
   const blockedMetrics = item.blockedMetrics.length
     ? item.blockedMetrics.map(blockedMetricLabel).join("; ")
-    : "none";
+    : "Không có chỉ số chính đang bị chặn bởi dữ liệu Phase 114";
 
   return (
     <article className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3">
@@ -44,104 +81,93 @@ function ReadinessRow({ item }: { item: PortfolioReadinessItem }) {
         <div>
           <p className="text-sm font-bold text-ink">{item.ticker}</p>
           <p className="text-xs leading-5 text-muted">
-            {item.companyName ?? "Company metadata unavailable"} · {item.exchange ?? "exchange unavailable"} ·{" "}
-            {item.industry ?? "industry unavailable"}
+            {item.companyName ?? "Chưa có tên doanh nghiệp"} · {item.exchange ?? "chưa có sàn"} ·{" "}
+            {item.industry ?? "chưa có ngành"}
           </p>
         </div>
         <Chip size="sm" variant={statusVariant[item.financials.status]}>
-          Financials {item.financials.status}
+          Tài chính {readableStatus(item.financials.status)}
         </Chip>
       </div>
 
       <div className="mt-3 grid gap-2 md:grid-cols-3">
         <div className="rounded-[3px] border border-border-soft bg-surface px-2 py-2">
-          <p className="text-[11px] font-bold text-subtle">Company metadata</p>
-          <p className="mt-1 text-xs font-semibold text-ink">{item.companyMetadata.status}</p>
-          <p className="text-[11px] leading-5 text-muted">
-            {item.companyMetadata.sourceLabel} · {item.companyMetadata.dataMode} · productionApproved:false
-          </p>
+          <p className="text-[11px] font-bold text-subtle">Thông tin doanh nghiệp</p>
+          <p className="mt-1 text-xs font-semibold text-ink">{readableStatus(item.companyMetadata.status)}</p>
+          <p className="text-[11px] leading-5 text-muted">Metadata local phục vụ nghiên cứu, chưa phê duyệt sản xuất.</p>
         </div>
         <div className="rounded-[3px] border border-border-soft bg-surface px-2 py-2">
-          <p className="text-[11px] font-bold text-subtle">Technical/PVT</p>
+          <p className="text-[11px] font-bold text-subtle">Giá/khối lượng</p>
           <p className="mt-1 text-xs font-semibold text-ink">
-            {item.technical.provider} · {item.technical.status}
+            {item.technical.provider.toUpperCase()} · {readableStatus(item.technical.status)}
           </p>
-          <p className="text-[11px] leading-5 text-muted">
-            VNStock research candidate · {item.technical.sourceLabel} · fallbackUsed:{String(item.technical.fallbackUsed)}
-          </p>
+          <p className="text-[11px] leading-5 text-muted">Dữ liệu nghiên cứu từ VNStock candidate; chưa phê duyệt sản xuất.</p>
         </div>
         <div className="rounded-[3px] border border-border-soft bg-surface px-2 py-2">
-          <p className="text-[11px] font-bold text-subtle">Financials</p>
-          <p className="mt-1 text-xs font-semibold text-ink">
-            {item.financials.runtimeStatus} · {item.financials.readPath}
-          </p>
-          <p className="text-[11px] leading-5 text-muted">
-            controlled local/research · {item.financials.sourceLabel} · fallbackUsed:{String(item.financials.fallbackUsed)}
-          </p>
+          <p className="text-[11px] font-bold text-subtle">Báo cáo tài chính</p>
+          <p className="mt-1 text-xs font-semibold text-ink">{readableStatus(item.financials.status)}</p>
+          <p className="text-[11px] leading-5 text-muted">Dữ liệu local/research đã có trong hệ thống; chưa phê duyệt sản xuất.</p>
         </div>
       </div>
 
       <div className="mt-3 grid gap-2 md:grid-cols-4">
         <div className="rounded-[3px] border border-border-soft bg-surface px-2 py-2">
-          <p className="text-[11px] font-bold text-subtle">sharesOutstanding</p>
+          <p className="text-[11px] font-bold text-subtle">Số cổ phiếu</p>
           <p className="mt-1 text-xs font-semibold text-ink">
-            {item.sharesOutstanding.status} · {valueOrUnavailable(item.sharesOutstanding.value)}
+            {readableStatus(item.sharesOutstanding.status)} · {valueOrUnavailable(item.sharesOutstanding.value)}
           </p>
         </div>
         <div className="rounded-[3px] border border-border-soft bg-surface px-2 py-2">
           <p className="text-[11px] font-bold text-subtle">EPS</p>
           <p className="mt-1 text-xs font-semibold text-ink">
-            {item.eps.status} · {valueOrUnavailable(item.eps.value)}
+            {readableStatus(item.eps.status)} · {valueOrUnavailable(item.eps.value)}
           </p>
         </div>
         <div className="rounded-[3px] border border-border-soft bg-surface px-2 py-2">
-          <p className="text-[11px] font-bold text-subtle">Valuation readiness</p>
-          <p className="mt-1 text-xs font-semibold text-ink">
-            {item.valuation.status} · canClaimValuationDbBacked:false
-          </p>
+          <p className="text-[11px] font-bold text-subtle">Định giá</p>
+          <p className="mt-1 text-xs font-semibold text-ink">{readableStatus(item.valuation.status)}</p>
           <p className="text-[11px] leading-5 text-muted">
-            P/E:{item.valuation.pe} · marketCap:{item.valuation.marketCap} · P/B:{item.valuation.pb}
+            P/E: {readableStatus(item.valuation.pe)} · vốn hóa: {readableStatus(item.valuation.marketCap)} · P/B:{" "}
+            {readableStatus(item.valuation.pb)}
           </p>
         </div>
         <div className="rounded-[3px] border border-border-soft bg-surface px-2 py-2">
-          <p className="text-[11px] font-bold text-subtle">Risk readiness</p>
-          <p className="mt-1 text-xs font-semibold text-ink">
-            {item.risk.status} · canClaimRiskDbBacked:false
-          </p>
+          <p className="text-[11px] font-bold text-subtle">Rủi ro</p>
+          <p className="mt-1 text-xs font-semibold text-ink">{readableStatus(item.risk.status)}</p>
           <p className="text-[11px] leading-5 text-muted">
-            source:{item.risk.sourceMode} · cash flow:{item.risk.cashFlowQuality} · liquidity:
-            {item.risk.liquidityRisk} · leverage:{item.risk.leverageRisk}
+            Dòng tiền: {readableStatus(item.risk.cashFlowQuality)} · thanh khoản:{" "}
+            {readableStatus(item.risk.liquidityRisk)} · đòn bẩy: {readableStatus(item.risk.leverageRisk)}
           </p>
         </div>
       </div>
 
       <div className="mt-3 rounded-[3px] border border-border-soft bg-surface px-2 py-2">
-        <p className="text-[11px] font-bold text-subtle">Financial statement coverage</p>
+        <p className="text-[11px] font-bold text-subtle">Độ phủ báo cáo tài chính</p>
         <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[11px] leading-5 text-muted">
           {Object.entries(item.financials.coverage).map(([field, coverage]) => (
             <span key={field}>
-              {coverageLabel(field)}:{coverage.status}
+              {coverageLabel(field)}: {readableStatus(coverage.status)}
             </span>
           ))}
         </div>
       </div>
 
       <div className="mt-3 rounded-[3px] border border-border-soft bg-surface px-2 py-2">
-        <p className="text-[11px] font-bold text-subtle">Traceable input decisions</p>
+        <p className="text-[11px] font-bold text-subtle">Nguồn đầu vào đã rà soát</p>
+        <p className="mt-1 text-[11px] leading-5 text-muted">{reviewedSourceStatus(item)}</p>
         <div className="mt-1 grid gap-1 text-[11px] leading-5 text-muted md:grid-cols-3">
           {Object.entries(item.sourceDecisions).map(([field, decision]) => (
             <p key={field}>
               <span className="font-semibold text-ink">
-                {sourceDecisionLabel[field as keyof PortfolioReadinessItem["sourceDecisions"]]}: {decision.status}
+                {sourceDecisionLabel[field as keyof PortfolioReadinessItem["sourceDecisions"]]}:{" "}
+                {readableStatus(decision.status)}
               </span>{" "}
-              · {decision.reason}
-              {decision.sourceLabel
-                ? ` · ${decision.sourceLabel} · ${decision.dataMode} · ${decision.unit} · ${decision.period}`
-                : ""}
+              · {sourceDecisionNote(decision)}
               {decision.pilotChecks?.length ? (
                 <span className="mt-1 block text-subtle">
-                  Pilot checked {decision.pilotChecks.length} paths: {decision.pilotChecks
-                    .map((check) => `${pilotPathLabel(check.path)}:${check.status}`)
+                  Đã kiểm tra {decision.pilotChecks.length} đường:{" "}
+                  {decision.pilotChecks
+                    .map((check) => `${pilotPathLabel(check.path)}: ${readableStatus(check.status)}`)
                     .join("; ")}
                 </span>
               ) : null}
@@ -152,10 +178,10 @@ function ReadinessRow({ item }: { item: PortfolioReadinessItem }) {
 
       <div className="mt-3 grid gap-2 md:grid-cols-2">
         <p className="rounded-[3px] border border-border-soft bg-surface px-2 py-2 text-[11px] leading-5 text-muted">
-          <span className="font-bold text-ink">Missing inputs:</span> {missingInputs}
+          <span className="font-bold text-ink">Đầu vào còn thiếu:</span> {missingInputs}
         </p>
         <p className="rounded-[3px] border border-border-soft bg-surface px-2 py-2 text-[11px] leading-5 text-muted">
-          <span className="font-bold text-ink">Blocked metrics:</span> {blockedMetrics}
+          <span className="font-bold text-ink">Chỉ số đang chờ:</span> {blockedMetrics}
         </p>
       </div>
     </article>
@@ -168,15 +194,15 @@ export function PortfolioReadinessPanel({ data }: PortfolioReadinessPanelProps) 
   return (
     <Card className="border-border">
       <CardHeader
-        chip={<Chip variant="warning">productionApproved:false</Chip>}
-        description="Derived status for FPT/MWG/VNM from company metadata, Technical/PVT, and Financials runtimes. This layer is not a new source of financial truth."
+        chip={<Chip variant="warning">Dữ liệu nghiên cứu</Chip>}
+        description="Tóm tắt trạng thái dữ liệu cho FPT/MWG/VNM. Lớp này giúp biết dữ liệu nào đã có, dữ liệu nào vẫn cần kiểm tra thêm."
         icon="PR"
-        title="Portfolio readiness backbone"
+        title="Trạng thái dữ liệu danh mục"
       />
       <CardBody className="space-y-3">
         <div className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-2 text-xs leading-5 text-muted">
-          Technical/PVT uses VNStock research candidate data when DB-backed. Financials uses controlled local/research
-          data. sharesOutstanding and EPS remain unavailable unless a traceable source is added later.
+          Hệ thống đã có dữ liệu giá/khối lượng, báo cáo tài chính, nợ vay, EPS và số cổ phiếu cho nhóm mã này.
+          Các bản ghi dùng cho nghiên cứu và chưa phê duyệt sản xuất; đây không phải kết luận đầu tư.
         </div>
         <div className="grid gap-3">
           {data.tickers.map((item) => (

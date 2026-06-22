@@ -4,112 +4,104 @@ import type { FinancialsRuntimeData } from "../lib/financials-runtime-types";
 
 type FinancialsSourceTransparencyProps = {
   runtimeData: FinancialsRuntimeData;
-};
-
-const labelValue = (value: string | number | boolean | null | undefined): string => {
-  if (value === null || value === undefined || value === "") return "unavailable";
-  return String(value);
+  supplementalAvailableFields?: string[];
 };
 
 const sourceNote = (runtimeData: FinancialsRuntimeData): string => {
   if (runtimeData.source.readPath === "local_db") {
-    return "Du lieu local DB phuc vu nghien cuu va kiem tra source evidence. Chua duoc duyet lam nguon san xuat.";
+    return "Đã có dữ liệu tài chính trong hệ thống cho mục đích nghiên cứu. Dữ liệu này chưa phê duyệt sản xuất.";
   }
 
   if (runtimeData.runtimeStatus === "sample_fallback") {
-    return "Du lieu mau tinh (static sample). Fallback dang bat vi chua co local/imported financial statements usable.";
+    return "Đang dùng dữ liệu minh họa vì chưa có báo cáo tài chính local/imported đủ dùng.";
   }
 
-  return "Nguon du lieu chua co trang thai duyet cho san xuat; can doc kem pham vi va thoi diem cap nhat.";
+  return "Nguồn dữ liệu cần đọc kèm phạm vi, mốc thời gian và trạng thái rà soát.";
 };
-
-const readPathLabel = (runtimeData: FinancialsRuntimeData): string => {
-  if (runtimeData.source.readPath === "local_db") return "local DB research-only";
-  if (runtimeData.source.readPath === "sample_static") return "static sample fallback";
-  return runtimeData.source.readPath;
-};
-
-const fallbackLabel = (runtimeData: FinancialsRuntimeData): string =>
-  runtimeData.source.fallbackUsed ? "Fallback dang bat" : "Fallback khong dung";
 
 const readableStatus = (value: string): string => value.replace(/_/g, " ");
 
 const dataModeExplanation: Record<string, string> = {
-  db_backed: "local DB boundary, research-only scope",
-  local_research: "local research data, source review pending",
-  manual: "manual/user-provided data, review pending",
-  research_only: "research-only data, review pending",
-  sample: "static sample fallback",
-  unknown: "unknown data mode",
+  db_backed: "Đã có dữ liệu trong hệ thống, phạm vi nghiên cứu",
+  local_research: "Dữ liệu local phục vụ nghiên cứu",
+  manual: "Dữ liệu nhập tay, cần rà soát",
+  research_only: "Dữ liệu nghiên cứu, cần rà soát",
+  sample: "Dữ liệu minh họa",
+  unknown: "Chưa rõ chế độ dữ liệu",
 };
 
 const sourceEvidenceExplanation: Record<string, string> = {
-  available: "source markers are present; approval still follows productionApproved flag",
-  missing: "source markers are missing",
-  not_approved: "source markers are present, but productionApproved:false remains",
-  partial: "some source markers are present; review is incomplete",
+  available:
+    "Có metadata nguồn; vẫn cần giữ trạng thái chưa phê duyệt sản xuất",
+  missing: "Thiếu metadata nguồn",
+  not_approved: "Có metadata nguồn, nhưng chưa phê duyệt sản xuất",
+  partial: "Một phần metadata nguồn đã có; cần rà soát thêm",
 };
 
 const unitMetadataExplanation: Record<string, string> = {
-  explicit: "explicit valid units are available for present Financials fields",
-  invalid: "invalid unit metadata blocks unit-sensitive use",
-  partial: "some present fields have explicit units; other fields still need units",
-  unknown: "present fields do not have explicit units yet",
+  explicit: "Các trường hiện có đã có đơn vị rõ",
+  invalid: "Đơn vị không hợp lệ nên chỉ số nhạy đơn vị bị chặn",
+  partial: "Một số trường đã có đơn vị rõ; một số trường vẫn cần bổ sung",
+  unknown: "Các trường hiện có chưa có đơn vị rõ",
 };
 
 const valuationHandoffExplanation: Record<string, string> = {
-  blocked: "blocked until required fields and explicit units are available",
-  not_applicable: "not applicable because no statement snapshot is available",
-  partial: "partial handoff only; Valuation keeps its own boundary",
-  ready_with_explicit_units: "Financials fields have explicit units; Valuation still keeps its own boundary",
+  blocked: "Chưa đủ trường hoặc đơn vị để chuyển sang định giá",
+  not_applicable: "Chưa có snapshot báo cáo tài chính",
+  partial: "Chuyển một phần; định giá vẫn có ranh giới riêng",
+  ready_with_explicit_units:
+    "Trường tài chính có đơn vị rõ; định giá vẫn kiểm tra riêng",
 };
 
 const reasonLabel = (reason: string): string => readableStatus(reason);
 
-export function FinancialsSourceTransparency({ runtimeData }: FinancialsSourceTransparencyProps) {
+const userWarningLabel = (warning: string): string => {
+  if (warning.includes("productionApproved:false"))
+    return "Nguồn hiện dùng cho nghiên cứu và chưa phê duyệt sản xuất.";
+  if (warning.includes("canClaimValuationDbBacked:false"))
+    return "Định giá vẫn kiểm tra ranh giới riêng trước khi dùng.";
+  if (warning.includes("local DB boundary"))
+    return "Financials đang đọc dữ liệu đã có trong hệ thống.";
+  return warning;
+};
+
+export function FinancialsSourceTransparency({
+  runtimeData,
+  supplementalAvailableFields = [],
+}: FinancialsSourceTransparencyProps) {
   const transparency = buildFinancialsDataSourceTransparency(runtimeData);
   const hasMissingFields = runtimeData.dataQuality.missingFields.length > 0;
   const hasWarnings = runtimeData.dataQuality.warnings.length > 0;
   const hasErrors = runtimeData.dataQuality.errors.length > 0;
   const summaryRows = [
-    ["Data mode", dataModeExplanation[transparency.dataMode] ?? readableStatus(transparency.dataMode)],
     [
-      "Source/evidence",
+      "Phân loại dữ liệu",
+      dataModeExplanation[transparency.dataMode] ??
+        readableStatus(transparency.dataMode),
+    ],
+    [
+      "Nguồn/evidence",
       sourceEvidenceExplanation[transparency.sourceEvidenceStatus] ??
         readableStatus(transparency.sourceEvidenceStatus),
     ],
     [
-      "Unit metadata",
-      unitMetadataExplanation[transparency.unitMetadataStatus] ?? readableStatus(transparency.unitMetadataStatus),
+      "Đơn vị dữ liệu",
+      unitMetadataExplanation[transparency.unitMetadataStatus] ??
+        readableStatus(transparency.unitMetadataStatus),
     ],
     [
-      "Valuation handoff",
+      "Chuyển sang định giá",
       valuationHandoffExplanation[transparency.valuationHandoffStatus] ??
         readableStatus(transparency.valuationHandoffStatus),
     ],
   ] as const;
-
-  const fields = [
-    ["Nguon du lieu", runtimeData.source.sourceLabel],
-    ["Che do du lieu", runtimeData.source.dataMode],
-    ["Duong doc du lieu", runtimeData.source.readPath],
-    ["Trang thai runtime", runtimeData.runtimeStatus],
-    ["Trang thai du lieu", runtimeData.dataQuality.status],
-    ["fallbackUsed", runtimeData.source.fallbackUsed],
-    ["productionApproved", runtimeData.source.productionApproved],
-    ["Ticker", runtimeData.source.ticker],
-    ["Nam tai chinh", runtimeData.source.fiscalYear],
-    ["Ky bao cao", runtimeData.source.periodType],
-    ["Moc du lieu", runtimeData.source.asOf],
-    ["Transparency dataMode", transparency.dataMode],
-    ["Source evidence", transparency.sourceEvidenceStatus],
-    ["Unit metadata", transparency.unitMetadataStatus],
-    ["Valuation handoff", transparency.valuationHandoffStatus],
-    ["canClaimFinancialsDbBacked", transparency.canClaimFinancialsDbBacked],
-    ["canClaimValuationDbBacked", transparency.canClaimValuationDbBacked],
-  ] as const;
-  const visibleMissingFields = transparency.missingFields;
-  const visibleBlockedReasons = transparency.blockedReasons;
+  const visibleMissingFields = transparency.missingFields.filter(
+    (field) => !supplementalAvailableFields.includes(field),
+  );
+  const visibleBlockedReasons = transparency.blockedReasons.filter(
+    (reason) =>
+      !supplementalAvailableFields.some((field) => reason.includes(field)),
+  );
 
   return (
     <section
@@ -119,53 +111,98 @@ export function FinancialsSourceTransparency({ runtimeData }: FinancialsSourceTr
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap gap-2">
-            <Chip variant="neutral">source transparency</Chip>
-            <Chip variant="neutral">{runtimeData.runtimeStatus}</Chip>
-            <Chip variant="neutral">{transparency.dataMode}</Chip>
-            <Chip variant="neutral">{readPathLabel(runtimeData)}</Chip>
-            <Chip variant="neutral">{fallbackLabel(runtimeData)}</Chip>
-            <Chip variant="neutral">productionApproved:false</Chip>
-            <Chip variant="neutral">units:{transparency.unitMetadataStatus}</Chip>
-            <Chip variant="neutral">valuation:{transparency.valuationHandoffStatus}</Chip>
-            {hasMissingFields ? <Chip variant="neutral">partial/missing</Chip> : null}
+            <Chip variant="neutral">Nguồn dữ liệu</Chip>
+            <Chip variant="neutral">
+              {runtimeData.source.readPath === "local_db"
+                ? "Đã có trong hệ thống"
+                : "Minh họa/đang chờ dữ liệu"}
+            </Chip>
+            <Chip variant="neutral">Dùng cho nghiên cứu</Chip>
+            <Chip variant="neutral">Chưa phê duyệt sản xuất</Chip>
+            <Chip variant="neutral">
+              Đơn vị:{" "}
+              {unitMetadataExplanation[transparency.unitMetadataStatus] ??
+                readableStatus(transparency.unitMetadataStatus)}
+            </Chip>
+            {hasMissingFields ? (
+              <Chip variant="neutral">Còn thiếu trường</Chip>
+            ) : null}
           </div>
           <p className="mt-3 font-semibold">{sourceNote(runtimeData)}</p>
           <p className="mt-1">
-            Chua duoc phe duyet production. Du lieu thieu duoc giu la null/unavailable, khong thay bang 0.
+            Dữ liệu thiếu được giữ là null/unavailable, không thay bằng 0.
           </p>
           <p className="mt-1">
-            Boundary nay chi ap dung cho module Financials; Overview, Valuation va Risk co metadata rieng va khong tu
-            dong tro thanh DB-backed theo Financials.
+            Financials cung cấp đầu vào cho các module khác, nhưng mỗi module
+            vẫn tự kiểm tra nguồn và điều kiện dùng.
           </p>
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             {summaryRows.map(([label, value]) => (
-              <div className="rounded-[4px] border border-[#E8CC82] bg-white/55 px-3 py-2" key={label}>
-                <p className="text-[11px] font-bold uppercase tracking-[0.02em]">{label}</p>
+              <div
+                className="rounded-[4px] border border-[#E8CC82] bg-white/55 px-3 py-2"
+                key={label}
+              >
+                <p className="text-[11px] font-bold uppercase tracking-[0.02em]">
+                  {label}
+                </p>
                 <p className="mt-1 leading-5">{value}</p>
               </div>
             ))}
           </div>
           {visibleMissingFields.length > 0 ? (
             <p className="mt-2">
-              Truong du lieu con thieu: {visibleMissingFields.join(", ")}.
+              Trường dữ liệu còn thiếu: {visibleMissingFields.join(", ")}.
             </p>
           ) : null}
           {visibleBlockedReasons.length > 0 ? (
-            <p className="mt-2">Ly do dang chan: {visibleBlockedReasons.slice(0, 6).map(reasonLabel).join(" | ")}.</p>
+            <p className="mt-2">
+              Lý do đang chặn:{" "}
+              {visibleBlockedReasons.slice(0, 6).map(reasonLabel).join(" | ")}.
+            </p>
           ) : null}
           {transparency.uiWarnings.length > 0 ? (
-            <p className="mt-2">Ghi chu UI: {transparency.uiWarnings.join(" | ")}</p>
+            <p className="mt-2">
+              Ghi chú:{" "}
+              {transparency.uiWarnings.map(userWarningLabel).join(" | ")}
+            </p>
           ) : null}
-          {hasWarnings ? <p className="mt-2">Canh bao: {runtimeData.dataQuality.warnings.join(" | ")}</p> : null}
-          {hasErrors ? <p className="mt-2">Loi doc du lieu: {runtimeData.dataQuality.errors.join(" | ")}</p> : null}
+          {hasWarnings ? (
+            <p className="mt-2">
+              Cảnh báo: {runtimeData.dataQuality.warnings.join(" | ")}
+            </p>
+          ) : null}
+          {hasErrors ? (
+            <p className="mt-2">
+              Lỗi đọc dữ liệu: {runtimeData.dataQuality.errors.join(" | ")}
+            </p>
+          ) : null}
         </div>
         <dl className="grid min-w-0 gap-2 text-xs lg:min-w-[320px]">
-          {fields.map(([label, value]) => (
-            <div className="grid grid-cols-[120px_1fr] gap-3" key={label}>
-              <dt className="font-bold">{label}</dt>
-              <dd className="min-w-0 break-words text-right">{labelValue(value)}</dd>
-            </div>
-          ))}
+          <div className="grid grid-cols-[120px_1fr] gap-3">
+            <dt className="font-bold">Ticker</dt>
+            <dd className="min-w-0 break-words text-right">
+              {runtimeData.source.ticker}
+            </dd>
+          </div>
+          <div className="grid grid-cols-[120px_1fr] gap-3">
+            <dt className="font-bold">Năm/kỳ</dt>
+            <dd className="min-w-0 break-words text-right">
+              {runtimeData.source.fiscalYear ?? "chưa rõ"} ·{" "}
+              {runtimeData.source.periodType}
+            </dd>
+          </div>
+          <div className="grid grid-cols-[120px_1fr] gap-3">
+            <dt className="font-bold">Mốc dữ liệu</dt>
+            <dd className="min-w-0 break-words text-right">
+              {runtimeData.source.asOf ?? "chưa rõ"}
+            </dd>
+          </div>
+          <div className="grid grid-cols-[120px_1fr] gap-3">
+            <dt className="font-bold">Trạng thái</dt>
+            <dd className="min-w-0 break-words text-right">
+              dữ liệu nghiên cứu, chưa phê duyệt sản xuất
+            </dd>
+          </div>
         </dl>
       </div>
     </section>

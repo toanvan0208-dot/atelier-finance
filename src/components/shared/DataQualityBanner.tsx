@@ -47,7 +47,7 @@ const statusDescription = ({
   }
 
   if (isResearchOnly) {
-    return "Du lieu local/research-only chi dung cho kiem thu do an; productionApproved:false va can doc kem source transparency.";
+    return "Dữ liệu local/research-only dùng cho kiểm thử và nghiên cứu; chưa phê duyệt sản xuất và cần đọc kèm trạng thái nguồn.";
   }
 
   return "Du lieu co metadata nguon va moc thoi gian, van can kiem tra pham vi, readiness va quyen su dung truoc khi tin cay.";

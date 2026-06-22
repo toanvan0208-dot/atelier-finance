@@ -43,12 +43,15 @@ describe("ControlledValuationCalculationPanel", () => {
       }),
     );
 
-    expect(html).toContain("sourceMode:mixed_source");
-    expect(html).toContain("productionApproved:false");
-    expect(html).toContain("canClaimValuationDbBacked:false");
-    expect(html).toContain("valuation remains mixed source");
-    expect(html).toContain("Valuation cannot claim full DB-backed readiness");
-    expect(html).toContain("Unit status");
+    expect(html).toContain("Trạng thái chỉ số định giá");
+    expect(html).toContain("Bản ghi đã rà soát");
+    expect(html).toContain("Dùng cho nghiên cứu");
+    expect(html).toContain("Chưa phê duyệt sản xuất");
+    expect(html).toContain("Định giá vẫn giữ ranh giới riêng");
+    expect(html).toContain("Trạng thái");
+    expect(html).not.toContain("sourceMode:mixed_source");
+    expect(html).not.toContain("productionApproved:false");
+    expect(html).not.toContain("canClaimValuationDbBacked:false");
   });
 
   it("renders ready metric values only when status is ready", () => {
@@ -65,7 +68,7 @@ describe("ControlledValuationCalculationPanel", () => {
     );
 
     expect(html).toContain("P/E");
-    expect(html).toContain("ready");
+    expect(html).toContain("Có thể tính");
     expect(html).toContain(">4<");
     expect(html).toContain("P/B");
     expect(html).toContain(">2<");
@@ -98,19 +101,22 @@ describe("ControlledValuationCalculationPanel", () => {
       }),
     );
 
-    expect(html).toContain("sourceMode:mixed_source");
-    expect(html).toContain("financialsSource:financials_input_db_backed_local_imported");
-    expect(html).toContain("marketSource:market_pvt");
-    expect(html).toContain("productionApproved:false");
-    expect(html).toContain("canClaimValuationDbBacked:false");
-    expect(html).toContain("valuation remains mixed source");
-    expect(html).toContain("Ready metrics");
+    expect(html).toContain("Bản ghi đã rà soát");
+    expect(html).toContain("Dùng cho nghiên cứu");
+    expect(html).toContain("Chưa phê duyệt sản xuất");
+    expect(html).toContain("Nguồn dữ liệu được kiểm tra theo nhiều lớp");
+    expect(html).toContain("Có thể tính");
     expect(html).toContain("5,000,000,000");
     expect(html).toContain(">10<");
     expect(html).toContain("5,000");
     expect(html).toContain(">5<");
-    expect(html).toContain("blocked");
-    expect(html).toContain("Blocked by scope");
+    expect(html).toContain("Đang chặn");
+    expect(html).toContain("Bị chặn");
+    expect(html).not.toContain("sourceMode:mixed_source");
+    expect(html).not.toContain("financialsSource:financials_input_db_backed_local_imported");
+    expect(html).not.toContain("marketSource:market_pvt");
+    expect(html).not.toContain("productionApproved:false");
+    expect(html).not.toContain("canClaimValuationDbBacked:false");
   });
 
   it("renders insufficient data reasons without zero-filling missing values", () => {
@@ -120,11 +126,11 @@ describe("ControlledValuationCalculationPanel", () => {
       }),
     );
 
-    expect(html).toContain("insufficient_data");
-    expect(html).toContain("Missing input data: EPS is unavailable.");
-    expect(html).toContain("Missing input data: valid market price or shares are unavailable.");
-    expect(html).toContain("unavailable");
-    expect(html).toContain("Need input data");
+    expect(html).toContain("Chưa đủ dữ liệu");
+    expect(html).toContain("EPS is unavailable");
+    expect(html).toContain("valid market price or shares are unavailable");
+    expect(html).toContain("Chưa có dữ liệu");
+    expect(html).toContain("Cần dữ liệu");
   });
 
   it("does not round small positive ready values down to zero", () => {
@@ -141,7 +147,7 @@ describe("ControlledValuationCalculationPanel", () => {
     );
 
     expect(html).toContain(">0.0001<");
-    expect(html).toContain("Ready for controlled display.");
+    expect(html).toContain("Có thể tính với đầu vào hiện tại.");
   });
 
   it("renders not applicable states for non-positive EPS and equity", () => {
@@ -157,9 +163,9 @@ describe("ControlledValuationCalculationPanel", () => {
       }),
     );
 
-    expect(html).toContain("not_applicable");
-    expect(html).toContain("Not applicable with current data: EPS is non-positive.");
-    expect(html).toContain("Not applicable with current data: equity is non-positive.");
+    expect(html).toContain("Không áp dụng");
+    expect(html).toContain("EPS is non-positive");
+    expect(html).toContain("equity is non-positive");
   });
 
   it("renders EV, EV/EBITDA, DCF, and intrinsic value band as blocked", () => {

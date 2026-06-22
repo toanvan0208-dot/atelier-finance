@@ -2,7 +2,14 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { DataQualityBanner } from "@/components/shared/DataQualityBanner";
-import { Button, Card, CardBody, Chip, EmptyState, LoadingState } from "@/components/ui";
+import {
+  Button,
+  Card,
+  CardBody,
+  Chip,
+  EmptyState,
+  LoadingState,
+} from "@/components/ui";
 import {
   fetchFinancialStatementsByTicker,
   FinancialsApiError,
@@ -18,9 +25,11 @@ import { FinancialsDisclaimer } from "./FinancialsDisclaimer";
 import { FinancialsHeader } from "./FinancialsHeader";
 import { FinancialsOverviewPanel } from "./FinancialsOverviewPanel";
 import { FinancialsSourceTransparency } from "./FinancialsSourceTransparency";
+import type { PortfolioReadinessItem } from "@/features/watchlist/lib/load-portfolio-readiness";
 
 type FinancialsPageProps = {
   initialRuntimeData?: FinancialsRuntimeData;
+  reviewedReadiness?: PortfolioReadinessItem | null;
   onNavigate?: (moduleKey: string) => void;
 };
 
@@ -34,7 +43,12 @@ type RuntimeReadyState = {
 type FinancialsBridgeState =
   | { status: "loading"; ticker: string }
   | RuntimeReadyState
-  | { status: "ready"; statement: FinancialsApiStatement; deskData: FinancialReadingDeskData; pageData: FinancialsPageData }
+  | {
+      status: "ready";
+      statement: FinancialsApiStatement;
+      deskData: FinancialReadingDeskData;
+      pageData: FinancialsPageData;
+    }
   | { status: "empty"; ticker: string }
   | { status: "error"; ticker: string; message: string };
 
@@ -53,16 +67,126 @@ const logicMetricIds = new Set([
 
 const metadataLabel = (value: string): string => value.replace(/_/g, " ");
 
-const readinessToHeaderStatus = (readiness: FinancialsApiStatement["metadata"]["readiness"]) => {
-  if (readiness === "ready") return "Day du" as FinancialsPageData["header"]["dataStatus"];
+const userFacingSource = (source: string | null | undefined): string => {
+  if (!source) return "Chưa có nguồn dữ liệu";
+  if (source.includes("manual_reviewed_financial_statement"))
+    return "Bản ghi đã rà soát, dùng cho nghiên cứu";
+  if (source.includes("phase109") || source.includes("controlled"))
+    return "Dữ liệu local/research đã kiểm soát";
+  if (source.includes("sample")) return "Dữ liệu minh họa";
+  return "Dữ liệu có metadata nguồn";
+};
+
+const metadataChipLabel = (key: string, value: string | boolean): string => {
+  if (key === "dataMode")
+    return value === "research_only"
+      ? "Dữ liệu nghiên cứu"
+      : `Phân loại: ${metadataLabel(String(value))}`;
+  if (key === "sourceType")
+    return String(value).includes("company_disclosure")
+      ? "Nguồn: bản ghi đã rà soát"
+      : "Nguồn có metadata";
+  if (key === "quality") return `Chất lượng: ${metadataLabel(String(value))}`;
+  if (key === "readiness") return `Trạng thái: ${metadataLabel(String(value))}`;
+  if (key === "fallback")
+    return value ? "Đang dùng minh họa" : "Không dùng minh họa";
+  return String(value);
+};
+
+const reviewedInputLabel = (
+  field: "totalDebt" | "eps" | "sharesOutstanding",
+): string => {
+  if (field === "totalDebt") return "Nợ vay";
+  if (field === "eps") return "EPS";
+  return "Số cổ phiếu";
+};
+
+const renderReviewedInputStatus = (
+  field: "totalDebt" | "eps" | "sharesOutstanding",
+  readiness?: PortfolioReadinessItem | null,
+) => {
+  const decision = readiness?.sourceDecisions[field];
+  const isAvailable = decision?.status === "available";
+
+  return (
+    <div
+      className="rounded-[3px] border border-border bg-surface p-3"
+      key={field}
+    >
+      <p className="text-xs font-bold uppercase text-muted">
+        {reviewedInputLabel(field)}
+      </p>
+      <p className="mt-1 text-sm font-extrabold text-ink">
+        {isAvailable
+          ? "Đã có dữ liệu đã rà soát"
+          : "Chưa đủ dữ liệu đã rà soát"}
+      </p>
+      <p className="mt-1 text-xs font-semibold leading-5 text-muted">
+        {isAvailable
+          ? `${decision?.unit ?? "đơn vị đã khai báo"} · kỳ ${decision?.period ?? "đã khai báo"}`
+          : "Giữ là unavailable, không thay bằng 0."}
+      </p>
+    </div>
+  );
+};
+
+const reviewedAvailableFields = (
+  readiness?: PortfolioReadinessItem | null,
+): string[] =>
+  (["totalDebt", "eps", "sharesOutstanding"] as const).filter(
+    (field) => readiness?.sourceDecisions[field].status === "available",
+  );
+
+const reconcileReviewedInputs = (
+  deskData: FinancialReadingDeskData,
+  readiness?: PortfolioReadinessItem | null,
+): FinancialReadingDeskData => {
+  const availableFields = reviewedAvailableFields(readiness);
+  if (availableFields.length === 0) return deskData;
+
+  const missing = deskData.valuationReadiness.missing.filter(
+    (item) => !availableFields.some((field) => item.includes(field)),
+  );
+  const warnings = deskData.warnings.filter(
+    (warning) =>
+      !availableFields.some((field) => warning.cause.includes(field)),
+  );
+  const hasReviewedValuationInputs =
+    availableFields.includes("eps") &&
+    availableFields.includes("sharesOutstanding");
+
+  return {
+    ...deskData,
+    warnings,
+    valuationReadiness: {
+      ...deskData.valuationReadiness,
+      missing,
+      reason: hasReviewedValuationInputs
+        ? "Đã có EPS và số cổ phiếu từ bản ghi đã rà soát. Giá thị trường và điều kiện căn chỉnh được kiểm tra tại module Định giá."
+        : deskData.valuationReadiness.reason,
+      nextStepSuggestion: hasReviewedValuationInputs
+        ? "Mở module Định giá để kiểm tra giá thị trường, kỳ dữ liệu và trạng thái từng chỉ số."
+        : deskData.valuationReadiness.nextStepSuggestion,
+    },
+  };
+};
+
+const readinessToHeaderStatus = (
+  readiness: FinancialsApiStatement["metadata"]["readiness"],
+) => {
+  if (readiness === "ready")
+    return "Day du" as FinancialsPageData["header"]["dataStatus"];
   if (readiness === "not_ready" || readiness === "insufficient_data") {
     return "Thieu du lieu" as FinancialsPageData["header"]["dataStatus"];
   }
   return "Can kiem tra them" as FinancialsPageData["header"]["dataStatus"];
 };
 
-const runtimeStatusToHeaderStatus = (status: FinancialsRuntimeData["dataQuality"]["status"]) => {
-  if (status === "available") return "Day du" as FinancialsPageData["header"]["dataStatus"];
+const runtimeStatusToHeaderStatus = (
+  status: FinancialsRuntimeData["dataQuality"]["status"],
+) => {
+  if (status === "available")
+    return "Day du" as FinancialsPageData["header"]["dataStatus"];
   if (status === "partial" || status === "insufficient_data") {
     return "Thieu du lieu" as FinancialsPageData["header"]["dataStatus"];
   }
@@ -73,20 +197,25 @@ const filterLogicDeskData = (
   data: FinancialReadingDeskData,
   extraWarnings: FinancialReadingDeskData["warnings"] = [],
 ): FinancialReadingDeskData => {
-  const metrics = data.metrics.filter((metric) => logicMetricIds.has(metric.id));
+  const metrics = data.metrics.filter((metric) =>
+    logicMetricIds.has(metric.id),
+  );
   const metricIds = new Set(metrics.map((metric) => metric.id));
   const readingSteps = data.readingSteps.map((step) => ({
     ...step,
     metricIds: step.metricIds.filter((metricId) => metricIds.has(metricId)),
   }));
-  const firstMetricStep = readingSteps.find((step) => step.metricIds.length > 0)?.id ?? data.nextReadingStep.stepId;
+  const firstMetricStep =
+    readingSteps.find((step) => step.metricIds.length > 0)?.id ??
+    data.nextReadingStep.stepId;
 
   return {
     ...data,
     metrics,
     readingSteps,
     warnings: [...extraWarnings, ...data.warnings].filter(
-      (warning, index, warnings) => warnings.findIndex((item) => item.id === warning.id) === index,
+      (warning, index, warnings) =>
+        warnings.findIndex((item) => item.id === warning.id) === index,
     ),
     nextReadingStep: {
       ...data.nextReadingStep,
@@ -95,11 +224,17 @@ const filterLogicDeskData = (
   };
 };
 
-const buildBridgeDeskData = (statement: FinancialsApiStatement): FinancialReadingDeskData => {
-  const next = buildFinancialReadingDeskData(financialReadingDeskData, statement.snapshot);
+const buildBridgeDeskData = (
+  statement: FinancialsApiStatement,
+): FinancialReadingDeskData => {
+  const next = buildFinancialReadingDeskData(
+    financialReadingDeskData,
+    statement.snapshot,
+  );
   const firstMetricStep =
-    next.readingSteps.find((step) => step.metricIds.some((metricId) => logicMetricIds.has(metricId)))?.id ??
-    next.nextReadingStep.stepId;
+    next.readingSteps.find((step) =>
+      step.metricIds.some((metricId) => logicMetricIds.has(metricId)),
+    )?.id ?? next.nextReadingStep.stepId;
   const sourceWarnings = [
     ...(statement.metadata.warningCodes.length > 0
       ? [
@@ -155,13 +290,19 @@ const buildBridgePageData = (
   },
 });
 
-const buildRuntimeDeskData = (runtimeData: FinancialsRuntimeData): FinancialReadingDeskData | null => {
+const buildRuntimeDeskData = (
+  runtimeData: FinancialsRuntimeData,
+): FinancialReadingDeskData | null => {
   if (!runtimeData.statementSnapshot) return null;
 
-  const next = buildFinancialReadingDeskData(financialReadingDeskData, runtimeData.statementSnapshot);
+  const next = buildFinancialReadingDeskData(
+    financialReadingDeskData,
+    runtimeData.statementSnapshot,
+  );
   const firstMetricStep =
-    next.readingSteps.find((step) => step.metricIds.some((metricId) => logicMetricIds.has(metricId)))?.id ??
-    next.nextReadingStep.stepId;
+    next.readingSteps.find((step) =>
+      step.metricIds.some((metricId) => logicMetricIds.has(metricId)),
+    )?.id ?? next.nextReadingStep.stepId;
   const sourceWarnings =
     runtimeData.dataQuality.missingFields.length > 0
       ? [
@@ -180,10 +321,13 @@ const buildRuntimeDeskData = (runtimeData: FinancialsRuntimeData): FinancialRead
   return {
     ...filtered,
     ticker: runtimeData.statementSnapshot.ticker ?? runtimeData.source.ticker,
-    companyName: runtimeData.statementSnapshot.ticker ?? runtimeData.source.ticker,
+    companyName:
+      runtimeData.statementSnapshot.ticker ?? runtimeData.source.ticker,
     period:
       runtimeData.statementSnapshot.period ??
-      (runtimeData.source.fiscalYear ? String(runtimeData.source.fiscalYear) : financialReadingDeskData.period),
+      (runtimeData.source.fiscalYear
+        ? String(runtimeData.source.fiscalYear)
+        : financialReadingDeskData.period),
   };
 };
 
@@ -196,22 +340,29 @@ const buildRuntimePageData = (
     ...financialsPageData.header,
     ticker: runtimeData.source.ticker,
     companyName: deskData?.companyName ?? runtimeData.source.ticker,
-    industry: runtimeData.statementSnapshot?.companyType ?? runtimeData.statementSnapshot?.industry ?? "unknown",
+    industry:
+      runtimeData.statementSnapshot?.companyType ??
+      runtimeData.statementSnapshot?.industry ??
+      "unknown",
     reportPeriod:
       runtimeData.statementSnapshot?.period ??
-      (runtimeData.source.fiscalYear ? String(runtimeData.source.fiscalYear) : financialsPageData.header.reportPeriod),
+      (runtimeData.source.fiscalYear
+        ? String(runtimeData.source.fiscalYear)
+        : financialsPageData.header.reportPeriod),
     dataStatus: runtimeStatusToHeaderStatus(runtimeData.dataQuality.status),
     previousModuleLink:
       runtimeData.runtimeStatus === "db_backed"
-        ? "Dang doc Financials tu local DB research-only qua server runtime boundary; chua phai nguon production."
-        : "Dang dung sample fallback; DB-backed financials chi bat khi env flag duoc cau hinh.",
+        ? "Đang đọc Financials từ dữ liệu research trong hệ thống; chưa phê duyệt sản xuất."
+        : "Đang dùng dữ liệu minh họa; dữ liệu trong hệ thống chỉ bật khi có bản ghi đủ điều kiện.",
   },
   disclaimer: {
     ...financialsPageData.disclaimer,
   },
 });
 
-const buildRuntimeState = (runtimeData: FinancialsRuntimeData): RuntimeReadyState => {
+const buildRuntimeState = (
+  runtimeData: FinancialsRuntimeData,
+): RuntimeReadyState => {
   const deskData = buildRuntimeDeskData(runtimeData);
 
   return {
@@ -222,15 +373,26 @@ const buildRuntimeState = (runtimeData: FinancialsRuntimeData): RuntimeReadyStat
   };
 };
 
-export function FinancialsPage({ initialRuntimeData, onNavigate }: FinancialsPageProps) {
-  const [tickerInput, setTickerInput] = useState(initialRuntimeData?.source.ticker ?? "FPTLAB");
-  const [request, setRequest] = useState<{ ticker: string; id: number } | null>(null);
+export function FinancialsPage({
+  initialRuntimeData,
+  reviewedReadiness,
+  onNavigate,
+}: FinancialsPageProps) {
+  const [tickerInput, setTickerInput] = useState(
+    initialRuntimeData?.source.ticker ?? "FPTLAB",
+  );
+  const [request, setRequest] = useState<{ ticker: string; id: number } | null>(
+    null,
+  );
   const [bridgeState, setBridgeState] = useState<FinancialsBridgeState>(() =>
-    initialRuntimeData ? buildRuntimeState(initialRuntimeData) : { status: "empty", ticker: "FPTLAB" },
+    initialRuntimeData
+      ? buildRuntimeState(initialRuntimeData)
+      : { status: "empty", ticker: "FPTLAB" },
   );
   const [activeStepId, setActiveStepId] = useState(() =>
     bridgeState.status === "runtime"
-      ? bridgeState.deskData?.nextReadingStep.stepId ?? financialReadingDeskData.nextReadingStep.stepId
+      ? (bridgeState.deskData?.nextReadingStep.stepId ??
+        financialReadingDeskData.nextReadingStep.stepId)
       : financialReadingDeskData.nextReadingStep.stepId,
   );
 
@@ -272,18 +434,20 @@ export function FinancialsPage({ initialRuntimeData, onNavigate }: FinancialsPag
     if (bridgeState.status !== "ready") return [];
     const { metadata } = bridgeState.statement;
     return [
-      `dataMode: ${metadataLabel(metadata.dataMode)}`,
-      `sourceType: ${metadataLabel(metadata.sourceType)}`,
-      `quality: ${metadataLabel(metadata.qualityStatus)}`,
-      `readiness: ${metadataLabel(metadata.readiness)}`,
-      `fallback: ${String(metadata.fallback)}`,
+      metadataChipLabel("dataMode", metadata.dataMode),
+      metadataChipLabel("sourceType", metadata.sourceType),
+      metadataChipLabel("quality", metadata.qualityStatus),
+      metadataChipLabel("readiness", metadata.readiness),
+      metadataChipLabel("fallback", metadata.fallback),
     ];
   }, [bridgeState]);
 
   const focusStep = (stepId: string) => {
     setActiveStepId(stepId);
     window.setTimeout(() => {
-      document.getElementById("financial-reading-journey")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      document
+        .getElementById("financial-reading-journey")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 0);
   };
 
@@ -292,33 +456,67 @@ export function FinancialsPage({ initialRuntimeData, onNavigate }: FinancialsPag
     const nextTicker = tickerInput.trim().toUpperCase();
     if (!nextTicker) return;
     setBridgeState({ status: "loading", ticker: nextTicker });
-    setRequest((current) => ({ ticker: nextTicker, id: (current?.id ?? 0) + 1 }));
+    setRequest((current) => ({
+      ticker: nextTicker,
+      id: (current?.id ?? 0) + 1,
+    }));
   };
 
-  const renderFinancialsExperience = (deskData: FinancialReadingDeskData, pageData: FinancialsPageData) => (
-    <>
-      <FinancialsHeader
-        canContinueToValuation={deskData.valuationReadiness.canContinue}
-        data={pageData.header}
-        onNavigate={onNavigate}
-        valuationDisabledReason={deskData.valuationReadiness.reason}
-        valuationReadinessCaption={deskData.valuationReadiness.nextStepSuggestion}
-        valuationReadinessStatus={deskData.valuationReadiness.logicStatus}
-      />
-      <FinancialsOverviewPanel data={deskData} onFocusStep={focusStep} />
-      <FinancialReadingJourney activeStepId={activeStepId} data={deskData} onActiveStepChange={setActiveStepId} />
-      <FinancialsDisclaimer data={pageData.disclaimer} />
-    </>
-  );
+  const renderFinancialsExperience = (
+    deskData: FinancialReadingDeskData,
+    pageData: FinancialsPageData,
+  ) => {
+    const reconciledDeskData = reconcileReviewedInputs(
+      deskData,
+      reviewedReadiness,
+    );
+
+    return (
+      <>
+        <FinancialsHeader
+          canContinueToValuation={
+            reconciledDeskData.valuationReadiness.canContinue
+          }
+          data={pageData.header}
+          onNavigate={onNavigate}
+          valuationDisabledReason={reconciledDeskData.valuationReadiness.reason}
+          valuationReadinessCaption={
+            reconciledDeskData.valuationReadiness.nextStepSuggestion
+          }
+          valuationReadinessStatus={
+            reconciledDeskData.valuationReadiness.logicStatus
+          }
+        />
+        <FinancialsOverviewPanel
+          data={reconciledDeskData}
+          onFocusStep={focusStep}
+        />
+        <FinancialReadingJourney
+          activeStepId={activeStepId}
+          data={reconciledDeskData}
+          onActiveStepChange={setActiveStepId}
+        />
+        <FinancialsDisclaimer data={pageData.disclaimer} />
+      </>
+    );
+  };
 
   return (
     <div className="mx-auto w-full max-w-[1080px] space-y-6">
       <Card>
         <CardBody>
-          <form className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between" onSubmit={submitTicker}>
+          <form
+            className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
+            onSubmit={submitTicker}
+          >
             <div>
-              <p className="text-xs font-bold uppercase text-muted">Financials API bridge</p>
-              <label className="mt-2 block text-sm font-extrabold text-ink" htmlFor="financials-ticker-input">
+              <p className="text-xs font-bold uppercase text-muted">
+                Financials API bridge
+              </p>
+              <label
+                className="mt-2 block text-sm font-extrabold text-ink"
+                htmlFor="financials-ticker-input"
+              >
                 Ticker local
               </label>
               <input
@@ -328,7 +526,11 @@ export function FinancialsPage({ initialRuntimeData, onNavigate }: FinancialsPag
                 onChange={(event) => setTickerInput(event.target.value)}
               />
             </div>
-            <Button isLoading={bridgeState.status === "loading"} type="submit" variant="secondary">
+            <Button
+              isLoading={bridgeState.status === "loading"}
+              type="submit"
+              variant="secondary"
+            >
               Tai tu API
             </Button>
           </form>
@@ -360,7 +562,45 @@ export function FinancialsPage({ initialRuntimeData, onNavigate }: FinancialsPag
 
       {bridgeState.status === "runtime" ? (
         <>
-          <FinancialsSourceTransparency runtimeData={bridgeState.runtimeData} />
+          <FinancialsSourceTransparency
+            runtimeData={bridgeState.runtimeData}
+            supplementalAvailableFields={reviewedAvailableFields(
+              reviewedReadiness,
+            )}
+          />
+          {reviewedReadiness ? (
+            <Card>
+              <CardBody>
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <p className="text-xs font-bold uppercase text-muted">
+                        Bản ghi đã rà soát
+                      </p>
+                      <h3 className="mt-1 text-lg font-extrabold text-ink">
+                        Nợ vay, EPS và số cổ phiếu đã có trạng thái rõ ràng cho{" "}
+                        {reviewedReadiness.ticker}
+                      </h3>
+                      <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-muted">
+                        Dữ liệu này dùng cho nghiên cứu và chưa phê duyệt sản
+                        xuất. Financials hiển thị cùng trạng thái với Watchlist,
+                        Risk và Valuation để tránh hiểu nhầm giữa các module.
+                      </p>
+                    </div>
+                    <Chip variant="neutral">Dùng cho nghiên cứu</Chip>
+                  </div>
+                  <div className="grid gap-3 md:grid-cols-3">
+                    {renderReviewedInputStatus("totalDebt", reviewedReadiness)}
+                    {renderReviewedInputStatus("eps", reviewedReadiness)}
+                    {renderReviewedInputStatus(
+                      "sharesOutstanding",
+                      reviewedReadiness,
+                    )}
+                  </div>
+                </div>
+              </CardBody>
+            </Card>
+          ) : null}
           <DataQualityBanner
             asOf={bridgeState.runtimeData.source.asOf}
             isDemoData={bridgeState.runtimeData.runtimeStatus !== "db_backed"}
@@ -369,11 +609,19 @@ export function FinancialsPage({ initialRuntimeData, onNavigate }: FinancialsPag
               bridgeState.runtimeData.source.dataMode === "research_only"
             }
             isStale={false}
-            missingFields={bridgeState.runtimeData.dataQuality.missingFields}
-            source={bridgeState.runtimeData.source.sourceLabel}
+            missingFields={bridgeState.runtimeData.dataQuality.missingFields.filter(
+              (field) =>
+                !reviewedAvailableFields(reviewedReadiness).includes(field),
+            )}
+            source={userFacingSource(
+              bridgeState.runtimeData.source.sourceLabel,
+            )}
           />
           {bridgeState.deskData && bridgeState.pageData ? (
-            renderFinancialsExperience(bridgeState.deskData, bridgeState.pageData)
+            renderFinancialsExperience(
+              bridgeState.deskData,
+              bridgeState.pageData,
+            )
           ) : (
             <EmptyState
               description="Runtime boundary khong co statement snapshot kha dung; du lieu thieu duoc giu la unavailable."
@@ -386,7 +634,10 @@ export function FinancialsPage({ initialRuntimeData, onNavigate }: FinancialsPag
 
       {bridgeState.status === "ready" ? (
         <>
-          <DataQualityBanner {...bridgeState.statement.dataQuality} />
+          <DataQualityBanner
+            {...bridgeState.statement.dataQuality}
+            source={userFacingSource(bridgeState.statement.dataQuality.source)}
+          />
           <div className="flex flex-wrap gap-2">
             {metadataChips.map((chip) => (
               <Chip key={chip} variant="neutral">
@@ -394,7 +645,10 @@ export function FinancialsPage({ initialRuntimeData, onNavigate }: FinancialsPag
               </Chip>
             ))}
           </div>
-          {renderFinancialsExperience(bridgeState.deskData, bridgeState.pageData)}
+          {renderFinancialsExperience(
+            bridgeState.deskData,
+            bridgeState.pageData,
+          )}
         </>
       ) : null}
     </div>

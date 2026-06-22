@@ -31,7 +31,10 @@ import { Topbar } from "./Topbar";
 import { resolveActiveModule, shouldNormalizeInvalidModule } from "./app-shell-routing";
 import type { FinancialsRuntimeData } from "@/features/financials/lib/financials-runtime-types";
 import type { TechnicalPageRuntimeData } from "@/features/technical";
-import type { PortfolioReadinessResult } from "@/features/watchlist/lib/load-portfolio-readiness";
+import type {
+  PortfolioReadinessItem,
+  PortfolioReadinessResult,
+} from "@/features/watchlist/lib/load-portfolio-readiness";
 
 const modulesWithInternalProgress = new Set([
   "macro",
@@ -144,6 +147,10 @@ function AppShellContent({
     shellConfig.moduleJourney[
       activeModule as keyof typeof shellConfig.moduleJourney
     ];
+  const activePortfolioReadiness: PortfolioReadinessItem | null =
+    initialPortfolioReadiness?.tickers.find(
+      (item) => item.ticker === initialFinancialsRuntimeData?.source.ticker,
+    ) ?? null;
 
   return (
     <div
@@ -194,6 +201,7 @@ function AppShellContent({
         {activeModule === "financials" ? (
           <FinancialsPage
             initialRuntimeData={initialFinancialsRuntimeData}
+            reviewedReadiness={activePortfolioReadiness}
             onNavigate={handleNavigate}
           />
         ) : null}

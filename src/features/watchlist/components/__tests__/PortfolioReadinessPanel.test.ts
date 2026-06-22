@@ -149,31 +149,35 @@ describe("PortfolioReadinessPanel", () => {
   it("renders FPT, MWG, and VNM readiness without overclaiming", () => {
     const html = renderToStaticMarkup(createElement(PortfolioReadinessPanel, { data: portfolioReadiness }));
 
-    expect(html).toContain("Portfolio readiness backbone");
+    expect(html).toContain("Trạng thái dữ liệu danh mục");
     expect(html).toContain("FPT");
     expect(html).toContain("MWG");
     expect(html).toContain("VNM");
-    expect(html).toContain("VNStock research candidate");
-    expect(html).toContain("phase109_controlled_local_financials");
-    expect(html).toContain("sharesOutstanding");
-    expect(html).toContain("unavailable");
-    expect(html).toContain("canClaimValuationDbBacked:false");
-    expect(html).toContain("canClaimRiskDbBacked:false");
-    expect(html).toContain("productionApproved:false");
-    expect(html).toContain("Financial statement coverage");
-    expect(html).toContain("totalLiabilities:available");
-    expect(html).toContain("totalDebt:unavailable");
-    expect(html).toContain("cash flow:ready");
-    expect(html).toContain("liquidity:ready");
-    expect(html).toContain("Traceable input decisions");
-    expect(html).toContain("Total debt: unavailable");
-    expect(html).toContain("Pilot checked 3 paths");
-    expect(html).toContain("financials runtime:checked_no_value");
-    expect(html).toContain("official disclosure adapter:boundary_only");
-    expect(html).toContain("manual import boundary:boundary_only");
-    expect(html).toContain("EPS: unavailable");
-    expect(html).toContain("Shares outstanding: unavailable");
+    expect(html).toContain("Dữ liệu nghiên cứu");
+    expect(html).toContain("chưa phê duyệt sản xuất");
+    expect(html).toContain("Số cổ phiếu");
+    expect(html).toContain("Chưa có dữ liệu");
+    expect(html).toContain("Độ phủ báo cáo tài chính");
+    expect(html).toContain("totalLiabilities: Có dữ liệu");
+    expect(html).toContain("totalDebt: Chưa có dữ liệu");
+    expect(html).toContain("Dòng tiền: Có thể kiểm tra");
+    expect(html).toContain("thanh khoản: Có thể kiểm tra");
+    expect(html).toContain("Nguồn đầu vào đã rà soát");
+    expect(html).toContain("Nợ vay");
+    expect(html).toContain("Đã kiểm tra 3 đường");
+    expect(html).toContain("financials runtime: Đã kiểm tra, chưa có giá trị");
+    expect(html).toContain("official disclosure adapter: Có đường kiểm tra, chưa có bản ghi");
+    expect(html).toContain("manual import boundary: Có đường kiểm tra, chưa có bản ghi");
     expect(html).toContain("total liabilities are not treated as debt");
+    expect(html).not.toContain("Portfolio readiness backbone");
+    expect(html).not.toContain("canClaimValuationDbBacked:false");
+    expect(html).not.toContain("canClaimRiskDbBacked:false");
+    expect(html).not.toContain("productionApproved:false");
+    expect(html).not.toContain("fallbackUsed");
+    expect(html).not.toContain("runtimeStatus");
+    expect(html).not.toContain("readPath");
+    expect(html).not.toContain("db_backed");
+    expect(html).not.toContain("local_db");
   });
 
   it("renders reviewed available source records with source, unit, and period", () => {
@@ -227,15 +231,18 @@ describe("PortfolioReadinessPanel", () => {
 
     const html = renderToStaticMarkup(createElement(PortfolioReadinessPanel, { data }));
 
-    expect(html).toContain("Total debt: available");
-    expect(html).toContain("EPS: available");
-    expect(html).toContain("Shares outstanding: available");
-    expect(html).toContain("manual_reviewed_financial_statement_2024");
-    expect(html).toContain("research_only");
+    expect(html).toContain("Nợ vay");
+    expect(html).toContain("Có dữ liệu");
+    expect(html).toContain("Số cổ phiếu");
+    expect(html).toContain("Bản ghi đã rà soát");
+    expect(html).toContain("dùng cho nghiên cứu");
     expect(html).toContain("billion_vnd");
     expect(html).toContain("vnd_per_share");
     expect(html).toContain("shares");
-    expect(html).toContain("productionApproved:false");
+    expect(html).toContain("chưa phê duyệt sản xuất");
+    expect(html).not.toContain("manual_reviewed_financial_statement_2024");
+    expect(html).not.toContain("research_only");
+    expect(html).not.toContain("productionApproved:false");
   });
 
   it("does not introduce forbidden positive wording", () => {

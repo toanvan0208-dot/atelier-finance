@@ -93,38 +93,91 @@ const dbBackedRuntimeData = {
 
 describe("Financials runtime UI boundary", () => {
   it("renders default sample fallback metadata without a DB-backed claim", () => {
-    const html = renderToStaticMarkup(createElement(FinancialsPage, { initialRuntimeData: sampleRuntimeData }));
+    const html = renderToStaticMarkup(
+      createElement(FinancialsPage, { initialRuntimeData: sampleRuntimeData }),
+    );
 
-    expect(html).toContain("sample_fallback");
-    expect(html).toContain("static_sample_financials");
-    expect(html).toContain("sample_static");
-    expect(html).toContain("productionApproved:false");
-    expect(html).not.toContain("phase45_synthetic_financial_statement_local_write");
+    expect(html).toContain("Dữ liệu minh họa");
+    expect(html).toContain("Minh họa/đang chờ dữ liệu");
+    expect(html).toContain("chưa phê duyệt sản xuất");
+    expect(html).not.toContain("sample_fallback");
+    expect(html).not.toContain("static_sample_financials");
+    expect(html).not.toContain("sample_static");
+    expect(html).not.toContain("productionApproved:false");
+    expect(html).not.toContain(
+      "phase45_synthetic_financial_statement_local_write",
+    );
   });
 
   it("renders DB-backed local research source transparency", () => {
     const html = renderToStaticMarkup(
-      createElement(FinancialsSourceTransparency, { runtimeData: dbBackedRuntimeData }),
+      createElement(FinancialsSourceTransparency, {
+        runtimeData: dbBackedRuntimeData,
+      }),
     );
 
-    expect(html).toContain("phase45_synthetic_financial_statement_local_write");
-    expect(html).toContain("research_only");
-    expect(html).toContain("local_db");
-    expect(html).toContain("fallbackUsed");
-    expect(html).toContain("false");
-    expect(html).toContain("productionApproved:false");
-    expect(html).toContain("local DB phuc vu nghien cuu");
-    expect(html).toContain("Boundary nay chi ap dung cho module Financials");
-    expect(html).toContain("khong tu dong tro thanh DB-backed");
-    expect(html).toContain("Transparency dataMode");
-    expect(html).toContain("Source evidence");
-    expect(html).toContain("Unit metadata");
-    expect(html).toContain("Valuation handoff");
-    expect(html).toContain("canClaimValuationDbBacked");
-    expect(html).toContain("local DB boundary, research-only scope");
-    expect(html).toContain("present fields do not have explicit units yet");
-    expect(html).toContain("blocked until required fields and explicit units are available");
-    expect(html).toContain("source markers are present");
+    expect(html).toContain("Đã có dữ liệu tài chính trong hệ thống");
+    expect(html).toContain("phạm vi nghiên cứu");
+    expect(html).toContain("Đã có trong hệ thống");
+    expect(html).toContain("chưa phê duyệt sản xuất");
+    expect(html).toContain("Financials cung cấp đầu vào");
+    expect(html).toContain("Phân loại dữ liệu");
+    expect(html).toContain("Nguồn/evidence");
+    expect(html).toContain("Đơn vị dữ liệu");
+    expect(html).toContain("Chuyển sang định giá");
+    expect(html).toContain("Định giá vẫn kiểm tra ranh giới riêng");
+    expect(html).not.toContain(
+      "phase45_synthetic_financial_statement_local_write",
+    );
+    expect(html).not.toContain("research_only");
+    expect(html).not.toContain("local_db");
+    expect(html).not.toContain("fallbackUsed");
+    expect(html).not.toContain("productionApproved:false");
+    expect(html).not.toContain("canClaimValuationDbBacked");
+  });
+
+  it("shows reviewed debt, EPS, and shares status without exposing raw flags", () => {
+    const html = renderToStaticMarkup(
+      createElement(FinancialsPage, {
+        initialRuntimeData: dbBackedRuntimeData,
+        reviewedReadiness: {
+          ticker: "MWG",
+          sourceDecisions: {
+            totalDebt: {
+              status: "available",
+              value: 27300.247,
+              unit: "billion_vnd",
+              period: "2024",
+            },
+            eps: {
+              status: "available",
+              value: 2546,
+              unit: "vnd_per_share",
+              period: "2024",
+            },
+            sharesOutstanding: {
+              status: "available",
+              value: 1454644497,
+              unit: "shares",
+              period: "2024",
+            },
+          },
+        },
+      } as never),
+    );
+
+    expect(html).toContain("Bản ghi đã rà soát");
+    expect(html).toContain("Nợ vay");
+    expect(html).toContain("EPS");
+    expect(html).toContain("Số cổ phiếu");
+    expect(html).toContain("Dùng cho nghiên cứu");
+    expect(html).toContain("chưa phê duyệt sản xuất");
+    expect(html).not.toContain("sharesOutstanding");
+    expect(html).not.toContain("totalDebt");
+    expect(html).not.toContain("sourceLabel");
+    expect(html).not.toContain("runtimeStatus");
+    expect(html).not.toContain("fallbackUsed");
+    expect(html).not.toContain("productionApproved:false");
   });
 
   it("renders research-only data quality wording without overclaiming the source", () => {
@@ -137,23 +190,25 @@ describe("Financials runtime UI boundary", () => {
     );
 
     expect(html).toContain("Du lieu local research-only");
-    expect(html).toContain("productionApproved:false");
-    expect(html).toContain("source transparency");
+    expect(html).toContain("chưa phê duyệt sản xuất");
+    expect(html).toContain("trạng thái nguồn");
     expect(html).toContain("revenue");
     expect(html).not.toContain("Du lieu co metadata nguon");
   });
 
   it("keeps partial missing fields visible instead of rendering them as zero", () => {
     const html = renderToStaticMarkup(
-      createElement(FinancialsSourceTransparency, { runtimeData: dbBackedRuntimeData }),
+      createElement(FinancialsSourceTransparency, {
+        runtimeData: dbBackedRuntimeData,
+      }),
     );
 
     expect(html).toContain("revenue");
     expect(html).toContain("operatingCashFlow");
     expect(html).toContain("null/unavailable");
-    expect(html).toContain("Ly do dang chan");
+    expect(html).toContain("Lý do đang chặn");
     expect(html).toContain("revenue missing for valuation handoff");
-    expect(html).toContain("present fields do not have explicit units yet");
+    expect(html).toContain("Các trường hiện có chưa có đơn vị rõ");
     expect(html).not.toContain("0 ty");
     expect(html).not.toContain("0 tỷ");
   });
@@ -169,7 +224,7 @@ describe("Financials runtime UI boundary", () => {
       "financial-statement-read-service",
       "load-financials-runtime-data",
       "node:fs",
-      " from \"fs\"",
+      ' from "fs"',
       " from 'fs'",
     ];
 
@@ -223,7 +278,9 @@ describe("Financials runtime UI boundary", () => {
       phrase("production ", "approved"),
     ];
 
-    const source = files.map((file) => readFileSync(join(repoRoot, file), "utf8").toLowerCase()).join("\n");
+    const source = files
+      .map((file) => readFileSync(join(repoRoot, file), "utf8").toLowerCase())
+      .join("\n");
     for (const phrase of restrictedPhrases) {
       expect(source).not.toContain(phrase);
     }

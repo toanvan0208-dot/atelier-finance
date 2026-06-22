@@ -2,11 +2,11 @@
 
 ## 1. Current latest phase
 
-Phase 114 - Reviewed Source Record Import Activation for Debt/EPS/Shares
+Phase 115 - User-Facing Reviewed Metrics UI Cleanup and Cross-Module Consistency
 
 ## 2. Latest commit
 
-Commit: Phase 114 import reviewed source records (this phase commit)
+Commit: Phase 115 clean reviewed metrics UI (this phase commit)
 
 ## 3. Current branch expectation
 
@@ -96,6 +96,7 @@ The working tree should be clean before starting a new phase.
 - Phase 112 adds a per-ticker source-decision layer for total debt, EPS, and shares outstanding. No repo-local value met the required source, explicit-unit, as-of, ticker, and period-alignment gates, so no DB write or activation occurred; Watchlist now shows each deferred decision and its metric blockers while keeping Risk leverage and Valuation fail-closed.
 - Phase 113 runs a traceable total-debt pilot assessment for FPT/MWG/VNM. No debt value met source, explicit-unit, as-of, period, ticker, and research-data-mode gates, so no DB write or activation occurred; Watchlist now shows checked pilot paths for Financials runtime, the official-disclosure adapter boundary, and the manual-import boundary while keeping leverage fail-closed unless a valid totalDebt candidate is supplied.
 - Phase 114 imports reviewed official-report-based candidate source records for FPT/MWG/VNM total debt, EPS, and shares outstanding into the intended local app DB through an explicit guarded CLI. The records remain `research_only` with `productionApproved:false`; Portfolio Readiness now reads them as activated traceable candidates, Risk leverage can move to ready, and Valuation metric readiness opens only where EPS, shares, market price, and financial inputs are valid while `canClaimValuationDbBacked:false` remains enforced.
+- Phase 115 cleans normal user-facing UI for reviewed metrics. Watchlist, Financials, Risk, and Valuation now translate runtime flags into beginner-friendly source/readiness wording, remove stale EPS/shares-unavailable copy after Phase 114, avoid sample/static warnings when reviewed records are active, and keep guarded runtime claims in logic/tests rather than exposing raw flags in normal UI.
 
 ## 7. Current known limitations
 
@@ -129,6 +130,7 @@ The working tree should be clean before starting a new phase.
 - Phase 112 finds no traceable repo-local total-debt, EPS, or shares-outstanding values for FPT/MWG/VNM. The source-decision layer is derived readiness only, keeps all three fields null/unavailable, does not relabel liabilities as debt, and does not make any source or production approval claim.
 - Phase 113 does not add activated debt, EPS, or shares data. Official-disclosure and manual-import paths remain boundary-only until reviewed source records are supplied; total liabilities remain separate from total debt, Risk leverage remains insufficient for FPT/MWG/VNM, and Valuation stays guarded.
 - Phase 114 source records are reviewed candidates from official-report disclosures, not product official/realtime/source-approved data. The local `dev.db` write is an ignored runtime activation artifact and must not be committed. The importer is limited to FPT/MWG/VNM and the reviewed CSV shape; no crawler, scheduled ingestion, source/legal approval workflow, PDF storage, or production approval is added.
+- Phase 115 adds no new data import, no approval workflow, and no source-status upgrade. Reviewed source records remain research-only and not production-approved; UI copy is cleaner, but runtime guardrails such as full Valuation DB-backed claims remain enforced internally.
 
 ## 8. Recommended next phase
 

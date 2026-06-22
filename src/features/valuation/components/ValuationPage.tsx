@@ -46,14 +46,35 @@ type ValuationBridgeState =
   | { status: "empty"; ticker: string; missingReasons: string[] }
   | { status: "error"; ticker: string; message: string };
 
-const metadataLabel = (value: string): string => value.replace(/_/g, " ");
+const readableBoundaryValue = (value: string): string => value.replace(/_/g, " ");
 
-const boundaryValue = (value: string | number | boolean | null | undefined): string => {
-  if (value === null || value === undefined || value === "") return "unavailable";
-  return String(value);
+const readinessLabel: Record<string, string> = {
+  blocked: "Đang chặn theo phạm vi an toàn",
+  insufficient_data: "Chưa đủ dữ liệu",
+  mixed_source: "Nguồn hỗn hợp, cần kiểm tra",
+  not_applicable: "Không áp dụng với dữ liệu hiện tại",
+  partial: "Một phần",
+  ready: "Có thể tính",
+  sample_fallback: "Dữ liệu minh họa",
+  unavailable: "Chưa có dữ liệu",
 };
 
-const readableBoundaryValue = (value: string): string => value.replace(/_/g, " ");
+const userStatus = (value: string): string => readinessLabel[value] ?? readableBoundaryValue(value);
+
+const valuationSourceStatus = (boundary: ValuationFinancialsRuntimeConsumption): string => {
+  if (boundary.valuationSourceMode === "sample_fallback") {
+    return "Đang dùng dữ liệu minh họa; chưa có bản ghi đủ điều kiện cho ticker này.";
+  }
+  return "Có bản ghi đã rà soát hoặc dữ liệu local/research; vẫn cần giữ ranh giới nguồn và kỳ dữ liệu.";
+};
+
+const userFacingSource = (source: string | null | undefined): string => {
+  if (!source) return "Chưa có nguồn dữ liệu";
+  if (source.includes("manual_reviewed_financial_statement")) return "Bản ghi đã rà soát, dùng cho nghiên cứu";
+  if (source.includes("vnstock")) return "Dữ liệu giá/khối lượng nghiên cứu";
+  if (source.includes("sample")) return "Dữ liệu minh họa";
+  return "Dữ liệu có metadata nguồn";
+};
 
 const buildBridgeData = (result: ValuationApiInputs): ValuationRefactoredData => {
   const data = buildValuationDeskData(baseValuationRefactoredData, result.snapshot);
@@ -70,47 +91,35 @@ const buildBridgeData = (result: ValuationApiInputs): ValuationRefactoredData =>
 };
 
 function ValuationFinancialsRuntimeNote({ boundary }: { boundary: ValuationFinancialsRuntimeConsumption }) {
-  const fields = [
-    ["valuationSourceMode", boundary.valuationSourceMode],
-    ["runtimeStatus", boundary.runtimeStatus],
-    ["readPath", boundary.readPath],
-    ["sourceLabel", boundary.sourceLabel],
-    ["dataMode", boundary.dataMode],
-    ["fallbackUsed", boundary.fallbackUsed],
-    ["productionApproved", boundary.productionApproved],
-    ["canClaimRuntimeBacked", boundary.canClaimValuationDbBacked],
-  ] as const;
   const readinessRows = [
-    ["pe", boundary.calculationReadiness.pe],
-    ["pb", boundary.calculationReadiness.pb],
-    ["bvps", boundary.calculationReadiness.bvps],
-    ["roe", boundary.calculationReadiness.roe],
-    ["marketCap", boundary.calculationReadiness.marketCap],
+    ["P/E", boundary.calculationReadiness.pe],
+    ["P/B", boundary.calculationReadiness.pb],
+    ["BVPS", boundary.calculationReadiness.bvps],
+    ["ROE", boundary.calculationReadiness.roe],
+    ["Vốn hóa", boundary.calculationReadiness.marketCap],
   ] as const;
   const sourceSummaryRows = [
     [
-      "Source state",
-      boundary.valuationSourceMode === "sample_fallback"
-        ? "sample/static fallback; use as local review context only"
-        : `${readableBoundaryValue(boundary.valuationSourceMode)}; Valuation remains boundary-scoped`,
+      "Trạng thái nguồn",
+      valuationSourceStatus(boundary),
     ],
     [
-      "DB-backed claim",
+      "Ranh giới sử dụng",
       boundary.canClaimValuationDbBacked
-        ? "eligible for a Valuation DB-backed claim"
-        : "canClaimValuationDbBacked:false because inputs and approvals are separate",
+        ? "Đủ điều kiện runtime để đọc từ DB, vẫn cần kiểm tra nguồn trước khi diễn giải."
+        : "Chưa claim đầy đủ theo DB vì nguồn, kỳ dữ liệu và phê duyệt vẫn được kiểm tra riêng.",
     ],
     [
-      "Input coverage",
+      "Độ phủ đầu vào",
       boundary.unavailableFields.length
-        ? `missing or unavailable: ${boundary.unavailableFields.join(", ")}`
-        : "tracked Financials runtime fields are available",
+        ? `Còn thiếu hoặc chưa dùng được: ${boundary.unavailableFields.join(", ")}`
+        : "Các trường chính trong Financials runtime đã có.",
     ],
     [
-      "Source approval",
+      "Trạng thái rà soát",
       boundary.productionApproved
-        ? "source approval requires separate evidence"
-        : "productionApproved:false; local/research/sample context only",
+        ? "Cần kiểm tra thêm theo quy trình nguồn."
+        : "Dữ liệu phục vụ nghiên cứu, chưa phê duyệt sản xuất.",
     ],
   ] as const;
 
@@ -119,16 +128,16 @@ function ValuationFinancialsRuntimeNote({ boundary }: { boundary: ValuationFinan
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap gap-2">
-            <Chip variant="neutral">valuation runtime boundary</Chip>
-            <Chip variant="neutral">{boundary.valuationSourceMode}</Chip>
-            <Chip variant="neutral">productionApproved:false</Chip>
-            <Chip variant="neutral">controlled partial</Chip>
+            <Chip variant="neutral">Định giá có kiểm soát</Chip>
+            <Chip variant="neutral">{userStatus(boundary.valuationSourceMode)}</Chip>
+            <Chip variant="neutral">Dữ liệu nghiên cứu</Chip>
+            <Chip variant="neutral">Chưa phê duyệt sản xuất</Chip>
           </div>
           <p className="mt-3 font-semibold">
-            Valuation uses a mixed source state: persisted input bridge for calculations plus controlled Financials runtime metadata when available.
+            Valuation chỉ hiển thị trạng thái tính được/chưa đủ dữ liệu cho các chỉ số cơ bản.
           </p>
           <p className="mt-1">
-            Local Financials runtime data is research-only. Missing EPS, equity, market price, or shares keep dependent metrics unavailable or not_applicable.
+            EPS, số cổ phiếu và giá thị trường phải hợp lệ thì chỉ số liên quan mới được tính; đây không phải kết luận đầu tư.
           </p>
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             {sourceSummaryRows.map(([label, value]) => (
@@ -139,31 +148,23 @@ function ValuationFinancialsRuntimeNote({ boundary }: { boundary: ValuationFinan
             ))}
           </div>
           <p className="mt-1">
-            Consumed fields: {boundary.consumedFields.length ? boundary.consumedFields.join(", ") : "none"}.
+            Trường đã dùng: {boundary.consumedFields.length ? boundary.consumedFields.join(", ") : "chưa có"}.
           </p>
           <p className="mt-1">
-            Unavailable fields: {boundary.unavailableFields.length ? boundary.unavailableFields.join(", ") : "none"}.
+            Trường còn thiếu: {boundary.unavailableFields.length ? boundary.unavailableFields.join(", ") : "không có trường chính đang thiếu"}.
           </p>
           {boundary.warnings.length > 0 ? (
             <p className="mt-2">
-              Boundary warnings: {boundary.warnings.slice(0, 4).map(readableBoundaryValue).join(" | ")}
+              Ghi chú: {boundary.warnings.slice(0, 4).map(readableBoundaryValue).join(" | ")}
             </p>
           ) : null}
         </div>
         <div className="grid min-w-0 gap-3 text-xs lg:min-w-[360px]">
           <dl className="grid gap-2">
-            {fields.map(([label, value]) => (
-              <div className="grid grid-cols-[170px_1fr] gap-3" key={label}>
-                <dt className="font-bold">{label}</dt>
-                <dd className="min-w-0 break-words text-right">{boundaryValue(value)}</dd>
-              </div>
-            ))}
-          </dl>
-          <dl className="grid gap-2 border-t border-[#E8CC82] pt-3">
             {readinessRows.map(([label, value]) => (
               <div className="grid grid-cols-[170px_1fr] gap-3" key={label}>
                 <dt className="font-bold">{label}</dt>
-                <dd className="min-w-0 break-words text-right">{boundaryValue(value)}</dd>
+                <dd className="min-w-0 break-words text-right">{userStatus(value)}</dd>
               </div>
             ))}
           </dl>
@@ -237,11 +238,9 @@ export function ValuationPage({ initialFinancialsRuntimeData, initialScenario, o
     if (bridgeState.status !== "ready" && bridgeState.status !== "insufficient") return [];
     const { metadata } = bridgeState.result;
     return [
-      `dataMode: ${metadataLabel(metadata.dataMode)}`,
-      `sourceType: ${metadataLabel(metadata.sourceType)}`,
-      `quality: ${metadataLabel(metadata.qualityStatus)}`,
-      `readiness: ${metadataLabel(metadata.readiness)}`,
-      `fallback: ${String(metadata.fallback)}`,
+      `Nguồn: ${metadata.sourceType.includes("company_disclosure") ? "bản ghi đã rà soát" : "dữ liệu có metadata"}`,
+      `Trạng thái: ${userStatus(metadata.readiness)}`,
+      "Chưa phê duyệt sản xuất",
     ];
   }, [bridgeState]);
 
@@ -323,6 +322,22 @@ export function ValuationPage({ initialFinancialsRuntimeData, initialScenario, o
     });
   }, [bridgeState, controlledScenario, effectiveFinancialsRuntimeData, runtimeConsumption.valuationSourceMode]);
 
+  const valuationDataQuality = useMemo(() => {
+    if (bridgeState.status !== "ready" && bridgeState.status !== "insufficient") return null;
+    const marketCapReady = controlledCalculationBoundary.calculation.metrics.marketCap.status === "ready";
+    const hasReviewedFinancials =
+      bridgeState.result.snapshot.sourceName?.includes("manual_reviewed_financial_statement") ||
+      effectiveFinancialsRuntimeData?.source.dataMode === "research_only";
+    const hiddenWhenDerived = new Set(["adjustedClosePrice", ...(marketCapReady ? ["marketCap"] : [])]);
+    return {
+      ...bridgeState.result.dataQuality,
+      isDemoData: hasReviewedFinancials ? false : bridgeState.result.dataQuality.isDemoData,
+      isResearchOnly: hasReviewedFinancials || bridgeState.result.dataQuality.isResearchOnly,
+      missingFields: bridgeState.result.dataQuality.missingFields?.filter((field) => !hiddenWhenDerived.has(field)) ?? [],
+      source: userFacingSource(bridgeState.result.dataQuality.source),
+    };
+  }, [bridgeState, controlledCalculationBoundary.calculation.metrics.marketCap.status, effectiveFinancialsRuntimeData]);
+
   const submitTicker = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (controlledScenarioBridgeState && controlledScenario) {
@@ -386,7 +401,7 @@ export function ValuationPage({ initialFinancialsRuntimeData, initialScenario, o
 
       {bridgeState.status === "ready" || bridgeState.status === "insufficient" ? (
         <>
-          <DataQualityBanner {...bridgeState.result.dataQuality} />
+          {valuationDataQuality ? <DataQualityBanner {...valuationDataQuality} /> : null}
           <ValuationFinancialsRuntimeNote boundary={runtimeConsumption} />
           <ControlledValuationCalculationPanel boundary={controlledCalculationBoundary} />
           <div className="flex flex-wrap gap-2">
