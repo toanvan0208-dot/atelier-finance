@@ -28,7 +28,12 @@ import { MobileNavigation } from "./MobileNavigation";
 import { RightAssistantPanel } from "./RightAssistantPanel";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
-import { resolveActiveModule, shouldNormalizeInvalidModule } from "./app-shell-routing";
+import {
+  buildModuleNavigationUrl,
+  readModuleFromLocation,
+  resolveActiveModule,
+  shouldNormalizeInvalidModule,
+} from "./app-shell-routing";
 import type { FinancialsRuntimeData } from "@/features/financials/lib/financials-runtime-types";
 import type { TechnicalPageRuntimeData } from "@/features/technical";
 import type {
@@ -53,6 +58,7 @@ const navigationChangeEvent = "app:navigation";
 
 type AppShellProps = {
   initialFinancialsRuntimeData?: FinancialsRuntimeData;
+  initialModule?: string | null;
   initialPortfolioReadiness?: PortfolioReadinessResult;
   initialTechnicalData?: TechnicalPageRuntimeData;
   initialValuationScenario?: ValuationUnitAwareReadyMetricsScenarioId | null;
@@ -60,6 +66,7 @@ type AppShellProps = {
 
 export function AppShell({
   initialFinancialsRuntimeData,
+  initialModule,
   initialPortfolioReadiness,
   initialTechnicalData,
   initialValuationScenario,
@@ -68,6 +75,7 @@ export function AppShell({
     <PersonalAnalysisProfileProvider>
       <AppShellContent
         initialFinancialsRuntimeData={initialFinancialsRuntimeData}
+        initialModule={initialModule}
         initialPortfolioReadiness={initialPortfolioReadiness}
         initialTechnicalData={initialTechnicalData}
         initialValuationScenario={initialValuationScenario}
@@ -78,6 +86,7 @@ export function AppShell({
 
 function AppShellContent({
   initialFinancialsRuntimeData,
+  initialModule,
   initialPortfolioReadiness,
   initialTechnicalData,
   initialValuationScenario,
@@ -102,10 +111,9 @@ function AppShellContent({
     () => {
       if (typeof window === "undefined") return null;
 
-      const params = new URLSearchParams(window.location.search);
-      return params.get("module") ?? window.location.hash.replace("#", "") ?? null;
+      return readModuleFromLocation(window.location.search, window.location.hash);
     },
-    () => null
+    () => initialModule ?? null
   );
   const activeModule = resolveActiveModule(moduleFromUrl, moduleKeys, shellConfig.defaultModuleKey);
 
@@ -114,8 +122,7 @@ function AppShellContent({
       return;
     }
 
-    const url = new URL(window.location.href);
-    url.searchParams.set("module", shellConfig.defaultModuleKey);
+    const url = buildModuleNavigationUrl(window.location.href, shellConfig.defaultModuleKey);
     url.hash = "";
     window.history.replaceState(null, "", url);
     window.dispatchEvent(new Event(navigationChangeEvent));
@@ -131,8 +138,7 @@ function AppShellContent({
       return;
     }
 
-    const url = new URL(window.location.href);
-    url.searchParams.set("module", nextModule);
+    const url = buildModuleNavigationUrl(window.location.href, nextModule);
     window.history.pushState(null, "", url);
     window.dispatchEvent(new Event(navigationChangeEvent));
   }

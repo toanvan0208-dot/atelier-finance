@@ -20,6 +20,7 @@ const boolParam = (value: string | string[] | undefined): boolean | undefined =>
 
 export default async function WorkspacePage({ searchParams }: WorkspacePageProps) {
   const params = (await searchParams) ?? {};
+  const initialModule = firstParam(params.module);
   const ticker = firstParam(params.ticker);
   const technicalTicker = firstParam(params.technicalTicker) ?? ticker;
   const technicalFrom = firstParam(params.technicalFrom);
@@ -42,6 +43,7 @@ export default async function WorkspacePage({ searchParams }: WorkspacePageProps
   return (
     <AppShell
       initialFinancialsRuntimeData={initialFinancialsRuntimeData}
+      initialModule={initialModule}
       initialPortfolioReadiness={initialPortfolioReadiness}
       initialTechnicalData={initialTechnicalData}
       initialValuationScenario={valuationScenario}
