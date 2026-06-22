@@ -63,7 +63,7 @@ describe("financial statement read service", () => {
       },
     });
     expect(result.records[0].dataQuality.missingFields).toContain("operatingCashFlow");
-    expect(findMany).toHaveBeenCalledTimes(1);
+    expect(findMany).toHaveBeenCalledTimes(2);
   });
 
   it("does not query DB when ticker is invalid", async () => {
@@ -219,4 +219,49 @@ describe("financial statement read service", () => {
     expect(result.records[0].unitMetadata?.revenue.unit).toBe("unknown");
     expect(result.records[0].dataQuality.warnings).toContain("revenue_persisted_unit_metadata_invalid");
   });
+
+  it("merges eps, sharesOutstanding, and totalDebt from manual_reviewed_financial_statement_2024 without mutating totalLiabilities", async () => {
+    const findMany = vi.fn()
+      .mockResolvedValueOnce([
+        record({
+          sourceLabel: "phase109_controlled_local_financials",
+          totalDebt: 39_000, // mapped to totalLiabilities
+          eps: null,
+          sharesOutstanding: null,
+          period: "2025",
+        }),
+      ])
+      .mockResolvedValueOnce([
+        record({
+          sourceLabel: "manual_reviewed_financial_statement_2024",
+          totalDebt: 15_000, // real totalDebt
+          eps: 1500,
+          sharesOutstanding: 1_000_000,
+          period: "2025",
+          unitMetadata: [
+            {
+              field: "eps",
+              unit: "vnd_per_share",
+              status: "explicit",
+              sourceLabel: "manual_reviewed_financial_statement_2024",
+              dataMode: "research_only",
+            },
+          ]
+        }),
+      ]);
+
+    const result = await getFinancialStatementSeries(
+      { ticker: "FPT", sourceLabel: "phase109_controlled_local_financials" },
+      { db: { financialStatement: { findMany } } },
+    );
+
+    expect(findMany).toHaveBeenCalledTimes(2);
+    expect(result.records[0].values.totalLiabilities).toBe(39_000);
+    expect(result.records[0].values.totalDebt).toBe(15_000);
+    expect(result.records[0].values.eps).toBe(1500);
+    expect(result.records[0].values.sharesOutstanding).toBe(1_000_000);
+    expect(result.records[0].dataQuality.availableFields).toContain("eps");
+    expect(result.records[0].unitMetadata?.eps.unit).toBe("vnd_per_share");
+  });
 });
+

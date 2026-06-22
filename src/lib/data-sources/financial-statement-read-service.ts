@@ -397,12 +397,34 @@ const buildDataQuality = (
   };
 };
 
-const mapRecord = (record: StoredFinancialStatement): FinancialStatementLocalRecord => {
+const mapRecord = (
+  record: StoredFinancialStatement,
+  supplemental?: StoredFinancialStatement,
+): FinancialStatementLocalRecord => {
   const values = buildValues(record);
+
+  if (supplemental) {
+    const suppValues = buildValues(supplemental);
+    if (values.eps === null && suppValues.eps !== null) values.eps = suppValues.eps;
+    if (values.sharesOutstanding === null && suppValues.sharesOutstanding !== null) {
+      values.sharesOutstanding = suppValues.sharesOutstanding;
+    }
+    if (values.totalDebt === null && suppValues.totalDebt !== null) values.totalDebt = suppValues.totalDebt;
+  }
+
+  const combinedUnitMetadata = [...(record.unitMetadata ?? [])];
+  if (supplemental?.unitMetadata) {
+    for (const suppMeta of supplemental.unitMetadata) {
+      if (!combinedUnitMetadata.some((u) => u.field === suppMeta.field)) {
+        combinedUnitMetadata.push(suppMeta);
+      }
+    }
+  }
+
   const periodType = normalizePeriodType(record.periodType);
   const unitMetadataRead = readFinancialsUnitMetadataFromPersistencePayload({
     dataMode: record.dataMode,
-    payload: unitMetadataPayloadFromSidecar(record.unitMetadata),
+    payload: unitMetadataPayloadFromSidecar(combinedUnitMetadata.length > 0 ? combinedUnitMetadata : undefined),
     snapshot: {
       currentAssets: values.currentAssets,
       currentLiabilities: values.currentLiabilities,
@@ -554,7 +576,59 @@ export const getFinancialStatementSeries = async (
       });
     }
 
-    const records = rows.map(mapRecord);
+    const periods = Array.from(new Set(rows.map((r) => r.period)));
+    const supplementalRows = await db.financialStatement.findMany({
+      where: {
+        ticker,
+        sourceLabel: "manual_reviewed_financial_statement_2024",
+        period: { in: periods },
+      },
+      select: {
+        id: true,
+        ticker: true,
+        periodType: true,
+        period: true,
+        fiscalYear: true,
+        fiscalQuarter: true,
+        reportDate: true,
+        currency: true,
+        revenue: true,
+        grossProfit: true,
+        netIncome: true,
+        operatingCashFlow: true,
+        totalAssets: true,
+        equity: true,
+        totalDebt: true,
+        currentAssets: true,
+        currentLiabilities: true,
+        eps: true,
+        sharesOutstanding: true,
+        sourceLabel: true,
+        dataMode: true,
+        asOf: true,
+        collectedAt: true,
+        missingFields: true,
+        warningCodes: true,
+        errorCodes: true,
+        unitMetadata: {
+          select: {
+            field: true,
+            unit: true,
+            status: true,
+            sourceLabel: true,
+            dataMode: true,
+            warningCodes: true,
+            productionApproved: true,
+          },
+        },
+      },
+    });
+
+    const records = rows.map((row) => {
+      const supplemental = supplementalRows.find((s) => s.period === row.period);
+      return mapRecord(row, supplemental);
+    });
+
     const hasAvailable = records.some((record) => record.dataQuality.status === "available");
     const hasPartial = records.some((record) => record.dataQuality.status === "partial");
 
