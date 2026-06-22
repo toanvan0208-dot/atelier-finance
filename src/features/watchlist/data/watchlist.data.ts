@@ -348,7 +348,7 @@ export const baseWatchlistPageData: WatchlistPageData = {
       status: "Đang phân tích",
       priority: "Theo dõi nhẹ",
       emotionalState: "Bình tĩnh",
-      reason: "Theo dõi chất lượng tài sản, biên lãi và khả năng giữ vị thế ngành.",
+      reason: "Theo dõi chất lượng tài sản, biên lãi và khả năng giữ vai trò trong ngành.",
       validationQuestion: "Chất lượng tài sản có giữ ổn nếu tăng trưởng tín dụng chậm?",
       thesis: "Ngân hàng chất lượng cao có thể duy trì nền tảng tốt, nhưng cần kiểm tra định giá và rủi ro ngành.",
       confirmingData: ["Nợ xấu kiểm soát", "CASA ổn định", "Chi phí tín dụng thấp"],
@@ -462,11 +462,11 @@ export const baseWatchlistPageData: WatchlistPageData = {
     ],
   },
   simulationTracking: {
-    title: "Vị thế theo dõi giả lập trong Watchlist",
+    title: "Trạng thái theo dõi giả lập trong Watchlist",
     description:
       "Những cổ phiếu đã được đưa vào Mô phỏng hiện tại sẽ nằm ở đây để tiếp tục theo dõi thesis, mốc xem lại và nhật ký. Khi bạn phân tích cổ phiếu khác, các mô phỏng cũ không biến mất.",
     emptyState:
-      "Chưa có vị thế theo dõi giả lập nào. Khi bạn tạo mô phỏng theo dõi, cổ phiếu sẽ được lưu vào khu vực này.",
+      "Chưa có mục theo dõi giả lập nào. Khi bạn tạo mô phỏng theo dõi, cổ phiếu sẽ được lưu vào khu vực này.",
     items: [
       {
         ticker: "PNJ",
@@ -484,7 +484,7 @@ export const baseWatchlistPageData: WatchlistPageData = {
           "Kiểm tra doanh thu, biên gộp, tồn kho và dòng tiền hoạt động.",
         linkedModules: ["Mô phỏng", "BCTC", "Rủi ro", "PVT", "Nhật ký"],
         softWarning:
-          "Đây là vị thế theo dõi giả lập để kiểm tra thesis, không phải trạng thái giao dịch thật.",
+          "Đây là mục theo dõi giả lập để kiểm tra thesis, không phải trạng thái hành động thật.",
         actions: [
           { label: "Mở mô phỏng", variant: "primary" },
           { label: "Cập nhật nhật ký", variant: "secondary" },
@@ -501,13 +501,13 @@ export const baseWatchlistPageData: WatchlistPageData = {
         simulatedCapital: "Chưa nhập",
         simulatedWeight: "Chưa chọn",
         simulatedQuantity: "Hệ thống sẽ tự tính",
-        nextReviewMilestone: "Cần đặt trước khi tạo vị thế theo dõi giả lập",
+        nextReviewMilestone: "Cần đặt trước khi tạo mục theo dõi giả lập",
         journalStatus: "Chưa có nhật ký mô phỏng",
         requiredUpdate:
           "Đặt mốc xem lại thesis và xác định dữ liệu xác nhận/phủ định.",
         linkedModules: ["Mô phỏng", "Định giá", "Rủi ro"],
         softWarning:
-          "Mã này đủ nền để chuyển sang mô phỏng, nhưng chưa phải vị thế theo dõi giả lập đang mở.",
+          "Mã này đủ nền để chuyển sang mô phỏng, nhưng chưa phải mục theo dõi giả lập đang mở.",
         actions: [
           { label: "Tạo mô phỏng theo dõi", variant: "primary" },
           { label: "Xem thesis", variant: "secondary" },

@@ -198,8 +198,8 @@ export function SimulationPage() {
         addHistoryEvent({
           symbol: selectedStock.symbol,
           type: "order_created",
-          title: `Tình huống bán giả lập ${selectedStock.symbol} cần xem lại`,
-          description: "Tình huống bán giả lập yêu cầu đã có theo dõi trước đó. Hệ thống chỉ ghi lại để người dùng kiểm tra quy trình.",
+          title: `Tình huống giảm giả lập ${selectedStock.symbol} cần xem lại`,
+          description: "Tình huống giảm giả lập yêu cầu đã có theo dõi trước đó. Hệ thống chỉ ghi lại để người dùng kiểm tra quy trình.",
         });
       }
       return;
@@ -270,7 +270,7 @@ export function SimulationPage() {
     addHistoryEvent({
       symbol: selectedStock.symbol,
       type: "position_opened",
-      title: `tạo tình huống mua giả lập ${selectedStock.symbol}`,
+      title: `Tạo tình huống tăng giả lập ${selectedStock.symbol}`,
       description: `${formatCurrency(orderValue)} được ghi nhận trong không gian luyện tập. Lý do: ${order.reason}`,
     });
   }
@@ -373,28 +373,28 @@ export function SimulationPage() {
   }
 
   function handleUpdateStopLoss(position: SimulatedPosition) {
-    const input = window.prompt("Nhập stop-loss giả lập mới", String(position.stopLoss ?? position.currentPrice));
+    const input = window.prompt("Nhập mốc cảnh báo giả lập mới", String(position.stopLoss ?? position.currentPrice));
     const nextStopLoss = Number(input);
     if (!input || Number.isNaN(nextStopLoss) || nextStopLoss <= 0) return;
     updatePosition(position.id, { stopLoss: nextStopLoss });
     addHistoryEvent({
       symbol: position.symbol,
       type: "stop_loss_updated",
-      title: `Cập nhật stop-loss giả lập ${position.symbol}`,
-      description: `Stop-loss giả lập mới: ${nextStopLoss.toLocaleString("vi-VN")}.`,
+      title: `Cập nhật mốc cảnh báo giả lập ${position.symbol}`,
+      description: `Mốc cảnh báo giả lập mới: ${nextStopLoss.toLocaleString("vi-VN")}.`,
     });
   }
 
   function handleUpdateTarget(position: SimulatedPosition) {
-    const input = window.prompt("Nhập target giả lập mới", String(position.target ?? position.currentPrice));
+    const input = window.prompt("Nhập mốc theo dõi giả lập mới", String(position.target ?? position.currentPrice));
     const nextTarget = Number(input);
     if (!input || Number.isNaN(nextTarget) || nextTarget <= 0) return;
     updatePosition(position.id, { target: nextTarget });
     addHistoryEvent({
       symbol: position.symbol,
       type: "target_updated",
-      title: `Cập nhật target giả lập ${position.symbol}`,
-      description: `Target giả lập mới: ${nextTarget.toLocaleString("vi-VN")}.`,
+      title: `Cập nhật mốc theo dõi giả lập ${position.symbol}`,
+      description: `Mốc theo dõi giả lập mới: ${nextTarget.toLocaleString("vi-VN")}.`,
     });
   }
 

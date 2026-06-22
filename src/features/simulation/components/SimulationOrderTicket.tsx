@@ -115,7 +115,7 @@ export function SimulationOrderTicket({
 
             <div className="grid gap-2 sm:grid-cols-2">
               <label className="grid gap-1 text-xs font-bold text-ink">
-                Stop-loss giả lập
+                Mốc cảnh báo giả lập
                 <input
                   className="h-10 rounded-[3px] border border-border bg-surface px-3 text-sm outline-none focus:border-accent"
                   placeholder="Ví dụ 87500"
@@ -125,7 +125,7 @@ export function SimulationOrderTicket({
                 />
               </label>
               <label className="grid gap-1 text-xs font-bold text-ink">
-                Target giả lập
+                Mốc theo dõi giả lập
                 <input
                   className="h-10 rounded-[3px] border border-border bg-surface px-3 text-sm outline-none focus:border-accent"
                   placeholder="Ví dụ 102000"
@@ -138,12 +138,12 @@ export function SimulationOrderTicket({
 
             <div className="grid gap-2 rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3 text-xs text-muted">
               <p className="flex justify-between gap-3"><span>Độ ưu tiên</span><strong className="text-ink">{formatCurrency(values.value)}</strong></p>
-              <p className="flex justify-between gap-3"><span>Phí giao dịch giả lập</span><strong className="text-ink">{formatCurrency(values.fee)}</strong></p>
+              <p className="flex justify-between gap-3"><span>Phí ước tính</span><strong className="text-ink">{formatCurrency(values.fee)}</strong></p>
               {side === "sell" ? (
-                <p className="flex justify-between gap-3"><span>Thuế bán giả lập</span><strong className="text-ink">{formatCurrency(values.tax)}</strong></p>
+                <p className="flex justify-between gap-3"><span>Thuế ước tính</span><strong className="text-ink">{formatCurrency(values.tax)}</strong></p>
               ) : null}
               <p className="flex justify-between gap-3"><span>Tổng giá trị dự kiến</span><strong className="text-ink">{formatCurrency(values.total)}</strong></p>
-              <p className="flex justify-between gap-3"><span>Risk/reward</span><strong className="text-ink">{values.riskReward ? `${values.riskReward.toFixed(2)}:1` : "Chưa đủ dữ liệu"}</strong></p>
+              <p className="flex justify-between gap-3"><span>Tỷ lệ giả định</span><strong className="text-ink">{values.riskReward ? `${values.riskReward.toFixed(2)}:1` : "Chưa đủ dữ liệu"}</strong></p>
             </div>
 
             <div className="flex flex-wrap gap-2">
@@ -171,8 +171,8 @@ export function SimulationOrderTicket({
 
             <div className="space-y-2">
               {cashWarning ? <WarningText>Độ ưu tiên vượt tiền mặt giả lập hiện có.</WarningText> : null}
-              {sellWarning ? <WarningText>Tình huống bán giả lập yêu cầu đã có theo dõi trước đó.</WarningText> : null}
-              {lowRiskReward ? <WarningText>Rủi ro/lợi nhuận giả lập chưa hấp dẫn, hãy kiểm tra lại kế hoạch.</WarningText> : null}
+              {sellWarning ? <WarningText>Tình huống giảm giả lập yêu cầu đã có theo dõi trước đó.</WarningText> : null}
+              {lowRiskReward ? <WarningText>Tỷ lệ giả định chưa đủ rõ, hãy kiểm tra lại kế hoạch.</WarningText> : null}
               {!reason.trim() ? <WarningText>Lý do mở tình huống cần được ghi rõ trước khi tạo tình huống.</WarningText> : null}
             </div>
 

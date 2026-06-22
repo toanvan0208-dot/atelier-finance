@@ -12,7 +12,7 @@ export function ClosedPositionsTable({ positions, onAddLesson }: ClosedPositions
     <Card>
       <CardHeader
         title="Tình huống đã đóng"
-        description="Không chỉ xem lời/lỗ. Mỗi tình huống cần có lý do đóng và bài học rút ra."
+        description="Không chỉ xem kết quả tạm tính. Mỗi tình huống cần có lý do đóng và bài học rút ra."
         chip={<Chip variant="neutral">{positions.length} tình huống</Chip>}
       />
       <CardBody className="p-0">

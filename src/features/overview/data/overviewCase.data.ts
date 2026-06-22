@@ -15,7 +15,7 @@ export const baseOverviewCaseData: OverviewCaseDashboardData = {
       "Luận điểm phục hồi chưa đủ đáng tin nếu lợi nhuận không chuyển thành dòng tiền thật.",
     notReadyFor: [
       "Mô phỏng",
-      "Kết luận cổ phiếu hấp dẫn",
+      "Kết luận cổ phiếu đủ cơ sở",
       "Tăng tỷ trọng giả lập",
     ],
   },
@@ -149,7 +149,7 @@ export const baseOverviewCaseData: OverviewCaseDashboardData = {
     ],
     shouldNotDoYet: [
       "Chưa nên mô phỏng",
-      "Chưa nên kết luận cổ phiếu hấp dẫn",
+      "Chưa nên kết luận cổ phiếu đủ cơ sở",
       "Chưa nên tăng tỷ trọng giả lập",
       "Chưa nên hành động chỉ vì giá tăng",
     ],

@@ -37,8 +37,8 @@ export function stockStatusLabel(status: SimulatedStockStatus) {
   const labels: Record<SimulatedStockStatus, string> = {
     watching: "Đang theo dõi",
     has_position: "Có theo dõi",
-    near_stop_loss: "Gần stop-loss",
-    near_target: "Gần target",
+    near_stop_loss: "Gần mốc cảnh báo",
+    near_target: "Gần mốc theo dõi",
     low_liquidity: "Thanh khoản thấp",
     need_review: "Cần xem lại",
   };
@@ -48,10 +48,10 @@ export function stockStatusLabel(status: SimulatedStockStatus) {
 export function positionStatusLabel(status: SimulatedPositionStatus) {
   const labels: Record<SimulatedPositionStatus, string> = {
     normal: "Bình thường",
-    near_stop_loss: "Gần stop-loss",
-    near_target: "Gần target",
-    profit: "Đang lời",
-    loss: "Đang lỗ",
+    near_stop_loss: "Gần mốc cảnh báo",
+    near_target: "Gần mốc theo dõi",
+    profit: "Kết quả đang thuận lợi",
+    loss: "Kết quả đang bất lợi",
     need_review: "Cần xem lại kịch bản",
     low_liquidity: "Thanh khoản thấp",
   };

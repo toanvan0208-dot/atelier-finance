@@ -9,6 +9,20 @@ type ScenarioCardProps = {
   onClosePosition: () => void;
 };
 
+const scenarioTypeLabel = (type: PossibleScenario["type"]): string => {
+  const labels: Record<PossibleScenario["type"], string> = {
+    base: "Kịch bản nền",
+    behavior: "Hành vi cần theo dõi",
+    low_liquidity: "Thanh khoản thấp",
+    positive: "Kịch bản thuận lợi",
+    negative: "Kịch bản bất lợi",
+    market_risk: "Rủi ro thị trường",
+    stop_loss: "Mốc cảnh báo",
+    target: "Mốc theo dõi",
+  };
+  return labels[type];
+};
+
 export function ScenarioCard({
   scenario,
   hasPosition,
@@ -24,7 +38,7 @@ export function ScenarioCard({
           <p className="mt-1 text-xs leading-5 text-muted">{scenario.condition}</p>
         </div>
         <Chip variant={scenario.type === "negative" || scenario.type === "stop_loss" ? "warning" : "neutral"}>
-          {scenario.type}
+          {scenarioTypeLabel(scenario.type)}
         </Chip>
       </div>
 
@@ -50,8 +64,8 @@ export function ScenarioCard({
           {scenario.relatedModules.map((module) => <Chip key={module} size="sm">{module}</Chip>)}
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button size="sm" variant="secondary" disabled={!hasPosition} onClick={onUpdateStopLoss}>Cập nhật stop-loss</Button>
-          <Button size="sm" variant="secondary" disabled={!hasPosition} onClick={onUpdateTarget}>Cập nhật target</Button>
+          <Button size="sm" variant="secondary" disabled={!hasPosition} onClick={onUpdateStopLoss}>Cập nhật mốc cảnh báo</Button>
+          <Button size="sm" variant="secondary" disabled={!hasPosition} onClick={onUpdateTarget}>Cập nhật mốc theo dõi</Button>
           <Button size="sm" variant="secondary" disabled={!hasPosition} onClick={onClosePosition}>Đóng theo dõi giả lập</Button>
         </div>
       </div>

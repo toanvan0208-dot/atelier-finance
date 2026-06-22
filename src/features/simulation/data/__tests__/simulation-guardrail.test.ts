@@ -1,5 +1,21 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { simulationExperienceData } from "../simulation.data";
+
+const collectStrings = (value: unknown): string[] => {
+  if (typeof value === "string") return [value];
+  if (Array.isArray(value)) return value.flatMap(collectStrings);
+  if (value && typeof value === "object") {
+    return Object.values(value as Record<string, unknown>).flatMap(collectStrings);
+  }
+  return [];
+};
+
+const collectQuotedStrings = (source: string): string[] =>
+  Array.from(source.matchAll(/(?:"([^"]*)"|'([^']*)'|`([^`$]*)`)/g)).map(
+    (match) => match[1] ?? match[2] ?? match[3] ?? "",
+  ).filter((text) => !text.startsWith("@/") && !text.startsWith("../") && !text.startsWith("./"));
 
 describe("Simulation Guardrails", () => {
   it("does not expose forbidden investment advisory terms in simulation data", () => {
@@ -36,6 +52,47 @@ describe("Simulation Guardrails", () => {
     expect(dataString).not.toContain("dự báo giá");
     expect(dataString).not.toContain("dự đoán giá");
     expect(dataString).not.toContain("mô phỏng lợi nhuận");
+  });
+
+  it("does not expose trading-result wording in simulation user-facing strings", () => {
+    const dataString = collectStrings(simulationExperienceData).join("\n").toLowerCase();
+    const componentSource = [
+      "src/features/simulation/components/ClosedPositionsTable.tsx",
+      "src/features/simulation/components/ClosePositionDrawer.tsx",
+      "src/features/simulation/components/OpenPositionsTable.tsx",
+      "src/features/simulation/components/PossibleScenariosPanel.tsx",
+      "src/features/simulation/components/ScenarioCard.tsx",
+      "src/features/simulation/components/SimulationOrderTicket.tsx",
+      "src/features/simulation/components/SimulationPage.tsx",
+      "src/features/simulation/utils.ts",
+    ]
+      .flatMap((file) => collectQuotedStrings(readFileSync(join(process.cwd(), file), "utf8")))
+      .join("\n")
+      .toLowerCase();
+
+    const forbiddenUserFacingTerms = [
+      "stop-loss",
+      "target giả lập",
+      "cập nhật target",
+      "p/l",
+      "lãi/lỗ",
+      "lời/lỗ",
+      "giao dịch giả lập",
+      "mua giả lập",
+      "bán giả lập",
+      "trading",
+      "khuyến nghị",
+      "hấp dẫn",
+      "take profit",
+      "stop loss",
+      "cắt lỗ",
+      "chốt lời",
+    ];
+
+    for (const term of forbiddenUserFacingTerms) {
+      expect(dataString).not.toContain(term);
+      expect(componentSource).not.toContain(term);
+    }
   });
 
   it("does not leak raw metadata flags", () => {

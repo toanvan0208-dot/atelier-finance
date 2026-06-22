@@ -180,7 +180,7 @@ export const aiTutorConfig: Record<string, AITutorConfig> = {
       { label: "Kiểm tra BCTC", moduleKey: "financials", primary: true },
       { label: "Ghi rủi ro mô hình", moduleKey: "risk" },
     ],
-    softWarning: "Doanh nghiệp nghe hấp dẫn chưa chắc có dữ liệu tài chính xác nhận.",
+    softWarning: "Doanh nghiệp nghe có vẻ hợp lý vẫn cần dữ liệu tài chính xác nhận.",
   },
   financials: {
     moduleId: "financials",
@@ -291,7 +291,7 @@ export const aiTutorConfig: Record<string, AITutorConfig> = {
       "FOMO trong checklist nhận diện thế nào?",
       "Khi nào nên quay lại Module Rủi ro?",
       "Nếu thesis chưa rõ thì nên làm gì?",
-      "Lãi/lỗ mô phỏng có chứng minh tôi đúng/sai không?",
+      "Kết quả mô phỏng có chứng minh tôi đúng/sai không?",
     ],
     recommendedLessons: [
       { title: "Thesis đầu tư là gì?", duration: "5 phút", usedIn: "Watchlist, Checklist, Mô phỏng", reason: "Giúp bạn biết cần viết gì trước khi đi tiếp." },
@@ -309,13 +309,13 @@ export const aiTutorConfig: Record<string, AITutorConfig> = {
   simulation: {
     moduleId: "simulation",
     moduleName: "Mô phỏng",
-    currentGoal: "Luyện theo dõi thesis bằng vị thế giả lập, không phải trading game.",
+    currentGoal: "Luyện theo dõi thesis bằng tình huống giả lập, không phải trò chơi điểm số.",
     whatThisStepDoes: "Mô phỏng giúp bạn kiểm tra thesis theo dữ liệu mới, benchmark và cảm xúc trước khi dùng tiền thật.",
     questionsToCheck: ["Thesis ban đầu là gì?", "Mốc xem lại là gì?", "Kết quả so với VN-Index ra sao?", "Dữ liệu mới xác nhận hay phủ định thesis?", "Bạn thay đổi vì dữ liệu hay cảm xúc?"],
-    commonMistakes: ["Lãi không chắc đúng. Lỗ không chắc sai.", "Xem mô phỏng như game trading.", "Không ghi nhật ký khi thesis đổi."],
-    suggestedQuestions: ["Lãi/lỗ mô phỏng có chứng minh tôi đúng/sai không?", "Benchmark dùng để làm gì?", "Mốc xem lại thesis là gì?", "Tôi có đang FOMO không?"],
+    commonMistakes: ["Kết quả thuận lợi không chắc đúng. Kết quả bất lợi không chắc sai.", "Xem mô phỏng như trò chơi điểm số.", "Không ghi nhật ký khi thesis đổi."],
+    suggestedQuestions: ["Kết quả mô phỏng có chứng minh tôi đúng/sai không?", "Benchmark dùng để làm gì?", "Mốc xem lại thesis là gì?", "Tôi có đang FOMO không?"],
     recommendedLessons: [
-      { title: "Benchmark trong mô phỏng dùng để làm gì?", duration: "5 phút", usedIn: "Mô phỏng", reason: "Giúp bạn đánh giá thesis thay vì chỉ nhìn lãi/lỗ." },
+      { title: "Benchmark trong mô phỏng dùng để làm gì?", duration: "5 phút", usedIn: "Mô phỏng", reason: "Giúp bạn đánh giá thesis thay vì chỉ nhìn kết quả ngắn hạn." },
     ],
     nextActions: [
       { label: "Cập nhật thesis mô phỏng", moduleKey: "simulation", primary: true },

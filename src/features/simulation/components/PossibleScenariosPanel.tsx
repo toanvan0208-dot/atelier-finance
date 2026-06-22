@@ -35,7 +35,7 @@ export function PossibleScenariosPanel({
         <CardHeader
           title="Kịch bản có thể xảy ra"
           description="Dựa trên mã hoặc theo dõi giả lập đang chọn để luyện phản ứng trong mô phỏng."
-          chip={<Chip variant="warning">Không phải khuyến nghị</Chip>}
+          chip={<Chip variant="warning">Không phải gợi ý hành động</Chip>}
         />
         <CardBody className="space-y-4">
           {openPositions.length > 0 ? (
@@ -81,8 +81,8 @@ export function PossibleScenariosPanel({
                   value={position ? formatPercent(position.unrealizedPnLPercent) : "Chưa có theo dõi"}
                   className={position ? toneFromSignedValue(position.unrealizedPnL) : ""}
                 />
-                <Metric label="Stop-loss" value={position?.stopLoss ? formatNumber(position.stopLoss) : "Chưa đặt"} />
-                <Metric label="Target" value={position?.target ? formatNumber(position.target) : "Chưa đặt"} />
+                <Metric label="Mốc cảnh báo" value={position?.stopLoss ? formatNumber(position.stopLoss) : "Chưa đặt"} />
+                <Metric label="Mốc theo dõi" value={position?.target ? formatNumber(position.target) : "Chưa đặt"} />
               </div>
             </div>
           )}

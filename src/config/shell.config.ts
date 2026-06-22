@@ -126,7 +126,7 @@ export const shellConfig = {
     simulation: {
       stepNumber: 10,
       totalSteps: 10,
-      plainDescription: "Ghi nhận thesis, tạo vị thế theo dõi giả lập và hậu kiểm bài học trước khi quay lại checklist.",
+      plainDescription: "Ghi nhận thesis, tạo trạng thái theo dõi giả lập và hậu kiểm bài học trước khi quay lại checklist.",
       status: "Đang xây dựng",
       nextSuggestion: "Theo dõi giả lập theo mốc xem lại, sau đó ghi nhật ký để học từ nguyên nhân đúng sai.",
     },

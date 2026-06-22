@@ -17,8 +17,8 @@ type ClosePositionDrawerProps = {
 };
 
 const closeReasons = [
-  "Chạm stop-loss",
-  "Chạm target",
+  "Chạm mốc cảnh báo",
+  "Chạm mốc theo dõi",
   "Kịch bản ban đầu không còn đúng",
   "Thị trường chuyển xấu",
   "Thanh khoản yếu",
@@ -106,7 +106,7 @@ function ClosePositionForm({
           </div>
 
           <p className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-2 text-sm font-bold text-ink">
-            P/L giả lập dự kiến: {formatCurrency(projectedPnL)}
+            Sai số giả lập dự kiến: {formatCurrency(projectedPnL)}
           </p>
 
           <div className="flex flex-wrap gap-2">
