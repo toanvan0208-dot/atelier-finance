@@ -264,6 +264,61 @@ describe("TechnicalPage source transparency", () => {
     expect(html).not.toContain("MA20 · MA50");
   });
 
+  it("displays an unavailable state without rendering sample data for explicit no-data tickers", () => {
+    const html = renderPage({
+      data: null,
+      dataQuality: {
+        ...pvtDataQuality,
+        source: "Nguon dang hoan thien",
+        isDemoData: false,
+      },
+      source: {
+        sourceType: "sample_static_fallback",
+        sourceLabel: "sample_static_fallback",
+        dataMode: "sample",
+        productionApproved: false,
+      },
+      marketDataSource: {
+        sourceType: "sample_static_fallback",
+        provider: "sample_static",
+        sourceLabel: "sample_static_fallback",
+        dataMode: "sample",
+        productionApproved: false,
+        fallbackUsed: false,
+        ticker: "FPT",
+        asOf: "2025-06-30",
+        dateSpan: {
+          from: null,
+          to: null,
+        },
+      },
+      issuerMetadata: {
+        ticker: "FPT",
+        displayName: null,
+        issuerName: null,
+        industry: null,
+        sector: null,
+        sourceLabel: "unavailable",
+        dataMode: "unknown",
+        productionApproved: false,
+        verificationStatus: "unavailable",
+        sharesOutstanding: null,
+        sharesUnit: null,
+        sharesStatus: "unavailable",
+        limitations: ["Company/issuer metadata is unavailable for this DB-backed ticker."],
+        warnings: [],
+      },
+      fallbackUsed: false,
+      warnings: ["Fallback disabled"],
+    });
+
+    expect(html).toContain("Chua du du lieu Technical/PVT cho FPT");
+    expect(html).toContain("khong dung du lieu minh hoa hoac du lieu ticker khac");
+    expect(html).not.toContain("MWG");
+    expect(html).not.toContain("38.000 - 40.000");
+    expectNoRawSourceStatus(html);
+  });
+
   it("displays controlled local company metadata without overclaiming", () => {
     const html = renderPage({
       ...dbRuntimeBase,

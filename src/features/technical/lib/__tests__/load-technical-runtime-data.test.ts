@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 
+import { pvtObservationData } from "../../data/pvtObservation.data";
 import type { LoadTechnicalDeskDataResult } from "../load-technical-desk-data";
 import { loadTechnicalRuntimeData } from "../load-technical-runtime-data";
 import { buildUnknownMarketPvtUnitMetadata } from "../market-pvt-unit-metadata-capture";
@@ -113,6 +114,35 @@ const dbResult: LoadTechnicalDeskDataResult = {
   warnings: ["Local DB manual import"],
 };
 
+const dbResultForTicker = (ticker: string): LoadTechnicalDeskDataResult => ({
+  ...dbResult,
+  data: {
+    ...pvtObservationData,
+    ticker,
+    companyName: ticker,
+    industry: "Chua co du lieu xac minh",
+  },
+  marketDataSource: {
+    ...dbResult.marketDataSource,
+    ticker,
+    sourceLabel: "vnstock_research_candidate",
+    asOf: "2025-06-30",
+    dateSpan: {
+      from: "2025-06-02",
+      to: "2025-06-30",
+    },
+  },
+  issuerMetadata: {
+    ...dbResult.issuerMetadata,
+    ticker,
+    displayName: ticker,
+  },
+  source: {
+    ...dbResult.source,
+    sourceLabel: "vnstock_research_candidate",
+  },
+});
+
 describe("loadTechnicalRuntimeData", () => {
   it("defaults to the static fallback path with DB preference disabled", async () => {
     const loadDeskData = vi.fn().mockResolvedValue(fallbackResult);
@@ -124,9 +154,9 @@ describe("loadTechnicalRuntimeData", () => {
 
     expect(loadDeskData).toHaveBeenCalledWith({
       ticker: "FPT",
-      from: "2025-01-01",
-      to: "2025-01-31",
-      sourceLabel: undefined,
+      from: "2025-06-02",
+      to: "2025-06-30",
+      sourceLabel: "vnstock_research_candidate",
       preferDb: false,
       allowFallback: true,
     });
@@ -145,9 +175,9 @@ describe("loadTechnicalRuntimeData", () => {
 
     expect(loadDeskData).toHaveBeenCalledWith({
       ticker: "FPT",
-      from: "2025-01-01",
-      to: "2025-01-31",
-      sourceLabel: undefined,
+      from: "2025-06-02",
+      to: "2025-06-30",
+      sourceLabel: "vnstock_research_candidate",
       preferDb: true,
       allowFallback: true,
     });
@@ -174,9 +204,9 @@ describe("loadTechnicalRuntimeData", () => {
       ticker: "MWG",
       from: "2025-02-01",
       to: "2025-02-28",
-      sourceLabel: undefined,
+      sourceLabel: "vnstock_research_candidate",
       preferDb: false,
-      allowFallback: true,
+      allowFallback: false,
     });
   });
 
@@ -200,15 +230,37 @@ describe("loadTechnicalRuntimeData", () => {
       to: "2025-06-30",
       sourceLabel: "vnstock_research_candidate",
       preferDb: true,
-      allowFallback: true,
+      allowFallback: false,
     });
   });
 
-  it("falls back safely when the runtime loader throws", async () => {
+  it.each(["FPT", "MWG", "VNM"])(
+    "uses the explicit %s query ticker without falling back to another ticker",
+    async (ticker) => {
+      const loadDeskData = vi.fn().mockImplementation(async (input) => dbResultForTicker(input.ticker));
+
+      const result = await loadTechnicalRuntimeData({ ticker }, { loadDeskData });
+
+      expect(loadDeskData).toHaveBeenCalledWith({
+        ticker,
+        from: "2025-06-02",
+        to: "2025-06-30",
+        sourceLabel: "vnstock_research_candidate",
+        preferDb: true,
+        allowFallback: false,
+      });
+      expect(result.data?.ticker).toBe(ticker);
+      expect(result.marketDataSource.ticker).toBe(ticker);
+      expect(result.issuerMetadata.ticker).toBe(ticker);
+      expect(result.fallbackUsed).toBe(false);
+    },
+  );
+
+  it("falls back safely when the runtime loader throws and fallback is explicitly allowed", async () => {
     const loadDeskData = vi.fn().mockRejectedValue(new Error("DB read failed"));
 
     const result = await loadTechnicalRuntimeData(
-      { ticker: "FPT", from: "2025-01-01", to: "2025-01-31", preferDb: true },
+      { ticker: "FPT", from: "2025-01-01", to: "2025-01-31", preferDb: true, allowFallback: true },
       { loadDeskData },
     );
 
@@ -216,6 +268,22 @@ describe("loadTechnicalRuntimeData", () => {
     expect(result.fallbackUsed).toBe(true);
     expect(result.source.productionApproved).toBe(false);
     expect(result.warnings.join(" ")).toContain("static fallback");
+    expect(result.warnings.join(" ")).toContain("DB read failed");
+  });
+
+  it("keeps cross-ticker fallback disabled for explicit ticker runtime errors", async () => {
+    const loadDeskData = vi.fn().mockRejectedValue(new Error("DB read failed"));
+
+    const result = await loadTechnicalRuntimeData(
+      { ticker: "FPT", from: "2025-01-01", to: "2025-01-31", preferDb: true },
+      { loadDeskData },
+    );
+
+    expect(result.fallbackUsed).toBe(false);
+    expect(result.data).toBeNull();
+    expect(result.marketDataSource.ticker).toBe("FPT");
+    expect(result.issuerMetadata.ticker).toBe("FPT");
+    expect(result.warnings.join(" ")).toContain("cross-ticker fallback remained disabled");
     expect(result.warnings.join(" ")).toContain("DB read failed");
   });
 

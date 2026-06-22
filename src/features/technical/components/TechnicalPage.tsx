@@ -82,6 +82,33 @@ const technicalStatusLabel = (status: string | null | undefined): string => {
 };
 
 export function TechnicalPage({ initialRuntimeData, onNavigate }: TechnicalPageProps) {
+  if (initialRuntimeData && !initialRuntimeData.data) {
+    const requestedTicker =
+      initialRuntimeData.marketDataSource?.ticker ??
+      initialRuntimeData.issuerMetadata?.ticker ??
+      "Chua xac dinh";
+
+    return (
+      <div className="mx-auto w-full max-w-[1180px] space-y-5">
+        <DataQualityBanner {...initialRuntimeData.dataQuality} />
+        <section
+          aria-label="Technical/PVT unavailable"
+          className="rounded-[4px] border border-ink/10 bg-surface px-5 py-5 text-sm leading-6 text-muted"
+        >
+          <p className="text-base font-bold text-ink">
+            Chua du du lieu Technical/PVT cho {requestedTicker}
+          </p>
+          <p className="mt-2">
+            He thong khong dung du lieu minh hoa hoac du lieu ticker khac de thay the.
+          </p>
+          <p className="mt-2">
+            Nguon du lieu dang duoc kiem tra; chi dung cho nghien cuu va chua du dieu kien xac nhan san xuat.
+          </p>
+        </section>
+      </div>
+    );
+  }
+
   const data = initialRuntimeData?.data ?? pvtObservationData;
   const dataQuality = initialRuntimeData?.dataQuality ?? pvtDataQuality;
   const source = initialRuntimeData?.source ?? {

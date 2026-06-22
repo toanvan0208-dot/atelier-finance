@@ -10,6 +10,7 @@ export type LoadTechnicalRuntimeDataInput = {
   to?: string;
   sourceLabel?: string;
   preferDb?: boolean;
+  allowFallback?: boolean;
 };
 
 type TechnicalRuntimeEnv = Record<string, string | undefined>;
@@ -20,8 +21,9 @@ export type LoadTechnicalRuntimeDataDependencies = {
 };
 
 const DEFAULT_TICKER = "FPT";
-const DEFAULT_FROM = "2025-01-01";
-const DEFAULT_TO = "2025-01-31";
+const DEFAULT_FROM = "2025-06-02";
+const DEFAULT_TO = "2025-06-30";
+const DEFAULT_SOURCE_LABEL = "vnstock_research_candidate";
 const ENABLED_FLAG = "enabled";
 
 const isDbSourceEnabled = (
@@ -31,14 +33,19 @@ const isDbSourceEnabled = (
 const buildInput = (
   input: LoadTechnicalRuntimeDataInput = {},
   env: LoadTechnicalRuntimeDataDependencies["env"],
-): LoadTechnicalDeskDataInput => ({
-  ticker: input.ticker ?? DEFAULT_TICKER,
-  from: input.from ?? DEFAULT_FROM,
-  to: input.to ?? DEFAULT_TO,
-  sourceLabel: input.sourceLabel,
-  preferDb: input.preferDb ?? isDbSourceEnabled(env),
-  allowFallback: true,
-});
+): LoadTechnicalDeskDataInput => {
+  const requestedTicker = input.ticker;
+  const hasExplicitTicker = requestedTicker !== undefined;
+
+  return {
+    ticker: hasExplicitTicker ? requestedTicker.trim().toUpperCase() : DEFAULT_TICKER,
+    from: input.from ?? DEFAULT_FROM,
+    to: input.to ?? DEFAULT_TO,
+    sourceLabel: input.sourceLabel ?? DEFAULT_SOURCE_LABEL,
+    preferDb: input.preferDb ?? (hasExplicitTicker || isDbSourceEnabled(env)),
+    allowFallback: input.allowFallback ?? !hasExplicitTicker,
+  };
+};
 
 export const loadTechnicalRuntimeData = async (
   input: LoadTechnicalRuntimeDataInput = {},
@@ -53,13 +60,15 @@ export const loadTechnicalRuntimeData = async (
     const fallback = await loadTechnicalDeskData({
       ...runtimeInput,
       preferDb: false,
-      allowFallback: true,
+      allowFallback: runtimeInput.allowFallback,
     });
 
     return {
       ...fallback,
       warnings: [
-        "Technical/PVT runtime loader failed; static fallback was used.",
+        runtimeInput.allowFallback
+          ? "Technical/PVT runtime loader failed; static fallback was used."
+          : "Technical/PVT runtime loader failed; cross-ticker fallback remained disabled.",
         error instanceof Error ? error.message : "Unknown runtime loader error.",
         ...fallback.warnings,
       ],

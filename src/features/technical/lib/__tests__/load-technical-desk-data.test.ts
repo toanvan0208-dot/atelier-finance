@@ -339,6 +339,38 @@ describe("loadTechnicalDeskData", () => {
     expect(result.warnings.join(" ")).toContain("static fallback");
   });
 
+  it("returns unavailable for explicit ticker no-data states when fallback is disabled", async () => {
+    const readMarketPriceSeries = vi.fn().mockResolvedValue(
+      series([], {
+        ok: false,
+        status: "not_found",
+        ticker: "ZZZ",
+        count: 0,
+        rows: [],
+        warnings: ["No matching market price rows were found."],
+      }),
+    );
+
+    const result = await loadTechnicalDeskData(
+      { ticker: "ZZZ", from: "2025-01-01", to: "2025-01-31", preferDb: true, allowFallback: false },
+      {
+        readMarketPriceSeries,
+        fallbackData: baseData,
+        fallbackDataQuality,
+      },
+    );
+
+    expect(result.ok).toBe(false);
+    expect(result.data).toBeNull();
+    expect(result.fallbackUsed).toBe(false);
+    expect(result.marketDataSource.ticker).toBe("ZZZ");
+    expect(result.issuerMetadata.ticker).toBe("ZZZ");
+    expect(result.issuerMetadata.verificationStatus).toBe("unavailable");
+    expect(result.dataQuality.isDemoData).toBe(false);
+    expect(result.dataQuality.source).not.toBe("sample");
+    expect(result.warnings.join(" ")).toContain("fallback is disabled");
+  });
+
   it("falls back safely when DB rows fail Market/PVT unit metadata checks", async () => {
     const readMarketPriceSeries = vi.fn().mockResolvedValue(
       series(

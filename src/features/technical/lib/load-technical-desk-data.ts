@@ -204,10 +204,12 @@ const fallbackResult = ({
 });
 
 const safeErrorResult = ({
+  ticker,
   fallbackDataQuality,
   warnings = [],
   errors = [],
 }: {
+  ticker: string;
   fallbackDataQuality: TechnicalDeskDataQuality;
   warnings?: string[];
   errors?: string[];
@@ -216,7 +218,8 @@ const safeErrorResult = ({
   data: null,
   dataQuality: {
     ...fallbackDataQuality,
-    isDemoData: true,
+    source: "Nguồn đang hoàn thiện",
+    isDemoData: false,
   },
   source: {
     sourceType: "sample_static_fallback",
@@ -225,7 +228,7 @@ const safeErrorResult = ({
     dataMode: "sample",
     productionApproved: false,
   },
-  marketDataSource: fallbackMarketDataSource(null, stringOrNull(fallbackDataQuality.asOf)),
+  marketDataSource: fallbackMarketDataSource(ticker, stringOrNull(fallbackDataQuality.asOf)),
   marketUnitMetadata: buildUnknownMarketPvtUnitMetadata(
     {},
     {
@@ -235,7 +238,7 @@ const safeErrorResult = ({
       sourceLabel: "sample_static_fallback",
     },
   ),
-  issuerMetadata: unavailableIssuerMetadata("UNKNOWN"),
+  issuerMetadata: unavailableIssuerMetadata(ticker || "UNKNOWN"),
   fallbackUsed: false,
   warnings,
   errors,
@@ -296,6 +299,7 @@ export const loadTechnicalDeskData = async (
     }
 
     return safeErrorResult({
+      ticker: input.ticker,
       fallbackDataQuality,
       warnings: ["Invalid Technical/PVT DB input; fallback is disabled."],
       errors: invalidErrors,
@@ -312,6 +316,7 @@ export const loadTechnicalDeskData = async (
     }
 
     return safeErrorResult({
+      ticker: input.ticker,
       fallbackDataQuality,
       warnings: ["DB-backed Technical/PVT path is not enabled and fallback is disabled."],
     });
@@ -343,6 +348,7 @@ export const loadTechnicalDeskData = async (
     }
 
     return safeErrorResult({
+      ticker: input.ticker,
       fallbackDataQuality,
       warnings: ["Technical/PVT DB read did not return usable rows and fallback is disabled.", ...series.warnings],
       errors: series.errors,
@@ -365,6 +371,7 @@ export const loadTechnicalDeskData = async (
     }
 
     return safeErrorResult({
+      ticker: input.ticker,
       fallbackDataQuality,
       warnings: [
         "Technical/PVT DB rows failed Market/PVT unit metadata checks and fallback is disabled.",
@@ -390,6 +397,7 @@ export const loadTechnicalDeskData = async (
     }
 
     return safeErrorResult({
+      ticker: input.ticker,
       fallbackDataQuality,
       warnings: [
         "Technical/PVT builder could not create DB-backed data and fallback is disabled.",
@@ -406,7 +414,7 @@ export const loadTechnicalDeskData = async (
     data: built.data,
     dataQuality: {
       ...fallbackDataQuality,
-      source: series.sourceLabel,
+      source: "Du lieu gia tham khao tu nguon nghien cuu",
       isDemoData: false,
       missingFields: built.adapter.warnings,
     },
