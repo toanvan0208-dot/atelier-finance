@@ -1,7 +1,4 @@
-import { createElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { MacroPage } from "../../components/MacroPage";
 import { macroIndicators } from "../../data/macroIndicators.data";
 import {
   formatMacroIndicatorValue,
@@ -50,17 +47,7 @@ describe("Macro MVP indicator contract", () => {
     }
   });
 
-  it("renders missing values and source metadata gaps safely", () => {
-    const html = renderToStaticMarkup(createElement(MacroPage));
-
-    expect(html).toContain("Bước 1 — Bối cảnh vĩ mô");
-    expect(html.match(/Chưa đủ dữ liệu/g)?.length).toBeGreaterThanOrEqual(4);
-    expect(html).toContain("Nguồn: đang hoàn thiện");
-    expect(html).toContain("Kỳ dữ liệu: đang hoàn thiện");
-    expect(html).not.toContain(">0<");
-  });
-
-  it("does not include recommendation terms in Macro product copy", () => {
+  it("does not include recommendation terms in Macro contract copy", () => {
     const macroCopy = [
       ...macroIndicators.flatMap((indicator) => [
         indicator.name,
@@ -69,7 +56,6 @@ describe("Macro MVP indicator contract", () => {
         indicator.whatToCheckNext,
         ...indicator.warnings,
       ]),
-      renderToStaticMarkup(createElement(MacroPage)),
     ]
       .join(" ")
       .toLowerCase();

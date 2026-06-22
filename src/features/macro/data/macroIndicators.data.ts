@@ -83,11 +83,3 @@ export const macroIndicators: readonly MacroIndicator[] = [
     warnings: missingMetadataWarnings,
   },
 ] as const;
-
-export const macroNextChecks = [
-  "Ngành này có nhạy với lãi suất không?",
-  "Ngành này có phụ thuộc nhập khẩu hoặc ngoại tệ không?",
-  "Lạm phát có thể ảnh hưởng đến sức mua hoặc biên lợi nhuận không?",
-  "Doanh nghiệp có nợ vay cao không?",
-  "Doanh thu và biên lợi nhuận có đi cùng bối cảnh chung không?",
-] as const;
