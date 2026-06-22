@@ -10,6 +10,7 @@ import type {
   RetrievalSafetyLevel,
 } from "../retrieval";
 import type { RagDocumentChunk, SelectRetrievedChunksResult } from "../ingestion";
+import type { AssistantContextPacket } from "../context";
 
 export type AssistantRuntimeInput = {
   question: string;
@@ -21,6 +22,7 @@ export type AssistantRuntimeInput = {
   allowedNumericValues?: Array<number | string>;
   source?: string | null;
   timestamp?: string | null;
+  contextPacket?: AssistantContextPacket | null;
 };
 
 export type AssistantRuntimeDebugInfo = {
@@ -52,5 +54,6 @@ export type AssistantRuntimeOutput = {
   warnings: string[];
   safetyLevel: RetrievalSafetyLevel;
   missingContext: string[];
+  contextPacket: AssistantContextPacket | null;
   debug: AssistantRuntimeDebugInfo;
 };

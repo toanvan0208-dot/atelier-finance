@@ -3,6 +3,7 @@ import { resolveAssistantProvider } from "../../../lib/ai-rag/providers";
 import type { AssistantProvider } from "../../../lib/ai-rag/providers";
 import type { AssistantRuntimeInput } from "../../../lib/ai-rag/runtime";
 import type { AssistantDataQuality, AssistantModuleContext } from "../../../lib/ai-rag/prompts";
+import { parseAssistantContextPacket } from "../../../lib/ai-rag/context";
 
 type AssistantApiRequestBody = {
   question?: unknown;
@@ -13,6 +14,7 @@ type AssistantApiRequestBody = {
   allowedNumericValues?: unknown;
   source?: unknown;
   timestamp?: unknown;
+  contextPacket?: unknown;
 };
 
 type AssistantRouteOptions = {
@@ -44,22 +46,50 @@ const buildRuntimeInput = (body: AssistantApiRequestBody): AssistantRuntimeInput
     return null;
   }
 
+  const contextPacket = parseAssistantContextPacket(body.contextPacket);
+  const packetQuality = contextPacket?.dataQuality;
+  const packetDataQuality: AssistantDataQuality | undefined = contextPacket
+    ? {
+        overallStatus: packetQuality?.status ?? "missing",
+        isMockData:
+          packetQuality?.dataMode === "sample" || packetQuality?.dataMode === "mock",
+        missingFields: contextPacket.missingFields,
+        sourceIssues:
+          packetQuality?.sourceName || packetQuality?.sourceLabel ? [] : ["source"],
+        periodIssues: packetQuality?.period ? [] : ["period"],
+        dataMode: packetQuality?.dataMode,
+        productionApproved: packetQuality?.productionApproved,
+        sourceName: packetQuality?.sourceName,
+        sourceLabel: packetQuality?.sourceLabel,
+        asOf: packetQuality?.asOf,
+        period: packetQuality?.period,
+        warnings: packetQuality?.warnings,
+      }
+    : undefined;
+
   return {
     question: body.question.trim(),
     activeModule:
-      typeof body.activeModule === "string" && body.activeModule.trim().length > 0
+      contextPacket?.activeModule ??
+      (typeof body.activeModule === "string" && body.activeModule.trim().length > 0
         ? body.activeModule.trim()
-        : "overview",
-    ticker: asOptionalString(body.ticker),
+        : "overview"),
+    ticker: contextPacket?.ticker ?? asOptionalString(body.ticker),
     moduleContext: isRecord(body.moduleContext)
       ? (body.moduleContext as AssistantModuleContext)
-      : undefined,
+      : (contextPacket?.moduleContext as AssistantModuleContext | null) ?? undefined,
     dataQuality: isRecord(body.dataQuality)
       ? (body.dataQuality as AssistantDataQuality)
-      : undefined,
-    allowedNumericValues: asNumericArray(body.allowedNumericValues),
-    source: asOptionalString(body.source),
-    timestamp: asOptionalString(body.timestamp),
+      : packetDataQuality,
+    allowedNumericValues:
+      asNumericArray(body.allowedNumericValues) ?? contextPacket?.allowedNumericValues,
+    source:
+      asOptionalString(body.source) ??
+      packetQuality?.sourceName ??
+      packetQuality?.sourceLabel ??
+      null,
+    timestamp: asOptionalString(body.timestamp) ?? packetQuality?.asOf ?? null,
+    contextPacket,
   };
 };
 

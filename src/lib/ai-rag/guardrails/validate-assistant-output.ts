@@ -92,6 +92,20 @@ const collectContextViolations = (
   const normalizedAnswer = normalizeText(answer);
   const violations: GuardrailViolation[] = [];
 
+  if (
+    (context.missingFields?.length ?? 0) > 0 &&
+    !/\b(thieu|chua\s+du|khong\s+co\s+du|missing|not[_\s-]?available|unavailable|insufficient|context\s+is\s+limited)\b/i.test(
+      normalizedAnswer,
+    )
+  ) {
+    violations.push({
+      code: "MISSING_DATA_NOT_DISCLOSED",
+      severity: "critical",
+      message: "Assistant must disclose missing data when grounded context is incomplete.",
+      matchedText: "missing data not disclosed",
+    });
+  }
+
   if (context.eps !== undefined && context.eps !== null && context.eps <= 0 && answerMentionsCheapPe(normalizedAnswer)) {
     violations.push({
       code: "INVALID_PE_INTERPRETATION",

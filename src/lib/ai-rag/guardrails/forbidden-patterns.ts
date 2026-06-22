@@ -70,4 +70,19 @@ export const FORBIDDEN_PATTERNS: ForbiddenPattern[] = [
     pattern:
       /\b(thieu|khong\s+co|missing|not_available|insufficient_data).{0,40}\b(=|la|as|bang|coi\s+la|xem\s+la)\s*0\b/i,
   },
+  {
+    code: "VALUATION_ACTION_LANGUAGE",
+    severity: "critical",
+    message: "Assistant output must not provide upside, downside, or recommendation language.",
+    pattern: /\b(upside|downside|recommendation|khuyen\s+nghi)\b/i,
+    allowNegated: true,
+  },
+  {
+    code: "VALUATION_CONCLUSION",
+    severity: "critical",
+    message: "Assistant output must not conclude that a stock is cheap, expensive, or attractive.",
+    pattern:
+      /\b(co\s+phieu|ma\s+nay|stock).{0,40}\b(re|dat|hap\s+dan|cheap|expensive|attractive|undervalued|overvalued)\b/i,
+    allowNegated: true,
+  },
 ];

@@ -5,6 +5,58 @@ import { packRetrievalContext, selectRagDocuments } from "../retrieval";
 import type { RetrievalIntent } from "../retrieval";
 import type { AssistantRuntimeInput, AssistantRuntimeOutput } from "./types";
 
+const uniqueStrings = (values: Array<string | null | undefined>): string[] =>
+  Array.from(new Set(values.filter((value): value is string => Boolean(value))));
+
+const resolveRuntimeInput = (input: AssistantRuntimeInput): AssistantRuntimeInput => {
+  const packet = input.contextPacket;
+  if (!packet) return input;
+
+  const packetQuality = packet.dataQuality;
+  const moduleContext = input.moduleContext ?? packet.moduleContext ?? undefined;
+  const missingFields = uniqueStrings([
+    ...(input.dataQuality?.missingFields ?? []),
+    ...packet.missingFields,
+  ]);
+
+  return {
+    ...input,
+    activeModule: packet.activeModule || input.activeModule,
+    ticker: input.ticker ?? packet.ticker,
+    moduleContext: moduleContext
+      ? {
+          ...moduleContext,
+          missingFields: uniqueStrings([
+            ...((moduleContext.missingFields as string[] | undefined) ?? []),
+            ...packet.missingFields,
+          ]),
+          visibleFacts: packet.visibleFacts,
+          constraints: packet.constraints,
+        }
+      : undefined,
+    dataQuality: {
+      ...input.dataQuality,
+      overallStatus: input.dataQuality?.overallStatus ?? packetQuality.status ?? "missing",
+      isMockData:
+        input.dataQuality?.isMockData ??
+        (packetQuality.dataMode === "sample" || packetQuality.dataMode === "mock"),
+      missingFields,
+      dataMode: packetQuality.dataMode,
+      productionApproved: packetQuality.productionApproved,
+      sourceName: packetQuality.sourceName,
+      sourceLabel: packetQuality.sourceLabel,
+      asOf: packetQuality.asOf,
+      period: packetQuality.period,
+      warnings: packetQuality.warnings,
+    },
+    allowedNumericValues:
+      input.allowedNumericValues ?? packet.allowedNumericValues,
+    source:
+      input.source ?? packetQuality.sourceName ?? packetQuality.sourceLabel ?? null,
+    timestamp: input.timestamp ?? packetQuality.asOf ?? null,
+  };
+};
+
 const mapRetrievalIntentToPromptIntent = (intent: RetrievalIntent): AssistantUserIntent => {
   switch (intent) {
     case "pvt":
@@ -53,34 +105,36 @@ const enrichModuleContext = (input: AssistantRuntimeInput): AssistantRuntimeInpu
 };
 
 export const buildAssistantRuntime = (input: AssistantRuntimeInput): AssistantRuntimeOutput => {
+  const resolvedInput = resolveRuntimeInput(input);
   const selection = selectRagDocuments({
-    userQuestion: input.question,
-    activeModule: input.activeModule,
+    userQuestion: resolvedInput.question,
+    activeModule: resolvedInput.activeModule,
   });
   const packedContext = packRetrievalContext(selection);
   const retrieval = selectRetrievedChunks({
     selectedDocuments: selection.selectedDocuments,
-    question: input.question,
-    activeModule: input.activeModule,
+    question: resolvedInput.question,
+    activeModule: resolvedInput.activeModule,
     intent: selection.intent,
     safetyLevel: selection.safetyLevel,
     maxChunks: 4,
   });
-  const missingContext = buildMissingContext(input, retrieval.retrievedChunks.length > 0);
+  const missingContext = buildMissingContext(resolvedInput, retrieval.retrievedChunks.length > 0);
   const warnings = [
     ...selection.warnings,
     ...retrieval.warnings,
   ];
 
   const prompt = buildAssistantPrompt({
-    userQuestion: input.question,
-    activeModule: input.activeModule,
-    ticker: input.ticker,
-    companyName: input.companyName,
+    userQuestion: resolvedInput.question,
+    activeModule: resolvedInput.activeModule,
+    ticker: resolvedInput.ticker,
+    companyName: resolvedInput.companyName,
     userIntent: mapRetrievalIntentToPromptIntent(selection.intent),
-    moduleContext: enrichModuleContext(input),
-    dataQuality: input.dataQuality,
+    moduleContext: enrichModuleContext(resolvedInput),
+    dataQuality: resolvedInput.dataQuality,
     retrievedChunks: retrieval.retrievedChunks,
+    contextPacket: input.contextPacket ?? undefined,
   });
 
   return {
@@ -88,12 +142,13 @@ export const buildAssistantRuntime = (input: AssistantRuntimeInput): AssistantRu
     retrievedChunks: retrieval.retrievedChunks,
     retrieval,
     detectedIntent: selection.intent,
-    activeModule: input.activeModule,
+    activeModule: resolvedInput.activeModule,
     packedContext,
     prompt,
     warnings,
     safetyLevel: selection.safetyLevel,
     missingContext,
+    contextPacket: input.contextPacket ?? null,
     debug: {
       pipeline: [
         "select_rag_documents",
@@ -107,9 +162,9 @@ export const buildAssistantRuntime = (input: AssistantRuntimeInput): AssistantRu
       hasActualRetrievedChunks: retrieval.retrievedChunks.length > 0,
       retrievedChunkCount: retrieval.retrievedChunks.length,
       excludedChunkCount: retrieval.excludedChunks.length,
-      allowedNumericValuesCount: input.allowedNumericValues?.length ?? 0,
-      source: input.source ?? null,
-      timestamp: input.timestamp ?? null,
+      allowedNumericValuesCount: resolvedInput.allowedNumericValues?.length ?? 0,
+      source: resolvedInput.source ?? null,
+      timestamp: resolvedInput.timestamp ?? null,
     },
   };
 };

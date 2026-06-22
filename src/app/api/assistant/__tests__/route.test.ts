@@ -91,6 +91,49 @@ describe("POST /api/assistant", () => {
     expect(json.llmStatus).toBe("not_configured");
   });
 
+  it("accepts a grounded context packet and passes it into runtime and prompt", async () => {
+    const response = await postJson({
+      question: "Du lieu hien tai dang thieu gi?",
+      activeModule: "overview",
+      ticker: "MWG",
+      contextPacket: {
+        ticker: "FPT",
+        activeModule: "risk",
+        moduleContext: {
+          moduleKey: "risk",
+          ticker: "FPT",
+          metrics: { revenue: 125, eps: null, totalEquity: null },
+        },
+        dataQuality: {
+          dataMode: "research_only",
+          status: "partial",
+          productionApproved: false,
+          sourceName: null,
+          sourceLabel: "Reviewed local financial statement",
+          asOf: null,
+          period: "2025",
+          warnings: ["Source and asOf need review."],
+        },
+        missingFields: ["eps", "totalEquity", "source", "asOf"],
+        allowedNumericValues: [125, 2025],
+        visibleFacts: ["Ticker in workspace URL: FPT"],
+        constraints: ["Do not infer missing values."],
+      },
+    });
+    const json = await readJson<AssistantApiResponse>(response);
+    const prompt = json.runtime?.prompt.promptText ?? "";
+
+    expect(response.status).toBe(200);
+    expect(json.runtime?.detectedIntent).toBe("risk");
+    expect(prompt).toContain("Packet ticker: FPT");
+    expect(prompt).toContain("Packet active module: risk");
+    expect(prompt).toContain("eps");
+    expect(prompt).toContain("totalEquity");
+    expect(prompt).toContain("Allowed numeric values from grounded context:\n- 125\n- 2025");
+    expect(prompt).toContain("Production approved: no");
+    expect(prompt).toContain("As of: not_available");
+  });
+
   it("selects PVT and guardrails for a PVT signal question", async () => {
     const response = await postJson({
       question: "Volume tang manh co phai tin hieu mua khong?",

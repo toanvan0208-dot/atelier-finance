@@ -3,6 +3,7 @@ import { validateAssistantOutput } from "../guardrails";
 import { callAssistantProvider } from "../providers";
 import { buildAssistantRuntime } from "../runtime";
 import type { AssistantRuntimeInput } from "../runtime";
+import type { AssistantModuleContext } from "../prompts";
 import type { RunAssistantInput, RunAssistantOutput } from "./types";
 
 const SAFE_REFUSAL =
@@ -17,22 +18,30 @@ const buildValidationContext = (
   input: AssistantRuntimeInput,
   override?: GuardrailValidationContext,
 ): GuardrailValidationContext => {
-  const metrics =
-    input.moduleContext?.metrics && typeof input.moduleContext.metrics === "object"
-      ? input.moduleContext.metrics
+  const packet = input.contextPacket;
+  const packetModuleContext = packet?.moduleContext as AssistantModuleContext | null | undefined;
+  const moduleContext = input.moduleContext ?? packetModuleContext ?? undefined;
+  const metrics: Record<string, unknown> =
+    moduleContext?.metrics && typeof moduleContext.metrics === "object"
+      ? (moduleContext.metrics as Record<string, unknown>)
       : {};
 
   return {
-    module: input.activeModule,
+    module: packet?.activeModule ?? input.activeModule,
     missingFields: [
-      ...(input.moduleContext?.missingFields ?? []),
+      ...(moduleContext?.missingFields ?? []),
       ...(input.dataQuality?.missingFields ?? []),
+      ...(packet?.missingFields ?? []),
     ],
-    isMockData: input.moduleContext?.isMockData ?? input.dataQuality?.isMockData,
+    isMockData:
+      moduleContext?.isMockData ??
+      input.dataQuality?.isMockData ??
+      (packet?.dataQuality.dataMode === "sample" ||
+        packet?.dataQuality.dataMode === "mock"),
     eps: asNumberOrNull(metrics.eps),
     totalEquity: asNumberOrNull(metrics.totalEquity),
     bvps: asNumberOrNull(metrics.bvps),
-    allowedNumericValues: input.allowedNumericValues,
+    allowedNumericValues: input.allowedNumericValues ?? packet?.allowedNumericValues,
     hasFairValueInContext: Boolean(metrics.fairValue),
     hasTargetPriceInContext: Boolean(metrics.targetPrice),
     ...override,
@@ -47,8 +56,8 @@ export const runAssistant = async (input: RunAssistantInput): Promise<RunAssista
     runtime,
     metadata: {
       question: input.question,
-      activeModule: input.activeModule,
-      ticker: input.ticker,
+      activeModule: input.contextPacket?.activeModule ?? input.activeModule,
+      ticker: input.contextPacket?.ticker ?? input.ticker,
     },
   });
 

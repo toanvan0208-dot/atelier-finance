@@ -3,11 +3,18 @@
 import { useMemo, useState } from "react";
 import { aiTutorConfig, fallbackAITutorConfig, type AITutorConfig } from "@/config/aiTutor.config";
 import { cn } from "@/lib/cn";
+import type { FinancialsRuntimeData } from "@/features/financials/lib/financials-runtime-types";
+import { buildAssistantApiPayload } from "@/lib/ai-rag/context";
+import {
+  buildAssistantScreenContextPacket,
+  readAssistantTickerFromSearch,
+} from "./assistant-screen-context";
 
 type AITutorTab = "guide" | "ask" | "learn";
 
 type RightAssistantPanelProps = {
   activeModule: string;
+  financialsRuntimeData?: FinancialsRuntimeData;
   onNavigate?: (key: string) => void;
 };
 
@@ -264,6 +271,9 @@ const violationLabels: Record<string, string> = {
   PVT_SIGNAL_WORDING: "Biến Price Volume Time thành tín hiệu giao dịch.",
   RISK_SCORE_OVERREACH: "Biến risk score thành kết luận cổ phiếu an toàn hoặc xấu.",
   CHECKLIST_RECOMMENDATION: "Biến checklist thành khuyến nghị đầu tư.",
+  VALUATION_ACTION_LANGUAGE: "Có ngôn ngữ upside, downside hoặc khuyến nghị không được phép.",
+  VALUATION_CONCLUSION: "Biến chỉ số định giá thành kết luận rẻ, đắt hoặc hấp dẫn.",
+  MISSING_DATA_NOT_DISCLOSED: "Câu trả lời không nêu rõ dữ liệu đang thiếu.",
 };
 
 const getDocumentLabel = (document: AssistantApiDocument): string =>
@@ -362,9 +372,11 @@ function AssistantEvidencePanel({
 function AITutorAskRuntimeTab({
   activeModule,
   config,
+  financialsRuntimeData,
 }: {
   activeModule: string;
   config: AITutorConfig;
+  financialsRuntimeData?: FinancialsRuntimeData;
 }) {
   const [question, setQuestion] = useState("");
   const [runtimeResponse, setRuntimeResponse] = useState<AssistantApiResponse | null>(null);
@@ -386,15 +398,17 @@ function AITutorAskRuntimeTab({
     setError("");
 
     try {
+      const contextPacket = buildAssistantScreenContextPacket({
+        activeModule,
+        ticker: readAssistantTickerFromSearch(window.location.search),
+        financialsRuntimeData,
+      });
       const response = await fetch("/api/assistant", {
         method: "POST",
         headers: {
           "content-type": "application/json",
         },
-        body: JSON.stringify({
-          question: trimmed,
-          activeModule,
-        }),
+        body: JSON.stringify(buildAssistantApiPayload(trimmed, contextPacket)),
       });
       const payload = (await response.json()) as AssistantApiResponse;
 
@@ -433,9 +447,10 @@ function AITutorAskRuntimeTab({
         <p className="mt-2 text-xs leading-5 text-muted">
           {isLoading
             ? "Dang goi /api/assistant de chuan bi runtime prompt..."
-            : runtimeResponse?.message ??
-              error ??
-              "AI runtime da san sang prompt, nhung LLM chua duoc cau hinh."}
+            : runtimeResponse
+              ? getStatusMessage(runtimeResponse.llmStatus)
+              : error ??
+                "AI runtime da san sang prompt, nhung LLM chua duoc cau hinh."}
         </p>
         <p className="hidden">
           LLM status: {runtimeResponse?.llmStatus ?? "not_configured"} Â· Answer: {runtimeResponse?.answer ?? "null"}
@@ -504,6 +519,7 @@ function AITutorTabs({
 
 function AITutorPanelContent({
   activeModule,
+  financialsRuntimeData,
   onNavigate,
 }: RightAssistantPanelProps) {
   const config = useMemo(() => getTutorConfig(activeModule), [activeModule]);
@@ -518,14 +534,24 @@ function AITutorPanelContent({
       <div className="space-y-4 px-4 py-4">
         <AITutorTabs activeTab={activeTab} onChange={setActiveTab} />
         {activeTab === "guide" ? <AITutorGuideTab config={config} onNavigate={onNavigate} /> : null}
-        {activeTab === "ask" ? <AITutorAskRuntimeTab activeModule={activeModule} config={config} /> : null}
+        {activeTab === "ask" ? (
+          <AITutorAskRuntimeTab
+            activeModule={activeModule}
+            config={config}
+            financialsRuntimeData={financialsRuntimeData}
+          />
+        ) : null}
         {activeTab === "learn" ? <AITutorLearnTab config={config} /> : null}
       </div>
     </section>
   );
 }
 
-export function RightAssistantPanel({ activeModule, onNavigate }: RightAssistantPanelProps) {
+export function RightAssistantPanel({
+  activeModule,
+  financialsRuntimeData,
+  onNavigate,
+}: RightAssistantPanelProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
@@ -560,7 +586,11 @@ export function RightAssistantPanel({ activeModule, onNavigate }: RightAssistant
               AI Trợ giảng
             </button>
           ) : (
-            <AITutorPanelContent activeModule={activeModule} onNavigate={onNavigate} />
+            <AITutorPanelContent
+              activeModule={activeModule}
+              financialsRuntimeData={financialsRuntimeData}
+              onNavigate={onNavigate}
+            />
           )}
         </div>
       </aside>
@@ -595,7 +625,11 @@ export function RightAssistantPanel({ activeModule, onNavigate }: RightAssistant
                 Đóng
               </button>
             </div>
-            <AITutorPanelContent activeModule={activeModule} onNavigate={onNavigate} />
+            <AITutorPanelContent
+              activeModule={activeModule}
+              financialsRuntimeData={financialsRuntimeData}
+              onNavigate={onNavigate}
+            />
           </div>
         </div>
       ) : null}

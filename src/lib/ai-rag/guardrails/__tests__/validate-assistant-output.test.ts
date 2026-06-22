@@ -124,4 +124,52 @@ describe("validateAssistantOutput", () => {
     expect(result.shouldRefuse).toBe(false);
     expect(result.violations).toHaveLength(0);
   });
+
+  it("blocks upside, downside and recommendation language", () => {
+    for (const answer of [
+      "Upside cua co phieu nay la 20%.",
+      "Downside cua co phieu nay la 10%.",
+      "Day la recommendation cho nha dau tu.",
+    ]) {
+      const result = validateAssistantOutput(answer, { allowedNumericValues: [20, 10] });
+
+      expect(result.shouldRefuse).toBe(true);
+      expect(result.violations.map((violation) => violation.code)).toContain(
+        "VALUATION_ACTION_LANGUAGE",
+      );
+    }
+  });
+
+  it("allows safe negated recommendation wording", () => {
+    const result = validateAssistantOutput(
+      "Day khong phai recommendation. Chua du du lieu de ket luan.",
+      { missingFields: ["eps"] },
+    );
+
+    expect(result.isValid).toBe(true);
+  });
+
+  it("requires missing data disclosure when context is incomplete", () => {
+    const blocked = validateAssistantOutput("Doanh thu dang tang.", {
+      missingFields: ["eps", "equity", "source", "asOf"],
+    });
+    const safe = validateAssistantOutput("Chua du du lieu vi con thieu EPS va equity.", {
+      missingFields: ["eps", "equity"],
+    });
+
+    expect(blocked.shouldRefuse).toBe(true);
+    expect(blocked.violations.map((violation) => violation.code)).toContain(
+      "MISSING_DATA_NOT_DISCLOSED",
+    );
+    expect(safe.isValid).toBe(true);
+  });
+
+  it("warns about partial numeric checking when no allowlist is provided", () => {
+    const result = validateAssistantOutput("Chua du du lieu de ket luan.");
+
+    expect(result.isValid).toBe(true);
+    expect(result.warnings.map((warning) => warning.code)).toContain(
+      "LOW_CONTEXT_NUMERIC_CHECK",
+    );
+  });
 });

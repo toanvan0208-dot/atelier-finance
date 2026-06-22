@@ -1,3 +1,5 @@
+import type { AssistantContextPacket } from "../context";
+
 export type AssistantPromptRole = "system" | "user";
 
 export type AssistantPromptMessage = {
@@ -39,6 +41,13 @@ export type AssistantDataQuality = {
   invalidFields?: string[];
   sourceIssues?: string[];
   periodIssues?: string[];
+  dataMode?: string;
+  productionApproved?: boolean;
+  sourceName?: string | null;
+  sourceLabel?: string | null;
+  asOf?: string | null;
+  period?: string | null;
+  warnings?: string[];
 };
 
 export type AssistantModuleContext = {
@@ -76,6 +85,7 @@ export type BuildAssistantPromptInput = {
   moduleContext?: AssistantModuleContext;
   dataQuality?: AssistantDataQuality;
   retrievedChunks?: RetrievedPromptChunk[];
+  contextPacket?: AssistantContextPacket;
 };
 
 export type BuildAssistantPromptResult = {

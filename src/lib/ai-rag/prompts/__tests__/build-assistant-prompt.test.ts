@@ -136,4 +136,36 @@ describe("buildAssistantPrompt", () => {
     expect(normalizedPrompt).not.toMatch(/can\s+recommend\s+(buy|sell|hold)/);
     expect(normalizedPrompt).toContain("never recommend buy/sell/hold");
   });
+
+  it("includes grounded packet metadata, missing fields, visible facts and numeric allowlist", () => {
+    const result = buildAssistantPrompt(
+      baseInput({
+        activeModule: "financials",
+        contextPacket: {
+          ticker: "FPT",
+          activeModule: "financials",
+          moduleContext: { metrics: { revenue: 125, eps: null } },
+          dataQuality: {
+            dataMode: "research_only",
+            productionApproved: false,
+            sourceName: null,
+            sourceLabel: "Reviewed local record",
+            asOf: null,
+            period: "2025",
+            warnings: ["Source asOf is missing."],
+          },
+          missingFields: ["eps", "equity", "source", "asOf"],
+          allowedNumericValues: [125, 2025],
+          visibleFacts: ["Ticker in workspace URL: FPT"],
+          constraints: ["Do not infer missing values."],
+        },
+      }),
+    );
+
+    expect(result.promptText).toContain("Packet ticker: FPT");
+    expect(result.promptText).toContain("Packet missing fields:\n- eps\n- equity\n- source\n- asOf");
+    expect(result.promptText).toContain("Allowed numeric values from grounded context:\n- 125\n- 2025");
+    expect(result.promptText).toContain("Ticker in workspace URL: FPT");
+    expect(result.promptText).toContain("Do not infer missing values.");
+  });
 });

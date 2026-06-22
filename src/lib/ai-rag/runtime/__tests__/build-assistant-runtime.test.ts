@@ -161,4 +161,36 @@ describe("buildAssistantRuntime", () => {
     ).toBe(true);
     expect(result.retrieval.excludedChunks.length).toBeGreaterThan(0);
   });
+
+  it("uses context packet fields and marks unavailable screen context as missing", () => {
+    const result = buildAssistantRuntime({
+      question: "Giai thich du lieu dang co",
+      activeModule: "overview",
+      contextPacket: {
+        ticker: "FPT",
+        activeModule: "financials",
+        moduleContext: null,
+        dataQuality: {
+          dataMode: "unavailable",
+          productionApproved: false,
+          sourceName: null,
+          sourceLabel: null,
+          asOf: null,
+          period: null,
+          warnings: ["Screen context is unavailable."],
+        },
+        missingFields: ["moduleContext", "source", "asOf", "period"],
+        allowedNumericValues: [],
+        visibleFacts: ["Ticker in workspace URL: FPT"],
+        constraints: ["Do not infer missing values."],
+      },
+    });
+
+    expect(result.activeModule).toBe("financials");
+    expect(result.contextPacket?.ticker).toBe("FPT");
+    expect(result.missingContext).toEqual(expect.arrayContaining(["moduleContext", "source", "timestamp"]));
+    expect(result.prompt.promptText).toContain("Screen context packet: available");
+    expect(result.prompt.promptText).toContain("moduleContext");
+    expect(result.prompt.promptText).toContain("Do not infer missing values.");
+  });
 });

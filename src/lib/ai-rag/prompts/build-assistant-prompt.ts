@@ -73,12 +73,42 @@ const formatDataQuality = (dataQuality?: AssistantDataQuality): string => {
   return [
     `Data quality status: ${dataQuality.overallStatus ?? "unknown"}`,
     `Mock/sample data: ${dataQuality.isMockData ? "yes" : "no"}`,
+    `Data mode: ${dataQuality.dataMode ?? "not_available"}`,
+    `Production approved: ${dataQuality.productionApproved === true ? "yes" : "no"}`,
+    `Source name: ${dataQuality.sourceName ?? "not_available"}`,
+    `Source label: ${dataQuality.sourceLabel ?? "not_available"}`,
+    `As of: ${dataQuality.asOf ?? "not_available"}`,
+    `Period: ${dataQuality.period ?? "not_available"}`,
     formatList("Missing fields", dataQuality.missingFields ?? []),
     formatList("Stale fields", dataQuality.staleFields ?? []),
     formatList("Low confidence fields", dataQuality.lowConfidenceFields ?? []),
     formatList("Invalid fields", dataQuality.invalidFields ?? []),
     formatList("Source issues", dataQuality.sourceIssues ?? []),
     formatList("Period issues", dataQuality.periodIssues ?? []),
+    formatList("Data quality warnings", dataQuality.warnings ?? []),
+  ].join("\n");
+};
+
+const formatContextPacket = (input: BuildAssistantPromptInput): string => {
+  const packet = input.contextPacket;
+  if (!packet) {
+    return [
+      "Screen context packet: not_available",
+      "The assistant does not have grounded screen facts. State that screen data is insufficient and do not infer missing values.",
+    ].join("\n");
+  }
+
+  return [
+    "Screen context packet: available",
+    `Packet ticker: ${packet.ticker ?? "not_available"}`,
+    `Packet active module: ${packet.activeModule}`,
+    formatList("Packet missing fields", packet.missingFields),
+    formatList(
+      "Allowed numeric values from grounded context",
+      packet.allowedNumericValues.map(String),
+    ),
+    formatList("Visible screen facts", packet.visibleFacts),
+    formatList("Packet constraints", packet.constraints),
   ].join("\n");
 };
 
@@ -150,6 +180,9 @@ const buildUserMessage = (input: BuildAssistantPromptInput): string => {
     "",
     "Module context:",
     formatModuleContext(input.moduleContext),
+    "",
+    "Grounded screen context:",
+    formatContextPacket(input),
     "",
     "Retrieved RAG chunks:",
     formatRetrievedChunks(input.retrievedChunks),

@@ -97,6 +97,67 @@ describe("runAssistant", () => {
     expect(result.validation).toBeNull();
   });
 
+  it("requires provider output to disclose incomplete grounded context", async () => {
+    const contextPacket = {
+      ticker: "FPT",
+      activeModule: "risk",
+      moduleContext: null,
+      dataQuality: {
+        dataMode: "unavailable",
+        productionApproved: false,
+        sourceName: null,
+        sourceLabel: null,
+        asOf: null,
+        period: null,
+        warnings: ["Screen context is unavailable."],
+      },
+      missingFields: ["moduleContext", "source", "asOf", "period"],
+      allowedNumericValues: [],
+      visibleFacts: ["Ticker in workspace URL: FPT"],
+      constraints: ["Do not infer missing values."],
+    } as const;
+    const blocked = await runAssistant({
+      question: "Giai thich du lieu hien tai",
+      activeModule: "risk",
+      contextPacket: {
+        ...contextPacket,
+        missingFields: [...contextPacket.missingFields],
+        allowedNumericValues: [],
+        visibleFacts: [...contextPacket.visibleFacts],
+        constraints: [...contextPacket.constraints],
+        dataQuality: {
+          ...contextPacket.dataQuality,
+          warnings: [...contextPacket.dataQuality.warnings],
+        },
+      },
+      provider: new MockAssistantProvider({ answer: "Doanh thu dang tang." }),
+    });
+    const safe = await runAssistant({
+      question: "Giai thich du lieu hien tai",
+      activeModule: "risk",
+      contextPacket: {
+        ...contextPacket,
+        missingFields: [...contextPacket.missingFields],
+        allowedNumericValues: [],
+        visibleFacts: [...contextPacket.visibleFacts],
+        constraints: [...contextPacket.constraints],
+        dataQuality: {
+          ...contextPacket.dataQuality,
+          warnings: [...contextPacket.dataQuality.warnings],
+        },
+      },
+      provider: new MockAssistantProvider({
+        answer: "Chua du du lieu de ket luan; can kiem tra them source, asOf va period.",
+      }),
+    });
+
+    expect(blocked.llmStatus).toBe("blocked_by_guardrails");
+    expect(blocked.violations.map((violation) => violation.code)).toContain(
+      "MISSING_DATA_NOT_DISCLOSED",
+    );
+    expect(safe.llmStatus).toBe("completed");
+  });
+
   it("API route still does not generate a fake answer", async () => {
     const response = await postJson({
       question: "Volume tang co phai tin hieu mua khong?",

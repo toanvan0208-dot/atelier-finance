@@ -243,6 +243,7 @@ function AppShellContent({
       </MainContent>
       <RightAssistantPanel
         activeModule={activeModule}
+        financialsRuntimeData={initialFinancialsRuntimeData}
         onNavigate={handleNavigate}
       />
       <MobileNavigation
