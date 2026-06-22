@@ -15,8 +15,8 @@ export function CriticalRiskCards({ onNavigate, risks }: CriticalRiskCardsProps)
   return (
     <Card>
       <CardHeader
-        title="Rủi ro sống còn"
-        description="Nếu chỉ được theo dõi 3 rủi ro, đây là những điểm có thể làm luận điểm sai mạnh nhất."
+        title="Điểm dễ kết luận vội"
+        description="Ba nhóm này giúp người dùng biết cần kiểm tra dữ liệu nào trước khi hình thành nhận định."
       />
       <CardBody>
         <div className="grid gap-4 lg:grid-cols-3">
@@ -26,7 +26,7 @@ export function CriticalRiskCards({ onNavigate, risks }: CriticalRiskCardsProps)
             return (
               <div key={risk.id} className="rounded-[4px] border border-border-soft bg-surface-soft p-4">
                 <div className="flex items-start justify-between gap-3">
-                  <Chip size="sm" variant="warning">Ưu tiên {risk.priority}</Chip>
+                  <Chip size="sm" variant="warning">Trạng thái: {risk.priority}</Chip>
                 </div>
                 <h3 className="mt-3 text-base font-bold leading-6 text-ink">{risk.title}</h3>
                 <p className="mt-2 text-sm leading-6 text-muted">{risk.whyItMatters}</p>
@@ -46,7 +46,7 @@ export function CriticalRiskCards({ onNavigate, risks }: CriticalRiskCardsProps)
                 ) : null}
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Button size="sm" variant="secondary" onClick={() => setOpenRiskId(isOpen ? null : risk.id)}>
-                    {isOpen ? "Thu gọn" : "Xem dấu hiệu cảnh báo"}
+                    {isOpen ? "Thu gọn" : "Xem dữ liệu cần kiểm tra"}
                   </Button>
                   {risk.targetModule ? (
                     <Button size="sm" variant="ghost" onClick={() => onNavigate(risk.targetModule ?? "risk")}>

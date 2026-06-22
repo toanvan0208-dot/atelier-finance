@@ -10,8 +10,8 @@ export function ThesisBreakerPanel({ items, onNavigate }: ThesisBreakerPanelProp
   return (
     <Card>
       <CardHeader
-        title="Điều gì có thể làm luận điểm đầu tư sai?"
-        description="Biến rủi ro thành câu phản biện rõ, không chỉ liệt kê chung chung."
+        title="Câu hỏi trước khi kết luận"
+        description="Biến dữ liệu còn thiếu thành câu hỏi kiểm tra rõ, không kết luận thay người dùng."
       />
       <CardBody className="space-y-3">
         {items.map((item) => (

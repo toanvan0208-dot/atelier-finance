@@ -6,9 +6,9 @@ type TransparencyGovernanceCheckProps = {
 };
 
 const toneVariant: Record<RiskRedesignTone, "success" | "warning" | "danger" | "neutral"> = {
-  low: "success",
-  caution: "warning",
-  high: "danger",
+  ready: "success",
+  check: "warning",
+  blocked: "danger",
   missing: "neutral",
 };
 
@@ -16,8 +16,8 @@ export function TransparencyGovernanceCheck({ items }: TransparencyGovernanceChe
   return (
     <Card>
       <CardHeader
-        title="Minh bạch & quản trị"
-        description="Kiểm tra dữ liệu và hành vi công bố thông tin có đủ đáng tin để dựa vào phân tích hay không."
+        title="Nguồn và bối cảnh cần kiểm tra"
+        description="Kiểm tra dữ liệu, nguồn và trạng thái trước khi dựa vào phần này để hình thành nhận định."
       />
       <CardBody>
         <div className="grid gap-3 lg:grid-cols-3">

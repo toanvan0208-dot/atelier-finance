@@ -53,15 +53,17 @@ const localDbRuntime = {
 } satisfies FinancialsRuntimeData;
 
 describe("risk financials runtime consumption boundary", () => {
-  it("uses mixed source mode when local research Financials runtime is available and static Risk cards remain", () => {
-    const result = buildRiskFinancialsRuntimeConsumption({ financialsRuntimeData: localDbRuntime });
+  it("uses partial runtime mode when local research Financials runtime is available", () => {
+    const result = buildRiskFinancialsRuntimeConsumption({
+      financialsRuntimeData: localDbRuntime,
+      hasStaticRiskPath: false,
+    });
 
-    expect(result.riskSourceMode).toBe("mixed_source");
+    expect(result.riskSourceMode).toBe("financials_runtime_partial");
     expect(result.financialsRuntimeAvailable).toBe(true);
     expect(result.riskConsumesFinancialsRuntime).toBe(true);
     expect(result.canClaimRiskDbBacked).toBe(false);
     expect(result.productionApproved).toBe(false);
-    expect(result.warnings).toContain("Risk display cards still use the static/sample calculation path.");
     expect(result.warnings).toContain(
       "Financials runtime is consumed only as controlled metadata and available snapshot fields.",
     );
@@ -212,7 +214,7 @@ describe("risk financials runtime consumption boundary", () => {
     expect(result.riskSourceMode).toBe("sample_fallback");
     expect(result.fallbackUsed).toBe(true);
     expect(result.productionApproved).toBe(false);
-    expect(result.warnings).toContain("Financials fallback is active; Risk source state must remain labeled as fallback.");
+    expect(result.warnings).toContain("Financials reference path is active; Risk source state must remain clearly labeled.");
   });
 
   it("does not emit forbidden source, certainty, or action wording", () => {

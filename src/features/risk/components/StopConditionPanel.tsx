@@ -21,8 +21,8 @@ export function StopConditionPanel({
   return (
     <Card>
       <CardHeader
-        title="Khi nào chưa nên mô phỏng?"
-        description="Các điều kiện dừng giúp tránh hành động vội khi dữ liệu chưa đủ."
+        title="Khi nào cần dừng kết luận?"
+        description="Các điều kiện dừng giúp tránh hình thành nhận định khi dữ liệu chưa đủ."
       />
       <CardBody className="space-y-4">
         <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_360px]">
@@ -37,7 +37,7 @@ export function StopConditionPanel({
             </div>
           </div>
           <div className="rounded-[4px] border border-border-soft bg-surface-soft p-4">
-            <p className="text-sm font-bold text-ink">Rủi ro theo thời gian</p>
+            <p className="text-sm font-bold text-ink">Checklist theo thời gian</p>
             <div className="mt-3 space-y-3">
               {timelineGroups.map((group) => (
                 <div key={group.key}>
@@ -49,7 +49,7 @@ export function StopConditionPanel({
           </div>
         </div>
         <p className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-3 text-xs leading-5 text-muted">
-          <span className="font-bold text-ink">Rủi ro ngược: </span>
+          <span className="font-bold text-ink">Góc kiểm tra ngược: </span>
           {reverseRiskNote}
         </p>
       </CardBody>

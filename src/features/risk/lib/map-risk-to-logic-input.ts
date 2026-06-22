@@ -2,6 +2,7 @@ import type { FinancialStatementInput } from "../../../lib/financial-logic";
 
 export type RiskStatementSnapshot = {
   ticker?: string;
+  companyName?: string;
   companyType?: FinancialStatementInput["companyType"];
   industry?: string;
   period?: string;

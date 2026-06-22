@@ -1,17 +1,16 @@
-export type RiskRedesignTone = "low" | "caution" | "high" | "missing";
+export type RiskRedesignTone = "ready" | "check" | "blocked" | "missing";
 
 export type RiskRedesignStatus =
-  | "Ổn sơ bộ"
-  | "Cần theo dõi"
+  | "Có thể kiểm tra tiếp"
   | "Cần kiểm tra thêm"
-  | "Thiếu dữ liệu"
-  | "Rủi ro cao";
+  | "Chưa đủ dữ liệu"
+  | "Dữ liệu nghiên cứu";
 
 export type CriticalRisk = {
   id: string;
   title: string;
   whyItMatters: string;
-  priority: "Cao" | "Trung bình cao" | "Trung bình";
+  priority: "Cần kiểm tra" | "Theo dõi" | "Bổ sung dữ liệu";
   affectedModules: string[];
   earlyWarnings: string[];
   targetModule?: string;
@@ -72,6 +71,25 @@ export type RiskNextActionItem = {
   primary?: boolean;
 };
 
+export type MissingDataRiskSummary = {
+  ticker: string;
+  companyName: string;
+  dataMode: "research_only" | "manual_reviewed" | "sample" | "unavailable";
+  productionApproved: false;
+  overallDataReadiness: "ready" | "partial" | "missing";
+  sourceWarnings: string[];
+  missingFinancialFields: string[];
+  unavailableValuationMetrics: string[];
+  incompleteContextAreas: string[];
+  conclusionWarnings: string[];
+  whatToCheckNext: string[];
+  riskSummaryLabel:
+    | "Cần kiểm tra dữ liệu"
+    | "Chưa đủ dữ liệu"
+    | "Dữ liệu nghiên cứu"
+    | "Có thể phân tích tiếp nhưng còn hạn chế";
+};
+
 export type RiskRedesignData = {
   ticker: string;
   companyName: string;
@@ -82,6 +100,7 @@ export type RiskRedesignData = {
     tone: RiskRedesignTone;
     conclusion: string;
   };
+  missingDataSummary: MissingDataRiskSummary;
   topRisks: CriticalRisk[];
   missingEvidence: string[];
   thesisBreakers: ThesisBreaker[];

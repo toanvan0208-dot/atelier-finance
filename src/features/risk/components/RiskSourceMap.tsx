@@ -10,9 +10,9 @@ type RiskSourceMapProps = {
 };
 
 const toneVariant: Record<RiskRedesignTone, "success" | "warning" | "danger" | "neutral"> = {
-  low: "success",
-  caution: "warning",
-  high: "danger",
+  ready: "success",
+  check: "warning",
+  blocked: "danger",
   missing: "neutral",
 };
 
@@ -30,8 +30,8 @@ export function RiskSourceMap({ onNavigate, sources }: RiskSourceMapProps) {
   return (
     <Card>
       <CardHeader
-        title="Rủi ro đến từ đâu?"
-        description="Gộp các nhóm rủi ro thành 5 nguồn dễ hiểu, chỉ mở sẵn nhóm cần ưu tiên."
+        title="Nguồn dữ liệu cần kiểm tra"
+        description="Gộp các nhóm dữ liệu còn thiếu, trạng thái nguồn và chỉ số chưa thể tính."
       />
       <CardBody className="space-y-3">
         {sources.map((source) => {
@@ -55,7 +55,7 @@ export function RiskSourceMap({ onNavigate, sources }: RiskSourceMapProps) {
               </button>
               {isOpen ? (
                 <div className="grid gap-3 border-t border-border-soft px-4 py-4 md:grid-cols-3">
-                  <SourceColumn title="Bằng chứng hiện có" items={source.evidence} />
+                  <SourceColumn title="Trạng thái hiện có" items={source.evidence} />
                   <SourceColumn title="Dữ liệu còn thiếu" items={source.missingData} />
                   <div>
                     <p className="text-[11px] font-bold uppercase text-subtle">Module nguồn</p>
@@ -72,7 +72,7 @@ export function RiskSourceMap({ onNavigate, sources }: RiskSourceMapProps) {
               ) : null}
               {isOpen && (source.warnings?.length || source.relatedMetrics?.length || source.nextChecks?.length) ? (
                 <div className="grid gap-3 border-t border-border-soft px-4 py-4 md:grid-cols-3">
-                  <SourceColumn title="Cảnh báo" items={source.warnings ?? []} />
+                  <SourceColumn title="Cần chú ý" items={source.warnings ?? []} />
                   <SourceColumn title="Chỉ số liên quan" items={source.relatedMetrics ?? []} />
                   <SourceColumn title="Bước kiểm tra tiếp" items={source.nextChecks ?? []} />
                 </div>

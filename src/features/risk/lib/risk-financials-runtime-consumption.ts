@@ -109,13 +109,13 @@ export const buildRiskFinancialsRuntimeConsumption = ({
   });
   const warnings = [
     ...readiness.blockedReasons,
-    ...(hasStaticRiskPath ? ["Risk display cards still use the static/sample calculation path."] : []),
+    ...(hasStaticRiskPath ? ["Risk display cards still need data-source review."] : []),
     "Financials runtime is consumed only as controlled metadata and available snapshot fields.",
-    "Risk source state remains mixed or partial while the static/sample calculation path remains present.",
+    "Risk source state remains partial until data-source review is complete.",
     ...(financialsRuntimeData?.source.fallbackUsed
-      ? ["Financials fallback is active; Risk source state must remain labeled as fallback."]
+      ? ["Financials reference path is active; Risk source state must remain clearly labeled."]
       : []),
-    "Local or sample Financials source keeps productionApproved:false.",
+    "Local or research Financials source keeps productionApproved:false.",
     "Missing values remain null/unavailable and are not replaced with 0.",
   ];
 
@@ -136,7 +136,7 @@ export const buildRiskFinancialsRuntimeConsumption = ({
     calculationReadiness: readiness.calculationReadiness,
     safetyNotes: [
       "Local Financials runtime is research-only when enabled.",
-      "Risk remains mixed-source or partial-runtime until calculations are fully rewired.",
+      "Risk remains partial-runtime until data-source review is complete.",
       "Missing/null values are not zero-filled.",
       "Readiness is not a guarantee or an action instruction.",
     ],

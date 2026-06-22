@@ -13,19 +13,19 @@ export function RiskFinalConclusion({
   onNavigate,
 }: RiskFinalConclusionProps) {
   const rows = [
-    { label: "Rủi ro lớn nhất", value: conclusion.biggestRisk },
+    { label: "Điểm dễ kết luận vội nhất", value: conclusion.biggestRisk },
     { label: "Dữ liệu còn thiếu", value: conclusion.missingData },
-    { label: "Điều làm thesis sai", value: conclusion.thesisBreaker },
-    { label: "Mức sẵn sàng", value: conclusion.readiness },
+    { label: "Điều kiện làm nhận định sai", value: conclusion.thesisBreaker },
+    { label: "Mức sẵn sàng dữ liệu", value: conclusion.readiness },
     { label: "Bước tiếp theo", value: conclusion.nextStep },
   ];
 
   return (
     <Card>
       <CardHeader
-        title="Kết luận rủi ro cuối module"
-        description="Tổng hợp ngắn để biết nên quay lại đâu hoặc chuyển sang bước nào."
-        chip={<Chip variant="warning">Chưa nên mô phỏng vội</Chip>}
+        title="Kết luận dữ liệu có điều kiện"
+        description="Tổng hợp ngắn để biết cần quay lại kiểm tra dữ liệu nào trước khi hình thành nhận định."
+        chip={<Chip variant="warning">Chưa đủ cơ sở kết luận</Chip>}
       />
       <CardBody className="space-y-4">
         <div className="grid gap-3 md:grid-cols-2">

@@ -1,251 +1,322 @@
-import {
-  assessDataQuality,
-  calculateCashFlowRisk,
-  calculateDataQualityRisk,
-  calculateDebtRisk,
-  calculateEarningsQualityRisk,
-  calculateFinancialHealth,
-  calculateLiquidityRisk,
-  calculateOverallRiskScore,
-  calculateValuationRisk,
-  type RiskLevel,
-  type RiskScoreResult,
-} from "../../../lib/financial-logic";
-import type {
-  CriticalRisk,
-  RiskRedesignData,
-  RiskRedesignStatus,
-  RiskRedesignTone,
-  RiskSource,
-} from "../types";
-import { mapRiskToLogicInput, type RiskStatementSnapshot } from "./map-risk-to-logic-input";
-
-type RiskSourceConfig = {
-  id: string;
-  title: string;
-  sourceModules: string[];
-  action: RiskSource["action"];
-  relatedMetrics: string[];
-  nextChecks: string[];
-};
-
-const sourceConfigs: Record<string, RiskSourceConfig> = {
-  debtRisk: {
-    id: "debt-risk",
-    title: "Nợ vay & đòn bẩy",
-    sourceModules: ["Báo cáo tài chính"],
-    action: { label: "Quay lại BCTC kiểm tra nợ vay", moduleKey: "financials" },
-    relatedMetrics: ["Nợ vay / vốn chủ", "Nợ phải trả / tài sản", "Khả năng trả lãi", "Tiền mặt / nợ vay"],
-    nextChecks: ["Kiểm tra lịch đáo hạn nợ.", "Đọc khả năng trả lãi cùng CFO.", "So nợ vay với đặc thù ngành."],
-  },
-  earningsQualityRisk: {
-    id: "earnings-quality-risk",
-    title: "Chất lượng lợi nhuận",
-    sourceModules: ["Báo cáo tài chính"],
-    action: { label: "Quay lại BCTC kiểm tra CFO", moduleKey: "financials" },
-    relatedMetrics: ["LNST", "CFO / LNST", "Tăng trưởng doanh thu", "Biên lợi nhuận ròng"],
-    nextChecks: ["Kiểm tra CFO nhiều kỳ.", "Đọc khoản phải thu và tồn kho.", "Tách lợi nhuận bất thường nếu có."],
-  },
-  cashFlowRisk: {
-    id: "cash-flow-risk",
-    title: "Dòng tiền",
-    sourceModules: ["Báo cáo tài chính"],
-    action: { label: "Quay lại BCTC đọc lưu chuyển tiền tệ", moduleKey: "financials" },
-    relatedMetrics: ["FCF", "Biên FCF", "Biên CFO"],
-    nextChecks: ["Kiểm tra quy ước dấu capex.", "So CFO với doanh thu.", "Đọc FCF theo chu kỳ đầu tư."],
-  },
-  valuationRisk: {
-    id: "valuation-risk",
-    title: "Định giá & dữ liệu định giá",
-    sourceModules: ["Định giá"],
-    action: { label: "Quay lại Định giá", moduleKey: "valuation" },
-    relatedMetrics: ["P/E", "P/B", "P/S", "Valuation readiness"],
-    nextChecks: ["Kiểm tra EPS có dương và bền không.", "Kiểm tra BVPS/vốn chủ.", "Đọc định giá cùng dòng tiền."],
-  },
-  liquidityRisk: {
-    id: "liquidity-risk",
-    title: "Thanh khoản giao dịch",
-    sourceModules: ["PVT"],
-    action: { label: "Quay lại PVT", moduleKey: "technical" },
-    relatedMetrics: ["Giá trị giao dịch", "Thanh khoản 20 phiên", "Biến động giá"],
-    nextChecks: ["Kiểm tra thanh khoản 20 phiên.", "So quy mô giả lập với thanh khoản.", "Không kết luận chất lượng doanh nghiệp từ thanh khoản."],
-  },
-  dataQualityRisk: {
-    id: "data-quality-risk",
-    title: "Chất lượng dữ liệu",
-    sourceModules: ["Báo cáo tài chính", "Định giá", "PVT"],
-    action: { label: "Quay lại BCTC bổ sung dữ liệu", moduleKey: "financials" },
-    relatedMetrics: ["Nguồn dữ liệu", "Thời điểm cập nhật", "Trường dữ liệu cốt lõi"],
-    nextChecks: ["Bổ sung nguồn dữ liệu.", "Kiểm tra thời điểm cập nhật.", "Không kết luận chắc chắn khi dữ liệu thiếu."],
-  },
-};
-
-const levelWeight: Record<RiskLevel, number> = {
-  critical: 4,
-  high: 3,
-  medium: 2,
-  low: 1,
-  unknown: 2.5,
-};
-
-const levelToTone = (level: RiskLevel): RiskRedesignTone => {
-  if (level === "critical" || level === "high") return "high";
-  if (level === "medium") return "caution";
-  if (level === "unknown") return "missing";
-  return "low";
-};
-
-const levelToStatus = (level: RiskLevel): RiskRedesignStatus => {
-  if (level === "critical" || level === "high") return "Rủi ro cao";
-  if (level === "medium") return "Cần kiểm tra thêm";
-  if (level === "unknown") return "Thiếu dữ liệu";
-  return "Ổn sơ bộ";
-};
-
-const priorityLabel = (level: RiskLevel): CriticalRisk["priority"] => {
-  if (level === "critical" || level === "high" || level === "unknown") return "Cao";
-  if (level === "medium") return "Trung bình cao";
-  return "Trung bình";
-};
-
-const scoreLabel = (score: number | null): string => (score === null ? "Chưa đủ dữ liệu" : `${score}/100`);
+import type { MissingDataRiskSummary, RiskRedesignData } from "../types";
+import type { RiskStatementSnapshot } from "./map-risk-to-logic-input";
 
 const unique = (items: string[]): string[] => Array.from(new Set(items.filter(Boolean)));
 
-const mainRiskText = (risk: RiskScoreResult): string =>
-  risk.reasons[0] ?? risk.warnings[0] ?? risk.beginnerInterpretation;
+const hasPositiveNumber = (value: number | null | undefined): boolean =>
+  typeof value === "number" && Number.isFinite(value) && value > 0;
 
-const sourceFromRisk = (risk: RiskScoreResult): RiskSource => {
-  const config = sourceConfigs[risk.key];
-  const missingData = risk.missingFields.length > 0 ? risk.missingFields : ["Không có trường thiếu trọng yếu từ dữ liệu hiện tại."];
-  const evidence = unique([
-    `Điểm: ${scoreLabel(risk.score)}`,
-    ...risk.reasons,
-    risk.beginnerInterpretation,
-  ]);
+const hasValue = (value: number | string | Date | null | undefined): boolean =>
+  value !== null && value !== undefined && value !== "";
 
-  return {
-    id: config.id,
-    title: config.title,
-    status: levelToStatus(risk.level),
-    tone: levelToTone(risk.level),
-    mainRisk: mainRiskText(risk),
-    evidence,
-    warnings: risk.warnings,
-    missingData,
-    relatedMetrics: config.relatedMetrics,
-    nextChecks: config.nextChecks,
-    sourceModules: config.sourceModules,
-    action: config.action,
-    defaultOpen: risk.level !== "low",
-  };
+const missingFinancialFields = (snapshot: RiskStatementSnapshot): string[] => {
+  const fields = [
+    ["EPS", snapshot.eps],
+    ["totalDebt", snapshot.totalDebt],
+    ["equity", snapshot.totalEquity],
+    ["sharesOutstanding", snapshot.sharesOutstanding],
+    ["revenue", snapshot.revenue],
+    ["market price", snapshot.closePrice],
+    ["operatingCashFlow", snapshot.operatingCashFlow],
+    ["netIncome", snapshot.netProfit],
+  ] as const;
+
+  return fields.filter(([, value]) => !hasValue(value)).map(([field]) => field);
 };
 
-const criticalRiskFromRisk = (risk: RiskScoreResult): CriticalRisk => {
-  const config = sourceConfigs[risk.key];
+const unavailableValuationMetrics = (snapshot: RiskStatementSnapshot): string[] => {
+  const marketCapUnavailable =
+    !hasPositiveNumber(snapshot.closePrice) || !hasPositiveNumber(snapshot.sharesOutstanding);
+  const output = [
+    ...(!hasPositiveNumber(snapshot.eps) || !hasPositiveNumber(snapshot.closePrice) ? ["P/E"] : []),
+    ...(!hasPositiveNumber(snapshot.totalEquity) || !hasPositiveNumber(snapshot.sharesOutstanding)
+      ? ["BVPS"]
+      : []),
+    ...(!hasPositiveNumber(snapshot.totalEquity) ||
+    !hasPositiveNumber(snapshot.sharesOutstanding) ||
+    !hasPositiveNumber(snapshot.closePrice)
+      ? ["P/B"]
+      : []),
+    ...(marketCapUnavailable ? ["marketCap"] : []),
+    ...(!hasPositiveNumber(snapshot.revenue) || marketCapUnavailable ? ["P/S"] : []),
+  ];
+
+  return unique(output);
+};
+
+const sourceWarnings = (snapshot: RiskStatementSnapshot): string[] =>
+  unique([
+    "Dữ liệu nghiên cứu, chưa phải dữ liệu chính thức để ra quyết định.",
+    ...(!snapshot.sourceName ? ["Thiếu tên nguồn dữ liệu."] : []),
+    ...(!snapshot.collectedAt ? ["Thiếu asOf/thời điểm rà soát dữ liệu."] : []),
+    ...(!snapshot.period ? ["Thiếu kỳ dữ liệu."] : []),
+  ]);
+
+const incompleteContextAreas = [
+  "Macro: bối cảnh vĩ mô còn cần dữ liệu đã rà soát.",
+  "Industry: bối cảnh ngành còn cần nguồn/asOf rõ.",
+  "Business profile: hồ sơ doanh nghiệp còn cần kiểm tra nguồn và trạng thái.",
+];
+
+const conclusionWarnings = [
+  "Chưa đủ cơ sở để hình thành kết luận nếu dữ liệu còn thiếu hoặc nguồn chưa được rà soát.",
+  "Không dùng phần này để kết luận doanh nghiệp/cổ phiếu.",
+  "Các chỉ số chưa thể tính cần được giữ ở trạng thái Chưa đủ dữ liệu hoặc N/A.",
+];
+
+const whatToCheckNext = [
+  "Đối chiếu source/asOf/period của dữ liệu tài chính.",
+  "Kiểm tra EPS, totalDebt, equity, sharesOutstanding và market price.",
+  "Quay lại Valuation để xem chỉ số nào còn N/A hoặc Chưa đủ dữ liệu.",
+  "Kiểm tra bối cảnh ngành và vĩ mô trước khi viết nhận định.",
+];
+
+export const buildMissingDataRiskSummary = (
+  snapshot: RiskStatementSnapshot,
+): MissingDataRiskSummary => {
+  const missingFields = missingFinancialFields(snapshot);
+  const unavailableMetrics = unavailableValuationMetrics(snapshot);
+  const warnings = sourceWarnings(snapshot);
+  const overallDataReadiness: MissingDataRiskSummary["overallDataReadiness"] =
+    missingFields.length === 0 && unavailableMetrics.length === 0 && warnings.length <= 1
+      ? "ready"
+      : missingFields.length > 0 || unavailableMetrics.length > 0
+        ? "partial"
+        : "missing";
+
   return {
-    id: config.id,
-    title: config.title,
-    whyItMatters: mainRiskText(risk),
-    priority: priorityLabel(risk.level),
-    affectedModules: config.sourceModules,
-    targetModule: config.action.moduleKey,
-    earlyWarnings: unique([
-      ...risk.warnings,
-      ...risk.reasons,
-      ...risk.missingFields.map((field) => `Thiếu dữ liệu: ${field}.`),
-      ...config.nextChecks,
-    ]).slice(0, 5),
+    ticker: snapshot.ticker ?? "UNKNOWN",
+    companyName: snapshot.companyName ?? snapshot.ticker ?? "Chưa đủ dữ liệu",
+    dataMode: "research_only",
+    productionApproved: false,
+    overallDataReadiness,
+    sourceWarnings: warnings,
+    missingFinancialFields: missingFields,
+    unavailableValuationMetrics: unavailableMetrics,
+    incompleteContextAreas,
+    conclusionWarnings,
+    whatToCheckNext,
+    riskSummaryLabel:
+      overallDataReadiness === "ready"
+        ? "Có thể phân tích tiếp nhưng còn hạn chế"
+        : missingFields.length > 0
+          ? "Chưa đủ dữ liệu"
+          : "Cần kiểm tra dữ liệu",
   };
 };
 
 export const buildRiskDeskData = (
   baseData: RiskRedesignData,
-  snapshot: RiskStatementSnapshot
+  snapshot: RiskStatementSnapshot,
 ): RiskRedesignData => {
-  const logicInput = mapRiskToLogicInput(snapshot);
-  const componentRisks = [
-    calculateDebtRisk(logicInput),
-    calculateEarningsQualityRisk(logicInput),
-    calculateCashFlowRisk(logicInput),
-    calculateValuationRisk(logicInput),
-    calculateLiquidityRisk(logicInput),
-    calculateDataQualityRisk(logicInput),
-  ];
-  const overallRisk = calculateOverallRiskScore(logicInput);
-  const financialHealth = calculateFinancialHealth(logicInput);
-  const dataQuality = assessDataQuality(logicInput);
-  const rankedRisks = [...componentRisks].sort((a, b) => {
-    const scoreDiff = (b.score ?? 50) - (a.score ?? 50);
-    return scoreDiff !== 0 ? scoreDiff : levelWeight[b.level] - levelWeight[a.level];
-  });
-  const topRisks = rankedRisks.slice(0, 3).map(criticalRiskFromRisk);
+  const summary = buildMissingDataRiskSummary(snapshot);
   const missingEvidence = unique([
-    ...overallRisk.missingFields,
-    ...dataQuality.missingFields,
-    ...componentRisks.flatMap((risk) => risk.missingFields),
+    ...summary.missingFinancialFields,
+    ...summary.unavailableValuationMetrics.map((metric) => `${metric} chưa thể tính`),
+    ...summary.incompleteContextAreas,
   ]);
-  const dataQualityWarning = dataQuality.warnings[0] ?? "Dữ liệu có nguồn và thời điểm cập nhật để đọc sơ bộ.";
 
   return {
     ...baseData,
-    ticker: snapshot.ticker ?? baseData.ticker,
-    industry: snapshot.industry ?? baseData.industry,
+    ticker: summary.ticker,
+    companyName: summary.companyName,
+    industry: snapshot.industry ?? "Bối cảnh ngành cần kiểm tra",
+    missingDataSummary: summary,
     overall: {
-      status: levelToStatus(overallRisk.level),
-      score: overallRisk.score,
-      tone: levelToTone(overallRisk.level),
+      status: summary.riskSummaryLabel,
+      score: null,
+      tone: summary.overallDataReadiness === "ready" ? "check" : "missing",
       conclusion:
-        overallRisk.level === "unknown"
-          ? `Chưa đủ dữ liệu để kết luận rủi ro tổng hợp. ${dataQualityWarning}`
-          : `${overallRisk.beginnerInterpretation} ${mainRiskText(overallRisk)} Đây là cảnh báo phân tích, không phải kết luận hành động.`,
+        "Phần này tổng hợp dữ liệu còn thiếu, nguồn cần kiểm tra và các điểm dễ kết luận vội. Đây không phải đánh giá cổ phiếu tốt/xấu và không phải khuyến nghị đầu tư.",
     },
-    topRisks,
-    missingEvidence: missingEvidence.length > 0 ? missingEvidence : ["Không có trường thiếu trọng yếu từ dữ liệu hiện tại."],
-    thesisBreakers: topRisks.map((risk) => ({
-      id: `breaker-${risk.id}`,
-      label: risk.title,
-      targetModule: risk.targetModule,
-      statement: `${risk.whyItMatters} Không nên kết luận chỉ từ một chỉ số; cần đọc cùng dòng tiền, nợ vay, định giá và bối cảnh ngành.`,
-    })),
-    riskSources: componentRisks.map(sourceFromRisk),
+    topRisks: [
+      {
+        id: "missing-financial-fields",
+        title: "Dữ liệu tài chính còn thiếu",
+        whyItMatters:
+          "Thiếu trường dữ liệu khiến các chỉ số liên quan chưa thể tính hoặc chỉ nên đọc như trạng thái cần kiểm tra.",
+        priority: "Bổ sung dữ liệu",
+        affectedModules: ["Báo cáo tài chính", "Định giá"],
+        targetModule: "financials",
+        earlyWarnings: summary.missingFinancialFields.length
+          ? summary.missingFinancialFields.map((field) => `${field}: Chưa đủ dữ liệu.`)
+          : ["Không ghi nhận trường tài chính thiếu trong snapshot hiện tại."],
+      },
+      {
+        id: "unavailable-valuation-metrics",
+        title: "Chỉ số định giá chưa thể tính",
+        whyItMatters:
+          "Chỉ số chưa thể tính vì thiếu dữ liệu đầu vào; hệ thống không diễn giải thay bằng 0 hoặc suy đoán.",
+        priority: "Cần kiểm tra",
+        affectedModules: ["Định giá"],
+        targetModule: "valuation",
+        earlyWarnings: summary.unavailableValuationMetrics.length
+          ? summary.unavailableValuationMetrics.map(
+              (metric) => `${metric}: chỉ số này chưa thể tính vì thiếu dữ liệu đầu vào.`,
+            )
+          : ["Các chỉ số định giá chính có thể đọc tiếp nhưng vẫn cần kiểm tra nguồn."],
+      },
+      {
+        id: "source-context-review",
+        title: "Nguồn và bối cảnh cần rà soát",
+        whyItMatters:
+          "Nguồn nghiên cứu hoặc bối cảnh chưa đủ làm tăng rủi ro kết luận vội.",
+        priority: "Theo dõi",
+        affectedModules: ["Macro", "Industry", "Business"],
+        targetModule: "business",
+        earlyWarnings: [...summary.sourceWarnings, ...summary.incompleteContextAreas],
+      },
+    ],
+    missingEvidence,
+    thesisBreakers: [
+      {
+        id: "breaker-missing-data",
+        label: "Dữ liệu thiếu",
+        targetModule: "financials",
+        statement:
+          "Nếu dữ liệu tài chính còn thiếu, mọi nhận định dựa trên chỉ số liên quan phải dừng ở mức cần kiểm tra.",
+      },
+      {
+        id: "breaker-unavailable-metric",
+        label: "Chỉ số chưa thể tính",
+        targetModule: "valuation",
+        statement:
+          "Nếu P/E, P/B, BVPS, marketCap hoặc P/S còn N/A, hệ thống không suy luận thay bằng số 0 hoặc kết luận hành động.",
+      },
+      {
+        id: "breaker-source-context",
+        label: "Nguồn/bối cảnh",
+        targetModule: "business",
+        statement:
+          "Nếu nguồn, kỳ dữ liệu hoặc bối cảnh ngành/vĩ mô chưa rõ, nhận định cần ghi rõ giới hạn dữ liệu.",
+      },
+    ],
+    riskSources: [
+      {
+        id: "financial-missing-data",
+        title: "Dữ liệu còn thiếu",
+        status: summary.missingFinancialFields.length ? "Chưa đủ dữ liệu" : "Có thể kiểm tra tiếp",
+        tone: summary.missingFinancialFields.length ? "missing" : "check",
+        defaultOpen: true,
+        mainRisk:
+          "Các trường thiếu được giữ là Chưa đủ dữ liệu; hệ thống không tự điền 0.",
+        evidence: summary.missingFinancialFields.length
+          ? summary.missingFinancialFields
+          : ["Không ghi nhận trường tài chính thiếu trong snapshot hiện tại."],
+        missingData: summary.missingFinancialFields,
+        sourceModules: ["Báo cáo tài chính"],
+        action: { label: "Kiểm tra dữ liệu tài chính", moduleKey: "financials" },
+        nextChecks: ["EPS", "totalDebt", "equity", "sharesOutstanding", "revenue", "market price"],
+      },
+      {
+        id: "source-status",
+        title: "Nguồn và trạng thái dữ liệu",
+        status: "Dữ liệu nghiên cứu",
+        tone: "check",
+        defaultOpen: true,
+        mainRisk:
+          "Dữ liệu nghiên cứu, chưa phải dữ liệu chính thức để ra quyết định.",
+        evidence: summary.sourceWarnings,
+        missingData: summary.sourceWarnings.filter((warning) => warning.includes("Thiếu")),
+        sourceModules: ["Financials", "Valuation", "Business"],
+        action: { label: "Kiểm tra nguồn dữ liệu", moduleKey: "financials" },
+        warnings: summary.sourceWarnings,
+      },
+      {
+        id: "unavailable-metrics",
+        title: "Chỉ số chưa thể tính",
+        status: summary.unavailableValuationMetrics.length
+          ? "Chưa đủ dữ liệu"
+          : "Có thể kiểm tra tiếp",
+        tone: summary.unavailableValuationMetrics.length ? "missing" : "check",
+        mainRisk: "Chỉ số này chưa thể tính vì thiếu dữ liệu đầu vào.",
+        evidence: summary.unavailableValuationMetrics,
+        missingData: summary.unavailableValuationMetrics.map(
+          (metric) => `${metric}: thiếu dữ liệu đầu vào.`,
+        ),
+        relatedMetrics: summary.unavailableValuationMetrics,
+        sourceModules: ["Định giá"],
+        action: { label: "Kiểm tra chỉ số định giá", moduleKey: "valuation" },
+      },
+      {
+        id: "context-completeness",
+        title: "Bối cảnh còn cần kiểm tra",
+        status: "Cần kiểm tra thêm",
+        tone: "check",
+        mainRisk:
+          "Bối cảnh còn thiếu dữ liệu đã rà soát, cần kiểm tra thêm trước khi hình thành nhận định.",
+        evidence: summary.incompleteContextAreas,
+        missingData: summary.incompleteContextAreas,
+        sourceModules: ["Macro", "Industry", "Business"],
+        action: { label: "Kiểm tra bối cảnh doanh nghiệp", moduleKey: "business" },
+      },
+      {
+        id: "conclusion-risk",
+        title: "Câu hỏi trước khi kết luận",
+        status: "Cần kiểm tra thêm",
+        tone: "check",
+        mainRisk:
+          "Chưa đủ cơ sở để hình thành kết luận nếu dữ liệu còn thiếu hoặc nguồn chưa được rà soát.",
+        evidence: summary.conclusionWarnings,
+        missingData: [],
+        nextChecks: summary.whatToCheckNext,
+        sourceModules: ["Risk"],
+        action: { label: "Xem checklist kết luận", moduleKey: "checklist" },
+      },
+    ],
     transparency: [
       {
-        id: "data-source-quality",
-        title: "Nguồn và thời điểm dữ liệu",
-        status: dataQuality.status === "good" ? "Ổn sơ bộ" : "Cần kiểm tra thêm",
-        tone: dataQuality.status === "good" ? "low" : "missing",
-        whyItMatters: dataQualityWarning,
-        dataToCheck: ["sourceName", "collectedAt", ...dataQuality.missingFields.slice(0, 4)],
+        id: "source-review",
+        title: "Nguồn dữ liệu",
+        status: "Dữ liệu nghiên cứu",
+        tone: "check",
+        whyItMatters:
+          "Nguồn chưa production-approved nên chỉ dùng để đọc hiểu và kiểm tra tiếp.",
+        dataToCheck: ["sourceName", "asOf", "period", "dataMode"],
       },
-      ...baseData.transparency,
+      {
+        id: "context-review",
+        title: "Bối cảnh",
+        status: "Cần kiểm tra thêm",
+        tone: "check",
+        whyItMatters:
+          "Bối cảnh ngành/vĩ mô chưa đủ sẽ khiến nhận định dễ thiếu điều kiện.",
+        dataToCheck: summary.incompleteContextAreas,
+      },
     ],
-    stopConditions: unique([
-      ...componentRisks
-        .filter((risk) => risk.level === "high" || risk.level === "critical" || risk.level === "unknown")
-        .map((risk) => `${risk.label}: ${mainRiskText(risk)}`),
-      ...baseData.stopConditions,
-    ]).slice(0, 7),
+    stopConditions: [
+      "Dừng kết luận nếu EPS, totalDebt, equity, sharesOutstanding hoặc market price còn thiếu.",
+      "Dừng kết luận nếu P/E, P/B, BVPS, marketCap hoặc P/S còn N/A.",
+      "Dừng kết luận nếu nguồn/asOf/period chưa rõ.",
+      "Dừng kết luận nếu bối cảnh ngành/vĩ mô chưa được rà soát.",
+    ],
+    riskTimeline: {
+      shortTerm: ["Kiểm tra ticker và nguồn dữ liệu", "Xác nhận missing fields", "Không thay missing bằng 0"],
+      mediumTerm: [
+        "Đối chiếu Financials và Valuation",
+        "Kiểm tra ngành và bối cảnh vĩ mô",
+        "Ghi rõ giới hạn dữ liệu",
+      ],
+      longTerm: ["Chỉ hình thành nhận định khi nguồn và dữ liệu đầu vào đủ rõ"],
+    },
     reverseRiskNote:
-      "Risk score chỉ cho biết các điểm cần kiểm tra theo dữ liệu hiện có. Điểm thấp không có nghĩa là hết rủi ro; điểm cao không thay thế phân tích nguyên nhân.",
+      "Rủi ro kết luận vội xuất hiện khi dữ liệu thiếu nhưng người đọc vẫn cố diễn giải. Phần này chỉ giúp giữ lại các câu hỏi cần kiểm tra.",
     finalConclusion: {
-      biggestRisk: topRisks[0]?.whyItMatters ?? "Chưa đủ dữ liệu để xác định rủi ro lớn nhất.",
-      missingData: missingEvidence.length > 0 ? `Cần bổ sung: ${missingEvidence.slice(0, 6).join(", ")}.` : "Chưa ghi nhận trường thiếu trọng yếu.",
+      biggestRisk:
+        "Điểm cần chú ý nhất là dữ liệu thiếu hoặc nguồn chưa đủ rõ có thể dẫn tới kết luận vội.",
+      missingData: summary.missingFinancialFields.length
+        ? `Cần bổ sung: ${summary.missingFinancialFields.join(", ")}.`
+        : "Chưa ghi nhận trường tài chính thiếu trong snapshot hiện tại.",
       thesisBreaker:
-        topRisks[0] ? `${topRisks[0].title}: ${topRisks[0].whyItMatters}` : "Chưa đủ dữ liệu để tạo phản biện chính.",
-      readiness:
-        overallRisk.level === "low" && financialHealth.status !== "unknown"
-          ? "Có thể chuyển bước với ghi chú rủi ro, nhưng vẫn cần theo dõi dữ liệu mới."
-          : "Nên kiểm tra thêm trước khi chuyển sang Checklist hoặc mô phỏng.",
+        "Nếu chỉ số chưa thể tính hoặc nguồn chưa rõ, nhận định phải dừng ở mức dữ liệu cần kiểm tra.",
+      readiness: summary.riskSummaryLabel,
       nextStep:
-        missingEvidence.length > 0
-          ? "Quay lại module nguồn để bổ sung dữ liệu còn thiếu, sau đó đọc lại risk score."
-          : "Đọc lại các cảnh báo chính cùng BCTC, Định giá và PVT trước khi chuyển bước.",
+        "Quay lại Financials, Valuation, Business/Industry/Macro để kiểm tra dữ liệu còn thiếu trước khi viết nhận định.",
     },
     nextActions: [
-      { label: "Quay lại BCTC", moduleKey: "financials" },
-      { label: "Quay lại Định giá", moduleKey: "valuation" },
-      { label: "Xem thanh khoản PVT", moduleKey: "technical" },
+      { label: "Kiểm tra dữ liệu tài chính", moduleKey: "financials", primary: true },
+      { label: "Kiểm tra chỉ số định giá", moduleKey: "valuation" },
+      { label: "Xem checklist kết luận", moduleKey: "checklist" },
     ],
   };
 };

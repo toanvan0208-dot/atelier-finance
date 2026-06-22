@@ -68,15 +68,21 @@ const reviewedRuntimeData = {
   }),
 } satisfies FinancialsRuntimeData;
 
-describe("RiskPage reviewed metrics UI", () => {
-  it("renders leverage readiness without raw runtime flags", () => {
-    const html = renderToStaticMarkup(createElement(RiskPage, { initialFinancialsRuntimeData: reviewedRuntimeData, onNavigate: () => undefined }));
+describe("RiskPage missing-data UI", () => {
+  it("renders data-readiness copy without raw runtime flags", () => {
+    const html = renderToStaticMarkup(
+      createElement(RiskPage, {
+        initialFinancialsRuntimeData: reviewedRuntimeData,
+        onNavigate: () => undefined,
+      }),
+    );
 
-    expect(html).toContain("Kiểm tra rủi ro");
-    expect(html).toContain("Đòn bẩy");
+    expect(html).toContain("Rủi ro dữ liệu còn thiếu");
+    expect(html).toContain("Nợ vay");
     expect(html).toContain("Có thể kiểm tra");
     expect(html).toContain("Dữ liệu nghiên cứu");
-    expect(html).toContain("Chưa phê duyệt sản xuất");
+    expect(html).toContain("Chưa đủ dữ liệu");
+    expect(html).toContain("Chỉ số chưa thể tính");
     expect(html).not.toContain("runtimeStatus");
     expect(html).not.toContain("fallbackUsed");
     expect(html).not.toContain("readPath");
@@ -85,5 +91,8 @@ describe("RiskPage reviewed metrics UI", () => {
     expect(html).not.toContain("productionApproved:false");
     expect(html).not.toContain("db_backed");
     expect(html).not.toContain("local_db");
+    expect(html).not.toContain("nên mua");
+    expect(html).not.toContain("fair value");
+    expect(html).not.toContain("target price");
   });
 });
