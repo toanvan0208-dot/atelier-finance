@@ -397,7 +397,7 @@ export const baseWatchlistPageData: WatchlistPageData = {
       priority: "Tạm dừng",
       emotionalState: "Không rõ lý do",
       reason: "Ban đầu theo dõi vì nghe nhiều người nhắc đến, chưa có dữ liệu cụ thể.",
-      validationQuestion: "Điều gì thực sự làm thesis logistics đáng chú ý ở thời điểm này?",
+      validationQuestion: "Điều gì thực sự làm thesis logistics cần kiểm tra thêm ở thời điểm này?",
       thesis: "Chưa có thesis rõ.",
       confirmingData: ["Cần cập nhật sản lượng cảng", "Cần hiểu chu kỳ logistics"],
       invalidatingData: ["Lý do theo dõi không rõ", "Thiếu định giá", "Thiếu dữ liệu ngành"],
