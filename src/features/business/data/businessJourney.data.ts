@@ -225,7 +225,7 @@ export const businessJourneyByTicker: Record<string, BusinessJourneyData> = {
           riskName: "Mở rộng quá nhanh",
           riskType: "Vận hành",
           whyItMatters: "Chuỗi mới có thể làm tăng chi phí, tồn kho và độ phức tạp quản trị.",
-          realWorldSignals: ["Mở điểm bán dày", "Đóng cửa hàng sau thử nghiệm", "Truyền thông thay đổi mục tiêu nhiều lần"],
+          realWorldSignals: ["Mở địa điểm kinh doanh dày", "Đóng cửa hàng sau thử nghiệm", "Truyền thông thay đổi mục tiêu nhiều lần"],
           severity: "Quan trọng",
           practicalConclusion: "Tăng quy mô chỉ tốt khi năng lực vận hành theo kịp.",
         },

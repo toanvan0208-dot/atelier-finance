@@ -135,7 +135,7 @@ export const businessUnderstandingByTicker: Record<string, BusinessUnderstanding
         },
         {
           label: "Kinh nghiệm vận hành chuỗi",
-          explanation: "Có kinh nghiệm quản lý nhiều điểm bán, nhân sự, hàng hóa và logistics.",
+          explanation: "Có kinh nghiệm quản lý nhiều cửa hàng, nhân sự, hàng hóa và logistics.",
         },
       ],
       weaknesses: [
