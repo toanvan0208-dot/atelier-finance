@@ -47,7 +47,7 @@ export type RedesignedResultGroup = {
 };
 
 const SOURCE_WARNING =
-  "Dữ liệu hiện tại là dữ liệu nghiên cứu hoặc đã rà soát thủ công, chưa phải dữ liệu production-approved.";
+  "Dữ liệu hiện tại là dữ liệu nghiên cứu hoặc đã rà soát thủ công, chưa phải dữ liệu chính thức để ra quyết định.";
 const NO_ZERO_FILL_WARNING =
   "Chưa đủ dữ liệu để kết luận. Hệ thống không tự điền 0 hoặc suy đoán dữ liệu thiếu.";
 
@@ -64,7 +64,7 @@ const readinessChecksReady: ScreeningReadinessCheck[] = [
   check("company_info", "Có thông tin doanh nghiệp", "available", "Có tên doanh nghiệp, sàn và ngành trong phạm vi hệ thống."),
   check("related_industry", "Có ngành liên quan", "available", "Đã nối với ngành MVP tương ứng."),
   check("financials", "Có dữ liệu tài chính", "available", "Có dữ liệu tài chính nghiên cứu trong app để đọc tiếp."),
-  check("eps", "Có EPS", "available", "Có EPS candidate đã rà soát thủ công, productionApproved:false."),
+  check("eps", "Có EPS", "available", "Có EPS candidate đã rà soát thủ công; nguồn chưa phê duyệt sản xuất."),
   check("total_debt", "Có nợ vay", "available", "Có totalDebt candidate đã rà soát thủ công; không dùng totalLiabilities thay thế."),
   check("shares_outstanding", "Có số cổ phiếu", "available", "Có sharesOutstanding candidate đã rà soát thủ công."),
   check("pe", "Có thể tính P/E", "available", "EPS và dữ liệu cổ phiếu đủ điều kiện để mở kiểm tra P/E."),
@@ -101,8 +101,8 @@ function buildCandidate({
     "Market/PVT research rows",
   ];
   const missingFields = [
-    "productionApproved:true",
-    "source/legal approval",
+    "Nguồn đã phê duyệt sản xuất",
+    "Rà soát pháp lý nguồn",
     "asOf cụ thể cho dữ liệu nguồn",
     "dữ liệu realtime/chính thức",
   ];
@@ -133,7 +133,7 @@ function buildCandidate({
     readinessLabel: "Đủ dữ liệu để phân tích tiếp",
     readinessScoreLabel: "Mức đủ dữ liệu",
     readinessScore: availableFields.length,
-    sourceStatus: "research_only / manual reviewed candidates, productionApproved:false",
+    sourceStatus: "Dữ liệu nghiên cứu / candidate đã rà soát thủ công, nguồn chưa phê duyệt sản xuất",
     sourceAsOf: null,
     group: "priority",
     groupLabel: "Đủ dữ liệu để phân tích tiếp",
@@ -226,7 +226,7 @@ export const screeningRedesignData = {
     criteria: [
       { label: "Phạm vi", value: "FPT, MWG, VNM", description: "Chỉ ba mã trọng tâm của MVP." },
       { label: "Cách sắp xếp", value: "Mức đủ dữ liệu", description: "Không phải thứ hạng đầu tư." },
-      { label: "Dữ liệu", value: "research_only", description: "productionApproved:false." },
+      { label: "Dữ liệu", value: "Dữ liệu nghiên cứu", description: "Nguồn chưa phê duyệt sản xuất." },
       { label: "Điểm dừng", value: "Chưa kết luận", description: "Chỉ chuyển sang module sau khi đủ điều kiện đọc tiếp." },
     ],
   },
@@ -234,7 +234,7 @@ export const screeningRedesignData = {
     { label: "Mã đầu vào", count: 3 },
     { label: "Đủ dữ liệu để phân tích tiếp", count: 3 },
     { label: "Cần bổ sung dữ liệu", count: 0 },
-    { label: "Production-approved", count: 0 },
+    { label: "Nguồn đã phê duyệt", count: 0 },
   ],
   gates: [
     {
@@ -357,7 +357,7 @@ export const screeningRedesignData = {
     "P/B": "Chỉ có thể mở kiểm tra khi equity và số cổ phiếu hợp lệ.",
     "Nợ vay": "Dùng totalDebt candidate; không relabel totalLiabilities thành nợ vay.",
     "Rủi ro": "Trạng thái để rà soát tiếp, không phải tem an toàn.",
-    "Nguồn": "Dữ liệu nghiên cứu hoặc manual reviewed vẫn productionApproved:false.",
+    "Nguồn": "Dữ liệu nghiên cứu hoặc manual reviewed vẫn chưa phê duyệt sản xuất.",
   } satisfies Record<ScreeningMetricKey, string>,
   analysisPath: ["Xem doanh nghiệp", "Xem dữ liệu tài chính", "Kiểm tra định giá", "Kiểm tra PVT", "Kiểm tra rủi ro", "Thêm vào Watchlist"],
   nextPanel:

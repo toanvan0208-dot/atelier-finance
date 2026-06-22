@@ -177,7 +177,7 @@ export function IndustryCurrentHeader({
               <p className="mt-1">
                 Nguồn: {selectedIndustry.sourceName ?? "Chưa có nguồn rà soát"} · Kỳ:{" "}
                 {selectedIndustry.period ?? "Chưa đủ dữ liệu"} · As of:{" "}
-                {selectedIndustry.asOf ?? "Chưa đủ dữ liệu"} · productionApproved:false
+                {selectedIndustry.asOf ?? "Chưa đủ dữ liệu"} · Trạng thái: Nguồn đang hoàn thiện
               </p>
             </div>
           </div>

@@ -115,7 +115,7 @@ export function buildMacroIndustryReadinessUiModel(
       },
       {
         label: "Phe duyet nguon",
-        value: "productionApproved:false",
+        value: "Chua phe duyet",
         detail: "Nguon mau, thu cong hoac nghien cuu chua duoc duyet lam nguon san xuat.",
       },
       {
@@ -129,7 +129,7 @@ export function buildMacroIndustryReadinessUiModel(
       label: gateLabels[gate] ?? gate,
       detail: gateDetails[gate] ?? "Can phase rieng truoc khi mo.",
     })),
-    boundaryBadges: ["Thieu bang chung nguon", "Can don vi ro", "productionApproved:false"],
+    boundaryBadges: ["Thieu bang chung nguon", "Can don vi ro", "Nguon chua duyet"],
     forbiddenCapabilities: {
       dbWrite: false,
       importUploadApi: false,

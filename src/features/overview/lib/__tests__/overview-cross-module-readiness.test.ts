@@ -179,7 +179,8 @@ describe("overview cross-module readiness summary", () => {
     expect(industry.status).toBe("boundary_only");
     expect(macro.sourceStatus).toBe("missing");
     expect(industry.sourceStatus).toBe("missing");
-    expect(JSON.stringify([macro, industry])).toContain("productionApproved:false");
+    expect(JSON.stringify([macro, industry])).toContain("Nguon chua duyet");
+    expect(JSON.stringify([macro, industry])).not.toContain("productionApproved:false");
     expect(JSON.stringify([macro, industry]).toLowerCase()).not.toContain("production data ready");
   });
 

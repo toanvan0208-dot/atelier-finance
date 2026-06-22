@@ -1,7 +1,7 @@
 import type { IndustryCompassData, IndustryCompassOption } from "../types";
 
 const DATA_COMPLETION_WARNING =
-  "Dữ liệu ngành đang được hoàn thiện. Phần này giúp hiểu bối cảnh, không kết luận ngành tốt/xấu hoặc cổ phiếu nên mua/bán.";
+  "Dữ liệu ngành đang được hoàn thiện. Phần này giúp hiểu bối cảnh, không biến thành quyết định đầu tư.";
 
 const commonActions = [
   { label: "Kiểm tra ở Screening", targetModule: "screening", variant: "secondary" as const },

@@ -30,7 +30,7 @@ describe("macro industry readiness UI model", () => {
 
     expect(model.moduleKey).toBe("macro");
     expect(model.statusCards.map((card) => card.value)).toEqual(
-      expect.arrayContaining(["Thieu bang chung", "Can khai bao ro", "productionApproved:false", "Chua san sang"]),
+      expect.arrayContaining(["Thieu bang chung", "Can khai bao ro", "Chua phe duyet", "Chua san sang"]),
     );
     expect(model.badgeLabel).toBe("Dang chuan bi");
     expect(model.requiredFields).toEqual(expect.arrayContaining(["GDP growth", "Inflation", "PMI"]));
@@ -41,7 +41,7 @@ describe("macro industry readiness UI model", () => {
 
     expect(model.moduleKey).toBe("industry");
     expect(model.statusCards.map((card) => card.value)).toEqual(
-      expect.arrayContaining(["Thieu bang chung", "Can khai bao ro", "productionApproved:false", "Chua san sang"]),
+      expect.arrayContaining(["Thieu bang chung", "Can khai bao ro", "Chua phe duyet", "Chua san sang"]),
     );
     expect(model.summary).toContain("chua phai du lieu san xuat");
     expect(model.requiredFields).toEqual(
@@ -49,13 +49,15 @@ describe("macro industry readiness UI model", () => {
     );
   });
 
-  it("represents productionApproved:false, source/evidence gaps, and explicit unit requirements", () => {
+  it("represents source approval gaps without raw debug labels", () => {
     const serialized = JSON.stringify([
       buildMacroIndustryReadinessUiModel("macro"),
       buildMacroIndustryReadinessUiModel("industry"),
     ]);
 
-    expect(serialized).toContain("productionApproved:false");
+    expect(serialized).toContain("Chua phe duyet");
+    expect(serialized).toContain("Nguon chua duyet");
+    expect(serialized).not.toContain("productionApproved:false");
     expect(serialized).toContain("Thieu bang chung nguon");
     expect(serialized).toContain("Can don vi ro");
     expect(serialized).toContain("Khong doan don vi tu do lon so");
@@ -78,7 +80,8 @@ describe("macro industry readiness UI model", () => {
       renderToStaticMarkup(createElement(MacroIndustryReadinessSkeleton, { domain: "industry" })),
     ].join("\n").toLowerCase();
 
-    expect(html).toContain("productionapproved:false");
+    expect(html).toContain("chua phe duyet");
+    expect(html).not.toContain("productionapproved:false");
     expect(html).toContain("thieu bang chung");
     expect(html).toContain("can khai bao ro");
     expect(html).toContain("chua san sang");
