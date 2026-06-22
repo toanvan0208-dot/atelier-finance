@@ -176,6 +176,68 @@ describe("PortfolioReadinessPanel", () => {
     expect(html).toContain("total liabilities are not treated as debt");
   });
 
+  it("renders reviewed available source records with source, unit, and period", () => {
+    const data = structuredClone(portfolioReadiness);
+    const fpt = data.tickers[0];
+    fpt.sourceDecisions.totalDebt = {
+      activationStatus: "activated",
+      asOf: "2024-12-31",
+      dataMode: "research_only",
+      field: "totalDebt",
+      period: "2024",
+      productionApproved: false,
+      reason: "Reviewed candidate has matching ticker, field, unit, as-of, and period.",
+      reasonCode: "traceable_totalDebt_available",
+      sourceLabel: "manual_reviewed_financial_statement_2024",
+      status: "available",
+      ticker: "FPT",
+      unit: "billion_vnd",
+      value: 14_947.354,
+    };
+    fpt.sourceDecisions.eps = {
+      activationStatus: "activated",
+      asOf: "2024-12-31",
+      dataMode: "research_only",
+      field: "eps",
+      period: "2024",
+      productionApproved: false,
+      reason: "Reviewed candidate has matching ticker, field, unit, as-of, and period.",
+      reasonCode: "traceable_eps_available",
+      sourceLabel: "manual_reviewed_financial_statement_2024",
+      status: "available",
+      ticker: "FPT",
+      unit: "vnd_per_share",
+      value: 4_944,
+    };
+    fpt.sourceDecisions.sharesOutstanding = {
+      activationStatus: "activated",
+      asOf: "2024-12-31",
+      dataMode: "research_only",
+      field: "sharesOutstanding",
+      period: "2024",
+      productionApproved: false,
+      reason: "Reviewed candidate has matching ticker, field, unit, as-of, and period.",
+      reasonCode: "traceable_sharesOutstanding_available",
+      sourceLabel: "manual_reviewed_financial_statement_2024",
+      status: "available",
+      ticker: "FPT",
+      unit: "shares",
+      value: 1_471_069_183,
+    };
+
+    const html = renderToStaticMarkup(createElement(PortfolioReadinessPanel, { data }));
+
+    expect(html).toContain("Total debt: available");
+    expect(html).toContain("EPS: available");
+    expect(html).toContain("Shares outstanding: available");
+    expect(html).toContain("manual_reviewed_financial_statement_2024");
+    expect(html).toContain("research_only");
+    expect(html).toContain("billion_vnd");
+    expect(html).toContain("vnd_per_share");
+    expect(html).toContain("shares");
+    expect(html).toContain("productionApproved:false");
+  });
+
   it("does not introduce forbidden positive wording", () => {
     const html = renderToStaticMarkup(createElement(PortfolioReadinessPanel, { data: portfolioReadiness })).toLowerCase();
     const forbidden = [

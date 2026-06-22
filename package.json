@@ -17,6 +17,7 @@
     "financials:controlled": "tsx scripts/import-controlled-financials.ts",
     "financials:fpt:controlled": "tsx scripts/import-fpt-financials-controlled.ts",
     "financials:write-trial": "tsx scripts/financial-statements-write-trial.ts",
+    "source-records:reviewed:import": "tsx scripts/import-reviewed-source-records.ts",
     "import:market-prices:vnstock:local": "tsx scripts/import-vnstock-market-prices.ts",
     "import:market-pvt:vnstock:controlled": "tsx scripts/import-vnstock-market-pvt-controlled.ts",
     "test": "vitest run",

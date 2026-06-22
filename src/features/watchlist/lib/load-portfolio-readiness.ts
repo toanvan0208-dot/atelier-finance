@@ -9,6 +9,7 @@ import { buildRiskFinancialsRuntimeConsumption } from "@/features/risk/lib/risk-
 import type { TechnicalPageRuntimeData } from "@/features/technical";
 import { loadTechnicalRuntimeData, type LoadTechnicalRuntimeDataDependencies } from "@/features/technical/lib/load-technical-runtime-data";
 import { buildValuationFinancialsRuntimeReadiness } from "@/features/valuation/lib/valuation-financials-runtime-readiness";
+import { readReviewedSourceRecordCandidates } from "@/lib/data-sources/reviewed-source-records-import";
 import {
   buildTraceableInputSourceDecisions,
   type TraceableInputCandidate,
@@ -100,6 +101,7 @@ export type LoadPortfolioReadinessDeps = {
   technicalDeps?: LoadTechnicalRuntimeDataDependencies;
   loadFinancials?: typeof loadFinancialsRuntimeData;
   financialsDeps?: LoadFinancialsRuntimeDataDeps;
+  readTraceableInputCandidates?: typeof readReviewedSourceRecordCandidates;
   traceableInputCandidates?: Partial<
     Record<PortfolioReadinessTicker, Partial<Record<TraceableInputField, TraceableInputCandidate | null>>>
   >;
@@ -160,18 +162,31 @@ const missingInputsFrom = ({
 
 const blockedMetricsFrom = ({
   eps,
+  marketPrice,
   sharesOutstanding,
 }: {
   eps: number | null | undefined;
+  marketPrice: number | null | undefined;
   sharesOutstanding: number | null | undefined;
 }): string[] =>
   unique([
     eps === null || eps === undefined ? "pe:eps_unavailable" : "",
     sharesOutstanding === null || sharesOutstanding === undefined ? "marketCap:sharesOutstanding_unavailable" : "",
+    marketPrice === null || marketPrice === undefined ? "marketCap:marketPrice_unavailable" : "",
     sharesOutstanding === null || sharesOutstanding === undefined ? "bvps:sharesOutstanding_unavailable" : "",
     sharesOutstanding === null || sharesOutstanding === undefined ? "pb:sharesOutstanding_unavailable" : "",
-    sharesOutstanding === null || sharesOutstanding === undefined ? "ps:marketCap_unavailable" : "",
+    marketPrice === null || marketPrice === undefined ? "pb:marketPrice_unavailable" : "",
+    sharesOutstanding === null || sharesOutstanding === undefined || marketPrice === null || marketPrice === undefined
+      ? "ps:marketCap_unavailable"
+      : "",
   ]);
+
+const readyMarketPriceFrom = (technical: TechnicalPageRuntimeData): number | null => {
+  const marketPriceMetadata = technical.marketUnitMetadata?.marketPrice;
+  const price = technical.data?.currentPrice ?? null;
+  if (technical.fallbackUsed || marketPriceMetadata?.status !== "ready") return null;
+  return typeof price === "number" && Number.isFinite(price) && price > 0 ? price : null;
+};
 
 const buildItem = ({
   financials,
@@ -193,6 +208,7 @@ const buildItem = ({
   const eps = sourceDecisions.eps.status === "available" ? sourceDecisions.eps.value : null;
   const sharesOutstanding =
     sourceDecisions.sharesOutstanding.status === "available" ? sourceDecisions.sharesOutstanding.value : null;
+  const marketPrice = readyMarketPriceFrom(technical);
   const financialsForValuation: FinancialsRuntimeData = financials.statementSnapshot
     ? {
         ...financials,
@@ -201,10 +217,11 @@ const buildItem = ({
     : financials;
   const valuation = buildValuationFinancialsRuntimeReadiness({
     financialsRuntimeData: financialsForValuation,
+    inputs: { marketPrice },
     valuationConsumesFinancialsRuntime: true,
   });
   const risk = buildRiskFinancialsRuntimeConsumption({ financialsRuntimeData: financials, traceableTotalDebt });
-  const blockedMetrics = blockedMetricsFrom({ eps, sharesOutstanding });
+  const blockedMetrics = blockedMetricsFrom({ eps, marketPrice, sharesOutstanding });
   const missingInputs = missingInputsFrom({ risk, sourceDecisions, technical });
   const financialCoverage = buildFinancialStatementCoverage(financials);
 
@@ -254,6 +271,7 @@ const buildItem = ({
       canClaimValuationDbBacked: false,
       marketCap: valuation.calculationReadiness.marketCap,
       pb: blockedMetrics.includes("pb:sharesOutstanding_unavailable")
+        || blockedMetrics.includes("pb:marketPrice_unavailable")
         ? "insufficient_data"
         : valuation.calculationReadiness.pb,
       pe: valuation.calculationReadiness.pe,
@@ -290,10 +308,11 @@ export const loadPortfolioReadiness = async (
   const readIssuerMetadata = deps.readIssuerMetadata ?? getIssuerMetadata;
   const loadTechnical = deps.loadTechnical ?? loadTechnicalRuntimeData;
   const loadFinancials = deps.loadFinancials ?? loadFinancialsRuntimeData;
+  const readTraceableInputCandidates = deps.readTraceableInputCandidates ?? readReviewedSourceRecordCandidates;
 
   const tickers = await Promise.all(
     PORTFOLIO_READINESS_TICKERS.map(async (ticker) => {
-      const [metadata, technical, financials] = await Promise.all([
+      const [metadata, technical, financials, reviewedCandidates] = await Promise.all([
         Promise.resolve(readIssuerMetadata(ticker)),
         loadTechnical(
           {
@@ -313,13 +332,14 @@ export const loadPortfolioReadiness = async (
           },
           deps.financialsDeps,
         ),
+        deps.traceableInputCandidates?.[ticker] ? Promise.resolve({}) : readTraceableInputCandidates(ticker),
       ]);
 
       return buildItem({
         financials,
         metadata,
         technical,
-        traceableInputCandidates: deps.traceableInputCandidates?.[ticker],
+        traceableInputCandidates: deps.traceableInputCandidates?.[ticker] ?? reviewedCandidates,
       });
     }),
   );

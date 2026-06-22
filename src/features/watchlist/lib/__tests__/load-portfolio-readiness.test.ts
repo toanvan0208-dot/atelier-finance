@@ -14,6 +14,7 @@ const technicalRuntime = (ticker: string): LoadTechnicalDeskDataResult => ({
   data: {
     ticker,
     companyName: ticker,
+    currentPrice: 100_000,
     industry: "controlled local metadata",
     pvtChartSeries: [],
     pvtDerivedMetrics: null,
@@ -43,7 +44,18 @@ const technicalRuntime = (ticker: string): LoadTechnicalDeskDataResult => ({
     verificationStatus: "controlled_local_research",
     warnings: [],
   },
-  marketUnitMetadata: {} as LoadTechnicalDeskDataResult["marketUnitMetadata"],
+  marketUnitMetadata: {
+    marketPrice: {
+      field: "marketPrice",
+      owner: "market_pvt",
+      productionApproved: false,
+      source: "persisted_market_bridge",
+      status: "ready",
+      unit: "vnd_per_share",
+      value: 100_000,
+      warnings: [],
+    },
+  } as unknown as LoadTechnicalDeskDataResult["marketUnitMetadata"],
   ok: true,
   marketDataSource: {
     asOf: "2025-06-30",
@@ -65,6 +77,8 @@ const technicalRuntime = (ticker: string): LoadTechnicalDeskDataResult => ({
   },
   warnings: [],
 });
+
+const noReviewedCandidates = async () => ({});
 
 const financialsRuntime = (
   ticker: string,
@@ -144,6 +158,7 @@ describe("loadPortfolioReadiness", () => {
     const result = await loadPortfolioReadiness({
       loadFinancials,
       loadTechnical,
+      readTraceableInputCandidates: noReviewedCandidates,
       readIssuerMetadata: getIssuerMetadata,
     });
 
@@ -196,6 +211,7 @@ describe("loadPortfolioReadiness", () => {
     const result = await loadPortfolioReadiness({
       loadFinancials: async (input = {}) => financialsRuntime(input.ticker ?? "UNKNOWN"),
       loadTechnical: async (input = {}) => technicalRuntime(input.ticker ?? "UNKNOWN"),
+      readTraceableInputCandidates: noReviewedCandidates,
       readIssuerMetadata: getIssuerMetadata,
     });
     const fpt = result.tickers.find((item) => item.ticker === "FPT");
@@ -226,6 +242,7 @@ describe("loadPortfolioReadiness", () => {
           totalEquity: null,
         }),
       loadTechnical: async (input = {}) => technicalRuntime(input.ticker ?? "UNKNOWN"),
+      readTraceableInputCandidates: noReviewedCandidates,
       readIssuerMetadata: getIssuerMetadata,
     });
     const mwg = result.tickers.find((item) => item.ticker === "MWG");
@@ -241,6 +258,7 @@ describe("loadPortfolioReadiness", () => {
     const result = await loadPortfolioReadiness({
       loadFinancials: async (input = {}) => financialsRuntime(input.ticker ?? "UNKNOWN"),
       loadTechnical: async (input = {}) => technicalRuntime(input.ticker ?? "UNKNOWN"),
+      readTraceableInputCandidates: noReviewedCandidates,
       readIssuerMetadata: getIssuerMetadata,
     });
 
@@ -263,6 +281,7 @@ describe("loadPortfolioReadiness", () => {
     const result = await loadPortfolioReadiness({
       loadFinancials: async () => runtime,
       loadTechnical: async (input = {}) => technicalRuntime(input.ticker ?? "UNKNOWN"),
+      readTraceableInputCandidates: noReviewedCandidates,
       readIssuerMetadata: getIssuerMetadata,
     });
 
@@ -277,6 +296,7 @@ describe("loadPortfolioReadiness", () => {
     const result = await loadPortfolioReadiness({
       loadFinancials: async (input = {}) => financialsRuntime(input.ticker ?? "UNKNOWN"),
       loadTechnical: async (input = {}) => technicalRuntime(input.ticker ?? "UNKNOWN"),
+      readTraceableInputCandidates: noReviewedCandidates,
       readIssuerMetadata: getIssuerMetadata,
       traceableInputCandidates: {
         FPT: {
@@ -315,6 +335,7 @@ describe("loadPortfolioReadiness", () => {
     const result = await loadPortfolioReadiness({
       loadFinancials: async () => runtime,
       loadTechnical: async (input = {}) => technicalRuntime(input.ticker ?? "UNKNOWN"),
+      readTraceableInputCandidates: noReviewedCandidates,
       readIssuerMetadata: getIssuerMetadata,
     });
 
@@ -339,6 +360,7 @@ describe("loadPortfolioReadiness", () => {
     const result = await loadPortfolioReadiness({
       loadFinancials: async (input = {}) => financialsRuntime(input.ticker ?? "UNKNOWN"),
       loadTechnical: async (input = {}) => technicalRuntime(input.ticker ?? "UNKNOWN"),
+      readTraceableInputCandidates: noReviewedCandidates,
       readIssuerMetadata: getIssuerMetadata,
       traceableInputCandidates: {
         FPT: { totalDebt: debtCandidate("FPT", 500) },
@@ -365,12 +387,72 @@ describe("loadPortfolioReadiness", () => {
     expect(fpt?.valuation.canClaimValuationDbBacked).toBe(false);
   });
 
+  it("activates reviewed debt, EPS, and shares candidates for guarded valuation and risk readiness", async () => {
+    const reviewedCandidate = (
+      ticker: "FPT" | "MWG" | "VNM",
+      field: "totalDebt" | "eps" | "sharesOutstanding",
+      value: number,
+    ) => ({
+      asOf: "2024-12-31",
+      dataMode: "research_only",
+      field,
+      period: "2024",
+      productionApproved: false as const,
+      sourceLabel: "manual_reviewed_financial_statement_2024",
+      ticker,
+      unit:
+        field === "eps"
+          ? ("vnd_per_share" as const)
+          : field === "sharesOutstanding"
+            ? ("shares" as const)
+            : ("billion_vnd" as const),
+      value,
+    });
+    const result = await loadPortfolioReadiness({
+      loadFinancials: async (input = {}) => financialsRuntime(input.ticker ?? "UNKNOWN"),
+      loadTechnical: async (input = {}) => technicalRuntime(input.ticker ?? "UNKNOWN"),
+      readIssuerMetadata: getIssuerMetadata,
+      traceableInputCandidates: {
+        FPT: {
+          eps: reviewedCandidate("FPT", "eps", 4_944),
+          sharesOutstanding: reviewedCandidate("FPT", "sharesOutstanding", 1_471_069_183),
+          totalDebt: reviewedCandidate("FPT", "totalDebt", 14_947.354),
+        },
+        MWG: {
+          eps: reviewedCandidate("MWG", "eps", 2_546),
+          sharesOutstanding: reviewedCandidate("MWG", "sharesOutstanding", 1_454_644_497),
+          totalDebt: reviewedCandidate("MWG", "totalDebt", 27_300.247),
+        },
+        VNM: {
+          eps: reviewedCandidate("VNM", "eps", 4_130),
+          sharesOutstanding: reviewedCandidate("VNM", "sharesOutstanding", 2_089_955_445),
+          totalDebt: reviewedCandidate("VNM", "totalDebt", 10_059.066),
+        },
+      },
+    });
+
+    for (const item of result.tickers) {
+      expect(item.sourceDecisions.totalDebt.status).toBe("available");
+      expect(item.sourceDecisions.eps.status).toBe("available");
+      expect(item.sourceDecisions.sharesOutstanding.status).toBe("available");
+      expect(item.risk.leverageRisk).toBe("ready");
+      expect(item.valuation.pe).toBe("ready");
+      expect(item.valuation.marketCap).toBe("ready");
+      expect(item.valuation.bvps).toBe("ready");
+      expect(item.valuation.pb).toBe("ready");
+      expect(item.valuation.ps).toBe("partial");
+      expect(item.valuation.canClaimValuationDbBacked).toBe(false);
+      expect(item.blockedMetrics).toEqual([]);
+    }
+  });
+
   it("passes bounded VNStock technical read parameters for every ticker", async () => {
     const loadTechnical = vi.fn(async (input = {}) => technicalRuntime(input.ticker ?? "UNKNOWN"));
 
     await loadPortfolioReadiness({
       loadFinancials: async (input = {}) => financialsRuntime(input.ticker ?? "UNKNOWN"),
       loadTechnical,
+      readTraceableInputCandidates: noReviewedCandidates,
       readIssuerMetadata: getIssuerMetadata,
     });
 
