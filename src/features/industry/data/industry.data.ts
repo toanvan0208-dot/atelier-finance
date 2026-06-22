@@ -876,11 +876,11 @@ export const industryHealthData = {
   icon: "H",
   status: "Trung lập",
   statusType: "neutral" as const,
-  score: 58,
-  scoreUnit: "/100",
-  explanation: "Dữ liệu mẫu legacy.",
+  score: null,
+  scoreUnit: null,
+  explanation: "Dữ liệu legacy chưa đủ nguồn để hiển thị như số liệu thật.",
   metricLabels: { status: "Trạng thái", scale: "Cách đọc" },
-  scaleValue: "0-100",
+  scaleValue: "Chưa đủ dữ liệu",
 };
 export const industryImpactFactorsData = { title: "Yếu tố tác động", icon: "I", factors: [] };
 export const industryOutlookData = {

@@ -185,6 +185,8 @@ export type IndustryPageData = {
 };
 
 export type IndustryCompassTone = "support" | "pressure" | "watch" | "neutral" | "mixed";
+export type IndustryDataStatus = "available" | "missing" | "partial" | "sample" | "unverified";
+export type IndustryDataMode = "manual_reviewed" | "research_only" | "sample" | "unavailable";
 
 export type IndustryCompassAction = {
   label: string;
@@ -226,7 +228,7 @@ export type IndustrySignalMetric = {
 };
 
 export type IndustryCompanyGroup = {
-  title: "Đáng phân tích tiếp" | "Cần theo dõi thêm" | "Chưa phù hợp với người mới";
+  title: string;
   description: string;
   tickers: string[];
   role: string;
@@ -249,12 +251,30 @@ export type IndustryAnalysisCluster = {
 
 export type IndustryCompassOption = {
   id: string;
+  industryKey: string;
   name: string;
+  industryName: string;
   shortName: string;
   description: string;
+  shortDescription: string;
   industryType: string;
   statusLabel: string;
   statusTone: IndustryCompassTone;
+  relatedTickers: string[];
+  mainDrivers: string[];
+  keyRisks: string[];
+  macroLinks: string[];
+  dataStatus: IndustryDataStatus;
+  dataMode: IndustryDataMode;
+  productionApproved: boolean;
+  sourceName: string | null;
+  sourceRef?: string | null;
+  sourceUrl?: string | null;
+  period: string | null;
+  asOf: string | null;
+  explanationForBeginner: string;
+  whatToCheckNext: string[];
+  warnings: string[];
   sensitivityTags: string[];
   quickPicture: {
     summary: string;
@@ -312,8 +332,8 @@ export type IndustryHealthData = {
   icon: string;
   status: string;
   statusType: IndustryStatus;
-  score: number;
-  scoreUnit: string;
+  score: number | null;
+  scoreUnit: string | null;
   explanation: string;
   metricLabels: { status: string; scale: string };
   scaleValue: string;

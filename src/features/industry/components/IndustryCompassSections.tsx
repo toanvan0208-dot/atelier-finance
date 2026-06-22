@@ -4,6 +4,8 @@ import type {
   IndustryCompassAction,
   IndustryCompassOption,
   IndustryCompassTone,
+  IndustryDataMode,
+  IndustryDataStatus,
   IndustrySignalMetric,
 } from "../types";
 
@@ -26,10 +28,25 @@ const toneBorder: Record<IndustryCompassTone, string> = {
 };
 
 const industryCompanyRoleTitles = [
-  "Nhóm đầu ngành / quy mô lớn",
-  "Nhóm nhạy với chu kỳ hoặc dự án",
-  "Nhóm dữ liệu khó đọc / rủi ro cao",
+  "Mã liên quan trong hệ thống",
+  "Nhóm cần kiểm tra thêm",
+  "Nhóm dữ liệu chưa đủ",
 ];
+
+const dataStatusLabel: Record<IndustryDataStatus, string> = {
+  available: "Đã có dữ liệu",
+  missing: "Chưa đủ dữ liệu",
+  partial: "Dữ liệu ngành đang hoàn thiện",
+  sample: "Dữ liệu minh họa",
+  unverified: "Đang xác nhận",
+};
+
+const dataModeLabel: Record<IndustryDataMode, string> = {
+  manual_reviewed: "Dữ liệu đã rà soát thủ công",
+  research_only: "Dữ liệu nghiên cứu",
+  sample: "Dữ liệu minh họa",
+  unavailable: "Chưa có dữ liệu",
+};
 
 function goToModule(targetModule?: string, onNavigate?: IndustryNavigate) {
   if (!targetModule) {
@@ -139,6 +156,9 @@ export function IndustryCurrentHeader({
               <Chip variant={toneVariant[selectedIndustry.statusTone]}>
                 {selectedIndustry.statusLabel}
               </Chip>
+              <Chip variant="warning">
+                {dataStatusLabel[selectedIndustry.dataStatus]}
+              </Chip>
             </div>
             <h1 className="text-2xl font-bold leading-tight text-ink md:text-3xl">
               {selectedIndustry.name}
@@ -149,6 +169,17 @@ export function IndustryCurrentHeader({
             <p className="mt-3 max-w-[820px] rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3 text-xs font-semibold leading-5 text-ink">
               Trước khi chọn cổ phiếu, hãy hiểu ngành này kiếm tiền từ đâu và đang chịu lực nào từ vĩ mô.
             </p>
+            <div className="mt-3 rounded-[4px] border border-warning bg-warning/10 px-3 py-3 text-xs leading-5 text-muted">
+              <p className="font-bold text-ink">{dataModeLabel[selectedIndustry.dataMode]}</p>
+              <p className="mt-1">
+                {selectedIndustry.warnings[0] ?? "Dữ liệu ngành đang được hoàn thiện."}
+              </p>
+              <p className="mt-1">
+                Nguồn: {selectedIndustry.sourceName ?? "Chưa có nguồn rà soát"} · Kỳ:{" "}
+                {selectedIndustry.period ?? "Chưa đủ dữ liệu"} · As of:{" "}
+                {selectedIndustry.asOf ?? "Chưa đủ dữ liệu"} · productionApproved:false
+              </p>
+            </div>
           </div>
 
           <div className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-4">
@@ -157,6 +188,11 @@ export function IndustryCurrentHeader({
               {selectedIndustry.industryType}
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
+              {selectedIndustry.relatedTickers.map((ticker) => (
+                <Chip key={ticker} size="sm" variant="accent">
+                  {ticker}
+                </Chip>
+              ))}
               {selectedIndustry.sensitivityTags.map((tag) => (
                 <Chip key={tag} size="sm" variant="neutral">
                   {tag}
@@ -232,7 +268,7 @@ export function IndustryQuickPicture({ selectedIndustry }: { selectedIndustry: I
 
           <div className="grid gap-4 lg:grid-cols-2">
             <div className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-4">
-              <p className="text-sm font-bold text-ink">Yếu tố hỗ trợ chính</p>
+              <p className="text-sm font-bold text-ink">Yếu tố ảnh hưởng cần kiểm tra</p>
               <div className="mt-3 space-y-3">
                 {quickPicture.supports.map((item) => (
                   <div key={item.title} className="border-l-2 border-accent-green pl-3">
@@ -244,7 +280,7 @@ export function IndustryQuickPicture({ selectedIndustry }: { selectedIndustry: I
             </div>
 
             <div className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-4">
-              <p className="text-sm font-bold text-ink">Yếu tố gây áp lực chính</p>
+              <p className="text-sm font-bold text-ink">Rủi ro ngành cần kiểm tra</p>
               <div className="mt-3 space-y-3">
                 {quickPicture.pressures.map((item) => (
                   <div key={item.title} className="border-l-2 border-danger pl-3">
@@ -412,10 +448,10 @@ function SignalMetricList({ metrics }: { metrics: IndustrySignalMetric[] }) {
           <p className="mt-2 text-xs leading-5 text-muted">{metric.simpleRead}</p>
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             <p className="rounded-[4px] bg-surface px-3 py-2 text-[11px] leading-4 text-muted">
-              <span className="font-bold text-ink">Tốt:</span> {metric.goodSignal}
+              <span className="font-bold text-ink">Khi cải thiện:</span> {metric.goodSignal}
             </p>
             <p className="rounded-[4px] bg-surface px-3 py-2 text-[11px] leading-4 text-muted">
-              <span className="font-bold text-ink">Xấu:</span> {metric.badSignal}
+              <span className="font-bold text-ink">Khi yếu đi:</span> {metric.badSignal}
             </p>
           </div>
           <p className="mt-3 text-[11px] font-semibold text-subtle">
@@ -495,7 +531,7 @@ export function IndustryCompanyMapSection({
     <section>
       <SectionHeader
         title="Rổ cổ phiếu đầu vào từ ngành"
-        description="Module Ngành chỉ lập bản đồ doanh nghiệp theo vai trò trong ngành. Việc phân loại mã nào đáng phân tích tiếp sẽ diễn ra ở module Lọc cổ phiếu."
+        description="Module Ngành chỉ lập bản đồ mã liên quan theo vai trò trong ngành. Việc kiểm tra dữ liệu tiếp theo diễn ra ở module Screening."
       />
       <Card>
         <CardBody>
@@ -513,10 +549,10 @@ export function IndustryCompanyMapSection({
                   Vai trò trong chuỗi giá trị: {group.role}
                 </p>
                 <p className="mt-2 text-xs leading-5 text-muted">
-                  Vì sao đưa vào bước lọc: {group.why}
+                  Vì sao cần kiểm tra tiếp: {group.why}
                 </p>
                 <p className="mt-3 text-[11px] font-bold uppercase text-subtle">
-                  Dữ liệu nên kiểm tra ở module Lọc cổ phiếu
+                  Dữ liệu nên kiểm tra tiếp
                 </p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {group.checks.map((check) => (
@@ -537,14 +573,14 @@ export function IndustryCompanyMapSection({
                       goToModule("screening", onNavigate);
                     }}
                   >
-                    Đưa vào bộ lọc cổ phiếu
+                    Kiểm tra ở Screening
                   </Button>
                   <button
                     className="text-left text-xs font-bold text-muted underline-offset-2 hover:text-ink hover:underline"
                     type="button"
                     onClick={() => goToModule("watchlist", onNavigate)}
                   >
-                    Lưu nhóm này để theo dõi
+                    Lưu nhóm này để kiểm tra sau
                   </button>
                 </div>
               </article>
@@ -573,7 +609,7 @@ export function IndustryConditionalConclusion({
       <Card className="parent-surface-card">
         <CardHeader
           title={selectedIndustry.name}
-          description="Đây là bản kết luận để quyết định có nên chuyển sang lọc cổ phiếu hoặc đọc BCTC hay chưa."
+          description="Đây là kết luận bối cảnh có điều kiện, dùng để biết dữ liệu nào còn thiếu trước khi đọc module sau."
           chip={<Chip variant={toneVariant[selectedIndustry.statusTone]}>{selectedIndustry.statusLabel}</Chip>}
         />
         <CardBody className="space-y-4">

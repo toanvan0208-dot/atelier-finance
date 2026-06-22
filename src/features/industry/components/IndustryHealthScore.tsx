@@ -12,6 +12,8 @@ const statusVariant = {
 } as const;
 
 export function IndustryHealthScore({ data }: IndustryHealthScoreProps) {
+  const value = data.score === null ? "Chưa đủ dữ liệu" : `${data.score}${data.scoreUnit ?? ""}`;
+
   return (
     <MetricCard
       description={data.explanation}
@@ -30,7 +32,7 @@ export function IndustryHealthScore({ data }: IndustryHealthScoreProps) {
         <Chip variant={statusVariant[data.statusType]}>{data.status}</Chip>
       }
       title={data.title}
-      value={`${data.score}${data.scoreUnit}`}
+      value={value}
     />
   );
 }
