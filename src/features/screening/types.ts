@@ -306,6 +306,55 @@ export type ScreeningGateData = {
 };
 
 export type ScreeningCandidateGroupKey = "priority" | "watch" | "not-fit";
+export type ScreeningDataStatus = "ready" | "partial" | "missing";
+export type ScreeningDataMode = "research_only" | "manual_reviewed" | "sample" | "unavailable";
+export type ScreeningReadinessCheckKey =
+  | "company_info"
+  | "related_industry"
+  | "financials"
+  | "eps"
+  | "total_debt"
+  | "shares_outstanding"
+  | "pe"
+  | "pb"
+  | "risk_readiness"
+  | "source_status_as_of";
+
+export type ScreeningReadinessCheck = {
+  key: ScreeningReadinessCheckKey;
+  label: string;
+  status: "available" | "missing" | "blocked" | "partial";
+  explanation: string;
+};
+
+export type ScreenerDataReadiness = {
+  ticker: string;
+  companyName: string;
+  exchange: string | null;
+  sector: string | null;
+  industry: string | null;
+  relatedIndustryKey: string | null;
+  dataStatus: ScreeningDataStatus;
+  dataMode: ScreeningDataMode;
+  productionApproved: boolean;
+  availableFields: string[];
+  missingFields: string[];
+  readinessChecks: ScreeningReadinessCheck[];
+  canContinueAnalysis: boolean;
+  canCalculatePE: boolean;
+  canCalculatePB: boolean;
+  canAssessDebt: boolean;
+  canAssessRisk: boolean;
+  canCalculateShareMetrics: boolean;
+  warnings: string[];
+  explanationForBeginner: string;
+  whatToCheckNext: string[];
+  readinessLabel: string;
+  readinessScoreLabel?: "Mức đủ dữ liệu";
+  readinessScore?: number;
+  sourceStatus: string;
+  sourceAsOf: string | null;
+};
 
 export type ScreeningGateResult = {
   gateId: string;

@@ -142,7 +142,7 @@ export function ScreeningInputPanel({
 
           <div className="grid gap-2 sm:grid-cols-3">
             {[
-              { label: "Đáng phân tích tiếp", value: priorityCount },
+              { label: "Đủ dữ liệu để phân tích tiếp", value: priorityCount },
               { label: "Theo dõi thêm", value: reviewCount },
               { label: "Chưa phù hợp", value: excludedCount },
             ].map((item) => (

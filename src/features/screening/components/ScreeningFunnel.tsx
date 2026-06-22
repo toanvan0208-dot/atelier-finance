@@ -52,7 +52,7 @@ const layerCopy: Record<
     simpleReading:
       "Một doanh nghiệp tốt vẫn có thể gặp khó nếu ngành đang đi ngược chu kỳ. Vì vậy hệ thống kiểm tra ngành trước khi soi từng mã.",
     currentResult:
-      "Ngành có bối cảnh đủ đáng quan tâm, nhưng chưa có nghĩa mọi cổ phiếu trong ngành đều tốt.",
+      "Ngành có bối cảnh cần kiểm tra tiếp, nhưng chưa có nghĩa mọi cổ phiếu trong ngành đều đủ dữ liệu.",
     impact:
       "Mã thuộc ngành có gió thuận được đi tiếp sang cửa Độ dễ hiểu doanh nghiệp. Mã lệch ngành hoặc không hưởng lợi từ thesis sẽ bị chuyển sang Theo dõi thêm.",
     nextActionLabel: "Mở module Phân tích ngành",
@@ -85,7 +85,7 @@ const layerCopy: Record<
     simpleReading:
       "Một doanh nghiệp dễ hiểu vẫn cần kiểm tra định giá. Mức rẻ bề mặt cũng có thể phản ánh rủi ro chưa nhìn thấy.",
     currentResult:
-      "Cổ phiếu có câu chuyện đáng chú ý, nhưng giá có thể đã phản ánh một phần kỳ vọng. Cần sang module Định giá để kiểm tra kỹ hơn.",
+      "Mã có câu chuyện cần kiểm tra, nhưng giá có thể đã phản ánh một phần kỳ vọng. Cần sang module Định giá để kiểm tra kỹ hơn.",
     impact:
       "Nếu định giá không quá bất thường, mã được đi tiếp. Nếu định giá có vẻ cao so với tăng trưởng, mã chuyển sang Theo dõi thêm.",
     nextActionLabel: "Mở module Định giá",
@@ -351,7 +351,7 @@ export function ScreeningFunnel({
         <CardBody className="space-y-5">
           <div className="rounded-[4px] border border-border-soft bg-accent-soft px-3 py-3">
             <p className="text-xs font-bold text-ink">
-              Vòng lọc này chỉ giúp loại nhiễu và chọn mã đáng mở hồ sơ phân tích. Báo cáo tài chính, định giá và thanh khoản chuyên sâu sẽ được kiểm tra ở module sau.
+              Vòng lọc này chỉ giúp loại nhiễu và chọn mã đủ dữ liệu để mở hồ sơ phân tích. Báo cáo tài chính, định giá và thanh khoản chuyên sâu sẽ được kiểm tra ở module sau.
             </p>
           </div>
 

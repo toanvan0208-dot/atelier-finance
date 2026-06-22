@@ -33,10 +33,9 @@ const groupTone: Record<ScreeningCandidateGroupKey, ScreeningGuideTone> = {
 };
 
 const gateTone: Record<RedesignedGateStatus, "neutral" | "accent" | "success" | "warning" | "danger"> = {
-  "Chưa đủ dữ liệu": "neutral",
-  "Cần kiểm tra thêm": "warning",
-  "Không đạt bộ lọc": "danger",
-  "Đã qua": "success",
+  "Có thể tính": "success",
+  "Cần bổ sung dữ liệu": "warning",
+  "Chưa thể tính": "neutral",
 };
 
 function updateModuleUrl(moduleKey: string, ticker?: string) {
@@ -220,12 +219,12 @@ function TickerQuickCheck({
           <section className="rounded-[4px] border-[1.5px] border-border bg-surface-soft">
             <div className="flex flex-col gap-3 border-b border-border-soft px-4 py-4 lg:flex-row lg:items-start lg:justify-between">
               <div>
-                <p className="text-[11px] font-bold uppercase text-subtle">Kiểm tra nhanh mã cổ phiếu</p>
+                <p className="text-[11px] font-bold uppercase text-subtle">Kiểm tra nhanh mức đủ dữ liệu</p>
                 <h2 className="mt-1 text-xl font-bold text-ink">
                   {candidate.ticker} · {candidate.companyName}
                 </h2>
                 <p className="mt-1 text-xs leading-5 text-muted">
-                  Card này chỉ đối chiếu mã đã nhập với bộ lọc hiện tại, không thay thế toàn bộ module lọc.
+                  Card này chỉ kiểm tra dữ liệu tối thiểu hiện có, không xếp hạng đầu tư.
                 </p>
               </div>
               <Chip variant={toneVariant[groupTone[candidate.group]]}>{candidate.fitLabel}</Chip>
@@ -234,18 +233,19 @@ function TickerQuickCheck({
               <div className="space-y-3">
                 <div className="grid gap-3 sm:grid-cols-2">
                   <InfoBlock label="Mã cổ phiếu" value={candidate.ticker} />
-                  <InfoBlock label="Ngành" value={candidate.industry} />
+                  <InfoBlock label="Ngành" value={candidate.industry ?? "Chưa đủ dữ liệu"} />
                 </div>
+                <InfoBlock label="Trạng thái dữ liệu" value={candidate.readinessLabel} />
                 <InfoBlock label="Lý do ngắn" value={candidate.reason} />
-                <InfoBlock label="Bước tiếp theo" value="Phân tích mã này tiếp." />
+                <InfoBlock label="Bước tiếp theo" value={candidate.nextStep} />
                 <Button size="sm" onClick={() => onAnalyze(candidate)}>
-                  Phân tích mã này tiếp
+                  Phân tích tiếp
                 </Button>
               </div>
               <div className="grid gap-2">
-                <GateList label="Qua" items={candidate.passedGates} tone="success" />
-                <GateList label="Cần kiểm tra thêm" items={candidate.watchGates} tone="warning" />
-                <GateList label="Chưa phù hợp nếu có" items={candidate.notFitGates} tone="neutral" fallback="Không có trong dữ liệu mẫu" />
+                <GateList label="Dữ liệu đã có" items={candidate.availableFields} tone="success" />
+                <GateList label="Dữ liệu còn thiếu" items={candidate.missingFields} tone="warning" />
+                <GateList label="Cần kiểm tra tiếp" items={candidate.whatToCheckNext} tone="neutral" fallback="Chưa có dữ liệu" />
               </div>
             </div>
           </section>
@@ -317,8 +317,8 @@ function ScreeningInputSourceBanner({
             </h2>
             <p className="mt-1 max-w-3xl text-sm leading-6 text-muted">
               {fromIndustry
-                ? "Module Ngành chỉ chuyển rổ cổ phiếu theo vai trò. Module Lọc cổ phiếu mới phân loại mã nào đáng phân tích tiếp."
-                : "Bạn có thể lọc từ ngành đã chọn, nhận rổ mã chuyển từ module Ngành, hoặc kiểm tra nhanh một mã riêng lẻ."}
+                ? "Module Ngành chỉ chuyển rổ mã theo vai trò. Module Screening kiểm tra mức đủ dữ liệu để đi tiếp."
+                : "Bạn có thể kiểm tra mức đủ dữ liệu của ba mã FPT, MWG và VNM trong phạm vi MVP."}
             </p>
           </div>
           <Button size="sm" variant="secondary" onClick={() => goToModule("industry", onNavigate)}>
@@ -401,10 +401,10 @@ function ScreeningFunnel() {
   return (
     <section className="space-y-4">
       <div>
-        <Chip variant="neutral">Phễu lọc 5 cửa</Chip>
-        <h2 className="mt-2 text-xl font-bold text-ink">Quy trình lọc và số mã còn lại</h2>
+        <Chip variant="neutral">Phễu kiểm tra dữ liệu</Chip>
+        <h2 className="mt-2 text-xl font-bold text-ink">Quy trình lọc theo mức đủ dữ liệu</h2>
         <p className="mt-1 max-w-3xl text-sm leading-6 text-muted">
-          Chọn từng cửa để xem chi tiết. Trang chỉ mở một cửa tại một thời điểm để phần lọc không biến thành accordion dài.
+          Chọn từng cửa để xem chi tiết. Thứ tự này chỉ phản ánh mức độ đủ dữ liệu, không phải xếp hạng đầu tư.
         </p>
       </div>
 
@@ -486,9 +486,9 @@ function FunnelStep({ gate, index }: { gate: RedesignedScreeningGate; index: num
         </div>
       </div>
       <div className="grid gap-3 border-t border-border-soft px-4 py-4 md:grid-cols-3">
-        <GateList label="Mã qua cửa này" items={gate.passedTickers} tone="success" />
+        <GateList label="Có dữ liệu" items={gate.passedTickers} tone="success" />
         <GateList label="Cần kiểm tra thêm" items={gate.watchTickers} tone="warning" />
-        <GateList label="Bị loại nếu có" items={gate.rejectedTickers} tone="neutral" fallback="Không có mã bị loại" />
+        <GateList label="Chưa đủ dữ liệu nếu có" items={gate.rejectedTickers} tone="neutral" fallback="Không có mã thiếu dữ liệu ở bước này" />
       </div>
       <details className="border-t border-border-soft px-4 py-3">
         <summary className="cursor-pointer text-xs font-bold text-accent">
@@ -534,9 +534,9 @@ function ScreeningResults({
     <section className="space-y-4">
       <div>
         <Chip variant="accent">Kết quả sau lọc</Chip>
-        <h2 className="mt-2 text-2xl font-bold text-ink">Nhóm cổ phiếu sau khi đối chiếu bộ lọc</h2>
+        <h2 className="mt-2 text-2xl font-bold text-ink">Bảng mức đủ dữ liệu của FPT, MWG và VNM</h2>
         <p className="mt-1 max-w-3xl text-sm leading-6 text-muted">
-          Nhóm đầu tiên được ưu tiên hiển thị vì đây là các mã đáng phân tích tiếp. Đây chưa phải kết luận hành động.
+          Thứ tự này chỉ phản ánh mức độ đủ dữ liệu, không phải xếp hạng đầu tư.
         </p>
       </div>
 
@@ -565,14 +565,20 @@ function ScreeningResults({
                 </div>
               </summary>
               <div className={cn("grid gap-3 px-5 py-5", group.key === "priority" ? "lg:grid-cols-2" : "xl:grid-cols-3")}>
-                {groupCandidates.map((candidate) => (
-                  <ScreeningStockCard
-                    key={candidate.ticker}
-                    candidate={candidate}
-                    prominent={group.key === "priority"}
-                    onAnalyze={() => onAnalyze(candidate)}
-                  />
-                ))}
+                {groupCandidates.length > 0 ? (
+                  groupCandidates.map((candidate) => (
+                    <ScreeningStockCard
+                      key={candidate.ticker}
+                      candidate={candidate}
+                      prominent={group.key === "priority"}
+                      onAnalyze={() => onAnalyze(candidate)}
+                    />
+                  ))
+                ) : (
+                  <p className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3 text-sm text-muted">
+                    Chưa có mã trong nhóm này.
+                  </p>
+                )}
               </div>
             </details>
           );
@@ -626,6 +632,13 @@ function ScreeningStockCard({
       </div>
 
       <p className="mt-3 text-sm font-semibold leading-6 text-ink">{candidate.reason}</p>
+      <p className="mt-2 rounded-[4px] border border-warning bg-warning/10 px-3 py-2 text-xs leading-5 text-muted">
+        {candidate.warnings[1] ?? "Chưa đủ dữ liệu để kết luận."}
+      </p>
+      <p className="mt-2 text-[11px] leading-4 text-subtle">
+        Nguồn/trạng thái: {candidate.sourceStatus} · As of:{" "}
+        {candidate.sourceAsOf ?? "Chưa đủ dữ liệu"}
+      </p>
 
       <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
         {(Object.entries(candidate.metrics) as Array<[ScreeningMetricKey, string]>).map(([label, value]) => (
@@ -634,8 +647,13 @@ function ScreeningStockCard({
       </div>
 
       <div className="mt-3 rounded-[4px] border border-border-soft bg-surface-soft px-3 py-2">
-        <p className="text-[11px] font-bold uppercase text-subtle">Cờ cần kiểm tra</p>
+        <p className="text-[11px] font-bold uppercase text-subtle">Dữ liệu còn thiếu / cần kiểm tra</p>
         <p className="mt-1 text-xs leading-5 text-muted">{candidate.checkFlags.join(", ")}</p>
+      </div>
+
+      <div className="mt-3 grid gap-2 sm:grid-cols-2">
+        <GateList label="Dữ liệu đã có" items={candidate.availableFields} tone="success" />
+        <GateList label="Dữ liệu còn thiếu" items={candidate.missingFields} tone="warning" />
       </div>
 
       <p className="mt-3 text-xs font-semibold leading-5 text-muted">
@@ -643,7 +661,7 @@ function ScreeningStockCard({
       </p>
 
       <Button className="mt-4 w-full" size="sm" onClick={onAnalyze}>
-        Phân tích mã này tiếp
+        Phân tích tiếp
       </Button>
     </article>
   );
@@ -678,7 +696,7 @@ function AnalysisPathDrawer({
             <Chip variant={toneVariant[groupTone[candidate.group]]}>{candidate.groupLabel}</Chip>
             <h2 className="mt-2 text-lg font-bold text-ink">Phân tích {candidate.ticker} theo lộ trình</h2>
             <p className="mt-1 text-xs leading-5 text-muted">
-              Chọn bước tiếp theo để đọc sâu hơn. Kết quả lọc chưa đủ dữ liệu để kết luận hành động.
+              Chọn bước tiếp theo để đọc sâu hơn. Kết quả lọc chỉ nói về mức đủ dữ liệu.
             </p>
           </div>
           <Button size="sm" variant="ghost" onClick={onClose}>
@@ -713,7 +731,7 @@ function NextStepPanel() {
             {screeningRedesignData.nextPanel}
           </p>
         </div>
-        <Chip variant="accent">Chỉ tạo danh sách cần kiểm tra thêm</Chip>
+        <Chip variant="accent">Chỉ lọc theo mức đủ dữ liệu</Chip>
       </CardBody>
     </Card>
   );
@@ -738,7 +756,7 @@ export function ScreeningPage({ onNavigate }: ScreeningPageProps) {
       <ScreeningFunnel />
       <div className="rounded-[4px] border-[1.5px] border-border bg-accent-soft px-4 py-3">
         <p className="text-sm font-bold text-ink">
-          Sau 5 cửa lọc còn {priorityCount} mã đáng phân tích tiếp. Các mã này vẫn cần đọc sâu ở module sau.
+          Sau kiểm tra dữ liệu có {priorityCount} mã đủ dữ liệu để phân tích tiếp. Đây không phải xếp hạng đầu tư.
         </p>
       </div>
       <ScreeningResults onAnalyze={setActiveCandidate} />

@@ -35,7 +35,7 @@ export function ScreeningResultGroups({
   return (
     <section>
       <SectionHeader
-        description={`${priorityCount} mã đáng phân tích tiếp · ${reviewCount} mã cần theo dõi thêm · ${excludedCount} mã chưa phù hợp.`}
+        description={`${priorityCount} mã đủ dữ liệu để phân tích tiếp · ${reviewCount} mã cần bổ sung dữ liệu · ${excludedCount} mã chưa đủ dữ liệu.`}
         icon="R"
         title="Kết quả lọc"
       />

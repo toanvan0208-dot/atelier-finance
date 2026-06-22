@@ -169,7 +169,7 @@ export function ScreeningMethodSection({
       <SectionHeader
         eyebrow="Phần 2"
         title="Phương pháp lọc cổ phiếu"
-        description="Hệ thống lọc theo nhiều cửa để tránh chọn mã chỉ vì một chỉ số hoặc một câu chuyện hấp dẫn."
+        description="Hệ thống lọc theo nhiều cửa để tránh chọn mã chỉ vì một chỉ số hoặc một câu chuyện chưa đủ dữ liệu."
       />
       <Card>
         <CardBody className="space-y-4">
@@ -404,7 +404,7 @@ export function ScreeningReasonDrawer({
         <div className="max-h-[calc(92dvh-116px)] overflow-y-auto px-4 py-4 sm:px-5">
           <div className="rounded-[4px] border border-warning bg-warning/10 px-4 py-3">
             <p className="text-sm font-bold text-ink">
-              Được xếp vào nhóm đáng phân tích tiếp không phải là kết luận hành động hay giao dịch.
+              Được xếp vào nhóm đủ dữ liệu để phân tích tiếp không phải là kết luận hành động hay giao dịch.
             </p>
           </div>
 
