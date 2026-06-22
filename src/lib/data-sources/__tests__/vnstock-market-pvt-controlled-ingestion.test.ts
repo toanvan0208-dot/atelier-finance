@@ -8,6 +8,8 @@ import {
   normalizeVnstockHistoryResponse,
   runControlledVnstockMarketPvtIngestionBatch,
   runControlledVnstockMarketPvtIngestion,
+  shouldAllowInsecureVnstockSslBypass,
+  VNSTOCK_INSECURE_SSL_BYPASS_ENV_KEY,
   VNSTOCK_RESEARCH_SOURCE_LABEL,
   type RawVnstockHistoryRow,
   type RunControlledVnstockMarketPvtOptions,
@@ -177,6 +179,36 @@ afterEach(() => {
 });
 
 describe("controlled VNStock Market/PVT ingestion", () => {
+  it("keeps insecure SSL bypass disabled by default and for non-explicit values", () => {
+    for (const value of [undefined, "", "false", "1", "yes", "TRUE"]) {
+      expect(
+        shouldAllowInsecureVnstockSslBypass({
+          [VNSTOCK_INSECURE_SSL_BYPASS_ENV_KEY]: value,
+        }),
+      ).toBe(false);
+    }
+  });
+
+  it("allows insecure SSL bypass only for the exact dedicated flag value", () => {
+    const env = Object.freeze({
+      [VNSTOCK_INSECURE_SSL_BYPASS_ENV_KEY]: "true",
+      NODE_ENV: "production",
+    });
+
+    expect(shouldAllowInsecureVnstockSslBypass(env)).toBe(true);
+    expect(env).toEqual({
+      [VNSTOCK_INSECURE_SSL_BYPASS_ENV_KEY]: "true",
+      NODE_ENV: "production",
+    });
+  });
+
+  it.each(["production", "test", "development"])(
+    "does not infer insecure SSL bypass from NODE_ENV=%s",
+    (nodeEnv) => {
+      expect(shouldAllowInsecureVnstockSslBypass({ NODE_ENV: nodeEnv })).toBe(false);
+    },
+  );
+
   it("normalizes VNStock history rows with explicit units and transparent source metadata", () => {
     const normalized = normalizeVnstockHistoryResponse(request, vnstockRows());
 

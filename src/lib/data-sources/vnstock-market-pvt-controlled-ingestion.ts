@@ -8,6 +8,7 @@ import type { MarketPvtSafeImportResult } from "./market-pvt-safe-import-mvp";
 
 export const CONTROLLED_VNSTOCK_TICKERS = ["FPT", "MWG", "VNM"] as const;
 export const VNSTOCK_RESEARCH_SOURCE_LABEL = "vnstock_research_candidate";
+export const VNSTOCK_INSECURE_SSL_BYPASS_ENV_KEY = "ATELIER_ALLOW_INSECURE_VNSTOCK_SSL_BYPASS";
 
 export type ControlledVnstockTicker = (typeof CONTROLLED_VNSTOCK_TICKERS)[number];
 
@@ -58,6 +59,10 @@ const DEFAULT_VNSTOCK_UNITS: ControlledVnstockUnitMetadata = {
   volumeUnit: "shares",
 };
 
+export const shouldAllowInsecureVnstockSslBypass = (
+  env: Readonly<Record<string, string | undefined>> = process.env,
+): boolean => env[VNSTOCK_INSECURE_SSL_BYPASS_ENV_KEY] === "true";
+
 const nullableNumber = (value: string | number | null | undefined): number | null => {
   if (value === null || value === undefined || value === "") return null;
   const parsed = typeof value === "number" ? value : Number(value.replace(/,/g, ""));
@@ -104,13 +109,17 @@ const PYTHON_HISTORY_SCRIPT = String.raw`
 import json
 import math
 import sys
-import requests
-original_request = requests.Session.request
-def patched_request(*args, **kwargs):
-    kwargs['verify'] = False
-    return original_request(*args, **kwargs)
-requests.Session.request = patched_request
-requests.packages.urllib3.disable_warnings()
+
+allow_insecure_ssl_bypass = sys.argv[4] == "true"
+if allow_insecure_ssl_bypass:
+    import requests
+    original_request = requests.Session.request
+    def patched_request(*args, **kwargs):
+        kwargs["verify"] = False
+        return original_request(*args, **kwargs)
+    requests.Session.request = patched_request
+    requests.packages.urllib3.disable_warnings()
+
 from vnstock.api.quote import Quote
 
 
@@ -151,11 +160,18 @@ print("${LIVE_OUTPUT_MARKER}" + json.dumps(rows, ensure_ascii=True))
 export const fetchLocalPythonVnstockHistory: ControlledVnstockHistoryFetcher = async (request) => {
   const { execFile } = await import("node:child_process");
   const pythonExecutable = process.env.ATELIER_VNSTOCK_PYTHON?.trim() || "python";
+  const allowInsecureSslBypass = shouldAllowInsecureVnstockSslBypass();
+
+  if (allowInsecureSslBypass) {
+    console.warn(
+      `[security] VNStock SSL verification bypass enabled by ${VNSTOCK_INSECURE_SSL_BYPASS_ENV_KEY} for this local Python subprocess.`,
+    );
+  }
 
   const stdout = await new Promise<string>((resolve, reject) => {
     execFile(
       pythonExecutable,
-      ["-c", PYTHON_HISTORY_SCRIPT, request.ticker, request.from, request.to],
+      ["-c", PYTHON_HISTORY_SCRIPT, request.ticker, request.from, request.to, String(allowInsecureSslBypass)],
       { maxBuffer: 1_000_000, timeout: 60_000, windowsHide: true },
       (error, output) => {
         if (error) reject(error);
