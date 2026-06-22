@@ -8,7 +8,7 @@ type StockIdeaGridProps = {
   data: StockIdea[];
   filteredCount: number;
   openTickers: string[];
-  onNavigateModule: (moduleKey: string) => void;
+  onNavigateModule: (moduleKey: string, params?: { ticker?: string }) => void;
   onToggleIdea: (ticker: string) => void;
   totalCount: number;
 };

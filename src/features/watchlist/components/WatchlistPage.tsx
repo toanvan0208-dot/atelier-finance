@@ -90,7 +90,7 @@ function applyFilters(ideas: StockIdea[], filters: WatchlistFilterState) {
 }
 
 type WatchlistPageProps = {
-  onNavigate: (key: string) => void;
+  onNavigate: (key: string, params?: { ticker?: string }) => void;
   portfolioReadiness?: PortfolioReadinessResult | null;
 };
 

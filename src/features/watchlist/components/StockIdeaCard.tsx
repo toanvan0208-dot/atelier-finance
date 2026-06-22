@@ -8,7 +8,7 @@ import { ModuleStatusBadge, StatusBadge } from "./WatchlistPrimitives";
 type StockIdeaCardProps = {
   data: StockIdea;
   isOpen: boolean;
-  onNavigateModule: (moduleKey: string) => void;
+  onNavigateModule: (moduleKey: string, params?: { ticker?: string }) => void;
   onToggle: (ticker: string) => void;
 };
 
@@ -280,7 +280,7 @@ export function StockIdeaCard({
           <div className="flex flex-wrap gap-2">
             <Button
               size="sm"
-              onClick={() => onNavigateModule(getActionTargetModule(data, primaryAction?.label))}
+              onClick={() => onNavigateModule(getActionTargetModule(data, primaryAction?.label), { ticker: data.ticker })}
             >
               {primaryAction?.label ?? "Phân tích tiếp"}
             </Button>

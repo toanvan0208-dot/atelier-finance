@@ -12,9 +12,12 @@ export function readModuleFromLocation(search: string, hash: string) {
   return params.get("module") ?? (moduleFromHash || null);
 }
 
-export function buildModuleNavigationUrl(currentHref: string, nextModule: string) {
+export function buildModuleNavigationUrl(currentHref: string, nextModule: string, params?: { ticker?: string }) {
   const url = new URL(currentHref);
   url.searchParams.set("module", nextModule);
+  if (params?.ticker) {
+    url.searchParams.set("ticker", params.ticker);
+  }
   return url;
 }
 

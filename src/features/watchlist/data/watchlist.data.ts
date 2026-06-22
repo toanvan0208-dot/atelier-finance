@@ -123,7 +123,7 @@ export const baseWatchlistPageData: WatchlistPageData = {
     reasonSuggestions: [
       "Doanh nghiệp có vẻ chất lượng",
       "Ngành đang hưởng lợi",
-      "Định giá có vẻ hấp dẫn",
+      "Định giá có vẻ ở vùng thấp",
       "Có catalyst/sự kiện sắp tới",
       "Giá/volume biến động bất thường",
       "Muốn học thêm về ngành này",
@@ -397,7 +397,7 @@ export const baseWatchlistPageData: WatchlistPageData = {
       priority: "Tạm dừng",
       emotionalState: "Không rõ lý do",
       reason: "Ban đầu theo dõi vì nghe nhiều người nhắc đến, chưa có dữ liệu cụ thể.",
-      validationQuestion: "Điều gì thực sự làm thesis logistics hấp dẫn ở thời điểm này?",
+      validationQuestion: "Điều gì thực sự làm thesis logistics đáng chú ý ở thời điểm này?",
       thesis: "Chưa có thesis rõ.",
       confirmingData: ["Cần cập nhật sản lượng cảng", "Cần hiểu chu kỳ logistics"],
       invalidatingData: ["Lý do theo dõi không rõ", "Thiếu định giá", "Thiếu dữ liệu ngành"],

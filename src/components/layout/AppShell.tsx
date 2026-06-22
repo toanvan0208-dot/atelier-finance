@@ -128,7 +128,7 @@ function AppShellContent({
     window.dispatchEvent(new Event(navigationChangeEvent));
   }, [moduleFromUrl, moduleKeys]);
 
-  function handleNavigate(nextModule: string) {
+  function handleNavigate(nextModule: string, params?: { ticker?: string }) {
     if (nextModule === "route-config") {
       openDrawer();
       return;
@@ -138,7 +138,7 @@ function AppShellContent({
       return;
     }
 
-    const url = buildModuleNavigationUrl(window.location.href, nextModule);
+    const url = buildModuleNavigationUrl(window.location.href, nextModule, params);
     window.history.pushState(null, "", url);
     window.dispatchEvent(new Event(navigationChangeEvent));
   }
