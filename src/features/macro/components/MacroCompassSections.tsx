@@ -3,6 +3,10 @@
 import { useMemo, useState } from "react";
 import { Button, Chip } from "@/components/ui";
 import { cn } from "@/lib/cn";
+import {
+  formatMacroCompassMetricValue,
+  macroCompassMetricStatusLabel,
+} from "../lib/macro-compass-data-contract";
 import type {
   MacroAffectedSector,
   MacroCompassAction,
@@ -288,9 +292,9 @@ function MetricGrid({ metrics }: { metrics: MacroCompassMetric[] }) {
           <div className="flex items-start justify-between gap-3">
             <div>
               <h3 className="text-base font-extrabold text-ink">{metric.name}</h3>
-              <p className="mt-1 text-sm font-bold text-ink">{metric.value}</p>
+              <p className="mt-1 text-sm font-bold text-ink">{formatMacroCompassMetricValue(metric)}</p>
             </div>
-            <Chip variant={toneChip[metric.tone]}>{metric.status}</Chip>
+            <Chip variant={toneChip[metric.tone]}>{macroCompassMetricStatusLabel(metric)}</Chip>
           </div>
           <div className="mt-4 grid gap-3 text-sm leading-6 text-muted">
             <p>
@@ -310,7 +314,7 @@ function MetricGrid({ metrics }: { metrics: MacroCompassMetric[] }) {
               <MiniBlock title="Ngành cần chú ý" items={metric.relatedSectors} />
               <div className="rounded-[4px] border border-border-soft bg-canvas p-3 text-xs leading-5 text-muted">
                 <strong className="text-ink">Trạng thái dữ liệu: </strong>
-                {metric.confidence}
+                {metric.warnings[0] ?? metric.confidence}
               </div>
             </div>
           </details>

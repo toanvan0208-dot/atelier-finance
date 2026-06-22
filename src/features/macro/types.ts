@@ -212,16 +212,36 @@ export type MacroCompassPoint = {
   tone: MacroCompassTone;
 };
 
+export type MacroCompassDataStatus =
+  | "available"
+  | "missing"
+  | "partial"
+  | "sample"
+  | "stale"
+  | "unverified";
+
+export type MacroCompassDataMode = "reviewed" | "research_only" | "sample" | "unavailable";
+
 export type MacroCompassMetric = {
   id: string;
   name: string;
-  value: string;
-  status: string;
+  value: number | string | null;
+  unit: string | null;
+  period: string | null;
+  asOf: string | null;
+  sourceName: string | null;
+  sourceLabel: string | null;
+  dataMode: MacroCompassDataMode;
+  productionApproved: boolean;
+  status: MacroCompassDataStatus;
+  statusLabel: string;
   tone: MacroCompassTone;
   simpleMeaning: string;
   marketImpact: string;
   relatedSectors: string[];
   confidence: string;
+  whatToCheckNext: string;
+  warnings: readonly string[];
   group: "world" | "growth" | "inflation" | "currency" | "policy";
 };
 
@@ -252,7 +272,7 @@ export type MacroAffectedSector = {
 export type MacroEarlyWarning = {
   id: string;
   title: string;
-  level: "Thấp" | "Trung bình" | "Cao";
+  level: "Thấp" | "Trung bình" | "Cao" | "Chưa đủ dữ liệu";
   tone: MacroCompassTone;
   why: string;
   confirmingData: string;
