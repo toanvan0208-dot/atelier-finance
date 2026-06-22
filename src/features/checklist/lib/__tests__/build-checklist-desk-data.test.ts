@@ -140,5 +140,37 @@ describe("buildChecklistDeskData", () => {
     expect(output).not.toContain("chắc chắn đắt");
     expect(output).not.toContain("chắc chắn xấu");
     expect(output).not.toContain("gian lận");
+    expect(output).not.toContain("tín hiệu mua");
+    expect(output).not.toContain("tín hiệu bán");
+    expect(output).not.toContain("điểm mua");
+    expect(output).not.toContain("điểm bán");
+    expect(output).not.toContain("vào lệnh");
+    expect(output).not.toContain("thoát lệnh");
+    expect(output).not.toContain("fair value");
+    expect(output).not.toContain("target price");
+    expect(output).not.toContain("upside");
+    expect(output).not.toContain("downside");
+    expect(output).not.toContain("hấp dẫn");
+    expect(output).not.toContain("tiềm năng");
+    expect(output).not.toContain("cơ hội đầu tư");
+    expect(output).not.toContain("đáng chú ý");
+    expect(output).not.toContain("đáng quan tâm");
+    expect(output).not.toContain("cổ phiếu tốt");
+    expect(output).not.toContain("cổ phiếu xấu");
+    expect(output).not.toContain("an toàn để đầu tư");
+    expect(output).not.toContain("top pick");
+    expect(output).not.toContain("best stock");
+    expect(output).not.toContain("đáng bán");
+    
+    // Không lộ raw metadata
+    expect(output).not.toContain("productionapproved");
+    expect(output).not.toContain("research_only");
+    expect(output).not.toContain("researchonly");
+    expect(output).not.toContain("datamode");
+    expect(output).not.toContain("sourcetype");
+    expect(output).not.toContain("local_db_manual_import");
+    expect(output).not.toContain("vnstock_research_candidate");
+    expect(output).not.toContain("phase116_reviewed_financial_missing_fields");
+    expect(output).not.toContain("phase109_controlled_local_financials");
   });
 });

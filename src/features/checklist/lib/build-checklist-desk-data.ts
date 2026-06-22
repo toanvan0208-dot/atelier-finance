@@ -51,7 +51,12 @@ const sanitizeForChecklist = (text: string): string =>
     .replace(/điểm mua tốt/gi, "mốc cần kiểm tra thêm")
     .replace(/đáng mua/gi, "cần kiểm tra thêm")
     .replace(/chắc chắn rẻ|chắc chắn đắt|chắc chắn xấu/gi, "cần kiểm tra thêm")
-    .replace(/gian lận/gi, "bất thường cần kiểm tra");
+    .replace(/gian lận/gi, "bất thường cần kiểm tra")
+    .replace(/tín hiệu mua|tín hiệu bán|điểm mua|điểm bán|vào lệnh|thoát lệnh/gi, "mốc cần kiểm tra thêm")
+    .replace(/fair value|target price/gi, "ước tính tham chiếu")
+    .replace(/upside|downside/gi, "biến động dự kiến")
+    .replace(/hấp dẫn|tiềm năng|đáng chú ý|đáng quan tâm|cơ hội đầu tư/gi, "cần theo dõi thêm")
+    .replace(/cổ phiếu tốt|cổ phiếu xấu|top pick|best stock|đáng bán/gi, "cần kiểm tra thêm");
 
 const sanitizeList = (items: string[]): string[] => unique(items.map(sanitizeForChecklist));
 
@@ -266,18 +271,18 @@ const buildGroups = (snapshot: ChecklistStatementSnapshot): {
       targetModule: "valuation",
     }),
     step({
-      id: "fair-value-readiness",
-      label: "Fair value / margin of safety có đủ điều kiện không?",
+      id: "valuation-estimate-readiness",
+      label: "Ước lượng vùng giá trị / biên an toàn có đủ điều kiện không?",
       status: "insufficient_data",
       value: missingValueLabel,
-      summary: "Checklist không tự tạo fair value hoặc margin of safety khi chưa có mô hình và dữ liệu hợp lệ.",
+      summary: "Checklist không tự tạo mức giá ước lượng hay biên an toàn khi chưa có mô hình và dữ liệu hợp lệ.",
       warnings: valuationSummary.warnings,
       missingFields: valuationReadiness.missingFields,
       targetModule: "valuation",
     }),
   ];
   const riskSteps = [
-    riskStep("debt-risk", "Rủi ro nợ vay có đáng chú ý không?", debtRisk, "risk"),
+    riskStep("debt-risk", "Rủi ro nợ vay có đáng lo ngại không?", debtRisk, "risk"),
     riskStep("earnings-quality-risk", "Rủi ro chất lượng lợi nhuận thế nào?", earningsQualityRisk, "financials"),
     riskStep("cash-flow-risk", "Rủi ro dòng tiền thế nào?", cashFlowRisk, "financials"),
     riskStep("valuation-risk", "Rủi ro định giá thế nào?", valuationRisk, "valuation"),
