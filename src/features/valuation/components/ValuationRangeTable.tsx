@@ -10,19 +10,19 @@ export function ValuationRangeTable({ data }: ValuationRangeTableProps) {
     <Card>
       <CardBody className="space-y-4">
         <div>
-          <h2 className="text-xl font-bold leading-7 text-ink">Các phương pháp đang cho vùng giá nào?</h2>
+          <h2 className="text-xl font-bold leading-7 text-ink">Các chỉ số định giá nào đang có thể đọc?</h2>
           <p className="mt-1 max-w-[72ch] text-sm leading-6 text-muted">
-            Vùng giá không đến từ một công thức duy nhất. Mỗi phương pháp cho một vùng khác nhau, sau đó hệ thống tổng hợp lại.
+            Bảng này chỉ hiển thị trạng thái dữ liệu và chỉ số có thể tính được. Thiếu dữ liệu sẽ giữ là “Chưa đủ dữ liệu” hoặc “N/A”.
           </p>
         </div>
 
         <div className="hidden overflow-hidden rounded-[4px] border border-border-soft md:block">
           <div className="grid grid-cols-[140px_1.3fr_160px_140px_1fr] gap-3 border-b border-border-soft bg-surface-soft px-4 py-3 text-xs font-bold text-ink">
-            <span>Phương pháp</span>
-            <span>Giả định chính</span>
-            <span>Vùng giá</span>
+            <span>Chỉ số</span>
+            <span>Điều kiện cần</span>
+            <span>Kết quả</span>
             <span>Độ tin cậy</span>
-            <span>Điểm dễ sai</span>
+            <span>Cần kiểm tra</span>
           </div>
           {data.rows.map((row) => (
             <div key={row.method} className="grid grid-cols-[140px_1.3fr_160px_140px_1fr] gap-3 border-b border-border-soft px-4 py-3 text-sm last:border-b-0">
@@ -44,13 +44,13 @@ export function ValuationRangeTable({ data }: ValuationRangeTableProps) {
               </div>
               <p className="mt-2 text-sm font-bold text-ink">{row.range}</p>
               <p className="mt-2 text-sm leading-6 text-muted">{row.keyAssumption}</p>
-              <p className="mt-2 text-xs leading-5 text-muted">Điểm dễ sai: {row.risk}</p>
+              <p className="mt-2 text-xs leading-5 text-muted">Cần kiểm tra: {row.risk}</p>
             </div>
           ))}
         </div>
 
         <div className="rounded-[4px] border-[1.5px] border-border bg-accent-soft px-4 py-3">
-          <p className="text-sm font-bold text-ink">Vùng tổng hợp: {data.combinedRange}</p>
+          <p className="text-sm font-bold text-ink">Tổng hợp trạng thái: {data.combinedRange}</p>
           <p className="mt-1 text-sm leading-6 text-muted">{data.explanation}</p>
         </div>
       </CardBody>

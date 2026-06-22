@@ -158,7 +158,7 @@ describe("valuation API client", () => {
     const data = buildValuationDeskData(baseValuationRefactoredData, result.snapshot);
     const peRow = data.ranges.rows.find((row) => row.method === "P/E");
 
-    expect(peRow?.range).toBe("Không phù hợp để diễn giải");
+    expect(peRow?.range).toBe("N/A");
     expect(peRow?.range).not.toBe("0x");
   });
 

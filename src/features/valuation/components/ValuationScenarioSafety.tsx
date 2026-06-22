@@ -15,14 +15,20 @@ function formatCurrentPrice(value: number | null) {
   return value !== null && value > 0 ? new Intl.NumberFormat("vi-VN").format(value) : "Chưa đủ dữ liệu";
 }
 
+const scenarioLabel = (name: ValuationScenarioSafetyItem["name"]): string => {
+  if (name === "Kịch bản xấu") return "Thiếu dữ liệu";
+  if (name === "Kịch bản tốt") return "Có thể tính";
+  return "Cần kiểm tra";
+};
+
 export function ValuationScenarioSafety({ data }: ValuationScenarioSafetyProps) {
   return (
     <Card>
       <CardBody className="space-y-4">
         <div>
-          <h2 className="text-xl font-bold leading-7 text-ink">Nếu giả định thay đổi, vùng giá sẽ ra sao?</h2>
+          <h2 className="text-xl font-bold leading-7 text-ink">Nếu dữ liệu thay đổi, chỉ số cần kiểm tra gì?</h2>
           <p className="mt-1 max-w-[72ch] text-sm leading-6 text-muted">
-            Định giá là một vùng kịch bản, không phải một con số chắc chắn.
+            Phần này là checklist dữ liệu, không tạo kịch bản giá hoặc kết luận hành động.
           </p>
         </div>
 
@@ -36,7 +42,7 @@ export function ValuationScenarioSafety({ data }: ValuationScenarioSafetyProps) 
               ].join(" ")}
             >
               <Chip size="sm" variant={scenarioVariant(item.tone)}>
-                {item.name}
+                {scenarioLabel(item.name)}
               </Chip>
               <p className="mt-3 text-lg font-bold text-ink">{item.range}</p>
               <p className="mt-2 text-sm leading-6 text-muted">{item.explanation}</p>
@@ -51,14 +57,14 @@ export function ValuationScenarioSafety({ data }: ValuationScenarioSafetyProps) 
             <div className="bg-accent-green/20" />
           </div>
           <div className="mt-2 grid grid-cols-3 text-[11px] font-bold text-subtle">
-            <span>Lower range</span>
-            <span className="text-center">Base</span>
-            <span className="text-right">Upper range</span>
+            <span>Thiếu dữ liệu</span>
+            <span className="text-center">Cần kiểm tra</span>
+            <span className="text-right">Có thể tính</span>
           </div>
         </div>
 
         <p className="rounded-[4px] border border-border bg-surface px-4 py-3 text-sm font-bold leading-6 text-ink">
-          Giá hiện tại: {formatCurrentPrice(data.currentPrice)}. Vùng cơ sở: {data.baseRange}. {data.conclusion}
+          Giá hiện tại: {formatCurrentPrice(data.currentPrice)}. Trạng thái chính: {data.baseRange}. {data.conclusion}
         </p>
       </CardBody>
     </Card>

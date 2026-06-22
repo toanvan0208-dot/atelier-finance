@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { DataQualityBanner } from "@/components/shared/DataQualityBanner";
 import { Button, Card, CardBody, Chip, EmptyState, LoadingState } from "@/components/ui";
 import {
@@ -40,11 +40,40 @@ type ValuationPageProps = {
 };
 
 type ValuationBridgeState =
-  | { status: "loading" }
-  | { status: "ready"; result: ValuationApiInputs; data: ValuationRefactoredData }
-  | { status: "insufficient"; result: ValuationApiInputs; data: ValuationRefactoredData }
+  | { status: "loading"; ticker: string }
+  | { status: "ready"; ticker: string; result: ValuationApiInputs; data: ValuationRefactoredData }
+  | { status: "insufficient"; ticker: string; result: ValuationApiInputs; data: ValuationRefactoredData }
   | { status: "empty"; ticker: string; missingReasons: string[] }
   | { status: "error"; ticker: string; message: string };
+
+const navigationChangeEvent = "app:navigation";
+
+const normalizeTicker = (ticker: string | null | undefined): string | null => {
+  const normalized = ticker?.trim().toUpperCase();
+  return normalized || null;
+};
+
+const tickerMatches = (expected: string | null | undefined, actual: string | null | undefined): boolean => {
+  const expectedTicker = normalizeTicker(expected);
+  const actualTicker = normalizeTicker(actual);
+  return Boolean(expectedTicker && actualTicker && expectedTicker === actualTicker);
+};
+
+const useValuationTickerFromUrl = () =>
+  useSyncExternalStore(
+    (callback) => {
+      const timeoutId = window.setTimeout(callback, 0);
+      window.addEventListener("popstate", callback);
+      window.addEventListener(navigationChangeEvent, callback);
+      return () => {
+        window.clearTimeout(timeoutId);
+        window.removeEventListener("popstate", callback);
+        window.removeEventListener(navigationChangeEvent, callback);
+      };
+    },
+    () => normalizeTicker(new URLSearchParams(window.location.search).get("ticker")),
+    () => null,
+  );
 
 const readableBoundaryValue = (value: string): string => value.replace(/_/g, " ");
 
@@ -52,28 +81,37 @@ const readinessLabel: Record<string, string> = {
   blocked: "Đang chặn theo phạm vi an toàn",
   insufficient_data: "Chưa đủ dữ liệu",
   mixed_source: "Nguồn hỗn hợp, cần kiểm tra",
-  not_applicable: "Không áp dụng với dữ liệu hiện tại",
+  not_applicable: "N/A với dữ liệu hiện tại",
   partial: "Một phần",
   ready: "Có thể tính",
-  sample_fallback: "Dữ liệu minh họa",
-  unavailable: "Chưa có dữ liệu",
+  sample_fallback: "Dữ liệu minh họa, không dùng để kết luận",
+  unavailable: "Chưa đủ dữ liệu",
 };
 
 const userStatus = (value: string): string => readinessLabel[value] ?? readableBoundaryValue(value);
 
 const valuationSourceStatus = (boundary: ValuationFinancialsRuntimeConsumption): string => {
   if (boundary.valuationSourceMode === "sample_fallback") {
-    return "Đang dùng dữ liệu minh họa; chưa có bản ghi đủ điều kiện cho ticker này.";
+    return "Chưa đủ dữ liệu đã xác minh cho ticker này; số liệu minh họa không được dùng như dữ liệu thật.";
   }
   return "Có bản ghi đã rà soát hoặc dữ liệu local/research; vẫn cần giữ ranh giới nguồn và kỳ dữ liệu.";
 };
 
 const userFacingSource = (source: string | null | undefined): string => {
-  if (!source) return "Chưa có nguồn dữ liệu";
+  if (!source) return "Chưa đủ dữ liệu nguồn";
   if (source.includes("manual_reviewed_financial_statement")) return "Bản ghi đã rà soát, dùng cho nghiên cứu";
   if (source.includes("vnstock")) return "Dữ liệu giá/khối lượng nghiên cứu";
-  if (source.includes("sample")) return "Dữ liệu minh họa";
+  if (source.includes("sample")) return "Dữ liệu minh họa, không dùng để kết luận";
   return "Dữ liệu có metadata nguồn";
+};
+
+const warningLabel = (warning: string): string => {
+  const readable = readableBoundaryValue(warning);
+  if (readable.toLowerCase().includes("fallback")) return "Dữ liệu thay thế/minh họa không được dùng như dữ liệu thật.";
+  if (readable.toLowerCase().includes("missing")) return "Dữ liệu thiếu được giữ là Chưa đủ dữ liệu.";
+  if (readable.toLowerCase().includes("production")) return "Nguồn hiện dùng cho nghiên cứu và chưa phê duyệt sản xuất.";
+  if (readable.toLowerCase().includes("unit")) return "Đơn vị dữ liệu cần rõ trước khi tính chỉ số.";
+  return readable;
 };
 
 const buildBridgeData = (result: ValuationApiInputs): ValuationRefactoredData => {
@@ -99,15 +137,12 @@ function ValuationFinancialsRuntimeNote({ boundary }: { boundary: ValuationFinan
     ["Vốn hóa", boundary.calculationReadiness.marketCap],
   ] as const;
   const sourceSummaryRows = [
-    [
-      "Trạng thái nguồn",
-      valuationSourceStatus(boundary),
-    ],
+    ["Trạng thái nguồn", valuationSourceStatus(boundary)],
     [
       "Ranh giới sử dụng",
       boundary.canClaimValuationDbBacked
-        ? "Đủ điều kiện runtime để đọc từ DB, vẫn cần kiểm tra nguồn trước khi diễn giải."
-        : "Chưa claim đầy đủ theo DB vì nguồn, kỳ dữ liệu và phê duyệt vẫn được kiểm tra riêng.",
+        ? "Có dữ liệu runtime, vẫn cần kiểm tra nguồn trước khi diễn giải."
+        : "Chưa đủ điều kiện để coi định giá là dữ liệu DB đầy đủ.",
     ],
     [
       "Độ phủ đầu vào",
@@ -137,7 +172,7 @@ function ValuationFinancialsRuntimeNote({ boundary }: { boundary: ValuationFinan
             Valuation chỉ hiển thị trạng thái tính được/chưa đủ dữ liệu cho các chỉ số cơ bản.
           </p>
           <p className="mt-1">
-            EPS, số cổ phiếu và giá thị trường phải hợp lệ thì chỉ số liên quan mới được tính; đây không phải kết luận đầu tư.
+            EPS, số cổ phiếu, vốn chủ sở hữu và giá thị trường phải hợp lệ thì chỉ số liên quan mới được tính; đây không phải khuyến nghị đầu tư.
           </p>
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             {sourceSummaryRows.map(([label, value]) => (
@@ -155,7 +190,7 @@ function ValuationFinancialsRuntimeNote({ boundary }: { boundary: ValuationFinan
           </p>
           {boundary.warnings.length > 0 ? (
             <p className="mt-2">
-              Ghi chú: {boundary.warnings.slice(0, 4).map(readableBoundaryValue).join(" | ")}
+              Ghi chú: {boundary.warnings.slice(0, 4).map(warningLabel).join(" | ")}
             </p>
           ) : null}
         </div>
@@ -175,6 +210,7 @@ function ValuationFinancialsRuntimeNote({ boundary }: { boundary: ValuationFinan
 }
 
 export function ValuationPage({ initialFinancialsRuntimeData, initialScenario, onNavigate }: ValuationPageProps) {
+  const tickerFromUrl = useValuationTickerFromUrl();
   const controlledScenario = useMemo(
     () => (initialScenario === valuationUnitAwareReadyMetricsScenarioId ? buildValuationUnitAwareReadyMetricsScenario() : null),
     [initialScenario],
@@ -186,17 +222,25 @@ export function ValuationPage({ initialFinancialsRuntimeData, initialScenario, o
             data: buildBridgeData(controlledScenario.valuationApiInputs),
             result: controlledScenario.valuationApiInputs,
             status: "ready",
+            ticker: controlledScenario.ticker,
           }
         : null,
     [controlledScenario],
   );
-  const effectiveFinancialsRuntimeData = controlledScenario?.financialsRuntimeData ?? initialFinancialsRuntimeData;
   const [tickerInput, setTickerInput] = useState(controlledScenario?.ticker ?? "FPTLAB");
   const [request, setRequest] = useState({ ticker: controlledScenario?.ticker ?? "FPTLAB", id: 0 });
   const [bridgeState, setBridgeState] = useState<ValuationBridgeState>(
-    controlledScenarioBridgeState ?? { status: "loading" },
+    controlledScenarioBridgeState ?? { status: "loading", ticker: controlledScenario?.ticker ?? "FPTLAB" },
   );
-  const activeTicker = request.ticker;
+  const bridgeTicker = "ticker" in bridgeState ? bridgeState.ticker : null;
+  const urlRequestTicker =
+    tickerFromUrl && !tickerMatches(tickerFromUrl, bridgeTicker) ? tickerFromUrl : null;
+  const activeTicker = urlRequestTicker ?? request.ticker;
+  const effectiveFinancialsRuntimeData =
+    controlledScenario?.financialsRuntimeData ??
+    (tickerMatches(activeTicker, initialFinancialsRuntimeData?.source.ticker)
+      ? initialFinancialsRuntimeData
+      : undefined);
 
   useEffect(() => {
     if (controlledScenario) {
@@ -208,14 +252,29 @@ export function ValuationPage({ initialFinancialsRuntimeData, initialScenario, o
     fetchValuationInputsByTicker({ ticker: activeTicker })
       .then((result) => {
         if (!isActive) return;
+        if (!tickerMatches(activeTicker, result.ticker) || !tickerMatches(activeTicker, result.snapshot.ticker)) {
+          setTickerInput(activeTicker);
+          setRequest((current) => (tickerMatches(current.ticker, activeTicker) ? current : { ticker: activeTicker, id: current.id }));
+          setBridgeState({
+            status: "error",
+            ticker: activeTicker,
+            message: "Dữ liệu trả về không khớp mã đang chọn nên đã bị chặn.",
+          });
+          return;
+        }
         if (result.missingReasons.includes("financial_statement")) {
+          setTickerInput(activeTicker);
+          setRequest((current) => (tickerMatches(current.ticker, activeTicker) ? current : { ticker: activeTicker, id: current.id }));
           setBridgeState({ status: "empty", ticker: activeTicker, missingReasons: result.missingReasons });
           return;
         }
 
         const data = buildBridgeData(result);
+        setTickerInput(activeTicker);
+        setRequest((current) => (tickerMatches(current.ticker, activeTicker) ? current : { ticker: activeTicker, id: current.id }));
         setBridgeState({
           status: result.status === "ready" ? "ready" : "insufficient",
+          ticker: activeTicker,
           result,
           data,
         });
@@ -226,6 +285,8 @@ export function ValuationPage({ initialFinancialsRuntimeData, initialScenario, o
           error instanceof ValuationApiError
             ? error.message
             : "Unable to load valuation inputs from persisted data.";
+        setTickerInput(activeTicker);
+        setRequest((current) => (tickerMatches(current.ticker, activeTicker) ? current : { ticker: activeTicker, id: current.id }));
         setBridgeState({ status: "error", ticker: activeTicker, message });
       });
 
@@ -348,9 +409,24 @@ export function ValuationPage({ initialFinancialsRuntimeData, initialScenario, o
 
     const nextTicker = tickerInput.trim().toUpperCase();
     if (!nextTicker) return;
-    setBridgeState({ status: "loading" });
+    const url = new URL(window.location.href);
+    url.searchParams.set("ticker", nextTicker);
+    window.history.replaceState(null, "", url);
+    window.dispatchEvent(new Event(navigationChangeEvent));
+    setBridgeState({ status: "loading", ticker: nextTicker });
     setRequest((current) => ({ ticker: nextTicker, id: current.id + 1 }));
   };
+
+  if (tickerFromUrl && !tickerMatches(tickerFromUrl, bridgeTicker)) {
+    return (
+      <div className="mx-auto w-full max-w-[1080px] space-y-5">
+        <LoadingState
+          description={`Đang chuyển sang dữ liệu định giá của ${tickerFromUrl}; dữ liệu ticker khác không được hiển thị thay thế.`}
+          title="Đang kiểm tra đúng mã doanh nghiệp"
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto w-full max-w-[1080px] space-y-5">
@@ -358,9 +434,9 @@ export function ValuationPage({ initialFinancialsRuntimeData, initialScenario, o
         <CardBody>
           <form className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between" onSubmit={submitTicker}>
             <div>
-              <p className="text-xs font-bold uppercase text-muted">Valuation API bridge</p>
+              <p className="text-xs font-bold uppercase text-muted">Nguồn dữ liệu định giá</p>
               <label className="mt-2 block text-sm font-extrabold text-ink" htmlFor="valuation-ticker-input">
-                Ticker local
+                Mã doanh nghiệp
               </label>
               <input
                 className="mt-2 h-9 w-full rounded-[3px] border border-border bg-surface px-3 text-sm font-semibold text-ink outline-none focus:border-accent sm:w-[180px]"
@@ -370,7 +446,7 @@ export function ValuationPage({ initialFinancialsRuntimeData, initialScenario, o
               />
             </div>
             <Button isLoading={bridgeState.status === "loading"} type="submit" variant="secondary">
-              Tải từ API
+              Kiểm tra dữ liệu
             </Button>
           </form>
         </CardBody>
@@ -378,24 +454,24 @@ export function ValuationPage({ initialFinancialsRuntimeData, initialScenario, o
 
       {bridgeState.status === "loading" ? (
         <LoadingState
-          description={`Đang đọc dữ liệu định giá đã persist cho ${activeTicker}.`}
-          title="Đang tải Valuation từ API"
+          description={`Đang kiểm tra dữ liệu định giá đã có cho ${activeTicker}.`}
+          title="Đang tải dữ liệu định giá"
         />
       ) : null}
 
       {bridgeState.status === "empty" ? (
         <EmptyState
-          description={`Thiếu ${bridgeState.missingReasons.join(", ")} cho ${bridgeState.ticker}. Không dùng dữ liệu mock để thay thế.`}
+          description={`Thiếu ${bridgeState.missingReasons.join(", ")} cho ${bridgeState.ticker}. Hệ thống không dùng dữ liệu minh họa của mã khác để thay thế.`}
           icon="V"
-          title="Chưa có dữ liệu nền cho Valuation"
+          title="Chưa đủ dữ liệu"
         />
       ) : null}
 
       {bridgeState.status === "error" ? (
         <EmptyState
-          description={`${bridgeState.message} Không dùng dữ liệu mock để thay thế.`}
+          description={`${bridgeState.message} Hệ thống không dùng dữ liệu minh họa của mã khác để thay thế.`}
           icon="!"
-          title={`Không tải được Valuation cho ${bridgeState.ticker}`}
+          title={`Chưa thể đọc dữ liệu định giá cho ${bridgeState.ticker}`}
         />
       ) : null}
 
@@ -414,7 +490,7 @@ export function ValuationPage({ initialFinancialsRuntimeData, initialScenario, o
           {bridgeState.status === "insufficient" ? (
             <section className="rounded-[4px] border border-warning bg-warning/15 px-4 py-3 text-sm font-bold leading-6 text-ink">
               Dữ liệu chưa đủ để tính đầy đủ chỉ số định giá: {bridgeState.result.missingReasons.join(", ")}.
-              Các chỉ số phụ thuộc dữ liệu thiếu sẽ ở trạng thái chưa đủ dữ liệu hoặc không phù hợp để diễn giải.
+              Các chỉ số phụ thuộc dữ liệu thiếu sẽ ở trạng thái Chưa đủ dữ liệu hoặc N/A.
             </section>
           ) : null}
           <ValuationSummaryHero data={bridgeState.data.summary} />

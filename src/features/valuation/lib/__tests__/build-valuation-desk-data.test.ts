@@ -49,7 +49,7 @@ describe("buildValuationDeskData", () => {
     });
 
     const peRow = getRange(data, "P/E");
-    expect(peRow.range).toBe("Không phù hợp để diễn giải");
+    expect(peRow.range).toBe("N/A");
     expect(peRow.keyAssumption).toContain("EPS");
     expect(peRow.range).not.toBe("0x");
   });
@@ -62,7 +62,7 @@ describe("buildValuationDeskData", () => {
     });
 
     const pbRow = getRange(data, "P/B");
-    expect(pbRow.range).toBe("Không phù hợp để diễn giải");
+    expect(pbRow.range).toBe("N/A");
     expect(pbRow.keyAssumption).toContain("BVPS");
     expect(pbRow.range).not.toBe("0x");
   });

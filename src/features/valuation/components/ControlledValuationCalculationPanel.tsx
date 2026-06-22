@@ -32,40 +32,49 @@ const statusVariant: Record<ControlledValuationMetricStatus, "success" | "warnin
   ready: "success",
 };
 
+const inputLabel: Record<string, string> = {
+  equity: "Vốn chủ sở hữu",
+  eps: "EPS",
+  marketCap: "Vốn hóa",
+  marketPrice: "Giá thị trường",
+  netIncome: "Lợi nhuận sau thuế",
+  revenue: "Doanh thu",
+  sharesOutstanding: "Số cổ phiếu",
+};
+
 const formatMetricValue = (value: number | null): string => {
-  if (value === null) return "unavailable";
+  if (value === null) return "Chưa đủ dữ liệu";
 
   const maximumFractionDigits = Math.abs(value) > 0 && Math.abs(value) < 1 ? 6 : 2;
-  const formatted = value.toLocaleString("en-US", { maximumFractionDigits });
+  const formatted = value.toLocaleString("vi-VN", { maximumFractionDigits });
 
   return formatted === "0" && value !== 0 ? value.toPrecision(4) : formatted;
 };
 
 const readableReasonMap: Record<string, string> = {
-  blocked_no_dcf_wacc_in_phase_59: "Blocked: DCF inputs and WACC are outside the current safe scope.",
-  blocked_no_intrinsic_value_band_in_phase_59:
-    "Blocked: intrinsic value band is outside the current safe scope.",
-  blocked_until_ebitda_source_is_explicit: "Blocked: EBITDA source is not explicit.",
-  blocked_until_explicit_ev_inputs: "Blocked: EV inputs are not explicit.",
-  bvps_not_ready: "Not enough input data: BVPS is not ready.",
-  eps_non_positive: "Not applicable with current data: EPS is non-positive.",
-  equity_non_positive: "Not applicable with current data: equity is non-positive.",
-  market_cap_not_ready: "Not enough input data: market cap is not ready.",
-  missing_eps: "Missing input data: EPS is unavailable.",
-  missing_equity: "Missing input data: equity is unavailable.",
-  missing_revenue: "Missing input data: revenue is unavailable.",
-  missing_valid_market_price: "Missing input data: valid market price is unavailable.",
-  missing_valid_market_price_or_shares: "Missing input data: valid market price or shares are unavailable.",
-  missing_valid_shares: "Missing input data: valid shares outstanding is unavailable.",
-  ready: "Ready: required inputs are valid for this controlled metric.",
-  ready_from_direct_market_cap: "Ready: direct market cap input is available.",
-  ready_from_market_price_and_shares: "Ready: market price and shares are available.",
+  blocked_no_dcf_wacc_in_phase_59: "Đang chặn: dữ liệu dòng tiền và WACC chưa đủ trong phạm vi hiện tại.",
+  blocked_no_intrinsic_value_band_in_phase_59: "Đang chặn: mô hình nâng cao không nằm trong phạm vi MVP.",
+  blocked_until_ebitda_source_is_explicit: "Đang chặn: EBITDA chưa có nguồn rõ.",
+  blocked_until_explicit_ev_inputs: "Đang chặn: dữ liệu EV chưa đủ nguồn rõ.",
+  bvps_not_ready: "Chưa đủ dữ liệu: BVPS chưa thể tính.",
+  eps_non_positive: "N/A: EPS không dương.",
+  equity_non_positive: "N/A: vốn chủ sở hữu không dương.",
+  market_cap_not_ready: "Chưa đủ dữ liệu: vốn hóa chưa thể tính.",
+  missing_eps: "Chưa đủ dữ liệu: thiếu EPS.",
+  missing_equity: "Chưa đủ dữ liệu: thiếu vốn chủ sở hữu.",
+  missing_revenue: "Chưa đủ dữ liệu: thiếu doanh thu.",
+  missing_valid_market_price: "Chưa đủ dữ liệu: thiếu giá thị trường hợp lệ.",
+  missing_valid_market_price_or_shares: "Chưa đủ dữ liệu: thiếu giá thị trường hoặc số cổ phiếu hợp lệ.",
+  missing_valid_shares: "Chưa đủ dữ liệu: thiếu số cổ phiếu hợp lệ.",
+  ready: "Có thể tính: các đầu vào bắt buộc hợp lệ.",
+  ready_from_direct_market_cap: "Có thể tính: vốn hóa có đầu vào trực tiếp.",
+  ready_from_market_price_and_shares: "Có thể tính: giá thị trường và số cổ phiếu hợp lệ.",
 };
 
 const statusExplanation: Record<ControlledValuationMetricStatus, string> = {
   blocked: "Đang chặn theo phạm vi an toàn.",
   insufficient_data: "Chưa đủ dữ liệu để tính.",
-  not_applicable: "Không áp dụng với dữ liệu hiện tại.",
+  not_applicable: "N/A với dữ liệu hiện tại.",
   ready: "Có thể tính với đầu vào hiện tại.",
 };
 
@@ -76,7 +85,7 @@ const readableWarning = (warning: string): string => warning.replace(/_/g, " ");
 const statusLabel: Record<ControlledValuationMetricStatus, string> = {
   blocked: "Đang chặn",
   insufficient_data: "Chưa đủ dữ liệu",
-  not_applicable: "Không áp dụng",
+  not_applicable: "N/A",
   ready: "Có thể tính",
 };
 
@@ -84,21 +93,24 @@ const sourceLabel = (source: string): string => {
   if (source === "financials_runtime" || source.includes("financials")) return "Báo cáo tài chính đã rà soát";
   if (source === "market_pvt" || source.includes("market")) return "Giá/khối lượng đã có trong hệ thống";
   if (source === "persisted_bridge") return "Bản ghi đã lưu trong hệ thống";
-  if (source === "unavailable") return "Chưa có dữ liệu";
+  if (source === "unavailable") return "Chưa đủ dữ liệu";
   return "Nguồn có metadata";
 };
 
 const boundaryWarningLabel = (warning: string): string => {
   const normalized = readableWarning(warning);
   if (normalized.includes("mixed source")) return "Nguồn dữ liệu được kiểm tra theo nhiều lớp.";
-  if (normalized.includes("not production approved")) return "Nguồn hiện dùng cho nghiên cứu và chưa phê duyệt sản xuất.";
+  if (normalized.includes("not production approved") || normalized.includes("production approved false")) {
+    return "Nguồn hiện dùng cho nghiên cứu và chưa phê duyệt sản xuất.";
+  }
+  if (normalized.includes("fallback")) return "Dữ liệu thay thế/minh họa không được dùng như dữ liệu thật.";
   if (normalized.includes("db backed")) return "Có dữ liệu trong hệ thống, nhưng vẫn giữ ranh giới định giá.";
-  if (normalized.includes("claim")) return "Chưa claim đầy đủ theo DB ở lớp định giá.";
+  if (normalized.includes("claim")) return "Chưa đủ điều kiện để coi định giá là dữ liệu DB đầy đủ.";
   return readableWarning(warning);
 };
 
 const metricRows = (boundary: ControlledValuationIntegrationBoundary): MetricRow[] => [
-      {
+  {
     key: "marketCap",
     label: "Vốn hóa",
     status: boundary.calculation.metrics.marketCap.status,
@@ -170,25 +182,16 @@ const metricRows = (boundary: ControlledValuationIntegrationBoundary): MetricRow
     requiredInputs: boundary.calculation.blockedMetrics.dcf.requiredInputs,
     missingInputs: boundary.calculation.blockedMetrics.dcf.missingInputs,
   },
-  {
-    key: "fairValueRange",
-    label: "intrinsic value band",
-    status: boundary.calculation.blockedMetrics.fairValueRange.status,
-    value: boundary.calculation.blockedMetrics.fairValueRange.value,
-    reason: boundary.calculation.blockedMetrics.fairValueRange.reason,
-    requiredInputs: boundary.calculation.blockedMetrics.fairValueRange.requiredInputs,
-    missingInputs: boundary.calculation.blockedMetrics.fairValueRange.missingInputs,
-  },
 ];
 
 const inputRows = (boundary: ControlledValuationIntegrationBoundary): InputRow[] =>
   Object.entries(boundary.selectedInputs).map(([key, input]) => ({
     key,
-    label: key,
+    label: inputLabel[key] ?? key,
     source: input.source,
     unit: input.unit,
     status: input.normalizationStatus,
-    warning: input.warnings.length ? input.warnings.slice(0, 2).map(readableWarning).join(" | ") : "none",
+    warning: input.warnings.length ? input.warnings.slice(0, 2).map(readableWarning).join(" | ") : "Không có cảnh báo thêm",
   }));
 
 export function ControlledValuationCalculationPanel({ boundary }: ControlledValuationCalculationPanelProps) {
@@ -200,7 +203,7 @@ export function ControlledValuationCalculationPanel({ boundary }: ControlledValu
     <Card data-testid="controlled-valuation-calculation-panel">
       <CardHeader
         chip={<Chip variant="neutral">Chỉ đọc</Chip>}
-        description="Chỉ số chỉ hiện giá trị khi đầu vào bắt buộc hợp lệ. Phần này không đưa kết luận đầu tư."
+        description="Phần này chỉ hiển thị các chỉ số định giá có thể tính được từ dữ liệu hiện có. Đây không phải khuyến nghị đầu tư."
         title="Trạng thái chỉ số định giá"
       />
       <CardBody className="space-y-4">
@@ -223,7 +226,7 @@ export function ControlledValuationCalculationPanel({ boundary }: ControlledValu
             <p className="mt-1 font-semibold text-ink">{summary.insufficientDataCount}</p>
           </div>
           <div className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-2 text-xs leading-5">
-            <p className="font-bold uppercase text-muted">Không áp dụng</p>
+            <p className="font-bold uppercase text-muted">N/A</p>
             <p className="mt-1 font-semibold text-ink">{summary.notApplicableCount}</p>
           </div>
           <div className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-2 text-xs leading-5">
@@ -288,7 +291,7 @@ export function ControlledValuationCalculationPanel({ boundary }: ControlledValu
                     </Chip>
                   </td>
                   <td className="px-3 py-3 text-right font-semibold text-ink">
-                    {row.status === "ready" ? formatMetricValue(row.value) : "Chưa có dữ liệu"}
+                    {row.status === "ready" ? formatMetricValue(row.value) : "Chưa đủ dữ liệu"}
                   </td>
                   <td className="py-3 pl-3 text-xs leading-5 text-muted">
                     <span className="font-semibold text-ink">{statusExplanation[row.status]}</span>{" "}

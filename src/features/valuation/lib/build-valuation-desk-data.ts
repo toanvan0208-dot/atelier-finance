@@ -15,7 +15,7 @@ import type { ValuationRefactoredData } from "../types";
 import { mapValuationToLogicInput, type ValuationStatementSnapshot } from "./map-valuation-to-logic-input";
 
 const missingValueLabel = "Chưa đủ dữ liệu";
-const notApplicableLabel = "Không phù hợp để diễn giải";
+const notApplicableLabel = "N/A";
 
 const metricDisplay = (metric: FinancialMetricResult): string => {
   if (metric.value !== null) return metric.displayValue;
@@ -41,7 +41,7 @@ const confidenceLabel = (confidence: CoreValuationConfidence): "Cao" | "Trung b�
 
 const lowerConfidenceForWeakSource = (
   confidence: CoreValuationConfidence,
-  sourceStatus: ReturnType<typeof assessDataQuality>["sourceStatus"]
+  sourceStatus: ReturnType<typeof assessDataQuality>["sourceStatus"],
 ): CoreValuationConfidence => {
   if (sourceStatus === "missing") return "low";
   if (confidence === "unknown" || confidence === "very_low") return confidence;
@@ -53,7 +53,7 @@ const firstWarning = (metric: FinancialMetricResult, fallback: string): string =
 
 export const buildValuationDeskData = (
   baseData: ValuationRefactoredData,
-  snapshot: ValuationStatementSnapshot
+  snapshot: ValuationStatementSnapshot,
 ): ValuationRefactoredData => {
   const logicInput = mapValuationToLogicInput(snapshot);
   const summary = buildBasicValuationSummary(logicInput);
@@ -76,7 +76,6 @@ export const buildValuationDeskData = (
   const warningText =
     readinessWarnings[0] ??
     "Định giá chỉ là dữ kiện phân tích, cần đọc cùng dòng tiền, nợ vay, chất lượng lợi nhuận và bối cảnh ngành.";
-  const hasFairValueRange = false;
   const currentPrice = logicInput.closePrice ?? null;
 
   return {
@@ -86,22 +85,22 @@ export const buildValuationDeskData = (
       companyName: baseData.summary.companyName,
       currentPrice,
       fairValueRange: {
-        low: hasFairValueRange ? baseData.summary.fairValueRange.low : 0,
-        high: hasFairValueRange ? baseData.summary.fairValueRange.high : 0,
+        low: 0,
+        high: 0,
         status: "Cần kiểm tra thêm",
         marginOfSafety: "Không rõ",
         confidence: confidenceLabel(adjustedConfidence),
         conclusion:
           summary.readiness.status === "ready"
-            ? `${summary.beginnerInterpretation} ${warningText}`
-            : `Chưa đủ dữ liệu để tính vùng giá trị nội tại có trách nhiệm. ${summary.readiness.beginnerInterpretation} ${warningText}`,
+            ? `${summary.beginnerInterpretation} ${warningText} Các chỉ số không tự tạo kết luận hành động.`
+            : `Chưa đủ dữ liệu để tính các chỉ số nâng cao một cách có trách nhiệm. ${summary.readiness.beginnerInterpretation} ${warningText}`,
       },
     },
     assumptions: {
       intro:
-        "Các chỉ số định giá dưới đây được tính từ financial logic core. Phần giá trị nội tại như DCF, WACC, FCFF hoặc FCFE chỉ được xem là chưa sẵn sàng nếu thiếu dữ liệu nền.",
+        "Các chỉ số định giá dưới đây được tính từ financial logic core khi dữ liệu đầu vào hợp lệ. Phần mô hình nâng cao chỉ ở trạng thái chưa sẵn sàng nếu thiếu dữ liệu nền.",
       sensitiveNote:
-        "Điểm nhạy nhất hiện tại là chất lượng EPS, BVPS, EBITDA, dòng tiền và nguồn dữ liệu. Không tự đặt WACC, tăng trưởng dài hạn hoặc vùng giá trị khi dữ liệu chưa đủ.",
+        "Điểm nhạy nhất hiện tại là chất lượng EPS, BVPS, EBITDA, dòng tiền và nguồn dữ liệu. Không tự đặt WACC, tăng trưởng dài hạn hoặc kết quả mô hình khi dữ liệu chưa đủ.",
       items: [
         {
           title: "Dữ liệu thị trường",
@@ -111,18 +110,18 @@ export const buildValuationDeskData = (
         {
           title: "Chất lượng lợi nhuận",
           description:
-            "EPS chỉ được diễn giải P/E khi dương. Nếu EPS âm hoặc bằng 0, P/E được xem là không phù hợp để diễn giải theo cách thông thường.",
+            "P/E chỉ được tính khi EPS dương. Nếu EPS âm hoặc bằng 0, P/E ở trạng thái N/A và không diễn giải theo cách thông thường.",
           sensitivity: "Rất cao",
         },
         {
           title: "Vốn chủ sở hữu",
           description:
-            "P/B chỉ được đọc khi BVPS hoặc vốn chủ sở hữu dương. Nếu vốn chủ âm, kết quả cần được khóa ở trạng thái không phù hợp.",
+            "P/B và BVPS chỉ được đọc khi vốn chủ sở hữu và số cổ phiếu hợp lệ. Nếu vốn chủ không dương, kết quả cần khóa ở trạng thái N/A.",
           sensitivity: "Cao",
         },
         {
           title: "Nguồn dữ liệu",
-          description: dataQuality.warnings[0] ?? "Nguồn và thời điểm cập nhật đã có, nhưng vẫn cần đối chiếu trước khi kết luận.",
+          description: dataQuality.warnings[0] ?? "Nguồn và thời điểm cập nhật cần được đối chiếu trước khi diễn giải.",
           sensitivity: dataQuality.status === "good" ? "Trung bình" : "Cao",
         },
       ],
@@ -130,7 +129,7 @@ export const buildValuationDeskData = (
     uncertainties: [
       {
         title: "Readiness định giá",
-        status: summary.readiness.status === "ready" ? "Đã ổn" : "Cần theo dõi",
+        status: "Cần theo dõi",
         description: `${summary.readiness.beginnerInterpretation} Phương pháp dùng được: ${
           summary.readiness.usableMethods.join(", ") || "chưa có"
         }.`,
@@ -138,28 +137,28 @@ export const buildValuationDeskData = (
       },
       {
         title: "Nguồn và thời điểm dữ liệu",
-        status: dataQuality.status === "good" ? "Đã ổn" : "Cần theo dõi",
+        status: "Cần theo dõi",
         description: dataQuality.warnings[0] ?? dataQuality.beginnerInterpretation,
         targetModule: "financials",
       },
       {
-        title: "DCF/WACC chưa được mở khóa",
+        title: "Mô hình nâng cao chưa mở khóa",
         status: "Cần theo dõi",
         description:
-          "Chưa tính DCF/WACC khi thiếu chuỗi dòng tiền, giả định chi phí vốn, tăng trưởng dài hạn và kiểm chứng độ nhạy.",
+          "Chưa tính mô hình dòng tiền khi thiếu chuỗi dòng tiền, giả định chi phí vốn, tăng trưởng dài hạn và kiểm chứng độ nhạy.",
       },
     ],
     methods: [
       {
         name: "P/E",
-        role: "Chính",
-        explanation: `${peDisplay}. ${firstWarning(peRatio, "P/E chỉ là chỉ số so sánh, không tự tạo kết luận hành động.")}`,
+        role: "Đối chiếu",
+        explanation: `${peDisplay}. ${firstWarning(peRatio, "P/E là giá cổ phiếu chia cho EPS; chỉ số này không tự tạo kết luận hành động.")}`,
         confidence: peRatio.value === null ? "Thấp" : confidenceLabel(adjustedConfidence),
       },
       {
         name: "P/B",
-        role: "Chỉ tham khảo",
-        explanation: `${metricDisplay(pbRatio)}. ${firstWarning(pbRatio, "P/B cần đọc cùng ROE, chất lượng tài sản và đặc thù ngành.")}`,
+        role: "Đối chiếu",
+        explanation: `${metricDisplay(pbRatio)}. ${firstWarning(pbRatio, "P/B cần đọc cùng ngành, chất lượng tài sản và dữ liệu tài chính.")}`,
         confidence: pbRatio.value === null ? "Thấp" : "Trung bình",
       },
       {
@@ -170,8 +169,8 @@ export const buildValuationDeskData = (
       },
       {
         name: "EV/EBITDA",
-        role: "Đối chiếu",
-        explanation: `${metricDisplay(evToEbitda)}. ${firstWarning(evToEbitda, "EV/EBITDA cần đọc cùng capex, nợ và chu kỳ ngành.")}`,
+        role: "Chỉ tham khảo",
+        explanation: `${metricDisplay(evToEbitda)}. ${firstWarning(evToEbitda, "EV/EBITDA cần đọc cùng capex, nợ và chu kỳ ngành khi nguồn đủ rõ.")}`,
         confidence: evToEbitda.value === null ? "Thấp" : "Trung bình",
       },
       {
@@ -215,37 +214,37 @@ export const buildValuationDeskData = (
         {
           method: "DCF/WACC",
           keyAssumption: "Chưa đủ dữ liệu để đặt WACC, tăng trưởng dài hạn, FCFF hoặc FCFE.",
-          range: "Chưa sẵn sàng",
+          range: "Chưa đủ dữ liệu",
           confidence: "Thấp",
-          risk: "Không tạo vùng giá trị giả khi dữ liệu nền chưa đủ.",
+          risk: "Không tạo kết quả mô hình khi dữ liệu nền chưa đủ.",
         },
       ],
-      combinedRange: "Chưa đủ dữ liệu để tính vùng giá trị nội tại",
+      combinedRange: "Chưa đủ dữ liệu để tổng hợp chỉ số nâng cao",
       explanation:
-        "Bảng này hiển thị các chỉ số tương đối từ financial logic core. Vùng giá trị nội tại và margin of safety chỉ được mở khi dữ liệu nền hợp lệ và độ tin cậy đủ rõ.",
+        "Bảng này hiển thị các chỉ số tương đối từ financial logic core. Mô hình nâng cao chỉ mở khi dữ liệu nền hợp lệ, đơn vị rõ và độ tin cậy đủ kiểm tra.",
     },
     scenarios: {
       currentPrice,
       baseRange: "Chưa đủ dữ liệu",
       conclusion:
-        "Chưa tính kịch bản giá trị nội tại. Cần bổ sung dữ liệu dòng tiền, nợ vay, nguồn cập nhật và giả định được kiểm chứng trước khi dùng phần này.",
+        "Chưa tính mô hình nâng cao. Cần bổ sung dữ liệu dòng tiền, nợ vay, nguồn cập nhật và giả định được kiểm chứng trước khi dùng phần này.",
       items: [
         {
           name: "Kịch bản xấu",
-          range: "Chưa sẵn sàng",
-          explanation: "Chưa đặt kịch bản giảm vì thiếu dữ liệu nền đáng tin cậy.",
+          range: "Chưa đủ dữ liệu",
+          explanation: "Thiếu EPS, số cổ phiếu, vốn chủ hoặc giá thị trường sẽ khóa các chỉ số liên quan.",
           tone: "lower",
         },
         {
           name: "Kịch bản cơ sở",
-          range: "Chưa sẵn sàng",
-          explanation: "Chỉ có thể đọc các chỉ số tương đối; chưa đủ dữ liệu để tính vùng cơ sở.",
+          range: "Chưa đủ dữ liệu",
+          explanation: "Chỉ đọc các chỉ số tương đối đã đủ dữ liệu; chưa tự tạo mô hình nâng cao.",
           tone: "base",
         },
         {
           name: "Kịch bản tốt",
-          range: "Chưa sẵn sàng",
-          explanation: "Không tự tăng giả định để tạo vùng cao khi chưa có mô hình dòng tiền đủ điều kiện.",
+          range: "Tùy chỉ số",
+          explanation: "Chỉ số chỉ hiện giá trị khi mọi đầu vào bắt buộc hợp lệ và đúng đơn vị.",
           tone: "upper",
         },
       ],
@@ -262,7 +261,7 @@ export const buildValuationDeskData = (
           "Khi BVPS hoặc vốn chủ không dương, P/B không phù hợp để diễn giải theo cách thông thường.",
       },
       {
-        title: "DCF dễ bị lệch bởi giả định",
+        title: "Mô hình dòng tiền dễ lệch bởi giả định",
         description:
           "Chỉ cần thay đổi WACC hoặc tăng trưởng dài hạn, kết quả có thể biến động mạnh. Vì vậy phần này đang được khóa khi dữ liệu chưa đủ.",
       },
@@ -276,14 +275,14 @@ export const buildValuationDeskData = (
       status: "Cần kiểm tra thêm trước khi kết luận",
       pricePosition:
         currentPrice !== null && currentPrice > 0
-          ? `Giá hiện tại là ${currentPrice.toLocaleString("vi-VN")} đồng/cp. Chưa có vùng giá trị hợp lệ để so sánh trực tiếp.`
-          : "Thiếu giá hiện tại nên chưa thể đặt vị trí giá.",
+          ? `Giá hiện tại là ${currentPrice.toLocaleString("vi-VN")} đồng/cp. Chưa có đủ dữ liệu mô hình nâng cao để đối chiếu trực tiếp.`
+          : "Thiếu giá hiện tại nên chưa thể đối chiếu chỉ số thị trường.",
       marginOfSafety:
-        "Chưa tính margin of safety vì chưa có vùng giá trị hợp lệ và độ tin cậy đủ rõ. Không dùng chỉ số này như kết luận hành động.",
+        "Chưa tính chỉ số nâng cao vì dữ liệu nền và độ tin cậy chưa đủ rõ. Không dùng phần này như kết luận hành động.",
       keyRisk:
         "Rủi ro lớn nhất là dữ liệu thiếu hoặc yếu khiến các chỉ số tương đối bị đọc quá mức. Cần kiểm tra EPS, BVPS, EBITDA, dòng tiền và nguồn dữ liệu.",
       nextStep:
-        "Có thể chuyển sang Rủi ro hoặc quay lại BCTC để bổ sung dữ liệu còn thiếu trước khi viết kết luận định giá.",
+        "Có thể chuyển sang Rủi ro hoặc quay lại BCTC để bổ sung dữ liệu còn thiếu trước khi viết nhận định định giá có điều kiện.",
     },
     nextActions: [
       {

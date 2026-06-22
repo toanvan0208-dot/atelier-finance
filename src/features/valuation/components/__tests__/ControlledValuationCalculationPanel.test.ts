@@ -30,7 +30,7 @@ const verifiedRuntime = (
 });
 
 describe("ControlledValuationCalculationPanel", () => {
-  it("renders the source boundary without DB-backed or production approval claims", () => {
+  it("renders the source boundary without raw DB-backed or production approval claims", () => {
     const html = renderPanel(
       buildControlledValuationIntegrationBoundary({
         financialsRuntimeSnapshot: verifiedRuntime({
@@ -74,7 +74,7 @@ describe("ControlledValuationCalculationPanel", () => {
     expect(html).toContain(">2<");
   });
 
-  it("renders Phase 71 synthetic explicit-unit ready metrics with source guardrails", () => {
+  it("renders explicit-unit ready metrics with source guardrails", () => {
     const scenario = buildValuationUnitAwareReadyMetricsScenario();
     const html = renderPanel(
       buildControlledValuationIntegrationBoundary({
@@ -106,9 +106,9 @@ describe("ControlledValuationCalculationPanel", () => {
     expect(html).toContain("Chưa phê duyệt sản xuất");
     expect(html).toContain("Nguồn dữ liệu được kiểm tra theo nhiều lớp");
     expect(html).toContain("Có thể tính");
-    expect(html).toContain("5,000,000,000");
+    expect(html).toContain("5.000.000.000");
     expect(html).toContain(">10<");
-    expect(html).toContain("5,000");
+    expect(html).toContain("5.000");
     expect(html).toContain(">5<");
     expect(html).toContain("Đang chặn");
     expect(html).toContain("Bị chặn");
@@ -127,9 +127,10 @@ describe("ControlledValuationCalculationPanel", () => {
     );
 
     expect(html).toContain("Chưa đủ dữ liệu");
-    expect(html).toContain("EPS is unavailable");
-    expect(html).toContain("valid market price or shares are unavailable");
-    expect(html).toContain("Chưa có dữ liệu");
+    expect(html).toContain("thiếu EPS");
+    expect(html).toContain("thiếu giá thị trường hoặc số cổ phiếu hợp lệ");
+    expect(html).not.toContain(">0 đ");
+    expect(html).not.toContain(">0,0");
     expect(html).toContain("Cần dữ liệu");
   });
 
@@ -146,11 +147,11 @@ describe("ControlledValuationCalculationPanel", () => {
       }),
     );
 
-    expect(html).toContain(">0.0001<");
+    expect(html).toContain(">0,0001<");
     expect(html).toContain("Có thể tính với đầu vào hiện tại.");
   });
 
-  it("renders not applicable states for non-positive EPS and equity", () => {
+  it("renders N/A states for non-positive EPS and equity", () => {
     const html = renderPanel(
       buildControlledValuationIntegrationBoundary({
         financialsRuntimeSnapshot: verifiedRuntime({
@@ -163,22 +164,22 @@ describe("ControlledValuationCalculationPanel", () => {
       }),
     );
 
-    expect(html).toContain("Không áp dụng");
-    expect(html).toContain("EPS is non-positive");
-    expect(html).toContain("equity is non-positive");
+    expect(html).toContain("N/A");
+    expect(html).toContain("EPS không dương");
+    expect(html).toContain("vốn chủ sở hữu không dương");
   });
 
-  it("renders EV, EV/EBITDA, DCF, and intrinsic value band as blocked", () => {
+  it("renders EV, EV/EBITDA, and DCF as blocked without displaying fair-value wording", () => {
     const html = renderPanel();
 
     expect(html).toContain("EV");
     expect(html).toContain("EV/EBITDA");
     expect(html).toContain("DCF");
-    expect(html).toContain("intrinsic value band");
-    expect(html).toContain("Blocked: EV inputs are not explicit.");
-    expect(html).toContain("Blocked: EBITDA source is not explicit.");
-    expect(html).toContain("Blocked: DCF inputs and WACC are outside the current safe scope.");
-    expect(html).toContain("Blocked: intrinsic value band is outside the current safe scope.");
+    expect(html).toContain("Đang chặn: dữ liệu EV chưa đủ nguồn rõ.");
+    expect(html).toContain("Đang chặn: EBITDA chưa có nguồn rõ.");
+    expect(html).toContain("Đang chặn: dữ liệu dòng tiền và WACC chưa đủ trong phạm vi hiện tại.");
+    expect(html.toLowerCase()).not.toContain("fair value");
+    expect(html.toLowerCase()).not.toContain("intrinsic value");
   });
 
   it("does not render forbidden wording", () => {
@@ -197,18 +198,19 @@ describe("ControlledValuationCalculationPanel", () => {
       }),
     ).toLowerCase();
     const blockedPhrases = [
-      "nen mua",
-      "tin hieu mua",
-      "dinh gia hap dan",
-      "dang re",
-      "dang mua",
-      "hap dan",
-      "gia muc tieu",
-      "muc tieu gia",
+      "nên mua",
+      "tín hiệu mua",
+      "định giá hấp dẫn",
+      "đang rẻ",
+      "đáng mua",
+      "hấp dẫn",
+      "giá mục tiêu",
+      "mục tiêu giá",
+      "fair value",
+      "target price",
       "upside",
       "downside",
-      "official",
-      "realtime",
+      "recommendation",
       "production-ready",
       "production-approved",
     ];
