@@ -158,7 +158,7 @@ function SimulationThesisCard({
         {!hasThesis ? (
           <div className="rounded-[4px] border border-[#D6B15C] bg-[#FFF6D8] px-4 py-4">
             <p className="text-sm font-bold text-[#765416]">
-              Bạn chưa có thesis mô phỏng. Hãy viết luận điểm trước khi tạo vị thế giả lập.
+              Bạn chưa có thesis mô phỏng. Hãy viết luận điểm trước khi tạo theo dõi giả lập.
             </p>
           </div>
         ) : (
@@ -318,8 +318,8 @@ function SimulationPositionCard({
   return (
     <Card>
       <CardHeader
-        title="Vị thế giả lập"
-        description="Theo dõi vị thế để luyện thesis. Lãi/lỗ chỉ là dữ liệu phụ."
+        title="Theo dõi giả lập"
+        description="Theo dõi theo dõi để luyện thesis. Sai số giả định chỉ là dữ liệu phụ."
         chip={<Chip>{thesisHealth}</Chip>}
       />
       <CardBody>

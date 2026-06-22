@@ -17,21 +17,21 @@ export function SimulatedAccountSummary({
 }: SimulatedAccountSummaryProps) {
   const items = [
     { label: "Tổng vốn giả lập", value: formatCurrency(account.totalCapital) },
-    { label: "Tiền mặt còn lại", value: formatCurrency(account.cash) },
-    { label: "Giá trị vị thế giả lập", value: formatCurrency(account.positionValue) },
-    { label: "P/L tạm tính", value: formatPercent(account.unrealizedPnLPercent), signed: account.unrealizedPnLPercent },
-    { label: "P/L đã thực hiện", value: formatPercent(account.realizedPnLPercent), signed: account.realizedPnLPercent },
+    { label: "Trọng số nhàn rỗi", value: formatCurrency(account.cash) },
+    { label: "Giá trị theo dõi giả lập", value: formatCurrency(account.positionValue) },
+    { label: "Sai số tạm tính", value: formatPercent(account.unrealizedPnLPercent), signed: account.unrealizedPnLPercent },
+    { label: "Sai số thực hiện", value: formatPercent(account.realizedPnLPercent), signed: account.realizedPnLPercent },
     { label: "Tỷ lệ sử dụng vốn", value: `${account.capitalUsagePercent.toFixed(1).replace(".", ",")}%` },
-    { label: "Vị thế đang mở", value: `${account.openPositions}`, onClick: onOpenPositions },
-    { label: "Lệnh đã đóng", value: `${account.closedOrders}`, onClick: onOpenClosedPositions },
+    { label: "Theo dõi đang mở", value: `${account.openPositions}`, onClick: onOpenPositions },
+    { label: "Tình huống đã đóng", value: `${account.closedOrders}`, onClick: onOpenClosedPositions },
   ];
 
   return (
     <Card>
       <CardHeader
-        action={<Button size="sm" variant="secondary" onClick={onCustomizeAccount}>Tùy chỉnh tài khoản giả lập</Button>}
-        title="Tài khoản giả lập"
-        description="Các con số chỉ phục vụ luyện quản lý vị thế mô phỏng."
+        action={<Button size="sm" variant="secondary" onClick={onCustomizeAccount}>Tùy chỉnh không gian luyện tập</Button>}
+        title="Không gian luyện tập"
+        description="Các con số chỉ phục vụ luyện quản lý theo dõi mô phỏng."
         chip={<Chip variant="warning">Không phải giao dịch thật</Chip>}
       />
       <CardBody className="space-y-3">
@@ -54,7 +54,7 @@ export function SimulatedAccountSummary({
           ))}
         </div>
         <p className="rounded-[4px] border border-border-soft bg-accent-soft/60 px-3 py-2 text-xs leading-5 text-muted">
-          Lãi/lỗ chỉ dùng để học cách quản lý vị thế giả lập, không thể hiện thành tích đầu tư thật.
+          Sai số giả định chỉ dùng để học cách quản lý theo dõi giả lập, không thể hiện thành tích đầu tư thật.
         </p>
       </CardBody>
     </Card>

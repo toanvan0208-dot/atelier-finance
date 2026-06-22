@@ -8,7 +8,7 @@ type SimulationTabsProps = {
 };
 
 const shortTitle: Record<SimulationModeId, string> = {
-  current: "Mô phỏng hiện tại",
+  current: "Danh sách tình huống",
   scenario: "Kịch bản có thể xảy ra",
   history: "Case lịch sử",
 };

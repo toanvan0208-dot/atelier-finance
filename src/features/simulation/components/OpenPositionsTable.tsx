@@ -22,16 +22,16 @@ export function OpenPositionsTable({
   return (
     <Card>
       <CardHeader
-        title="Vị thế giả lập đang mở"
-        description="Theo dõi trạng thái từng vị thế mô phỏng và ghi lại hành động học tập."
-        chip={<Chip variant="accent">{positions.length} vị thế</Chip>}
+        title="Theo dõi giả lập đang mở"
+        description="Theo dõi trạng thái từng theo dõi mô phỏng và ghi lại hành động học tập."
+        chip={<Chip variant="accent">{positions.length} theo dõi</Chip>}
       />
       <CardBody className="p-0">
         <div className="overflow-x-auto">
           <table className="min-w-[1180px] w-full border-collapse text-left text-xs">
             <thead className="bg-surface-soft text-[11px] uppercase text-subtle">
               <tr>
-                {["Mã", "Ngày mở", "Giá vốn", "Giá hiện tại", "KL", "Giá trị", "Tỷ trọng", "P/L tạm tính", "Stop-loss", "Target", "Trạng thái", "Hành động"].map((header) => (
+                {["Mã", "Ngày mở", "Giá vốn", "Giá hiện tại", "KL", "Giá trị", "Tỷ trọng", "Sai số tạm tính", "Stop-loss", "Target", "Trạng thái", "Hành động"].map((header) => (
                   <th key={header} className="border-b border-border-soft px-3 py-3 font-bold">{header}</th>
                 ))}
               </tr>
@@ -59,7 +59,7 @@ export function OpenPositionsTable({
                   <td className="px-3 py-3"><Chip size="sm" variant={position.status === "near_stop_loss" || position.status === "loss" ? "warning" : "neutral"}>{positionStatusLabel(position.status)}</Chip></td>
                   <td className="px-3 py-3">
                     <div className="flex min-w-[260px] flex-wrap gap-2">
-                      <Button size="sm" variant="secondary" onClick={() => onClose(position)}>Đóng vị thế giả lập</Button>
+                      <Button size="sm" variant="secondary" onClick={() => onClose(position)}>Đóng theo dõi giả lập</Button>
                       <Button size="sm" variant="ghost" onClick={() => onUpdateStopLoss(position)}>Cập nhật stop-loss</Button>
                       <Button size="sm" variant="ghost" onClick={() => onUpdateTarget(position)}>Cập nhật target</Button>
                       <Button size="sm" variant="ghost" onClick={() => onAddNote(position)}>Ghi chú</Button>

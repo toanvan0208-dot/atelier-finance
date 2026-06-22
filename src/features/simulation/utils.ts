@@ -36,7 +36,7 @@ export function getNowLabel() {
 export function stockStatusLabel(status: SimulatedStockStatus) {
   const labels: Record<SimulatedStockStatus, string> = {
     watching: "Đang theo dõi",
-    has_position: "Có vị thế",
+    has_position: "Có theo dõi",
     near_stop_loss: "Gần stop-loss",
     near_target: "Gần target",
     low_liquidity: "Thanh khoản thấp",

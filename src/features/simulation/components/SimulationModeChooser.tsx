@@ -9,7 +9,7 @@ type SimulationModeChooserProps = {
 };
 
 const friendlyNames: Record<SimulationModeId, string> = {
-  current: "Mô phỏng hiện tại",
+  current: "Danh sách tình huống",
   scenario: "Stress-test kịch bản",
   history: "Case lịch sử",
 };

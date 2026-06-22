@@ -34,13 +34,13 @@ export function PossibleScenariosPanel({
       <Card>
         <CardHeader
           title="Kịch bản có thể xảy ra"
-          description="Dựa trên mã hoặc vị thế giả lập đang chọn để luyện phản ứng trong mô phỏng."
+          description="Dựa trên mã hoặc theo dõi giả lập đang chọn để luyện phản ứng trong mô phỏng."
           chip={<Chip variant="warning">Không phải khuyến nghị</Chip>}
         />
         <CardBody className="space-y-4">
           {openPositions.length > 0 ? (
             <div>
-              <p className="text-xs font-bold uppercase text-subtle">Chọn vị thế/mã để xem kịch bản</p>
+              <p className="text-xs font-bold uppercase text-subtle">Chọn theo dõi/mã để xem kịch bản</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {openPositions.map((item) => (
                   <button
@@ -60,7 +60,7 @@ export function PossibleScenariosPanel({
 
           {!symbol ? (
             <p className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-6 text-sm leading-6 text-muted">
-              Chọn một mã hoặc một vị thế giả lập đang mở để xem kịch bản có thể xảy ra.
+              Chọn một mã hoặc một theo dõi giả lập đang mở để xem kịch bản có thể xảy ra.
             </p>
           ) : (
             <div className="rounded-[4px] border border-border-soft bg-accent-soft/50 px-4 py-4">
@@ -75,10 +75,10 @@ export function PossibleScenariosPanel({
               <div className="mt-4 grid gap-2 text-sm sm:grid-cols-2 lg:grid-cols-4">
                 <Metric label="Ngành" value={quote?.industry ?? "Đang cập nhật"} />
                 <Metric label="Giá hiện tại" value={formatNumber(quote?.price ?? position?.currentPrice ?? 0)} />
-                <Metric label="Giá vốn" value={position ? formatNumber(position.averagePrice) : "Chưa có vị thế"} />
+                <Metric label="Giá vốn" value={position ? formatNumber(position.averagePrice) : "Chưa có theo dõi"} />
                 <Metric
-                  label="P/L tạm tính"
-                  value={position ? formatPercent(position.unrealizedPnLPercent) : "Chưa có vị thế"}
+                  label="Sai số tạm tính"
+                  value={position ? formatPercent(position.unrealizedPnLPercent) : "Chưa có theo dõi"}
                   className={position ? toneFromSignedValue(position.unrealizedPnL) : ""}
                 />
                 <Metric label="Stop-loss" value={position?.stopLoss ? formatNumber(position.stopLoss) : "Chưa đặt"} />

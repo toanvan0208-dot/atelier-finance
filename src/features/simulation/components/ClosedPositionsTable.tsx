@@ -11,16 +11,16 @@ export function ClosedPositionsTable({ positions, onAddLesson }: ClosedPositions
   return (
     <Card>
       <CardHeader
-        title="Lệnh đã đóng"
-        description="Không chỉ xem lời/lỗ. Mỗi lệnh cần có lý do đóng và bài học rút ra."
-        chip={<Chip variant="neutral">{positions.length} lệnh</Chip>}
+        title="Tình huống đã đóng"
+        description="Không chỉ xem lời/lỗ. Mỗi tình huống cần có lý do đóng và bài học rút ra."
+        chip={<Chip variant="neutral">{positions.length} tình huống</Chip>}
       />
       <CardBody className="p-0">
         <div className="overflow-x-auto">
           <table className="min-w-[1100px] w-full border-collapse text-left text-xs">
             <thead className="bg-surface-soft text-[11px] uppercase text-subtle">
               <tr>
-                {["Mã", "Ngày mở", "Ngày đóng", "Giá mở", "Giá đóng", "KL", "P/L đã thực hiện", "Lý do đóng", "Bài học rút ra", "Hành động"].map((header) => (
+                {["Mã", "Ngày mở", "Ngày đóng", "Giá mở", "Giá đóng", "KL", "Sai số thực hiện", "Lý do đóng", "Bài học rút ra", "Hành động"].map((header) => (
                   <th key={header} className="border-b border-border-soft px-3 py-3 font-bold">{header}</th>
                 ))}
               </tr>

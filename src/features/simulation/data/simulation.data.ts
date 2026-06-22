@@ -3,26 +3,26 @@ import type { SimulationExperienceData } from "../types";
 export const simulationExperienceData: SimulationExperienceData = {
   title: "Mô phỏng đầu tư",
   subtitle:
-    "Phòng tập tư duy đầu tư: chọn chế độ học, viết thesis trước, rồi mới tạo vị thế theo dõi giả lập.",
+    "Phòng tập tư duy đầu tư: chọn chế độ học, viết thesis trước, rồi mới tạo theo dõi theo dõi giả lập.",
   modePrompt: "Bạn hãy chọn chế độ mô phỏng",
   modes: [
     {
       id: "current",
-      title: "Mô phỏng hiện tại",
+      title: "Danh sách tình huống",
       description:
-        "Luyện chọn mã, tạo lệnh giả lập, quản lý vị thế và rút kinh nghiệm bằng tài khoản giả lập.",
+        "Luyện chọn mã, tạo tình huống, quản lý theo dõi và rút kinh nghiệm bằng không gian luyện tập.",
       bestFor: [
         "Đã có một cổ phiếu muốn theo dõi",
         "Muốn học cách phân bổ vốn giả lập",
         "Muốn luyện ghi chú và hậu kiểm thesis",
       ],
-      primaryOutput: "Vị thế theo dõi giả lập và dashboard mô phỏng",
+      primaryOutput: "Theo dõi theo dõi giả lập và dashboard mô phỏng",
     },
     {
       id: "scenario",
       title: "Kịch bản có thể xảy ra",
       description:
-        "Xem các tình huống có thể xảy ra với mã hoặc vị thế đang mô phỏng và cách phản ứng trong môi trường giả lập.",
+        "Xem các tình huống có thể xảy ra với mã hoặc theo dõi đang mô phỏng và cách phản ứng trong môi trường giả lập.",
       bestFor: [
         "Muốn biết thesis yếu ở đâu",
         "Muốn hiểu kênh tác động của một rủi ro",
@@ -60,10 +60,10 @@ export const simulationExperienceData: SimulationExperienceData = {
       "Viết thesis mô phỏng",
       "Xem dashboard PVT rút gọn",
       "Nhập vốn giả lập",
-      "Chọn tỷ trọng hoặc giá trị vị thế",
+      "Chọn tỷ trọng hoặc giá trị theo dõi",
       "Hệ thống tự tính số lượng cổ phiếu",
       "Đặt mốc xem lại thesis",
-      "Tạo vị thế theo dõi giả lập",
+      "Tạo theo dõi theo dõi giả lập",
       "Theo dõi dashboard mô phỏng",
       "Ghi chú và hậu kiểm",
     ],
@@ -175,9 +175,9 @@ export const simulationExperienceData: SimulationExperienceData = {
         { label: "Mốc xem lại", value: "Sau BCTC quý tiếp theo." },
       ],
       positionNotes: [
-        { label: "Ngôn ngữ giao diện", value: "Vị thế theo dõi giả lập, không dùng hành động giao dịch làm trung tâm." },
-        { label: "Lãi/lỗ", value: "Hiển thị nhỏ, màu mềm, không làm trung tâm." },
-        { label: "Mục tiêu", value: "Kiểm tra thesis và hành vi, không mô phỏng đặt lệnh." },
+        { label: "Ngôn ngữ giao diện", value: "Theo dõi theo dõi giả lập, không dùng hành động giao dịch làm trung tâm." },
+        { label: "Sai số giả định", value: "Hiển thị nhỏ, màu mềm, không làm trung tâm." },
+        { label: "mốc tích cực", value: "Kiểm tra thesis và hành vi, không mô phỏng đặt tình huống." },
       ],
     },
     journalPrompts: [
@@ -321,8 +321,8 @@ export const simulationExperienceData: SimulationExperienceData = {
     },
     decisionOptions: [
       "Theo dõi thêm, chưa hành động",
-      "Tạo vị thế giả lập nhỏ",
-      "Tạo vị thế giả lập vừa",
+      "Tạo theo dõi giả lập nhỏ",
+      "Tạo theo dõi giả lập vừa",
       "Không tiếp tục theo dõi",
       "Chờ dữ liệu xác nhận",
     ],
@@ -366,7 +366,7 @@ export const simulationExperienceData: SimulationExperienceData = {
   disclaimer: {
     title: "Cảnh báo quan trọng",
     content:
-      "Mô phỏng là môi trường học quy trình, không phải công cụ đặt lệnh. Giao diện dùng ngôn ngữ vị thế theo dõi giả lập, mốc xem lại thesis, ghi chú và hậu kiểm để tránh biến bài học thành phản ứng giao dịch.",
+      "Mô phỏng là môi trường học quy trình, không phải công cụ đặt tình huống. Giao diện dùng ngôn ngữ theo dõi theo dõi giả lập, mốc xem lại thesis, ghi chú và hậu kiểm để tránh biến bài học thành phản ứng giao dịch.",
   },
   paperTrading: {
     account: {
@@ -575,8 +575,8 @@ export const simulationExperienceData: SimulationExperienceData = {
         quantity: 100,
         realizedPnL: 550000,
         realizedPnLPercent: 4.66,
-        closeReason: "Đạt vùng target giả lập và muốn kiểm tra kỷ luật chốt vị thế mô phỏng.",
-        lesson: "Cần ghi rõ target trước khi mở lệnh, tránh tăng target chỉ vì giá đang chạy.",
+        closeReason: "Đạt vùng target giả lập và muốn kiểm tra kỷ luật chốt theo dõi mô phỏng.",
+        lesson: "Cần ghi rõ target trước khi mở tình huống, tránh tăng target chỉ vì giá đang chạy.",
       },
       {
         id: "closed-hpg",
@@ -590,7 +590,7 @@ export const simulationExperienceData: SimulationExperienceData = {
         realizedPnL: -560000,
         realizedPnLPercent: -2.72,
         closeReason: "Kịch bản ban đầu không còn rõ khi volume yếu và ngành chưa xác nhận.",
-        lesson: "Không nên biến một lệnh học tập thành niềm tin cố định khi dữ liệu mới yếu đi.",
+        lesson: "Không nên biến một tình huống học tập thành niềm tin cố định khi dữ liệu mới yếu đi.",
       },
       {
         id: "closed-vnm",
@@ -604,7 +604,7 @@ export const simulationExperienceData: SimulationExperienceData = {
         realizedPnL: -175000,
         realizedPnLPercent: -1.03,
         closeReason: "Thanh khoản không cải thiện, giả định phục hồi ngắn hạn chưa có thêm bằng chứng.",
-        lesson: "Lệnh mô phỏng nhỏ giúp nhìn rõ điểm yếu trong luận điểm mà không bị cảm xúc chi phối.",
+        lesson: "tình huống mô phỏng nhỏ giúp nhìn rõ điểm yếu trong luận điểm mà không bị cảm xúc chi phối.",
       },
     ],
     historyEvents: [
@@ -613,15 +613,15 @@ export const simulationExperienceData: SimulationExperienceData = {
         timestamp: "24/05/2026 10:12",
         symbol: "PNJ",
         type: "position_opened",
-        title: "Mở vị thế giả lập PNJ",
-        description: "Ghi lý do mở lệnh: phục hồi sức mua, giá trên MA20 và volume cao hơn trung bình.",
+        title: "Mở theo dõi giả lập PNJ",
+        description: "Ghi lý do mở tình huống: phục hồi sức mua, giá trên MA20 và volume cao hơn trung bình.",
       },
       {
         id: "evt-2",
         timestamp: "27/05/2026 14:10",
         symbol: "FPT",
         type: "position_closed",
-        title: "Đóng vị thế giả lập FPT",
+        title: "Đóng theo dõi giả lập FPT",
         description: "Đóng theo target giả lập, ghi bài học về kỷ luật với kế hoạch ban đầu.",
       },
       {
@@ -629,7 +629,7 @@ export const simulationExperienceData: SimulationExperienceData = {
         timestamp: "02/06/2026 09:45",
         symbol: "CTG",
         type: "order_created",
-        title: "Tạo lệnh mô phỏng CTG",
+        title: "tạo tình huống mô phỏng CTG",
         description: "Kiểm tra kịch bản pullback về hỗ trợ, đặt stop-loss giả lập trước khi theo dõi.",
       },
       {
@@ -646,7 +646,7 @@ export const simulationExperienceData: SimulationExperienceData = {
         symbol: "CTG",
         type: "scenario_reviewed",
         title: "Xem lại kịch bản CTG",
-        description: "Vị thế gần stop-loss giả lập, cần kiểm tra thanh khoản và rủi ro thị trường chung.",
+        description: "Theo dõi gần stop-loss giả lập, cần kiểm tra thanh khoản và rủi ro thị trường chung.",
       },
     ],
     scenarios: [
@@ -657,7 +657,7 @@ export const simulationExperienceData: SimulationExperienceData = {
         title: "Giá đi ngang quanh vùng hiện tại",
         condition: "Giá giữ trên MA20 nhưng volume giảm về mức trung bình.",
         signalsToWatch: ["Doanh thu bán lẻ", "Biên lợi nhuận", "Volume so với TB20", "Sức mua ngành bán lẻ"],
-        impactOnPosition: "Vị thế giả lập chưa bị phủ định, nhưng cần tránh tăng tỷ trọng chỉ vì giá chưa giảm.",
+        impactOnPosition: "Theo dõi giả lập chưa bị phủ định, nhưng cần tránh tăng tỷ trọng chỉ vì giá chưa giảm.",
         suggestedSimulationResponse: "Giữ kế hoạch mô phỏng, cập nhật ghi chú nếu dữ liệu tiêu dùng mới xuất hiện.",
         relatedModules: ["PVT", "BCTC", "Ngành"],
       },
@@ -669,7 +669,7 @@ export const simulationExperienceData: SimulationExperienceData = {
         condition: "Giá giảm về vùng 87.500-89.000đ kèm volume cao hơn trung bình.",
         signalsToWatch: ["Volume giảm mạnh", "Tin tiêu cực ngành", "VN-Index yếu", "Biên lợi nhuận quý mới"],
         impactOnPosition: "Kịch bản ban đầu yếu đi, cần kiểm tra liệu rủi ro đã thay đổi hay chỉ là nhiễu ngắn hạn.",
-        suggestedSimulationResponse: "Cân nhắc đóng vị thế giả lập hoặc giảm khối lượng mô phỏng nếu lý do mở lệnh không còn đúng.",
+        suggestedSimulationResponse: "Cân nhắc đóng theo dõi giả lập hoặc giảm khối lượng mô phỏng nếu lý do mở tình huống không còn đúng.",
         relatedModules: ["Rủi ro", "PVT", "Checklist"],
       },
       {
@@ -680,7 +680,7 @@ export const simulationExperienceData: SimulationExperienceData = {
         condition: "Giá vượt 100.000đ nhưng định giá và dữ liệu nền chưa cập nhật.",
         signalsToWatch: ["P/E tương đối", "Tin kết quả kinh doanh", "Volume tăng nóng", "Hành vi FOMO"],
         impactOnPosition: "P/L giả lập tốt hơn, nhưng nguy cơ thay đổi kế hoạch vì cảm xúc cũng tăng.",
-        suggestedSimulationResponse: "Ghi bài học về kỷ luật target, không biến lãi/lỗ giả lập thành thành tích thật.",
+        suggestedSimulationResponse: "Ghi bài học về kỷ luật target, không biến Sai số giả định giả lập thành thành tích thật.",
         relatedModules: ["Định giá", "PVT", "Mô phỏng"],
       },
       {
@@ -690,7 +690,7 @@ export const simulationExperienceData: SimulationExperienceData = {
         title: "Thị trường chung yếu đi",
         condition: "VN-Index giảm và nhóm ngân hàng mất sức mạnh tương đối.",
         signalsToWatch: ["VN-Index", "Độ rộng thị trường", "Thanh khoản ngành ngân hàng", "Tin lãi suất"],
-        impactOnPosition: "Vị thế MBB có thể giảm dù luận điểm doanh nghiệp chưa đổi.",
+        impactOnPosition: "Theo dõi MBB có thể giảm dù luận điểm doanh nghiệp chưa đổi.",
         suggestedSimulationResponse: "Xem lại tỷ trọng mô phỏng và mốc stop-loss, ghi rõ dữ liệu nào là thị trường chung.",
         relatedModules: ["Vĩ mô", "Ngành", "PVT"],
       },
@@ -701,8 +701,8 @@ export const simulationExperienceData: SimulationExperienceData = {
         title: "Giá thủng vùng theo dõi",
         condition: "Giá giảm dưới stop-loss giả lập và volume tăng.",
         signalsToWatch: ["Nợ xấu ngành", "Tin ngân hàng", "Thanh khoản", "So sánh với MBB/VCB"],
-        impactOnPosition: "Vị thế giả lập cần được xem lại ngay vì kế hoạch ban đầu có thể đã sai.",
-        suggestedSimulationResponse: "Mở drawer đóng vị thế giả lập, ghi lý do đóng và bài học trước khi xem mã khác.",
+        impactOnPosition: "Theo dõi giả lập cần được xem lại ngay vì kế hoạch ban đầu có thể đã sai.",
+        suggestedSimulationResponse: "Mở drawer đóng theo dõi giả lập, ghi lý do đóng và bài học trước khi xem mã khác.",
         relatedModules: ["Rủi ro", "BCTC", "PVT"],
       },
       {
@@ -712,8 +712,8 @@ export const simulationExperienceData: SimulationExperienceData = {
         title: "Thanh khoản thấp hơn kỳ vọng",
         condition: "Volume dưới trung bình 20 phiên và giá không vượt được MA50.",
         signalsToWatch: ["Volume TB20", "Dòng tiền nhóm chứng khoán", "Tin thị trường", "Độ rộng ngành"],
-        impactOnPosition: "Nếu mở vị thế giả lập, khả năng học sai vì nhiễu thanh khoản cao hơn.",
-        suggestedSimulationResponse: "Chỉ theo dõi hoặc giảm quy mô lệnh mô phỏng, chưa biến thành kết luận mua/bán thật.",
+        impactOnPosition: "Nếu mở theo dõi giả lập, khả năng học sai vì nhiễu thanh khoản cao hơn.",
+        suggestedSimulationResponse: "Chỉ theo dõi hoặc giảm quy mô tình huống mô phỏng, chưa biến thành kết luận mua/bán thật.",
         relatedModules: ["PVT", "Ngành", "Checklist"],
       },
     ],

@@ -36,7 +36,7 @@ export function ScenarioCard({
           </ul>
         </div>
         <div className="rounded-[3px] border border-border-soft bg-surface-soft px-3 py-3">
-          <p className="text-[11px] font-bold uppercase text-subtle">Ảnh hưởng đến vị thế giả lập</p>
+          <p className="text-[11px] font-bold uppercase text-subtle">Ảnh hưởng đến theo dõi giả lập</p>
           <p className="mt-2 text-xs leading-5 text-muted">{scenario.impactOnPosition}</p>
         </div>
         <div className="rounded-[3px] border border-border-soft bg-surface-soft px-3 py-3">
@@ -52,7 +52,7 @@ export function ScenarioCard({
         <div className="flex flex-wrap gap-2">
           <Button size="sm" variant="secondary" disabled={!hasPosition} onClick={onUpdateStopLoss}>Cập nhật stop-loss</Button>
           <Button size="sm" variant="secondary" disabled={!hasPosition} onClick={onUpdateTarget}>Cập nhật target</Button>
-          <Button size="sm" variant="secondary" disabled={!hasPosition} onClick={onClosePosition}>Đóng vị thế giả lập</Button>
+          <Button size="sm" variant="secondary" disabled={!hasPosition} onClick={onClosePosition}>Đóng theo dõi giả lập</Button>
         </div>
       </div>
     </article>

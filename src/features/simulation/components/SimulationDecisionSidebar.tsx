@@ -39,7 +39,7 @@ export function SimulationDecisionSidebar({
       <Card>
         <CardHeader
           title="Trạng thái mô phỏng"
-          description="Sidebar này ưu tiên thesis, dữ liệu và rủi ro trước lãi/lỗ."
+          description="Sidebar này ưu tiên thesis, dữ liệu và rủi ro trước Sai số giả định."
           chip={<Chip variant={position.created ? "accent" : "warning"}>{status}</Chip>}
         />
         <CardBody className="space-y-4">
@@ -67,11 +67,11 @@ export function SimulationDecisionSidebar({
           </div>
           {position.created ? (
             <div className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3">
-              <p className="text-xs font-bold text-ink">Vị thế giả lập</p>
+              <p className="text-xs font-bold text-ink">Theo dõi giả lập</p>
               <div className="mt-2 grid gap-2 text-xs leading-5 text-muted">
                 <p>Số cổ phiếu: {numbers.shareQuantity}</p>
-                <p>Giá trị vị thế: {formatVnd(numbers.actualPositionValue)}</p>
-                <p>Lãi/lỗ giả lập: {formatVnd(numbers.simulatedPnL)}</p>
+                <p>Giá trị theo dõi: {formatVnd(numbers.actualPositionValue)}</p>
+                <p>Sai số giả định giả lập: {formatVnd(numbers.simulatedPnL)}</p>
               </div>
             </div>
           ) : null}

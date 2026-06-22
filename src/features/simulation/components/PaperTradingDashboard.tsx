@@ -52,16 +52,16 @@ export function PaperTradingDashboard({
   const hasSelectedPosition = Boolean(openPositions.find((position) => position.symbol === selectedStock?.symbol));
   const sessionStatuses = [
     "Đang theo dõi",
-    openPositions.length > 0 ? "Có vị thế giả lập" : "Chưa có vị thế",
-    "Có lệnh cần xem lại",
+    openPositions.length > 0 ? "Có theo dõi giả lập" : "Chưa có theo dõi",
+    "Có tình huống cần xem lại",
   ];
 
   return (
     <div className="space-y-5">
       <Card>
         <CardHeader
-          title="Mô phỏng hiện tại"
-          description="Luyện tạo lệnh, quản lý vị thế và rút kinh nghiệm bằng tài khoản giả lập."
+          title="Danh sách tình huống"
+          description="Luyện tạo tình huống, quản lý theo dõi và rút kinh nghiệm bằng không gian luyện tập."
           chip={<Chip variant="warning">Đây là mô phỏng, không phải giao dịch thật.</Chip>}
         />
         <CardBody className="space-y-3">
@@ -90,7 +90,7 @@ export function PaperTradingDashboard({
       />
 
       {detailModal === "openPositions" ? (
-        <SimulationDetailModal title="Vị thế giả lập đang mở" onClose={() => setDetailModal(null)}>
+        <SimulationDetailModal title="Theo dõi giả lập đang mở" onClose={() => setDetailModal(null)}>
           <OpenPositionsTable
             positions={openPositions}
             onAddNote={onAddNote}
@@ -103,7 +103,7 @@ export function PaperTradingDashboard({
       ) : null}
 
       {detailModal === "closedPositions" ? (
-        <SimulationDetailModal title="Lệnh đã đóng" onClose={() => setDetailModal(null)}>
+        <SimulationDetailModal title="Tình huống đã đóng" onClose={() => setDetailModal(null)}>
           <ClosedPositionsTable positions={closedPositions} onAddLesson={onAddClosedLesson} />
         </SimulationDetailModal>
       ) : null}

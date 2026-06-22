@@ -13,7 +13,7 @@ export function SimulationMarketBoard({ quotes, selectedSymbol, onSelect }: Simu
     <Card className="h-full">
       <CardHeader
         title="Bảng điện mô phỏng"
-        description="Chọn mã để tạo lệnh giả lập hoặc xem trạng thái vị thế đang mở."
+        description="Chọn mã để tạo tình huống hoặc xem trạng thái theo dõi đang mở."
         chip={<Chip variant="accent">Mock data</Chip>}
       />
       <CardBody className="p-0">

@@ -3,7 +3,7 @@ import { Card, CardBody, Chip } from "@/components/ui";
 import type { SimulationModeId, SimulationStatus } from "../types";
 
 const modeLabels: Record<SimulationModeId, string> = {
-  current: "Mô phỏng hiện tại",
+  current: "Danh sách tình huống",
   scenario: "Stress-test kịch bản",
   history: "Case lịch sử",
 };
@@ -56,7 +56,7 @@ export function SimulationControlBar({
               {status}
             </h1>
             <p className="mt-2 max-w-[820px] text-sm leading-7 text-muted">
-              Phòng tập này dùng để kiểm tra thesis, dữ liệu, rủi ro, kịch bản và nhật ký hậu kiểm. Lãi/lỗ giả lập chỉ là dữ liệu theo dõi, không phải trung tâm của mô phỏng.
+              Phòng tập này dùng để kiểm tra thesis, dữ liệu, rủi ro, kịch bản và nhật ký hậu kiểm. Sai số giả định giả lập chỉ là dữ liệu theo dõi, không phải trung tâm của mô phỏng.
             </p>
           </div>
           <div className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-3">

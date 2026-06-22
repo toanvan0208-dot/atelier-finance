@@ -58,7 +58,7 @@ function ClosePositionForm({
           <div className="flex items-start justify-between gap-3">
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-base font-bold text-ink">Đóng vị thế giả lập</h3>
+                <h3 className="text-base font-bold text-ink">Đóng theo dõi giả lập</h3>
                 <Chip variant="warning">Không phải giao dịch thật</Chip>
               </div>
               <p className="mt-1 text-xs leading-5 text-muted">
@@ -71,7 +71,7 @@ function ClosePositionForm({
 
         <div className="flex-1 space-y-4 overflow-y-auto px-5 py-5">
           <div className="rounded-[4px] border border-border-soft bg-accent-soft/50 px-3 py-3">
-            <p className="text-xs font-bold text-subtle">Vị thế</p>
+            <p className="text-xs font-bold text-subtle">Theo dõi</p>
             <p className="mt-1 text-xl font-bold text-ink">{position.symbol}</p>
             <p className="mt-1 text-xs leading-5 text-muted">{position.name}</p>
             <div className="mt-3 grid gap-2 text-xs text-muted sm:grid-cols-2">
@@ -126,7 +126,7 @@ function ClosePositionForm({
             Lý do đóng
             <textarea
               className="min-h-24 rounded-[3px] border border-border bg-surface px-3 py-2 text-sm font-normal leading-6 outline-none focus:border-accent"
-              placeholder="Vì sao bạn đóng vị thế giả lập này?"
+              placeholder="Vì sao bạn đóng theo dõi giả lập này?"
               value={closeReason}
               onChange={(event) => setCloseReason(event.target.value)}
             />
@@ -136,7 +136,7 @@ function ClosePositionForm({
             Bài học rút ra
             <textarea
               className="min-h-24 rounded-[3px] border border-border bg-surface px-3 py-2 text-sm font-normal leading-6 outline-none focus:border-accent"
-              placeholder="Bạn học được gì từ lệnh mô phỏng này?"
+              placeholder="Bạn học được gì từ tình huống mô phỏng này?"
               value={lesson}
               onChange={(event) => setLesson(event.target.value)}
             />
@@ -156,7 +156,7 @@ function ClosePositionForm({
               })
             }
           >
-            Xác nhận đóng vị thế giả lập
+            Xác nhận đóng theo dõi giả lập
           </Button>
         </div>
       </div>

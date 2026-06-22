@@ -198,8 +198,8 @@ export function SimulationPage() {
         addHistoryEvent({
           symbol: selectedStock.symbol,
           type: "order_created",
-          title: `Lệnh bán giả lập ${selectedStock.symbol} cần xem lại`,
-          description: "Lệnh bán giả lập yêu cầu đã có vị thế trước đó. Hệ thống chỉ ghi lại để người dùng kiểm tra quy trình.",
+          title: `Tình huống bán giả lập ${selectedStock.symbol} cần xem lại`,
+          description: "Tình huống bán giả lập yêu cầu đã có theo dõi trước đó. Hệ thống chỉ ghi lại để người dùng kiểm tra quy trình.",
         });
       }
       return;
@@ -270,8 +270,8 @@ export function SimulationPage() {
     addHistoryEvent({
       symbol: selectedStock.symbol,
       type: "position_opened",
-      title: `Tạo lệnh mua giả lập ${selectedStock.symbol}`,
-      description: `${formatCurrency(orderValue)} được ghi nhận trong tài khoản giả lập. Lý do: ${order.reason}`,
+      title: `tạo tình huống mua giả lập ${selectedStock.symbol}`,
+      description: `${formatCurrency(orderValue)} được ghi nhận trong không gian luyện tập. Lý do: ${order.reason}`,
     });
   }
 
@@ -352,7 +352,7 @@ export function SimulationPage() {
     addHistoryEvent({
       symbol: position.symbol,
       type: "position_closed",
-      title: `Đóng vị thế giả lập ${position.symbol}`,
+      title: `Đóng theo dõi giả lập ${position.symbol}`,
       description: `Lý do đóng: ${closeReason}. Bài học: ${lesson}`,
     });
   }
@@ -368,7 +368,7 @@ export function SimulationPage() {
       symbol: position.symbol,
       type: "scenario_reviewed",
       title: `Xem kịch bản ${position.symbol}`,
-      description: "Người dùng chuyển sang tab Kịch bản có thể xảy ra để kiểm tra vị thế giả lập.",
+      description: "Người dùng chuyển sang tab Kịch bản có thể xảy ra để kiểm tra theo dõi giả lập.",
     });
   }
 
@@ -399,7 +399,7 @@ export function SimulationPage() {
   }
 
   function handleAddNote(position: SimulatedPosition) {
-    const note = window.prompt("Ghi chú mô phỏng cho vị thế này", position.openReason);
+    const note = window.prompt("Ghi chú mô phỏng cho theo dõi này", position.openReason);
     if (!note?.trim()) return;
     updatePosition(position.id, { openReason: note });
     addHistoryEvent({
@@ -411,7 +411,7 @@ export function SimulationPage() {
   }
 
   function handleAddClosedLesson(position: ClosedSimulatedPosition) {
-    const lesson = window.prompt("Ghi thêm bài học cho lệnh đã đóng", position.lesson);
+    const lesson = window.prompt("Ghi thêm bài học cho tình huống đã đóng", position.lesson);
     if (!lesson?.trim()) return;
     setClosedPositions((current) => current.map((item) => (item.id === position.id ? { ...item, lesson } : item)));
   }
@@ -437,8 +437,8 @@ export function SimulationPage() {
 
     addHistoryEvent({
       type: "note_added",
-      title: "Tùy chỉnh tài khoản giả lập",
-      description: `Tổng vốn giả lập: ${formatCurrency(nextTotalCapital)}. Tiền mặt còn lại: ${formatCurrency(nextCash)}.`,
+      title: "Tùy chỉnh không gian luyện tập",
+      description: `Tổng vốn giả lập: ${formatCurrency(nextTotalCapital)}. Trọng số nhàn rỗi: ${formatCurrency(nextCash)}.`,
     });
   }
 
@@ -474,8 +474,8 @@ export function SimulationPage() {
             addHistoryEvent({
               symbol: selectedStock?.symbol,
               type: "order_created",
-              title: "Lưu nháp lệnh mô phỏng",
-              description: reason.trim() || "Người dùng lưu nháp lệnh mô phỏng nhưng chưa ghi lý do.",
+              title: "Lưu nháp tình huống mô phỏng",
+              description: reason.trim() || "Người dùng lưu nháp tình huống mô phỏng nhưng chưa ghi lý do.",
             })
           }
           onSelectStock={handleSelectStock}

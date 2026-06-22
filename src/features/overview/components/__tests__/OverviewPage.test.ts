@@ -11,13 +11,13 @@ import {
 describe("OverviewPage MVP", () => {
   it("renders 4 MVP blocks and enforces language guardrails", () => {
     const tickerHtml = renderToStaticMarkup(createElement(MvpCurrentTicker, { 
-      activeCase: { ticker: "FPT", companyName: "CTCP FPT", industry: "Công nghệ" } as any 
+      activeCase: { ticker: "FPT", companyName: "CTCP FPT", industry: "Công nghệ" } as unknown 
     }));
     const dataHtml = renderToStaticMarkup(createElement(MvpAvailableData, { 
-      summary: { items: [{ moduleKey: "financials", label: "Financials", status: "partial", dataMode: "research_only" }] } as any 
+      summary: { items: [{ moduleKey: "financials", label: "Financials", status: "partial", dataMode: "research_only" }] } as unknown 
     }));
     const missingHtml = renderToStaticMarkup(createElement(MvpMissingData, { 
-      bottlenecks: [{ title: "EPS", whyItMatters: "Cần định giá" }] as any 
+      bottlenecks: [{ title: "EPS", whyItMatters: "Cần định giá" }] as unknown 
     }));
     const nextStepsHtml = renderToStaticMarkup(createElement(MvpNextSteps, { 
       onNavigate: () => {} 

@@ -71,14 +71,14 @@ export function SimulationOrderTicket({
   return (
     <Card className="h-full">
       <CardHeader
-        title="Vé lệnh giả lập"
-        description="Tạo lệnh mô phỏng để luyện quy trình, không phải đặt lệnh thật."
+        title="Bảng tình huống"
+        description="tạo tình huống mô phỏng để luyện quy trình, không phải đặt tình huống thật."
         chip={<Chip variant="warning">Mô phỏng</Chip>}
       />
       <CardBody className="space-y-4">
         {!selectedStock ? (
           <div className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-6 text-sm leading-6 text-muted">
-            Chọn một mã trong Bảng điện mô phỏng để tạo lệnh giả lập.
+            Chọn một mã trong Bảng điện mô phỏng để tạo tình huống.
           </div>
         ) : (
           <>
@@ -95,10 +95,10 @@ export function SimulationOrderTicket({
 
             <div className="grid grid-cols-2 gap-2">
               <Button variant={side === "buy" ? "primary" : "secondary"} onClick={() => setSide("buy")}>
-                Mua giả lập
+                Giả định tăng
               </Button>
               <Button variant={side === "sell" ? "primary" : "secondary"} onClick={() => setSide("sell")}>
-                Bán giả lập
+                Giả định giảm
               </Button>
             </div>
 
@@ -137,7 +137,7 @@ export function SimulationOrderTicket({
             </div>
 
             <div className="grid gap-2 rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3 text-xs text-muted">
-              <p className="flex justify-between gap-3"><span>Giá trị lệnh</span><strong className="text-ink">{formatCurrency(values.value)}</strong></p>
+              <p className="flex justify-between gap-3"><span>Độ ưu tiên</span><strong className="text-ink">{formatCurrency(values.value)}</strong></p>
               <p className="flex justify-between gap-3"><span>Phí giao dịch giả lập</span><strong className="text-ink">{formatCurrency(values.fee)}</strong></p>
               {side === "sell" ? (
                 <p className="flex justify-between gap-3"><span>Thuế bán giả lập</span><strong className="text-ink">{formatCurrency(values.tax)}</strong></p>
@@ -160,20 +160,20 @@ export function SimulationOrderTicket({
             </div>
 
             <label className="grid gap-1 text-xs font-bold text-ink">
-              Lý do mở lệnh giả lập
+              Lý do mở tình huống
               <textarea
                 className="min-h-24 rounded-[3px] border border-border bg-surface px-3 py-2 text-sm font-normal leading-6 outline-none focus:border-accent"
-                placeholder="Viết ngắn lý do bạn tạo lệnh mô phỏng này..."
+                placeholder="Viết ngắn lý do bạn tạo tình huống mô phỏng này..."
                 value={reason}
                 onChange={(event) => setReason(event.target.value)}
               />
             </label>
 
             <div className="space-y-2">
-              {cashWarning ? <WarningText>Giá trị lệnh vượt tiền mặt giả lập hiện có.</WarningText> : null}
-              {sellWarning ? <WarningText>Lệnh bán giả lập yêu cầu đã có vị thế trước đó.</WarningText> : null}
+              {cashWarning ? <WarningText>Độ ưu tiên vượt tiền mặt giả lập hiện có.</WarningText> : null}
+              {sellWarning ? <WarningText>Tình huống bán giả lập yêu cầu đã có theo dõi trước đó.</WarningText> : null}
               {lowRiskReward ? <WarningText>Rủi ro/lợi nhuận giả lập chưa hấp dẫn, hãy kiểm tra lại kế hoạch.</WarningText> : null}
-              {!reason.trim() ? <WarningText>Lý do mở lệnh giả lập cần được ghi rõ trước khi tạo lệnh.</WarningText> : null}
+              {!reason.trim() ? <WarningText>Lý do mở tình huống cần được ghi rõ trước khi tạo tình huống.</WarningText> : null}
             </div>
 
             <div className="flex flex-wrap gap-2 border-t border-border-soft pt-3">
@@ -181,7 +181,7 @@ export function SimulationOrderTicket({
                 disabled={disabled}
                 onClick={() => onSubmit({ side, quantity, stopLoss: Number(stopLoss) || undefined, target: Number(target) || undefined, reason })}
               >
-                Tạo lệnh giả lập
+                Tạo tình huống
               </Button>
               <Button variant="secondary" onClick={() => onSaveDraft(reason)}>
                 Lưu nháp

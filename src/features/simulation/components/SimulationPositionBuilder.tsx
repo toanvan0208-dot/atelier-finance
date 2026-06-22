@@ -40,7 +40,7 @@ export function SimulationPositionBuilder({
   return (
     <div className="space-y-4">
       <p className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-2 text-xs font-semibold leading-5 text-muted">
-        Vốn và tỷ trọng chỉ để tạo vị thế theo dõi giả lập. Lãi/lỗ chỉ là kết quả theo dõi, không phải mục tiêu chính của mô phỏng.
+        Vốn và tỷ trọng chỉ để tạo theo dõi theo dõi giả lập. Sai số giả định chỉ là kết quả theo dõi, không phải mốc tích cực chính của mô phỏng.
       </p>
       <div className="grid gap-3 md:grid-cols-3">
         <NumberField
@@ -64,9 +64,9 @@ export function SimulationPositionBuilder({
       </div>
       <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
         <Metric label="Số cổ phiếu giả lập" value={`${numbers.shareQuantity} cổ phiếu`} />
-        <Metric label="Tiền mặt còn lại" value={formatVnd(numbers.remainingCash)} />
-        <Metric label="Giá trị vị thế" value={formatVnd(numbers.actualPositionValue)} />
-        <Metric label="Lãi/lỗ giả lập" value={formatVnd(numbers.simulatedPnL)} muted />
+        <Metric label="Trọng số nhàn rỗi" value={formatVnd(numbers.remainingCash)} />
+        <Metric label="Giá trị theo dõi" value={formatVnd(numbers.actualPositionValue)} />
+        <Metric label="Sai số giả định giả lập" value={formatVnd(numbers.simulatedPnL)} muted />
         <Metric label="Thesis Health" value={canCreate ? "Tạm đủ để theo dõi" : "Cần bổ sung"} />
         <Metric label="Trạng thái tạo mô phỏng" value={canCreate ? "Đủ điều kiện" : "Chưa đủ điều kiện"} />
       </div>
