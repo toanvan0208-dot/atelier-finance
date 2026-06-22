@@ -6,7 +6,12 @@ import {
   businessJourneyByTicker,
   defaultBusinessJourneyTicker,
 } from "../data/businessJourney.data";
-import type { BusinessDeepDiveData, BusinessJourneyData } from "../types";
+import {
+  findBusinessCompanyProfile,
+  formatBusinessProfileField,
+  normalizeBusinessTicker,
+} from "../lib/business-company-selection";
+import type { BusinessCompanyProfile, BusinessDeepDiveData, BusinessJourneyData } from "../types";
 import { AdvantageRealityCheck } from "./AdvantageRealityCheck";
 import { BridgeToFinancialStatements } from "./BridgeToFinancialStatements";
 import { BusinessIdentityCard } from "./BusinessIdentityCard";
@@ -51,24 +56,23 @@ function useTickerFromUrl() {
   );
 }
 
-function normalizeTicker(ticker: string | null) {
-  const value = ticker?.trim().toUpperCase();
-  return value ? value : null;
-}
-
 function getBusinessJourneyData(selectedTicker: string | null) {
   if (!selectedTicker) {
     return {
       data: businessJourneyByTicker[defaultBusinessJourneyTicker],
+      profile: findBusinessCompanyProfile(defaultBusinessJourneyTicker),
       isUsingSampleData: true,
       hasUnsupportedTicker: false,
     };
   }
 
+  const profile = findBusinessCompanyProfile(selectedTicker);
+
   return {
     data: businessJourneyByTicker[selectedTicker] ?? null,
+    profile,
     isUsingSampleData: false,
-    hasUnsupportedTicker: !businessJourneyByTicker[selectedTicker],
+    hasUnsupportedTicker: !profile,
   };
 }
 
@@ -92,11 +96,64 @@ function SampleDataNotice() {
     <Card className="border-border-soft bg-accent-soft">
       <CardBody className="flex flex-col gap-2 px-4 py-3 md:flex-row md:items-center md:justify-between">
         <p className="text-sm font-semibold leading-6 text-ink">
-          Đang dùng dữ liệu mẫu MWG để minh họa luồng hiểu doanh nghiệp. Khi kết nối dữ liệu thật, nội dung sẽ thay đổi theo mã cổ phiếu được chọn.
+          Đang dùng dữ liệu minh họa MWG khi URL chưa có ticker. Nội dung này không được hiểu là hồ sơ doanh nghiệp đã xác minh.
         </p>
         <Chip size="sm" variant="accent">
-          Dữ liệu mẫu MWG
+          Dữ liệu minh họa
         </Chip>
+      </CardBody>
+    </Card>
+  );
+}
+
+function CompanyDataStatus({ profile }: { profile: BusinessCompanyProfile }) {
+  const statusLabel = profile.dataStatus === "missing" ? "Chưa đủ dữ liệu" : "Dữ liệu đang được rà soát";
+
+  return (
+    <Card className="border-border-soft bg-surface">
+      <CardBody className="space-y-3 px-4 py-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <Chip variant="accent">{profile.ticker}</Chip>
+          <Chip variant="neutral">{formatBusinessProfileField(profile.exchange)}</Chip>
+          <Chip variant="warning">{statusLabel}</Chip>
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+          <div>
+            <p className="text-[11px] font-bold uppercase text-subtle">Doanh nghiệp</p>
+            <p className="mt-1 text-sm font-semibold leading-5 text-ink">{profile.companyName}</p>
+          </div>
+          <div>
+            <p className="text-[11px] font-bold uppercase text-subtle">Ngành</p>
+            <p className="mt-1 text-sm leading-5 text-muted">{formatBusinessProfileField(profile.industry)}</p>
+          </div>
+          <div>
+            <p className="text-[11px] font-bold uppercase text-subtle">Nguồn / trạng thái</p>
+            <p className="mt-1 text-sm leading-5 text-muted">
+              {profile.sourceLabel ?? "Nguồn dữ liệu đang hoàn thiện"}
+            </p>
+          </div>
+          <div>
+            <p className="text-[11px] font-bold uppercase text-subtle">Kỳ / asOf</p>
+            <p className="mt-1 text-sm leading-5 text-muted">
+              {profile.period && profile.asOf ? `${profile.period} · ${profile.asOf}` : "Chưa đủ dữ liệu"}
+            </p>
+          </div>
+        </div>
+
+        <div className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-2">
+          <p className="text-[11px] font-bold uppercase text-subtle">Mô tả hoạt động</p>
+          <p className="mt-1 text-sm leading-5 text-muted">
+            {formatBusinessProfileField(profile.businessDescription)}
+          </p>
+        </div>
+
+        <p className="rounded-[4px] border border-warning bg-warning/15 px-3 py-2 text-xs font-semibold leading-5 text-ink">
+          {profile.warnings[0]}
+        </p>
+        <p className="text-xs leading-5 text-muted">
+          Phần này giúp người dùng hiểu doanh nghiệp đang làm gì và dữ liệu nào đã có. Đây không phải khuyến nghị đầu tư.
+        </p>
       </CardBody>
     </Card>
   );
@@ -131,8 +188,8 @@ function PageIntro() {
 
 export function BusinessPage({ onNavigate }: BusinessPageProps) {
   const tickerFromUrl = useTickerFromUrl();
-  const selectedTicker = normalizeTicker(tickerFromUrl);
-  const { data, hasUnsupportedTicker, isUsingSampleData } = useMemo(
+  const selectedTicker = normalizeBusinessTicker(tickerFromUrl);
+  const { data, profile, hasUnsupportedTicker, isUsingSampleData } = useMemo(
     () => getBusinessJourneyData(selectedTicker),
     [selectedTicker]
   );
@@ -150,14 +207,20 @@ export function BusinessPage({ onNavigate }: BusinessPageProps) {
     const emptyState = businessJourneyByTicker[defaultBusinessJourneyTicker].emptyState;
     const title = hasUnsupportedTicker
       ? `Chưa có dữ liệu mô hình kinh doanh cho mã ${selectedTicker}.`
-      : emptyState.title;
+      : profile
+        ? `Đã nhận đúng mã ${profile.ticker}; nội dung mô hình chi tiết đang được rà soát.`
+        : emptyState.title;
+    const description = profile
+      ? "Chưa đủ dữ liệu đã xác minh để hiển thị các phần mô hình kinh doanh. Hệ thống không dùng nội dung mẫu của mã khác để thay thế."
+      : emptyState.description;
 
     return (
       <div className="mx-auto w-full max-w-[1120px] space-y-3 px-4 py-5 lg:px-0">
         <JourneyProgress />
+        {profile ? <CompanyDataStatus profile={profile} /> : null}
         <EmptyState
           title={title}
-          description={emptyState.description}
+          description={description}
           icon={emptyState.icon}
           action={
             <Button variant="secondary" onClick={() => onNavigate?.("screening")}>
@@ -173,6 +236,7 @@ export function BusinessPage({ onNavigate }: BusinessPageProps) {
     <div className="mx-auto w-full max-w-[1180px] space-y-4 px-4 py-5 lg:px-0">
       {isUsingSampleData ? <SampleDataNotice /> : null}
       <JourneyProgress />
+      {profile ? <CompanyDataStatus profile={profile} /> : null}
       <PageIntro />
 
       <main className="min-w-0 space-y-4">

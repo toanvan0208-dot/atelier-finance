@@ -3,6 +3,46 @@ export type StepStatus = "Chưa làm" | "Đang làm" | "Đã hoàn thành" | "C�
 export type AssessmentTone = "success" | "warning" | "danger" | "neutral" | "accent";
 export type BusinessMetricStatus = "good" | "watch" | "risk" | "unknown";
 
+export type BusinessCompanyDataStatus =
+  | "available"
+  | "missing"
+  | "partial"
+  | "sample"
+  | "unverified";
+
+export type BusinessCompanyDataMode =
+  | "manual_reviewed"
+  | "research_only"
+  | "sample"
+  | "unavailable";
+
+export type BusinessCompanyDataOrigin =
+  | "reviewed_local_metadata"
+  | "static_hardcode"
+  | "sample"
+  | "unknown";
+
+export type BusinessCompanyProfile = {
+  ticker: string;
+  companyName: string;
+  exchange: string | null;
+  sector: string | null;
+  industry: string | null;
+  businessDescription: string | null;
+  relatedIndustryKey: string | null;
+  dataStatus: BusinessCompanyDataStatus;
+  dataMode: BusinessCompanyDataMode;
+  dataOrigin: BusinessCompanyDataOrigin;
+  productionApproved: false;
+  sourceName: string | null;
+  sourceLabel: string | null;
+  sourceRef: string | null;
+  period: string | null;
+  asOf: string | null;
+  missingFields: string[];
+  warnings: string[];
+};
+
 export type BusinessAction = {
   label: string;
   description?: string;

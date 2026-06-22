@@ -15,7 +15,7 @@ export function BusinessIdentityCard({ data, isSample, onDeepDive }: BusinessIde
           <Chip variant="accent">Hiểu nhanh trong 30 giây</Chip>
           <Chip variant="neutral">{data.ticker}</Chip>
           <Chip variant="neutral">{data.businessType}</Chip>
-          {isSample ? <Chip variant="warning">Dữ liệu mẫu</Chip> : null}
+          {isSample ? <Chip variant="warning">Dữ liệu minh họa</Chip> : null}
         </div>
 
         <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
