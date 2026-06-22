@@ -3,6 +3,7 @@ import {
   businessCompanyProfileTickers,
   businessCompanyProfiles,
 } from "../../data/businessCompanyProfiles.data";
+import { resolveBusinessJourneyData } from "../../components/BusinessPage";
 import {
   findBusinessCompanyProfile,
   formatBusinessProfileField,
@@ -67,6 +68,30 @@ describe("business company data audit", () => {
     expect(businessCompanyProfiles.VNM.missingFields).toContain(
       "Mô tả hoạt động doanh nghiệp đã xác minh"
     );
+  });
+
+  it("does not borrow the MWG journey when an explicit FPT ticker is selected", () => {
+    const result = resolveBusinessJourneyData("FPT");
+
+    expect(result.profile?.ticker).toBe("FPT");
+    expect(result.data).toBeNull();
+    expect(result.isUsingSampleData).toBe(false);
+  });
+
+  it("does not borrow the MWG journey when an explicit VNM ticker is selected", () => {
+    const result = resolveBusinessJourneyData("VNM");
+
+    expect(result.profile?.ticker).toBe("VNM");
+    expect(result.data).toBeNull();
+    expect(result.isUsingSampleData).toBe(false);
+  });
+
+  it("uses the MWG sample journey only when the URL has no ticker", () => {
+    const result = resolveBusinessJourneyData(null);
+
+    expect(result.profile?.ticker).toBe("MWG");
+    expect(result.data?.businessIdentity.ticker).toBe("MWG");
+    expect(result.isUsingSampleData).toBe(true);
   });
 
   it("does not contain positive recommendation copy in company profile data", () => {

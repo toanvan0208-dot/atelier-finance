@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { resolveInitialValuationTicker } from "../../components/ValuationPage";
 import { buildControlledValuationCalculation } from "../controlled-valuation-calculation";
 import { buildControlledValuationIntegrationBoundary } from "../controlled-valuation-integration-boundary";
 
@@ -13,6 +14,18 @@ const metricValues = (result: ReturnType<typeof buildControlledValuationCalculat
 ];
 
 describe("Valuation MVP audit guardrails", () => {
+  it.each(["FPT", "MWG", "VNM"])("uses the URL ticker %s instead of FPTLAB for initial valuation context", (ticker) => {
+    expect(resolveInitialValuationTicker({ urlTicker: ticker })).toBe(ticker);
+  });
+
+  it("keeps the controlled scenario ticker ahead of URL ticker only for explicit controlled scenarios", () => {
+    expect(resolveInitialValuationTicker({ controlledTicker: "UNIT71", urlTicker: "FPT" })).toBe("UNIT71");
+  });
+
+  it("uses FPTLAB only when no URL ticker or controlled scenario ticker exists", () => {
+    expect(resolveInitialValuationTicker({})).toBe("FPTLAB");
+  });
+
   it("keeps FPT, MWG, and VNM missing inputs as null instead of using wrong-ticker fallback values", () => {
     for (const ticker of ["FPT", "MWG", "VNM"]) {
       const boundary = buildControlledValuationIntegrationBoundary({

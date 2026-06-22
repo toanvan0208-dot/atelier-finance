@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { DataQualityBanner } from "@/components/shared/DataQualityBanner";
 import { Button, Card, CardBody, Chip, EmptyState, LoadingState } from "@/components/ui";
 import {
@@ -47,6 +47,7 @@ type ValuationBridgeState =
   | { status: "error"; ticker: string; message: string };
 
 const navigationChangeEvent = "app:navigation";
+const defaultValuationTicker = "FPTLAB";
 
 const normalizeTicker = (ticker: string | null | undefined): string | null => {
   const normalized = ticker?.trim().toUpperCase();
@@ -59,21 +60,40 @@ const tickerMatches = (expected: string | null | undefined, actual: string | nul
   return Boolean(expectedTicker && actualTicker && expectedTicker === actualTicker);
 };
 
-const useValuationTickerFromUrl = () =>
-  useSyncExternalStore(
-    (callback) => {
-      const timeoutId = window.setTimeout(callback, 0);
-      window.addEventListener("popstate", callback);
-      window.addEventListener(navigationChangeEvent, callback);
-      return () => {
-        window.clearTimeout(timeoutId);
-        window.removeEventListener("popstate", callback);
-        window.removeEventListener(navigationChangeEvent, callback);
-      };
-    },
-    () => normalizeTicker(new URLSearchParams(window.location.search).get("ticker")),
-    () => null,
-  );
+export function resolveInitialValuationTicker({
+  controlledTicker,
+  urlTicker,
+}: {
+  controlledTicker?: string | null;
+  urlTicker?: string | null;
+}) {
+  return normalizeTicker(controlledTicker) ?? normalizeTicker(urlTicker) ?? defaultValuationTicker;
+}
+
+const readValuationTickerFromLocation = () => {
+  if (typeof window === "undefined") return null;
+
+  return normalizeTicker(new URLSearchParams(window.location.search).get("ticker"));
+};
+
+const useValuationTickerFromUrl = () => {
+  const [ticker, setTicker] = useState<string | null>(() => readValuationTickerFromLocation());
+
+  useEffect(() => {
+    const updateTicker = () => setTicker(readValuationTickerFromLocation());
+
+    updateTicker();
+    window.addEventListener("popstate", updateTicker);
+    window.addEventListener(navigationChangeEvent, updateTicker);
+
+    return () => {
+      window.removeEventListener("popstate", updateTicker);
+      window.removeEventListener(navigationChangeEvent, updateTicker);
+    };
+  }, []);
+
+  return ticker;
+};
 
 const readableBoundaryValue = (value: string): string => value.replace(/_/g, " ");
 
@@ -227,10 +247,14 @@ export function ValuationPage({ initialFinancialsRuntimeData, initialScenario, o
         : null,
     [controlledScenario],
   );
-  const [tickerInput, setTickerInput] = useState(controlledScenario?.ticker ?? "FPTLAB");
-  const [request, setRequest] = useState({ ticker: controlledScenario?.ticker ?? "FPTLAB", id: 0 });
+  const initialTicker = resolveInitialValuationTicker({
+    controlledTicker: controlledScenario?.ticker,
+    urlTicker: tickerFromUrl,
+  });
+  const [tickerInput, setTickerInput] = useState(initialTicker);
+  const [request, setRequest] = useState({ ticker: initialTicker, id: 0 });
   const [bridgeState, setBridgeState] = useState<ValuationBridgeState>(
-    controlledScenarioBridgeState ?? { status: "loading", ticker: controlledScenario?.ticker ?? "FPTLAB" },
+    controlledScenarioBridgeState ?? { status: "loading", ticker: initialTicker },
   );
   const bridgeTicker = "ticker" in bridgeState ? bridgeState.ticker : null;
   const urlRequestTicker =

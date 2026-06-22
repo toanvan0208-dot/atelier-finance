@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button, Card, CardBody, Chip, EmptyState, LoadingState } from "@/components/ui";
 import {
   businessJourneyByTicker,
@@ -25,6 +25,8 @@ type BusinessPageProps = {
   onNavigate?: (moduleKey: string) => void;
 };
 
+const navigationChangeEvent = "app:navigation";
+
 const journeySteps = [
   "Hiểu công ty",
   "Hiểu khách hàng",
@@ -35,28 +37,32 @@ const journeySteps = [
   "Sang BCTC kiểm chứng",
 ];
 
-function useTickerFromUrl() {
-  return useSyncExternalStore(
-    (callback) => {
-      const timeoutId = window.setTimeout(callback, 0);
-      window.addEventListener("popstate", callback);
+function readTickerFromLocation() {
+  if (typeof window === "undefined") return null;
 
-      return () => {
-        window.clearTimeout(timeoutId);
-        window.removeEventListener("popstate", callback);
-      };
-    },
-    () => {
-      if (typeof window === "undefined") return null;
-
-      const params = new URLSearchParams(window.location.search);
-      return params.get("ticker");
-    },
-    () => null
-  );
+  return new URLSearchParams(window.location.search).get("ticker");
 }
 
-function getBusinessJourneyData(selectedTicker: string | null) {
+function useTickerFromUrl() {
+  const [ticker, setTicker] = useState<string | null>(() => readTickerFromLocation());
+
+  useEffect(() => {
+    const updateTicker = () => setTicker(readTickerFromLocation());
+
+    updateTicker();
+    window.addEventListener("popstate", updateTicker);
+    window.addEventListener(navigationChangeEvent, updateTicker);
+
+    return () => {
+      window.removeEventListener("popstate", updateTicker);
+      window.removeEventListener(navigationChangeEvent, updateTicker);
+    };
+  }, []);
+
+  return ticker;
+}
+
+export function resolveBusinessJourneyData(selectedTicker: string | null) {
   if (!selectedTicker) {
     return {
       data: businessJourneyByTicker[defaultBusinessJourneyTicker],
@@ -69,7 +75,7 @@ function getBusinessJourneyData(selectedTicker: string | null) {
   const profile = findBusinessCompanyProfile(selectedTicker);
 
   return {
-    data: businessJourneyByTicker[selectedTicker] ?? null,
+    data: profile ? businessJourneyByTicker[selectedTicker] ?? null : null,
     profile,
     isUsingSampleData: false,
     hasUnsupportedTicker: !profile,
@@ -190,7 +196,7 @@ export function BusinessPage({ onNavigate }: BusinessPageProps) {
   const tickerFromUrl = useTickerFromUrl();
   const selectedTicker = normalizeBusinessTicker(tickerFromUrl);
   const { data, profile, hasUnsupportedTicker, isUsingSampleData } = useMemo(
-    () => getBusinessJourneyData(selectedTicker),
+    () => resolveBusinessJourneyData(selectedTicker),
     [selectedTicker]
   );
   const [deepDive, setDeepDive] = useState<BusinessDeepDiveData | null>(null);
@@ -208,10 +214,10 @@ export function BusinessPage({ onNavigate }: BusinessPageProps) {
     const title = hasUnsupportedTicker
       ? `Chưa có dữ liệu mô hình kinh doanh cho mã ${selectedTicker}.`
       : profile
-        ? `Đã nhận đúng mã ${profile.ticker}; nội dung mô hình chi tiết đang được rà soát.`
+        ? `Chưa đủ dữ liệu mô tả doanh nghiệp cho ${profile.ticker}.`
         : emptyState.title;
     const description = profile
-      ? "Chưa đủ dữ liệu đã xác minh để hiển thị các phần mô hình kinh doanh. Hệ thống không dùng nội dung mẫu của mã khác để thay thế."
+      ? "Cần bổ sung dữ liệu doanh nghiệp đã rà soát trước khi kết luận. Hệ thống không dùng nội dung mẫu của mã khác để thay thế."
       : emptyState.description;
 
     return (
