@@ -20,9 +20,12 @@ export type LoadFinancialsRuntimeDataOptions = {
   env?: Record<string, string | undefined>;
 };
 
+import type { getLatestMarketPrice } from "../../../lib/database/services/market-price-service";
+
 export type LoadFinancialsRuntimeDataDeps = {
   readSeries?: typeof getFinancialStatementSeries;
   adaptSeries?: typeof adaptFinancialStatementSeries;
+  readLatestMarketPrice?: typeof getLatestMarketPrice;
 };
 
 const DB_ENV_FLAG = "ATELIER_FINANCIALS_DB_SOURCE";
@@ -121,16 +124,26 @@ const dbBackedResult = ({
   dataMode,
   adapted,
   readResult,
+  marketPriceRecord,
 }: {
   ticker: string;
   sourceLabel: string;
   dataMode: string;
   adapted: AdaptFinancialStatementSeriesResult;
   readResult: FinancialStatementSeriesResult;
+  marketPriceRecord: { closePrice: any } | null;
 }): FinancialsRuntimeData => {
   const firstStatement = adapted.statements[0];
   const firstRecord = readResult.records[0];
   const statementSnapshot = firstStatement?.snapshot ?? null;
+  
+  if (statementSnapshot && marketPriceRecord?.closePrice !== undefined && marketPriceRecord?.closePrice !== null) {
+    const parsedPrice = Number(marketPriceRecord.closePrice);
+    if (Number.isFinite(parsedPrice)) {
+      statementSnapshot.closePrice = parsedPrice;
+    }
+  }
+
   const source = {
     sourceLabel: firstStatement?.metadata.sourceLabel ?? sourceLabel,
     dataMode: firstStatement?.metadata.dataMode ?? dataMode,
@@ -182,8 +195,28 @@ export const loadFinancialsRuntimeData = async (
     const readSeries =
       deps.readSeries ??
       (await import("../../../lib/data-sources/financial-statement-read-service")).getFinancialStatementSeries;
+    let readLatestMarketPrice = deps.readLatestMarketPrice;
+    if (!readLatestMarketPrice) {
+      try {
+        readLatestMarketPrice = (await import("../../../lib/database/services/market-price-service")).getLatestMarketPrice;
+      } catch {
+        readLatestMarketPrice = async () => null;
+      }
+    }
+
     const adaptSeries = deps.adaptSeries ?? adaptFinancialStatementSeries;
+    
     const readResult = await readSeries({ ticker, sourceLabel, dataMode, limit: 8 });
+    
+    let marketPriceRecord = null;
+    try {
+      if (typeof readLatestMarketPrice === "function") {
+        marketPriceRecord = await readLatestMarketPrice(ticker, { dataMode: dataMode as any });
+      }
+    } catch (e) {
+      marketPriceRecord = null;
+    }
+    
     const adapted = adaptSeries(readResult);
 
     if (adapted.ok && adapted.statements.length > 0) {
@@ -199,7 +232,7 @@ export const loadFinancialsRuntimeData = async (
           readResult,
         });
       }
-      return dbBackedResult({ ticker, sourceLabel, dataMode, adapted, readResult });
+      return dbBackedResult({ ticker, sourceLabel, dataMode, adapted, readResult, marketPriceRecord });
     }
 
     const warnings = [
