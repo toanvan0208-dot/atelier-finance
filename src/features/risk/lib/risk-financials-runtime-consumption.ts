@@ -36,6 +36,7 @@ export type RiskFinancialsRuntimeConsumption = {
 export type BuildRiskFinancialsRuntimeConsumptionInput = {
   financialsRuntimeData?: FinancialsRuntimeData | null;
   hasStaticRiskPath?: boolean;
+  traceableTotalDebt?: number | null;
 };
 
 const riskFinancialFields = [
@@ -53,13 +54,16 @@ const riskFinancialFields = [
 const fieldValue = (
   field: (typeof riskFinancialFields)[number],
   runtimeData?: FinancialsRuntimeData | null,
+  traceableTotalDebt?: number | null,
 ): number | null => {
   const snapshot = runtimeData?.statementSnapshot;
   if (!snapshot) return null;
 
   if (field === "netIncome") return snapshot.netProfit ?? null;
   if (field === "equity") return snapshot.totalEquity ?? null;
-  if (field === "totalDebt") return null;
+  if (field === "totalDebt") {
+    return traceableTotalDebt !== undefined ? traceableTotalDebt : snapshot.totalDebt ?? null;
+  }
   return snapshot[field] ?? null;
 };
 
@@ -80,9 +84,14 @@ const sourceMode = ({
 export const buildRiskFinancialsRuntimeConsumption = ({
   financialsRuntimeData = null,
   hasStaticRiskPath = true,
+  traceableTotalDebt,
 }: BuildRiskFinancialsRuntimeConsumptionInput = {}): RiskFinancialsRuntimeConsumption => {
-  const consumedFields = riskFinancialFields.filter((field) => fieldValue(field, financialsRuntimeData) !== null);
-  const unavailableFields = riskFinancialFields.filter((field) => fieldValue(field, financialsRuntimeData) === null);
+  const consumedFields = riskFinancialFields.filter(
+    (field) => fieldValue(field, financialsRuntimeData, traceableTotalDebt) !== null,
+  );
+  const unavailableFields = riskFinancialFields.filter(
+    (field) => fieldValue(field, financialsRuntimeData, traceableTotalDebt) === null,
+  );
   const readiness = buildRiskFinancialsRuntimeReadiness({
     financialsRuntimeData,
     hasStaticRiskPath,
@@ -90,7 +99,7 @@ export const buildRiskFinancialsRuntimeConsumption = ({
       operatingCashFlow: fieldValue("operatingCashFlow", financialsRuntimeData),
       netIncome: fieldValue("netIncome", financialsRuntimeData),
       revenue: fieldValue("revenue", financialsRuntimeData),
-      totalDebt: fieldValue("totalDebt", financialsRuntimeData),
+      totalDebt: fieldValue("totalDebt", financialsRuntimeData, traceableTotalDebt),
       equity: fieldValue("equity", financialsRuntimeData),
       totalAssets: fieldValue("totalAssets", financialsRuntimeData),
       currentAssets: fieldValue("currentAssets", financialsRuntimeData),

@@ -24,6 +24,12 @@ const blockedMetricLabel = (metric: string): string =>
 
 const coverageLabel = (field: string): string => (field === "operatingCashFlow" ? "CFO" : field);
 
+const sourceDecisionLabel: Record<keyof PortfolioReadinessItem["sourceDecisions"], string> = {
+  eps: "EPS",
+  sharesOutstanding: "Shares outstanding",
+  totalDebt: "Total debt",
+};
+
 function ReadinessRow({ item }: { item: PortfolioReadinessItem }) {
   const missingInputs = item.missingInputs.length ? item.missingInputs.join(", ") : "none";
   const blockedMetrics = item.blockedMetrics.length
@@ -114,6 +120,21 @@ function ReadinessRow({ item }: { item: PortfolioReadinessItem }) {
             <span key={field}>
               {coverageLabel(field)}:{coverage.status}
             </span>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-3 rounded-[3px] border border-border-soft bg-surface px-2 py-2">
+        <p className="text-[11px] font-bold text-subtle">Traceable input decisions</p>
+        <div className="mt-1 grid gap-1 text-[11px] leading-5 text-muted md:grid-cols-3">
+          {Object.entries(item.sourceDecisions).map(([field, decision]) => (
+            <p key={field}>
+              <span className="font-semibold text-ink">
+                {sourceDecisionLabel[field as keyof PortfolioReadinessItem["sourceDecisions"]]}: {decision.status}
+              </span>{" "}
+              · {decision.reason}
+              {decision.sourceLabel ? ` · ${decision.sourceLabel} · ${decision.unit} · ${decision.period}` : ""}
+            </p>
           ))}
         </div>
       </div>

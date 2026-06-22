@@ -58,6 +58,50 @@ const portfolioReadiness: PortfolioReadinessResult = {
       status: "partial",
     },
     sharesOutstanding: { status: "unavailable", unit: null, value: null },
+    sourceDecisions: {
+      eps: {
+        activationStatus: "deferred",
+        asOf: null,
+        field: "eps",
+        period: null,
+        productionApproved: false,
+        reason: "No traceable eps value with explicit unit and aligned period is available.",
+        reasonCode: "traceable_eps_unavailable",
+        sourceLabel: null,
+        status: "unavailable",
+        ticker,
+        unit: null,
+        value: null,
+      },
+      sharesOutstanding: {
+        activationStatus: "deferred",
+        asOf: null,
+        field: "sharesOutstanding",
+        period: null,
+        productionApproved: false,
+        reason: "No traceable sharesOutstanding value with explicit unit and aligned period is available.",
+        reasonCode: "traceable_sharesOutstanding_unavailable",
+        sourceLabel: null,
+        status: "unavailable",
+        ticker,
+        unit: null,
+        value: null,
+      },
+      totalDebt: {
+        activationStatus: "deferred",
+        asOf: null,
+        field: "totalDebt",
+        period: null,
+        productionApproved: false,
+        reason: "No traceable total-debt value is available; total liabilities are not treated as debt.",
+        reasonCode: "traceable_total_debt_unavailable",
+        sourceLabel: null,
+        status: "unavailable",
+        ticker,
+        unit: null,
+        value: null,
+      },
+    },
     technical: {
       dataMode: "research_only",
       fallbackUsed: false,
@@ -101,6 +145,11 @@ describe("PortfolioReadinessPanel", () => {
     expect(html).toContain("totalDebt:unavailable");
     expect(html).toContain("cash flow:ready");
     expect(html).toContain("liquidity:ready");
+    expect(html).toContain("Traceable input decisions");
+    expect(html).toContain("Total debt: unavailable");
+    expect(html).toContain("EPS: unavailable");
+    expect(html).toContain("Shares outstanding: unavailable");
+    expect(html).toContain("total liabilities are not treated as debt");
   });
 
   it("does not introduce forbidden positive wording", () => {

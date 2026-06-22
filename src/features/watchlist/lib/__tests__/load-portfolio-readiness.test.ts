@@ -181,6 +181,14 @@ describe("loadPortfolioReadiness", () => {
       expect(item.sharesOutstanding.value).not.toBe(0);
       expect(item.eps).toEqual({ status: "unavailable", value: null });
       expect(item.eps.value).not.toBe(0);
+      expect(item.sourceDecisions.totalDebt).toMatchObject({
+        activationStatus: "deferred",
+        sourceLabel: null,
+        status: "unavailable",
+        value: null,
+      });
+      expect(item.sourceDecisions.eps.status).toBe("unavailable");
+      expect(item.sourceDecisions.sharesOutstanding.status).toBe("unavailable");
     }
   });
 
@@ -263,6 +271,55 @@ describe("loadPortfolioReadiness", () => {
       unit: null,
       value: 9_800,
     });
+  });
+
+  it("improves only the matching ticker and metric for a fully traceable candidate", async () => {
+    const result = await loadPortfolioReadiness({
+      loadFinancials: async (input = {}) => financialsRuntime(input.ticker ?? "UNKNOWN"),
+      loadTechnical: async (input = {}) => technicalRuntime(input.ticker ?? "UNKNOWN"),
+      readIssuerMetadata: getIssuerMetadata,
+      traceableInputCandidates: {
+        FPT: {
+          eps: {
+            asOf: "2026-06-22",
+            field: "eps",
+            period: "2024",
+            productionApproved: false,
+            sourceLabel: "traceable_research_financial_input",
+            ticker: "FPT",
+            unit: "vnd_per_share",
+            value: 5_000,
+          },
+        },
+      },
+    });
+    const fpt = result.tickers.find((item) => item.ticker === "FPT");
+    const mwg = result.tickers.find((item) => item.ticker === "MWG");
+
+    expect(fpt?.sourceDecisions.eps.status).toBe("available");
+    expect(fpt?.valuation.pe).toBe("ready");
+    expect(fpt?.valuation.marketCap).toBe("insufficient_data");
+    expect(fpt?.valuation.canClaimValuationDbBacked).toBe(false);
+    expect(mwg?.sourceDecisions.eps.status).toBe("unavailable");
+    expect(mwg?.valuation.pe).toBe("insufficient_data");
+  });
+
+  it("does not leak a debt value into Risk when its unit decision fails closed", async () => {
+    const runtime = financialsRuntime("FPT", { totalDebt: 500 });
+    runtime.unitMetadata.totalDebt = {
+      ...runtime.unitMetadata.totalDebt,
+      status: "invalid_unit",
+      unit: "shares",
+    };
+    const result = await loadPortfolioReadiness({
+      loadFinancials: async () => runtime,
+      loadTechnical: async (input = {}) => technicalRuntime(input.ticker ?? "UNKNOWN"),
+      readIssuerMetadata: getIssuerMetadata,
+    });
+
+    expect(result.tickers[0].sourceDecisions.totalDebt.status).toBe("insufficient_source");
+    expect(result.tickers[0].risk.leverageRisk).toBe("insufficient_data");
+    expect(result.tickers[0].missingInputs).toContain("totalDebt");
   });
 
   it("passes bounded VNStock technical read parameters for every ticker", async () => {

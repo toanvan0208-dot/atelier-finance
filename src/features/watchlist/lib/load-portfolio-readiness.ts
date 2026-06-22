@@ -9,6 +9,12 @@ import { buildRiskFinancialsRuntimeConsumption } from "@/features/risk/lib/risk-
 import type { TechnicalPageRuntimeData } from "@/features/technical";
 import { loadTechnicalRuntimeData, type LoadTechnicalRuntimeDataDependencies } from "@/features/technical/lib/load-technical-runtime-data";
 import { buildValuationFinancialsRuntimeReadiness } from "@/features/valuation/lib/valuation-financials-runtime-readiness";
+import {
+  buildTraceableInputSourceDecisions,
+  type TraceableInputCandidate,
+  type TraceableInputField,
+  type TraceableInputSourceDecisions,
+} from "./traceable-input-source-decisions";
 
 export const PORTFOLIO_READINESS_TICKERS = ["FPT", "MWG", "VNM"] as const;
 export const PORTFOLIO_READINESS_TECHNICAL_FROM = "2025-06-02" as const;
@@ -58,6 +64,7 @@ export type PortfolioReadinessItem = {
     status: "available" | "unavailable";
     value: number | null;
   };
+  sourceDecisions: TraceableInputSourceDecisions;
   valuation: {
     status: PortfolioReadinessStatus;
     canClaimValuationDbBacked: false;
@@ -93,6 +100,9 @@ export type LoadPortfolioReadinessDeps = {
   technicalDeps?: LoadTechnicalRuntimeDataDependencies;
   loadFinancials?: typeof loadFinancialsRuntimeData;
   financialsDeps?: LoadFinancialsRuntimeDataDeps;
+  traceableInputCandidates?: Partial<
+    Record<PortfolioReadinessTicker, Partial<Record<TraceableInputField, TraceableInputCandidate | null>>>
+  >;
 };
 
 const statusFromBoolean = (available: boolean): PortfolioReadinessStatus => (available ? "available" : "unavailable");
@@ -133,19 +143,17 @@ const riskStatus = (risk: ReturnType<typeof buildRiskFinancialsRuntimeConsumptio
 const unique = (items: string[]): string[] => Array.from(new Set(items.filter(Boolean)));
 
 const missingInputsFrom = ({
-  metadata,
-  financials,
   technical,
   risk,
+  sourceDecisions,
 }: {
-  metadata: IssuerMetadataRecord;
-  financials: FinancialsRuntimeData;
   technical: TechnicalPageRuntimeData;
   risk: ReturnType<typeof buildRiskFinancialsRuntimeConsumption>;
+  sourceDecisions: TraceableInputSourceDecisions;
 }): string[] =>
   unique([
-    metadata.sharesOutstanding === null ? "sharesOutstanding" : "",
-    financials.statementSnapshot?.eps === null || financials.statementSnapshot?.eps === undefined ? "eps" : "",
+    sourceDecisions.sharesOutstanding.status !== "available" ? "sharesOutstanding" : "",
+    sourceDecisions.eps.status !== "available" ? "eps" : "",
     technical.fallbackUsed ? "technical_db_backed_vnstock_rows" : "",
     ...risk.unavailableFields,
   ]);
@@ -169,20 +177,35 @@ const buildItem = ({
   financials,
   metadata,
   technical,
+  traceableInputCandidates,
 }: {
   financials: FinancialsRuntimeData;
   metadata: IssuerMetadataRecord;
   technical: TechnicalPageRuntimeData;
+  traceableInputCandidates?: Partial<Record<TraceableInputField, TraceableInputCandidate | null>>;
 }): PortfolioReadinessItem => {
+  const sourceDecisions = buildTraceableInputSourceDecisions({
+    candidates: traceableInputCandidates,
+    financials,
+    ticker: metadata.ticker,
+  });
+  const traceableTotalDebt = sourceDecisions.totalDebt.status === "available" ? sourceDecisions.totalDebt.value : null;
+  const eps = sourceDecisions.eps.status === "available" ? sourceDecisions.eps.value : null;
+  const sharesOutstanding =
+    sourceDecisions.sharesOutstanding.status === "available" ? sourceDecisions.sharesOutstanding.value : null;
+  const financialsForValuation: FinancialsRuntimeData = financials.statementSnapshot
+    ? {
+        ...financials,
+        statementSnapshot: { ...financials.statementSnapshot, eps, sharesOutstanding },
+      }
+    : financials;
   const valuation = buildValuationFinancialsRuntimeReadiness({
-    financialsRuntimeData: financials,
+    financialsRuntimeData: financialsForValuation,
     valuationConsumesFinancialsRuntime: true,
   });
-  const risk = buildRiskFinancialsRuntimeConsumption({ financialsRuntimeData: financials });
-  const sharesOutstanding = metadata.sharesOutstanding;
-  const eps = financials.statementSnapshot?.eps ?? null;
+  const risk = buildRiskFinancialsRuntimeConsumption({ financialsRuntimeData: financials, traceableTotalDebt });
   const blockedMetrics = blockedMetricsFrom({ eps, sharesOutstanding });
-  const missingInputs = missingInputsFrom({ financials, metadata, risk, technical });
+  const missingInputs = missingInputsFrom({ risk, sourceDecisions, technical });
   const financialCoverage = buildFinancialStatementCoverage(financials);
 
   return {
@@ -225,6 +248,7 @@ const buildItem = ({
       status: statusFromBoolean(eps !== null && eps !== undefined) as "available" | "unavailable",
       value: eps,
     },
+    sourceDecisions,
     valuation: {
       bvps: valuation.calculationReadiness.bvps,
       canClaimValuationDbBacked: false,
@@ -291,7 +315,12 @@ export const loadPortfolioReadiness = async (
         ),
       ]);
 
-      return buildItem({ financials, metadata, technical });
+      return buildItem({
+        financials,
+        metadata,
+        technical,
+        traceableInputCandidates: deps.traceableInputCandidates?.[ticker],
+      });
     }),
   );
 
