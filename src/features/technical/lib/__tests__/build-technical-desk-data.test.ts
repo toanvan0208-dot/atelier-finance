@@ -201,8 +201,7 @@ describe("technical PVT builder", () => {
   it("does not output prohibited Vietnamese recommendation wording", () => {
     const data = buildTechnicalDeskData(baseData, completeSnapshot);
     const output = JSON.stringify(data).toLowerCase();
-
-    expect(output).not.toMatch(/nên mua|nên bán|nên nắm giữ|tín hiệu mua|tín hiệu bán|điểm mua|cổ phiếu an toàn|chắc chắn rẻ|chắc chắn xấu/);
+    expect(output).not.toMatch(/nên mua|nên bán|nên nắm giữ|tín hiệu mua|tín hiệu bán|điểm mua|điểm bán|vào lệnh|thoát lệnh|đáng mua|đáng bán|cổ phiếu khỏe để mua|cổ phiếu yếu nên bán|khuyến nghị|cổ phiếu an toàn|chắc chắn rẻ|chắc chắn xấu/);
   });
 
   it("keeps price change unavailable when previousClosePrice is missing", () => {
@@ -306,7 +305,6 @@ describe("technical PVT builder", () => {
   it("does not output buy/sell/hold recommendation wording", () => {
     const data = buildTechnicalDeskData(baseData, completeSnapshot);
     const output = JSON.stringify(data).toLowerCase();
-
-    expect(output).not.toMatch(/tín hiệu mua|tín hiệu bán|sell the news|\bbuy\b|\bsell\b|\bhold\b|recommendation/);
+    expect(output).not.toMatch(/tín hiệu mua|tín hiệu bán|sell the news|\bbuy\b|\bsell\b|\bhold\b|recommendation|fair value|target price/);
   });
 });

@@ -193,6 +193,16 @@ describe("TechnicalPage source transparency", () => {
     expect(html.toLowerCase()).not.toContain("downside");
   });
 
+  it("does not render any prohibited recommendation or prediction wording", () => {
+    const html = renderPage({
+      ...dbRuntimeBase,
+    });
+    const forbidden = ["nên mua", "nên bán", "nắm giữ", "tín hiệu", "điểm mua", "điểm bán", "vào lệnh", "thoát lệnh", "fair value", "target price", "đáng mua", "đáng bán", "cổ phiếu khỏe để mua", "cổ phiếu yếu nên bán", "khuyến nghị"];
+    for (const term of forbidden) {
+      expect(html.toLowerCase()).not.toContain(term.toLowerCase());
+    }
+  });
+
   it("displays DB-backed source transparency and chart boundary without client DB imports", () => {
     const html = renderPage({
       ...dbRuntimeBase,
