@@ -112,7 +112,7 @@ export const learningPageData: LearningPageData = {
       outcome: "Nói được công ty bán gì, bán cho ai và kiếm lợi nhuận từ đâu.",
       concept: "Mô hình kinh doanh là cách công ty tạo doanh thu và lợi nhuận.",
       simpleExplanation:
-        "Trước khi hỏi cổ phiếu có hấp dẫn không, hãy hỏi công ty bán gì và vì sao khách hàng trả tiền.",
+        "Trước khi hỏi cổ phiếu có đáng nghiên cứu không, hãy hỏi công ty bán gì và vì sao khách hàng trả tiền.",
       usedInModule: "Hiểu doanh nghiệp, BCTC, Lọc cổ phiếu.",
       realExample:
         "Một chuỗi bán lẻ kiếm tiền từ doanh thu cửa hàng, biên lợi nhuận sản phẩm và hiệu quả vận hành.",
@@ -278,7 +278,7 @@ export const learningPageData: LearningPageData = {
       usedInModule: "Định giá, Rủi ro, Watchlist.",
       realExample:
         "P/E thấp nhưng lợi nhuận đang giảm, nợ tăng và dòng tiền yếu thì cần thận trọng.",
-      commonMistake: "Thấy P/E thấp rồi kết luận định giá hấp dẫn.",
+      commonMistake: "Thấy P/E thấp rồi vội vàng kết luận mà không kiểm tra dữ liệu.",
       dataToCheck: ["Tăng trưởng lợi nhuận", "CFO", "Nợ vay", "Biên lợi nhuận", "Triển vọng ngành"],
       quiz: {
         question: "P/E thấp có luôn là cơ hội không?",
@@ -469,7 +469,7 @@ export const learningPageData: LearningPageData = {
     completedQuiz: "8 quiz",
     completedMiniCase: "2 mini case",
     personalNote:
-      "Khi thấy một cổ phiếu có vẻ hấp dẫn, hãy viết rõ dữ liệu xác nhận và dữ liệu phủ định trước khi đi tiếp.",
+      "Khi phân tích một cổ phiếu, hãy viết rõ dữ liệu xác nhận và dữ liệu phủ định trước khi đi tiếp.",
     readiness: [
       {
         moduleName: "Vĩ mô",

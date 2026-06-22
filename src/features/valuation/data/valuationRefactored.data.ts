@@ -89,7 +89,7 @@ export const baseValuationRefactoredData: ValuationRefactoredData = {
       name: "P/E",
       role: "Chính",
       explanation:
-        "Phù hợp vì MWG là doanh nghiệp bán lẻ đã có lợi nhuận, thị trường thường so sánh bằng giá cổ phiếu chia cho lợi nhuận trên mỗi cổ phiếu.",
+        "P/E cho biết thị trường đang trả bao nhiêu đồng cho một đồng lợi nhuận. Chỉ số này cần được đọc cùng lợi nhuận, ngành và dữ liệu còn thiếu; không đủ để kết luận mua/bán.",
       confidence: "Trung bình",
     },
     {

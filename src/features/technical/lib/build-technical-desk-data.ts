@@ -473,7 +473,7 @@ const buildChartSeries = ({
         },
         {
           question: "MA20/MA50 co hien thi khong?",
-          answer: "MA20/MA50 chi hien thi khi co du observations tu cung chuoi DB-backed.",
+          answer: "MA20/MA50 là trung bình giá trong 20/50 phiên. Nếu chưa đủ số phiên dữ liệu, hệ thống sẽ hiển thị chưa đủ dữ liệu thay vì tính bừa.",
         },
         {
           question: "Co su kien tren chart khong?",

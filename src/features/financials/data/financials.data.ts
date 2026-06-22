@@ -161,8 +161,8 @@ export const financialsPageData: FinancialsPageData = {
         source: "Mock data",
         isMock: true,
         detail: {
-          definition: "CFO là dòng tiền từ hoạt động kinh doanh.",
-          whyItMatters: "CFO kiểm tra lợi nhuận có chuyển thành tiền thật hay không.",
+          definition: "Dòng tiền hoạt động cho biết tiền tạo ra từ hoạt động kinh doanh chính.",
+          whyItMatters: "Lợi nhuận dương nhưng dòng tiền yếu là điểm cần kiểm tra thêm. CFO kiểm tra lợi nhuận có chuyển thành tiền thật hay không.",
           relatedStatement: "Lưu chuyển tiền tệ",
           commonMistake: "Chỉ thấy CFO dương mà không so với lợi nhuận và vốn lưu động.",
         },
@@ -233,7 +233,7 @@ export const financialsPageData: FinancialsPageData = {
         source: "Mock data",
         isMock: true,
         detail: {
-          definition: "ROE đo lợi nhuận tạo ra trên vốn chủ sở hữu.",
+          definition: "ROE cho biết doanh nghiệp tạo ra bao nhiêu lợi nhuận so với vốn chủ sở hữu. ROE không nên đọc riêng lẻ mà cần xem cùng nợ, lợi nhuận và dòng tiền.",
           whyItMatters: "ROE giúp đánh giá doanh nghiệp dùng vốn cổ đông hiệu quả ra sao.",
           relatedStatement: "Nhóm chỉ số tài chính",
           commonMistake: "Không kiểm tra ROE có đến từ đòn bẩy nợ quá cao hay không.",
@@ -635,7 +635,7 @@ export const financialsPageData: FinancialsPageData = {
         { name: "ROA", value: "4.7%", trend: "Phục hồi", industryCompare: "Chưa đủ dữ liệu", explanation: "Lợi nhuận trên tổng tài sản.", status: "Cần kiểm tra thêm", tone: "warning" },
         { name: "ROE", value: "11.8%", trend: "Phục hồi", industryCompare: "Chưa đủ dữ liệu", explanation: "Lợi nhuận trên vốn chủ sở hữu.", status: "Bình thường", tone: "neutral" },
         { name: "ROS", value: "2.6%", trend: "Dao động", industryCompare: "Cần so ngành", explanation: "Mỗi 100 đồng doanh thu giữ lại bao nhiêu lợi nhuận.", status: "Cần kiểm tra thêm", tone: "warning" },
-        { name: "EPS", value: "Mẫu", trend: "Biến động", industryCompare: "Không áp dụng", explanation: "Lợi nhuận trên mỗi cổ phiếu.", status: "Cần kiểm tra thêm", tone: "warning" },
+        { name: "EPS", value: "Mẫu", trend: "Biến động", industryCompare: "Không áp dụng", explanation: "EPS là lợi nhuận trên mỗi cổ phiếu. EPS thiếu hoặc âm có thể làm P/E không tính được.", status: "Cần kiểm tra thêm", tone: "warning" },
       ] },
       { value: "efficiency", title: "Hiệu quả hoạt động", question: "Doanh nghiệp quản lý tài sản và vốn lưu động hiệu quả không?", ratios: [
         { name: "Vòng quay hàng tồn kho", value: "Mẫu", trend: "Cần đọc kỹ", industryCompare: "Quan trọng với bán lẻ", explanation: "Hàng tồn kho quay nhanh hay chậm.", status: "Cần kiểm tra thêm", tone: "warning" },
