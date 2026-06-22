@@ -9,6 +9,13 @@ import {
   type FinancialsUnitMetadataPersistencePayload,
 } from "@/features/financials/lib/financials-unit-metadata-persistence-boundary";
 import type { ValuationUnit } from "@/features/valuation/lib/valuation-input-unit-provenance";
+import {
+  PHASE116_DATA_MODE,
+  PHASE116_FIELDS,
+  PHASE116_SOURCE_LABEL,
+  type Phase116Field,
+  type Phase116ReviewedRecord,
+} from "./reviewed-financial-missing-fields-import";
 
 export type FinancialStatementReadStatus =
   | "available"
@@ -128,6 +135,7 @@ type StoredFinancialStatement = {
   warningCodes: string;
   errorCodes: string;
   unitMetadata?: StoredFinancialStatementUnitMetadata[];
+  manualImportRecords?: StoredManualImportRecord[];
 };
 
 type StoredFinancialStatementUnitMetadata = {
@@ -138,6 +146,14 @@ type StoredFinancialStatementUnitMetadata = {
   dataMode: string | null;
   warningCodes: string;
   productionApproved: boolean;
+};
+
+type StoredManualImportRecord = {
+  normalizedPayload: string;
+  sourceLabel: string;
+  dataMode: string;
+  readiness: string;
+  qualityStatus: string;
 };
 
 type FinancialStatementReadDb = {
@@ -247,6 +263,7 @@ const resolveDb = async (db: FinancialStatementReadDb | undefined): Promise<Fina
 
 const buildValues = (record: StoredFinancialStatement): FinancialStatementNormalizedValues => {
   const usesLegacyLiabilitiesStorage = LIABILITIES_STORED_IN_LEGACY_DEBT_FIELD_SOURCES.has(record.sourceLabel);
+  const supplemental = supplementalValuesFromManualRecords(record.manualImportRecords);
 
   return {
     revenue: toNullableNumber(record.revenue),
@@ -257,14 +274,66 @@ const buildValues = (record: StoredFinancialStatement): FinancialStatementNormal
     totalLiabilities: usesLegacyLiabilitiesStorage ? toNullableNumber(record.totalDebt) : null,
     totalDebt: usesLegacyLiabilitiesStorage ? null : toNullableNumber(record.totalDebt),
     totalEquity: toNullableNumber(record.equity),
-    cashAndEquivalents: null,
+    cashAndEquivalents: supplemental.cashAndEquivalents,
     currentAssets: toNullableNumber(record.currentAssets),
     currentLiabilities: toNullableNumber(record.currentLiabilities),
     operatingCashFlow: toNullableNumber(record.operatingCashFlow),
-    capitalExpenditure: null,
+    capitalExpenditure: supplemental.capitalExpenditure,
     sharesOutstanding: toNullableNumber(record.sharesOutstanding),
     eps: toNullableNumber(record.eps),
   };
+};
+
+const isPhase116Field = (value: string): value is Phase116Field =>
+  (PHASE116_FIELDS as readonly string[]).includes(value);
+
+const parseSupplementalPayload = (payload: string): Phase116ReviewedRecord | null => {
+  try {
+    const parsed = JSON.parse(payload) as Partial<Phase116ReviewedRecord>;
+    if (
+      !parsed ||
+      parsed.sourceLabel !== PHASE116_SOURCE_LABEL ||
+      parsed.dataMode !== PHASE116_DATA_MODE ||
+      parsed.productionApproved !== false ||
+      typeof parsed.field !== "string" ||
+      !isPhase116Field(parsed.field) ||
+      typeof parsed.value !== "number" ||
+      !Number.isFinite(parsed.value) ||
+      parsed.unit !== "billion_vnd"
+    ) {
+      return null;
+    }
+    if (parsed.field === "cashAndEquivalents" && parsed.value <= 0) return null;
+    if (parsed.field === "capitalExpenditure" && parsed.value >= 0) return null;
+    return parsed as Phase116ReviewedRecord;
+  } catch {
+    return null;
+  }
+};
+
+const supplementalValuesFromManualRecords = (
+  records: StoredManualImportRecord[] | null | undefined,
+): Pick<FinancialStatementNormalizedValues, "capitalExpenditure" | "cashAndEquivalents"> => {
+  const values: Pick<FinancialStatementNormalizedValues, "capitalExpenditure" | "cashAndEquivalents"> = {
+    capitalExpenditure: null,
+    cashAndEquivalents: null,
+  };
+
+  for (const record of records ?? []) {
+    if (
+      record.sourceLabel !== PHASE116_SOURCE_LABEL ||
+      record.dataMode !== PHASE116_DATA_MODE ||
+      record.readiness !== "needs_review" ||
+      record.qualityStatus !== "usable_with_caution"
+    ) {
+      continue;
+    }
+    const payload = parseSupplementalPayload(record.normalizedPayload);
+    if (!payload) continue;
+    values[payload.field] = payload.value;
+  }
+
+  return values;
 };
 
 const unitMetadataPayloadFromSidecar = (
@@ -456,6 +525,20 @@ export const getFinancialStatementSeries = async (
             dataMode: true,
             warningCodes: true,
             productionApproved: true,
+          },
+        },
+        manualImportRecords: {
+          where: {
+            dataMode: PHASE116_DATA_MODE,
+            sourceLabel: PHASE116_SOURCE_LABEL,
+          },
+          orderBy: [{ asOf: "desc" }, { createdAt: "desc" }],
+          select: {
+            dataMode: true,
+            normalizedPayload: true,
+            qualityStatus: true,
+            readiness: true,
+            sourceLabel: true,
           },
         },
       },

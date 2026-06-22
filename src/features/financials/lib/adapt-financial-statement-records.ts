@@ -75,6 +75,7 @@ const adaptRecord = (
     totalDebt: record.values.totalDebt,
     totalEquity: record.values.totalEquity,
     previousTotalEquity: previous?.values.totalEquity ?? null,
+    cashAndEquivalents: record.values.cashAndEquivalents,
     currentAssets: record.values.currentAssets,
     currentLiabilities: record.values.currentLiabilities,
     operatingCashFlow: record.values.operatingCashFlow,

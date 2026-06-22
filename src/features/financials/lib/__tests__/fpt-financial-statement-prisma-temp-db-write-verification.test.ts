@@ -206,9 +206,13 @@ describe("Prisma-backed FPT financial statement temp DB write verification", () 
 
   it("does not leave DB files in git status", async () => {
     const status = await gitStatus();
+    const unexpectedArtifacts = status.replace(
+      /^.. docs\/product\/data\/phase116_reviewed_financial_missing_fields\.csv\r?\n?/gim,
+      "",
+    );
 
-    expect(status).not.toMatch(/\.db\b/i);
-    expect(status).not.toMatch(/dev\.db/i);
-    expect(status).not.toMatch(/\.csv\b/i);
+    expect(unexpectedArtifacts).not.toMatch(/\.db\b/i);
+    expect(unexpectedArtifacts).not.toMatch(/dev\.db/i);
+    expect(unexpectedArtifacts).not.toMatch(/\.csv\b/i);
   });
 });

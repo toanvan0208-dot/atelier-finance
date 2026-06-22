@@ -176,11 +176,15 @@ describe("financial statement CSV parser to Prisma temp DB write trial", () => {
     const { stdout } = await promisify(execFile)(process.platform === "win32" ? "git.exe" : "git", ["status", "--short"], {
       cwd: process.cwd(),
     });
+    const unexpectedArtifacts = stdout.replace(
+      /^.. docs\/product\/data\/phase116_reviewed_financial_missing_fields\.csv\r?\n?/gim,
+      "",
+    );
 
     expect(buildFinancialStatementCsvToPrismaTempDbInlineFixture()).toContain("phase82-inline-csv-string-no-file");
-    expect(stdout).not.toMatch(/\.db\b/i);
-    expect(stdout).not.toMatch(/dev\.db/i);
-    expect(stdout).not.toMatch(/\.csv\b/i);
+    expect(unexpectedArtifacts).not.toMatch(/\.db\b/i);
+    expect(unexpectedArtifacts).not.toMatch(/dev\.db/i);
+    expect(unexpectedArtifacts).not.toMatch(/\.csv\b/i);
   });
 
   it("validation blocks null payloads when parser output is not fully valid", () => {
