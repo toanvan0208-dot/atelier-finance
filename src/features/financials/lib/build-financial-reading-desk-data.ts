@@ -172,14 +172,17 @@ export const buildFinancialReadingDeskData = (
     preliminaryConclusion: {
       ...baseData.preliminaryConclusion,
       status: healthStatusLabel[financialHealth.status],
-      score: financialHealth.score ?? baseData.preliminaryConclusion.score,
+      score: financialHealth.score,
       summary:
         financialHealth.status === "unknown"
           ? financialHealth.beginnerInterpretation
           : `${financialHealth.beginnerInterpretation} Điểm cần đọc tiếp: ${
               [...financialHealth.watchPoints, ...financialHealth.riskPoints][0] ?? "dòng tiền, nợ và biên lợi nhuận."
             }`,
-      scoreNote: "Điểm chỉ dùng để định hướng phần cần đọc tiếp, không phải chỉ dẫn giao dịch.",
+      scoreNote:
+        financialHealth.score === null
+          ? "Chưa đủ dữ liệu để tính điểm phụ; hệ thống không thay dữ liệu thiếu bằng 0."
+          : "Điểm chỉ dùng để định hướng phần cần đọc tiếp, không phải chỉ dẫn giao dịch.",
     },
     warnings: [...dataQualityWarnings, ...baseData.warnings],
     metrics,

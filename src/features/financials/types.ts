@@ -506,7 +506,7 @@ export type FinancialReadingDeskData = {
   preliminaryConclusion: {
     status: string;
     summary: string;
-    score: number;
+    score: number | null;
     scoreNote: string;
   };
   nextReadingStep: {

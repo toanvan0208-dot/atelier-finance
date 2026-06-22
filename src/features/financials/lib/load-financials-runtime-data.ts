@@ -2,14 +2,13 @@ import type {
   FinancialStatementSeriesResult,
   getFinancialStatementSeries,
 } from "../../../lib/data-sources/financial-statement-read-service";
-import { financialsPageData } from "../data/financials.data";
 import {
   adaptFinancialStatementSeries,
   type AdaptFinancialStatementSeriesResult,
 } from "./adapt-financial-statement-records";
 import { buildFinancialsUnitMetadata } from "./financials-unit-metadata-contract";
-import type { FinancialsStatementSnapshot } from "./map-financials-to-logic-input";
 import type { FinancialsRuntimeData, FinancialsRuntimeDataQuality, FinancialsRuntimeReadPath } from "./financials-runtime-types";
+import { financialsAuditFieldKeys, financialsTickerMatches } from "./financials-data-audit";
 import { PHASE109_CONTROLLED_FINANCIALS_SOURCE_LABEL } from "./phase109-controlled-financials-constants";
 
 export type LoadFinancialsRuntimeDataOptions = {
@@ -35,32 +34,6 @@ const SAMPLE_SOURCE_LABEL = "static_sample_financials";
 const isDbDisabled = (options: LoadFinancialsRuntimeDataOptions): boolean =>
   options.preferDb === false || options.env?.[DB_ENV_FLAG] === "disabled" || process.env[DB_ENV_FLAG] === "disabled";
 
-const sampleSnapshot = (ticker: string): FinancialsStatementSnapshot => ({
-  ticker: financialsPageData.header.ticker || ticker,
-  period: financialsPageData.header.reportPeriod,
-  periodType: "annual",
-  sourceName: SAMPLE_SOURCE_LABEL,
-  collectedAt: null,
-  revenue: null,
-  previousRevenue: null,
-  grossProfit: null,
-  operatingProfit: null,
-  netProfit: null,
-  previousNetProfit: null,
-  totalAssets: null,
-  previousTotalAssets: null,
-  totalLiabilities: null,
-  totalEquity: null,
-  previousTotalEquity: null,
-  currentAssets: null,
-  currentLiabilities: null,
-  operatingCashFlow: null,
-  previousOperatingCashFlow: null,
-  capitalExpenditure: null,
-  sharesOutstanding: null,
-  eps: null,
-});
-
 const sampleFallback = ({
   ticker,
   warnings = [],
@@ -84,17 +57,17 @@ const sampleFallback = ({
   },
   dataQuality: {
     status: "unavailable",
-    missingFields: [],
+    missingFields: [...financialsAuditFieldKeys],
     warnings: [
       "Financials runtime is using static sample data; no usable local DB financial statements were available.",
       ...warnings,
     ],
     errors,
   },
-  statementSnapshot: sampleSnapshot(ticker),
+  statementSnapshot: null,
   unitMetadata: buildFinancialsUnitMetadata({
     dataMode: "sample",
-    snapshot: sampleSnapshot(ticker),
+    snapshot: null,
     sourceLabel: SAMPLE_SOURCE_LABEL,
   }),
   readResult: null,
@@ -133,7 +106,7 @@ const unavailableResult = ({
   },
   dataQuality: {
     status,
-    missingFields: [],
+    missingFields: [...financialsAuditFieldKeys],
     warnings,
     errors,
   },
@@ -214,6 +187,18 @@ export const loadFinancialsRuntimeData = async (
     const adapted = adaptSeries(readResult);
 
     if (adapted.ok && adapted.statements.length > 0) {
+      const adaptedTicker = adapted.statements[0]?.metadata.ticker;
+      if (!financialsTickerMatches(ticker, adaptedTicker)) {
+        return unavailableResult({
+          ticker,
+          sourceLabel,
+          dataMode,
+          warnings: [
+            "Financials ticker mismatch was blocked; no record from another ticker was used.",
+          ],
+          readResult,
+        });
+      }
       return dbBackedResult({ ticker, sourceLabel, dataMode, adapted, readResult });
     }
 

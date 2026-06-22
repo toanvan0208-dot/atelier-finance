@@ -769,7 +769,7 @@ export const financialsPageData: FinancialsPageData = {
     title: "Cảnh báo bắt buộc",
     icon: "!",
     content:
-      "Phần Phân tích Báo cáo tài chính giúp bạn hiểu sức khỏe tài chính, chất lượng lợi nhuận, dòng tiền, nợ vay và các điểm cần kiểm tra thêm. Một doanh nghiệp có BCTC tốt vẫn cần được định giá, kiểm tra rủi ro và đối chiếu với thesis.",
+      "Phần này giúp người dùng đọc hiểu báo cáo tài chính chính và nhận biết dữ liệu còn thiếu. Đây không phải khuyến nghị đầu tư.",
   },
   nextActions: {
     title: "Bạn đã sẵn sàng chuyển các dữ liệu tài chính sang bước định giá chưa?",

@@ -1,4 +1,5 @@
 import { Chip } from "@/components/ui";
+import { auditFinancialsStatementSnapshot } from "../lib/financials-data-audit";
 import { buildFinancialsDataSourceTransparency } from "../lib/financials-data-source-transparency";
 import type { FinancialsRuntimeData } from "../lib/financials-runtime-types";
 
@@ -53,7 +54,48 @@ const valuationHandoffExplanation: Record<string, string> = {
     "Trường tài chính có đơn vị rõ; định giá vẫn kiểm tra riêng",
 };
 
-const reasonLabel = (reason: string): string => readableStatus(reason);
+const fieldLabel: Record<string, string> = {
+  eps: "EPS",
+  equity: "Vốn chủ sở hữu",
+  netIncome: "Lợi nhuận sau thuế",
+  operatingCashFlow: "Dòng tiền hoạt động",
+  revenue: "Doanh thu",
+  sharesOutstanding: "Số cổ phiếu",
+  totalAssets: "Tổng tài sản",
+  totalDebt: "Nợ vay",
+};
+
+const missingFieldLabel = (field: string): string => fieldLabel[field] ?? readableStatus(field);
+
+const blockedReasonLabel = (reason: string): string => {
+  if (reason.includes("unit_invalid")) return "Đơn vị dữ liệu không hợp lệ";
+  if (reason.includes("unit_unknown") || reason.includes("explicit_unit_required")) {
+    return "Chưa có đơn vị dữ liệu rõ ràng";
+  }
+  if (reason.includes("missing")) return "Thiếu trường dữ liệu cần thiết";
+  if (reason.includes("snapshot_unavailable")) return "Chưa có snapshot báo cáo tài chính";
+  return "Dữ liệu chưa đủ điều kiện để chuyển tiếp";
+};
+
+const runtimeWarningLabel = (warning: string): string => {
+  const normalized = warning.toLowerCase();
+  if (normalized.includes("ticker mismatch")) {
+    return "Dữ liệu khác ticker đã bị chặn.";
+  }
+  if (normalized.includes("sample") || normalized.includes("no usable")) {
+    return "Chưa có dữ liệu local đủ dùng; không hiển thị số liệu minh họa như dữ liệu thật.";
+  }
+  if (normalized.includes("missing") || normalized.includes("partial")) {
+    return "Một số trường dữ liệu còn thiếu và được giữ ở trạng thái Chưa đủ dữ liệu.";
+  }
+  return "Dữ liệu tài chính đang được rà soát.";
+};
+
+const auditStatusLabel = {
+  available: "Đã có dữ liệu",
+  insufficient: "Chưa đủ điều kiện diễn giải",
+  missing: "Chưa đủ dữ liệu",
+} as const;
 
 const userWarningLabel = (warning: string): string => {
   if (warning.includes("productionApproved:false"))
@@ -62,6 +104,8 @@ const userWarningLabel = (warning: string): string => {
     return "Định giá vẫn kiểm tra ranh giới riêng trước khi dùng.";
   if (warning.includes("local DB boundary"))
     return "Financials đang đọc dữ liệu đã có trong hệ thống.";
+  if (warning.includes("Du lieu thieu"))
+    return "Dữ liệu thiếu được giữ nguyên, không thay bằng 0.";
   return warning;
 };
 
@@ -70,6 +114,7 @@ export function FinancialsSourceTransparency({
   supplementalAvailableFields = [],
 }: FinancialsSourceTransparencyProps) {
   const transparency = buildFinancialsDataSourceTransparency(runtimeData);
+  const fieldAudit = auditFinancialsStatementSnapshot(runtimeData.statementSnapshot);
   const hasMissingFields = runtimeData.dataQuality.missingFields.length > 0;
   const hasWarnings = runtimeData.dataQuality.warnings.length > 0;
   const hasErrors = runtimeData.dataQuality.errors.length > 0;
@@ -101,6 +146,9 @@ export function FinancialsSourceTransparency({
   const visibleBlockedReasons = transparency.blockedReasons.filter(
     (reason) =>
       !supplementalAvailableFields.some((field) => reason.includes(field)),
+  );
+  const visibleBlockedLabels = Array.from(
+    new Set(visibleBlockedReasons.map(blockedReasonLabel)),
   );
 
   return (
@@ -149,15 +197,33 @@ export function FinancialsSourceTransparency({
               </div>
             ))}
           </div>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              ["EPS", fieldAudit.eps],
+              ["Số cổ phiếu", fieldAudit.sharesOutstanding],
+              ["Vốn chủ sở hữu", fieldAudit.equity],
+              ["Nợ vay", fieldAudit.totalDebt],
+            ].map(([label, status]) => (
+              <div
+                className="rounded-[4px] border border-[#E8CC82] bg-white/55 px-3 py-2"
+                key={label}
+              >
+                <p className="text-[11px] font-bold uppercase tracking-[0.02em]">{label}</p>
+                <p className="mt-1 leading-5">
+                  {auditStatusLabel[status as keyof typeof auditStatusLabel]}
+                </p>
+              </div>
+            ))}
+          </div>
           {visibleMissingFields.length > 0 ? (
             <p className="mt-2">
-              Trường dữ liệu còn thiếu: {visibleMissingFields.join(", ")}.
+              Trường dữ liệu còn thiếu: {visibleMissingFields.map(missingFieldLabel).join(", ")}.
             </p>
           ) : null}
-          {visibleBlockedReasons.length > 0 ? (
+          {visibleBlockedLabels.length > 0 ? (
             <p className="mt-2">
               Lý do đang chặn:{" "}
-              {visibleBlockedReasons.slice(0, 6).map(reasonLabel).join(" | ")}.
+              {visibleBlockedLabels.slice(0, 4).join(" | ")}.
             </p>
           ) : null}
           {transparency.uiWarnings.length > 0 ? (
@@ -168,12 +234,12 @@ export function FinancialsSourceTransparency({
           ) : null}
           {hasWarnings ? (
             <p className="mt-2">
-              Cảnh báo: {runtimeData.dataQuality.warnings.join(" | ")}
+              Cảnh báo: {Array.from(new Set(runtimeData.dataQuality.warnings.map(runtimeWarningLabel))).join(" | ")}
             </p>
           ) : null}
           {hasErrors ? (
             <p className="mt-2">
-              Lỗi đọc dữ liệu: {runtimeData.dataQuality.errors.join(" | ")}
+              Chưa thể đọc đầy đủ dữ liệu từ nguồn hiện tại. Không dùng dữ liệu thay thế của ticker khác.
             </p>
           ) : null}
         </div>
@@ -188,7 +254,7 @@ export function FinancialsSourceTransparency({
             <dt className="font-bold">Năm/kỳ</dt>
             <dd className="min-w-0 break-words text-right">
               {runtimeData.source.fiscalYear ?? "chưa rõ"} ·{" "}
-              {runtimeData.source.periodType}
+              {runtimeData.source.periodType ?? "chưa rõ"}
             </dd>
           </div>
           <div className="grid grid-cols-[120px_1fr] gap-3">

@@ -64,12 +64,12 @@ const resolveDataMode = (runtimeData: FinancialsRuntimeData): FinancialsTranspar
 
 const sourceEvidenceStatus = (runtimeData: FinancialsRuntimeData): FinancialsSourceEvidenceStatus => {
   const sourceLabel = normalizeSourceLabel(runtimeData.source.sourceLabel);
-  const hasEvidenceMarker = Boolean(sourceLabel || runtimeData.source.asOf || runtimeData.source.fiscalYear);
-
-  if (!hasEvidenceMarker) return "missing";
+  if (!sourceLabel) return "missing";
+  if (!runtimeData.source.asOf || !runtimeData.source.fiscalYear || !runtimeData.source.periodType) {
+    return "partial";
+  }
   if (runtimeData.source.productionApproved === false) return "not_approved";
-  if (sourceLabel && runtimeData.source.asOf) return "available";
-  return "partial";
+  return "available";
 };
 
 const fieldHasExplicitValidUnit = (metadata: FinancialsFieldUnitMetadata | undefined): boolean =>

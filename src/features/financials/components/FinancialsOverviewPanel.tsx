@@ -35,7 +35,11 @@ export function FinancialsOverviewPanel({ data, onFocusStep }: FinancialsOvervie
             </div>
             <div className="shrink-0 text-right">
               <p className="text-xs font-bold text-muted">Điểm phụ</p>
-              <p className="text-2xl font-extrabold text-ink">{data.preliminaryConclusion.score}/100</p>
+              <p className="text-2xl font-extrabold text-ink">
+                {data.preliminaryConclusion.score === null
+                  ? "Chưa đủ dữ liệu"
+                  : `${data.preliminaryConclusion.score}/100`}
+              </p>
             </div>
           </div>
           <p className="mt-3 rounded-[4px] border border-border-soft bg-neutral px-3 py-2 text-xs leading-5 text-muted">
@@ -45,21 +49,27 @@ export function FinancialsOverviewPanel({ data, onFocusStep }: FinancialsOvervie
 
         <article className="rounded-[6px] border border-border-soft bg-surface p-4">
           <div className="mb-3 flex items-center justify-between gap-3">
-            <h3 className="text-base font-extrabold text-ink">Top 3 cảnh báo cần đọc</h3>
+            <h3 className="text-base font-extrabold text-ink">Cảnh báo cần đọc</h3>
             <Chip variant="danger">Ưu tiên</Chip>
           </div>
           <div className="space-y-3">
-            {data.warnings.map((warning) => (
-              <WarningInsightCard
-                key={warning.id}
-                isOpen={openWarningId === warning.id}
-                warning={warning}
-                onOpenCause={() => {
-                  setOpenWarningId((current) => (current === warning.id ? "" : warning.id));
-                  onFocusStep(warning.targetStepId);
-                }}
-              />
-            ))}
+            {data.warnings.length > 0 ? (
+              data.warnings.map((warning) => (
+                <WarningInsightCard
+                  key={warning.id}
+                  isOpen={openWarningId === warning.id}
+                  warning={warning}
+                  onOpenCause={() => {
+                    setOpenWarningId((current) => (current === warning.id ? "" : warning.id));
+                    onFocusStep(warning.targetStepId);
+                  }}
+                />
+              ))
+            ) : (
+              <p className="rounded-[4px] border border-border-soft bg-neutral px-3 py-2 text-sm leading-5 text-muted">
+                Chưa đủ dữ liệu để tạo cảnh báo theo ticker này.
+              </p>
+            )}
           </div>
         </article>
 

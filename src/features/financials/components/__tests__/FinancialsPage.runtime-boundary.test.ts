@@ -203,11 +203,11 @@ describe("Financials runtime UI boundary", () => {
       }),
     );
 
-    expect(html).toContain("revenue");
-    expect(html).toContain("operatingCashFlow");
+    expect(html).toContain("Doanh thu");
+    expect(html).toContain("Dòng tiền hoạt động");
     expect(html).toContain("null/unavailable");
     expect(html).toContain("Lý do đang chặn");
-    expect(html).toContain("revenue missing for valuation handoff");
+    expect(html).toContain("Thiếu trường dữ liệu cần thiết");
     expect(html).toContain("Các trường hiện có chưa có đơn vị rõ");
     expect(html).not.toContain("0 ty");
     expect(html).not.toContain("0 tỷ");

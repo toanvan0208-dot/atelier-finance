@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { DataQualityBanner } from "@/components/shared/DataQualityBanner";
 import {
   Button,
@@ -18,6 +18,10 @@ import {
 import { financialReadingDeskData } from "../data/financialReadingDesk.data";
 import { financialsPageData } from "../data/financials.data";
 import { buildFinancialReadingDeskData } from "../lib/build-financial-reading-desk-data";
+import {
+  financialsTickerMatches,
+  normalizeFinancialsTicker,
+} from "../lib/financials-data-audit";
 import type { FinancialsRuntimeData } from "../lib/financials-runtime-types";
 import type { FinancialReadingDeskData, FinancialsPageData } from "../types";
 import { FinancialReadingJourney } from "./FinancialReadingJourney";
@@ -51,6 +55,33 @@ type FinancialsBridgeState =
     }
   | { status: "empty"; ticker: string }
   | { status: "error"; ticker: string; message: string };
+
+const navigationChangeEvent = "app:navigation";
+
+const useFinancialsTickerFromUrl = () =>
+  useSyncExternalStore(
+    (callback) => {
+      const timeoutId = window.setTimeout(callback, 0);
+      window.addEventListener("popstate", callback);
+      window.addEventListener(navigationChangeEvent, callback);
+      return () => {
+        window.clearTimeout(timeoutId);
+        window.removeEventListener("popstate", callback);
+        window.removeEventListener(navigationChangeEvent, callback);
+      };
+    },
+    () => normalizeFinancialsTicker(new URLSearchParams(window.location.search).get("ticker")),
+    () => null,
+  );
+
+const bridgeStateTicker = (state: FinancialsBridgeState): string | null => {
+  if (state.status === "runtime") return state.runtimeData.source.ticker;
+  if (state.status === "ready") return state.statement.metadata.ticker;
+  if (state.status === "loading" || state.status === "empty" || state.status === "error") {
+    return state.ticker;
+  }
+  return null;
+};
 
 const logicMetricIds = new Set([
   "revenue-growth",
@@ -175,22 +206,22 @@ const readinessToHeaderStatus = (
   readiness: FinancialsApiStatement["metadata"]["readiness"],
 ) => {
   if (readiness === "ready")
-    return "Day du" as FinancialsPageData["header"]["dataStatus"];
+    return "Đầy đủ" as FinancialsPageData["header"]["dataStatus"];
   if (readiness === "not_ready" || readiness === "insufficient_data") {
-    return "Thieu du lieu" as FinancialsPageData["header"]["dataStatus"];
+    return "Thiếu dữ liệu" as FinancialsPageData["header"]["dataStatus"];
   }
-  return "Can kiem tra them" as FinancialsPageData["header"]["dataStatus"];
+  return "Cần kiểm tra thêm" as FinancialsPageData["header"]["dataStatus"];
 };
 
 const runtimeStatusToHeaderStatus = (
   status: FinancialsRuntimeData["dataQuality"]["status"],
 ) => {
   if (status === "available")
-    return "Day du" as FinancialsPageData["header"]["dataStatus"];
+    return "Đầy đủ" as FinancialsPageData["header"]["dataStatus"];
   if (status === "partial" || status === "insufficient_data") {
-    return "Thieu du lieu" as FinancialsPageData["header"]["dataStatus"];
+    return "Thiếu dữ liệu" as FinancialsPageData["header"]["dataStatus"];
   }
-  return "Can kiem tra them" as FinancialsPageData["header"]["dataStatus"];
+  return "Cần kiểm tra thêm" as FinancialsPageData["header"]["dataStatus"];
 };
 
 const filterLogicDeskData = (
@@ -213,13 +244,28 @@ const filterLogicDeskData = (
     ...data,
     metrics,
     readingSteps,
-    warnings: [...extraWarnings, ...data.warnings].filter(
+    warnings: [
+      ...extraWarnings,
+      ...data.warnings.filter((warning) => warning.id.startsWith("data-quality-")),
+    ].filter(
       (warning, index, warnings) =>
         warnings.findIndex((item) => item.id === warning.id) === index,
     ),
     nextReadingStep: {
-      ...data.nextReadingStep,
       stepId: firstMetricStep,
+      title: "Kiểm tra dữ liệu tài chính hiện có",
+      reason:
+        "Đọc các chỉ số có trạng thái rõ và giữ trường còn thiếu ở trạng thái Chưa đủ dữ liệu.",
+    },
+    cashQuality: {
+      ...data.cashQuality,
+      summary:
+        "Đối chiếu lợi nhuận với dòng tiền hoạt động và dòng tiền tự do khi các trường cần thiết đã có dữ liệu.",
+    },
+    riskCheck: {
+      ...data.riskCheck,
+      summary:
+        "Chỉ đánh giá nợ vay, vốn chủ và thanh khoản khi đúng trường dữ liệu và đơn vị đã được xác nhận.",
     },
   };
 };
@@ -240,10 +286,10 @@ const buildBridgeDeskData = (
       ? [
           {
             id: "api-source-warnings",
-            title: "Du lieu can ra soat",
+            title: "Dữ liệu cần rà soát",
             severity: "watch" as const,
-            summary: `Nguon du lieu co ${statement.metadata.warningCodes.length} canh bao metadata.`,
-            cause: statement.metadata.warningCodes.join(", "),
+            summary: `Nguồn dữ liệu có ${statement.metadata.warningCodes.length} cảnh báo cần kiểm tra.`,
+            cause: "Nguồn hoặc trạng thái dữ liệu chưa hoàn chỉnh.",
             targetStepId: firstMetricStep,
           },
         ]
@@ -252,10 +298,10 @@ const buildBridgeDeskData = (
       ? [
           {
             id: "api-missing-fields",
-            title: "Thieu truong du lieu",
+            title: "Thiếu trường dữ liệu",
             severity: "watch" as const,
-            summary: `API tra ve ${statement.dataQuality.missingFields.length} truong con thieu.`,
-            cause: statement.dataQuality.missingFields.join(", "),
+            summary: `Nguồn hiện tại còn thiếu ${statement.dataQuality.missingFields.length} trường dữ liệu.`,
+            cause: "Các trường thiếu được giữ là Chưa đủ dữ liệu, không thay bằng 0.",
             targetStepId: firstMetricStep,
           },
         ]
@@ -279,11 +325,11 @@ const buildBridgePageData = (
     ...financialsPageData.header,
     ticker: statement.metadata.ticker,
     companyName: deskData.companyName,
-    industry: statement.snapshot.companyType ?? "unknown",
+    industry: statement.snapshot.companyType ?? "Chưa đủ dữ liệu",
     reportPeriod: statement.metadata.period,
     dataStatus: readinessToHeaderStatus(statement.metadata.readiness),
     previousModuleLink:
-      "Du lieu BCTC dang duoc doc tu API noi bo va database local. Khong dung fallback mock khi API loi hoac rong.",
+      "Dữ liệu đang được đọc từ bản ghi đã lưu trong hệ thống và vẫn giữ trạng thái nghiên cứu.",
   },
   disclaimer: {
     ...financialsPageData.disclaimer,
@@ -308,10 +354,10 @@ const buildRuntimeDeskData = (
       ? [
           {
             id: "runtime-missing-fields",
-            title: "Thieu truong du lieu",
+            title: "Thiếu trường dữ liệu",
             severity: "watch" as const,
-            summary: `Runtime financials con thieu ${runtimeData.dataQuality.missingFields.length} truong.`,
-            cause: runtimeData.dataQuality.missingFields.join(", "),
+            summary: `Nguồn hiện tại còn thiếu ${runtimeData.dataQuality.missingFields.length} trường dữ liệu.`,
+            cause: "Các trường thiếu được giữ là Chưa đủ dữ liệu, không thay bằng 0.",
             targetStepId: firstMetricStep,
           },
         ]
@@ -327,7 +373,7 @@ const buildRuntimeDeskData = (
       runtimeData.statementSnapshot.period ??
       (runtimeData.source.fiscalYear
         ? String(runtimeData.source.fiscalYear)
-        : financialReadingDeskData.period),
+        : "Chưa đủ dữ liệu"),
   };
 };
 
@@ -343,17 +389,17 @@ const buildRuntimePageData = (
     industry:
       runtimeData.statementSnapshot?.companyType ??
       runtimeData.statementSnapshot?.industry ??
-      "unknown",
+      "Chưa đủ dữ liệu",
     reportPeriod:
       runtimeData.statementSnapshot?.period ??
       (runtimeData.source.fiscalYear
         ? String(runtimeData.source.fiscalYear)
-        : financialsPageData.header.reportPeriod),
+        : "Chưa đủ dữ liệu"),
     dataStatus: runtimeStatusToHeaderStatus(runtimeData.dataQuality.status),
     previousModuleLink:
       runtimeData.runtimeStatus === "db_backed"
-        ? "Đang đọc Financials từ dữ liệu research trong hệ thống; chưa phê duyệt sản xuất."
-        : "Đang dùng dữ liệu minh họa; dữ liệu trong hệ thống chỉ bật khi có bản ghi đủ điều kiện.",
+        ? "Đang đọc dữ liệu tài chính trong hệ thống cho mục đích nghiên cứu; chưa phê duyệt sản xuất."
+        : "Chưa đủ dữ liệu đã xác minh; không hiển thị số liệu minh họa như dữ liệu thật.",
   },
   disclaimer: {
     ...financialsPageData.disclaimer,
@@ -378,6 +424,7 @@ export function FinancialsPage({
   reviewedReadiness,
   onNavigate,
 }: FinancialsPageProps) {
+  const tickerFromUrl = useFinancialsTickerFromUrl();
   const [tickerInput, setTickerInput] = useState(
     initialRuntimeData?.source.ticker ?? "FPTLAB",
   );
@@ -395,24 +442,48 @@ export function FinancialsPage({
         financialReadingDeskData.nextReadingStep.stepId)
       : financialReadingDeskData.nextReadingStep.stepId,
   );
+  const urlRequestTicker =
+    tickerFromUrl &&
+    !financialsTickerMatches(tickerFromUrl, bridgeStateTicker(bridgeState))
+      ? tickerFromUrl
+      : null;
 
   useEffect(() => {
-    if (!request) return;
+    const activeTicker = request?.ticker ?? urlRequestTicker;
+    if (!activeTicker) return;
 
     let isActive = true;
-    const activeTicker = request.ticker;
 
     fetchFinancialStatementsByTicker({ ticker: activeTicker, limit: 2 })
       .then((statements) => {
         if (!isActive) return;
         const statement = statements[0];
         if (!statement) {
+          setTickerInput(activeTicker);
+          setRequest(null);
           setBridgeState({ status: "empty", ticker: activeTicker });
+          return;
+        }
+
+        if (
+          !financialsTickerMatches(activeTicker, statement.metadata.ticker) ||
+          !financialsTickerMatches(activeTicker, statement.snapshot.ticker)
+        ) {
+          setTickerInput(activeTicker);
+          setRequest(null);
+          setBridgeState({
+            status: "error",
+            ticker: activeTicker,
+            message:
+              "Dữ liệu trả về không khớp mã đang chọn nên đã bị chặn.",
+          });
           return;
         }
 
         const deskData = buildBridgeDeskData(statement);
         const pageData = buildBridgePageData(statement, deskData);
+        setTickerInput(activeTicker);
+        setRequest(null);
         setActiveStepId(deskData.nextReadingStep.stepId);
         setBridgeState({ status: "ready", statement, deskData, pageData });
       })
@@ -422,13 +493,15 @@ export function FinancialsPage({
           error instanceof FinancialsApiError
             ? error.message
             : "Unable to load persisted financial statements.";
+        setTickerInput(activeTicker);
+        setRequest(null);
         setBridgeState({ status: "error", ticker: activeTicker, message });
       });
 
     return () => {
       isActive = false;
     };
-  }, [request]);
+  }, [request, urlRequestTicker]);
 
   const metadataChips = useMemo(() => {
     if (bridgeState.status !== "ready") return [];
@@ -441,6 +514,15 @@ export function FinancialsPage({
       metadataChipLabel("fallback", metadata.fallback),
     ];
   }, [bridgeState]);
+
+  const runtimeReviewedReadiness =
+    bridgeState.status === "runtime" &&
+    financialsTickerMatches(
+      bridgeState.runtimeData.source.ticker,
+      reviewedReadiness?.ticker,
+    )
+      ? reviewedReadiness
+      : null;
 
   const focusStep = (stepId: string) => {
     setActiveStepId(stepId);
@@ -455,6 +537,10 @@ export function FinancialsPage({
     event.preventDefault();
     const nextTicker = tickerInput.trim().toUpperCase();
     if (!nextTicker) return;
+    const url = new URL(window.location.href);
+    url.searchParams.set("ticker", nextTicker);
+    window.history.replaceState(null, "", url);
+    window.dispatchEvent(new Event(navigationChangeEvent));
     setBridgeState({ status: "loading", ticker: nextTicker });
     setRequest((current) => ({
       ticker: nextTicker,
@@ -466,9 +552,15 @@ export function FinancialsPage({
     deskData: FinancialReadingDeskData,
     pageData: FinancialsPageData,
   ) => {
+    const matchingReadiness = financialsTickerMatches(
+      pageData.header.ticker,
+      reviewedReadiness?.ticker,
+    )
+      ? reviewedReadiness
+      : null;
     const reconciledDeskData = reconcileReviewedInputs(
       deskData,
-      reviewedReadiness,
+      matchingReadiness,
     );
 
     return (
@@ -501,6 +593,20 @@ export function FinancialsPage({
     );
   };
 
+  if (
+    tickerFromUrl &&
+    !financialsTickerMatches(tickerFromUrl, bridgeStateTicker(bridgeState))
+  ) {
+    return (
+      <div className="mx-auto w-full max-w-[1080px] space-y-6">
+        <LoadingState
+          description={`Đang chuyển sang dữ liệu tài chính của ${tickerFromUrl}; dữ liệu ticker khác không được hiển thị thay thế.`}
+          title="Đang kiểm tra đúng mã doanh nghiệp"
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto w-full max-w-[1080px] space-y-6">
       <Card>
@@ -511,13 +617,13 @@ export function FinancialsPage({
           >
             <div>
               <p className="text-xs font-bold uppercase text-muted">
-                Financials API bridge
+                Nguồn dữ liệu tài chính
               </p>
               <label
                 className="mt-2 block text-sm font-extrabold text-ink"
                 htmlFor="financials-ticker-input"
               >
-                Ticker local
+                Mã doanh nghiệp
               </label>
               <input
                 className="mt-2 h-9 w-full rounded-[3px] border border-border bg-surface px-3 text-sm font-semibold text-ink outline-none focus:border-accent sm:w-[180px]"
@@ -531,7 +637,7 @@ export function FinancialsPage({
               type="submit"
               variant="secondary"
             >
-              Tai tu API
+              Kiểm tra dữ liệu
             </Button>
           </form>
         </CardBody>
@@ -539,24 +645,24 @@ export function FinancialsPage({
 
       {bridgeState.status === "loading" ? (
         <LoadingState
-          description={`Dang doc du lieu BCTC da persist cho ${bridgeState.ticker}.`}
-          title="Dang tai Financials tu API"
+          description={`Đang kiểm tra dữ liệu tài chính đã có cho ${bridgeState.ticker}.`}
+          title="Đang tải dữ liệu tài chính"
         />
       ) : null}
 
       {bridgeState.status === "empty" ? (
         <EmptyState
-          description={`Khong co FinancialStatement da persist cho ${bridgeState.ticker}. Khong dung du lieu mock de thay the.`}
+          description={`Chưa đủ dữ liệu tài chính cho ${bridgeState.ticker}. Hệ thống không dùng dữ liệu minh họa của mã khác để thay thế.`}
           icon="F"
-          title="Chua co du lieu Financials trong database"
+          title="Chưa đủ dữ liệu"
         />
       ) : null}
 
       {bridgeState.status === "error" ? (
         <EmptyState
-          description={`${bridgeState.message} Khong dung du lieu mock de thay the.`}
+          description={`${bridgeState.message} Hệ thống không dùng dữ liệu minh họa của mã khác để thay thế.`}
           icon="!"
-          title={`Khong tai duoc Financials cho ${bridgeState.ticker}`}
+          title={`Chưa thể đọc dữ liệu tài chính cho ${bridgeState.ticker}`}
         />
       ) : null}
 
@@ -565,10 +671,10 @@ export function FinancialsPage({
           <FinancialsSourceTransparency
             runtimeData={bridgeState.runtimeData}
             supplementalAvailableFields={reviewedAvailableFields(
-              reviewedReadiness,
+              runtimeReviewedReadiness,
             )}
           />
-          {reviewedReadiness ? (
+          {runtimeReviewedReadiness ? (
             <Card>
               <CardBody>
                 <div className="flex flex-col gap-4">
@@ -579,7 +685,7 @@ export function FinancialsPage({
                       </p>
                       <h3 className="mt-1 text-lg font-extrabold text-ink">
                         Nợ vay, EPS và số cổ phiếu đã có trạng thái rõ ràng cho{" "}
-                        {reviewedReadiness.ticker}
+                        {runtimeReviewedReadiness.ticker}
                       </h3>
                       <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-muted">
                         Dữ liệu này dùng cho nghiên cứu và chưa phê duyệt sản
@@ -590,11 +696,11 @@ export function FinancialsPage({
                     <Chip variant="neutral">Dùng cho nghiên cứu</Chip>
                   </div>
                   <div className="grid gap-3 md:grid-cols-3">
-                    {renderReviewedInputStatus("totalDebt", reviewedReadiness)}
-                    {renderReviewedInputStatus("eps", reviewedReadiness)}
+                    {renderReviewedInputStatus("totalDebt", runtimeReviewedReadiness)}
+                    {renderReviewedInputStatus("eps", runtimeReviewedReadiness)}
                     {renderReviewedInputStatus(
                       "sharesOutstanding",
-                      reviewedReadiness,
+                      runtimeReviewedReadiness,
                     )}
                   </div>
                 </div>
@@ -611,7 +717,7 @@ export function FinancialsPage({
             isStale={false}
             missingFields={bridgeState.runtimeData.dataQuality.missingFields.filter(
               (field) =>
-                !reviewedAvailableFields(reviewedReadiness).includes(field),
+                !reviewedAvailableFields(runtimeReviewedReadiness).includes(field),
             )}
             source={userFacingSource(
               bridgeState.runtimeData.source.sourceLabel,
@@ -624,9 +730,9 @@ export function FinancialsPage({
             )
           ) : (
             <EmptyState
-              description="Runtime boundary khong co statement snapshot kha dung; du lieu thieu duoc giu la unavailable."
+              description="Chưa đủ dữ liệu tài chính để hiển thị các chỉ tiêu. Dữ liệu thiếu được giữ nguyên, không thay bằng 0."
               icon="F"
-              title="Chua co snapshot de hien thi Financials"
+              title="Chưa đủ dữ liệu"
             />
           )}
         </>
