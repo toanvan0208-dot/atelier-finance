@@ -256,6 +256,71 @@ describe("loadFinancialsRuntimeData", () => {
     expect(result.unitMetadata.revenue.status).toBe("missing");
   });
 
+  it("falls back to VNStock financials candidate if primary source yields no usable data", async () => {
+    let readCount = 0;
+    const result = await loadFinancialsRuntimeData(
+      { ticker: "HPG", preferDb: true, dataMode: "research_only" },
+      {
+        readLatestMarketPrice: async () => null as any,
+        readSeries: async ({ sourceLabel }) => {
+          readCount++;
+          if (sourceLabel === "phase109_controlled_local_financials") {
+            return seriesResult({
+              ok: false,
+              status: "unavailable",
+              records: [],
+              warnings: ["No local financial statement records were found."],
+            });
+          }
+          if (sourceLabel === "vnstock_financials_candidate") {
+            return seriesResult({
+              ok: true,
+              status: "partial",
+              sourceLabel: "vnstock_financials_candidate",
+              records: [
+                {
+                  ...seriesResult().records[0],
+                  ticker: "HPG",
+                  source: {
+                    ...seriesResult().records[0].source,
+                    ticker: "HPG",
+                    sourceLabel: "vnstock_financials_candidate",
+                  },
+                  values: {
+                    ...seriesResult().records[0].values,
+                    eps: 1973,
+                    sharesOutstanding: 7675465855,
+                    revenue: null,
+                    netIncome: null,
+                    totalAssets: null,
+                    totalEquity: null,
+                    operatingCashFlow: null,
+                  },
+                  dataQuality: {
+                    status: "partial",
+                    missingFields: ["revenue", "netIncome", "totalAssets", "totalEquity", "operatingCashFlow"],
+                    availableFields: ["eps", "sharesOutstanding"],
+                    invalidFields: [],
+                    warnings: [],
+                  },
+                },
+              ],
+            });
+          }
+          throw new Error(`Unexpected sourceLabel: ${sourceLabel}`);
+        },
+      },
+    );
+
+    expect(readCount).toBe(2);
+    expect(result.runtimeStatus).toBe("db_backed");
+    expect(result.source.sourceLabel).toBe("vnstock_financials_candidate");
+    expect(result.statementSnapshot?.eps).toBe(1973);
+    expect(result.statementSnapshot?.sharesOutstanding).toBe(7675465855);
+    expect(result.statementSnapshot?.revenue).toBeNull();
+    expect(result.dataQuality.status).toBe("partial");
+  });
+
   it("handles read errors without uncaught throw", async () => {
     const fallback = await loadFinancialsRuntimeData(
       { ticker: "FPT", preferDb: true, allowFallback: true, sourceLabel, dataMode: "research_only" },

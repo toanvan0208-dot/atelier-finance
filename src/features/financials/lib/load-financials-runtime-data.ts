@@ -10,6 +10,7 @@ import { buildFinancialsUnitMetadata } from "./financials-unit-metadata-contract
 import type { FinancialsRuntimeData, FinancialsRuntimeDataQuality, FinancialsRuntimeReadPath } from "./financials-runtime-types";
 import { financialsAuditFieldKeys, financialsTickerMatches } from "./financials-data-audit";
 import { PHASE109_CONTROLLED_FINANCIALS_SOURCE_LABEL } from "./phase109-controlled-financials-constants";
+import { VNSTOCK_FINANCIALS_CANDIDATE_SOURCE_LABEL } from "../../../lib/data-sources/vnstock-financials-candidate";
 
 export type LoadFinancialsRuntimeDataOptions = {
   ticker?: string;
@@ -185,7 +186,7 @@ export const loadFinancialsRuntimeData = async (
   deps: LoadFinancialsRuntimeDataDeps = {},
 ): Promise<FinancialsRuntimeData> => {
   const ticker = (options.ticker?.trim() || DEFAULT_TICKER).toUpperCase();
-  const sourceLabel = options.sourceLabel?.trim() || DEFAULT_DB_SOURCE_LABEL;
+  let sourceLabel = options.sourceLabel?.trim() || DEFAULT_DB_SOURCE_LABEL;
   const dataMode = options.dataMode?.trim() || DEFAULT_DATA_MODE;
   const allowFallback = options.allowFallback !== false;
 
@@ -206,8 +207,19 @@ export const loadFinancialsRuntimeData = async (
 
     const adaptSeries = deps.adaptSeries ?? adaptFinancialStatementSeries;
     
-    const readResult = await readSeries({ ticker, sourceLabel, dataMode, limit: 8 });
-    
+    let readResult = await readSeries({ ticker, sourceLabel, dataMode, limit: 8 });
+    let adapted = adaptSeries(readResult);
+
+    if (!adapted.ok && (!options.sourceLabel || options.sourceLabel.trim() === "")) {
+      const candidateResult = await readSeries({ ticker, sourceLabel: VNSTOCK_FINANCIALS_CANDIDATE_SOURCE_LABEL, dataMode: "research_only", limit: 8 });
+      const candidateAdapted = adaptSeries(candidateResult);
+      if (candidateAdapted.ok && candidateAdapted.statements.length > 0) {
+        readResult = candidateResult;
+        adapted = candidateAdapted;
+        sourceLabel = VNSTOCK_FINANCIALS_CANDIDATE_SOURCE_LABEL;
+      }
+    }
+
     let marketPriceRecord = null;
     try {
       if (typeof readLatestMarketPrice === "function") {
@@ -217,8 +229,6 @@ export const loadFinancialsRuntimeData = async (
     } catch {
       marketPriceRecord = null;
     }
-    
-    const adapted = adaptSeries(readResult);
 
     if (adapted.ok && adapted.statements.length > 0) {
       const adaptedTicker = adapted.statements[0]?.metadata.ticker;
