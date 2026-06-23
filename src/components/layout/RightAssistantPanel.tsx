@@ -438,15 +438,15 @@ function AITutorAskRuntimeTab({
       <AskAIInput value={question} onChange={setQuestion} onSubmit={submitQuestion} disabled={isLoading} />
 
       <section className="space-y-2">
-        <h3 className="text-xs font-bold text-ink">CÃ¢u há»i gá»£i Ã½</h3>
+        <h3 className="text-xs font-bold text-ink">Câu hỏi gợi ý</h3>
         <AITutorQuestionList questions={config.suggestedQuestions} onSelect={pickQuestion} />
       </section>
 
       <section className="rounded-[4px] border-[1.5px] border-border bg-surface px-3 py-3 shadow-hard-sm">
-        <h3 className="text-xs font-bold text-ink">AI pháº£n há»“i</h3>
+        <h3 className="text-xs font-bold text-ink">AI phản hồi</h3>
         <p className="mt-2 text-xs leading-5 text-muted">
           {isLoading
-            ? "Dang goi /api/assistant de chuan bi runtime prompt..."
+            ? "Đang gọi /api/assistant để chuẩn bị runtime prompt..."
             : runtimeResponse
               ? getStatusMessage(runtimeResponse.llmStatus)
               : error ??

@@ -30,32 +30,32 @@ function normalized(value: string) {
 function moduleKeyFromLabel(label: string) {
   const value = normalized(label);
 
-  if (value.includes("bctc") || value.includes("tài chính") || value.includes("tÃ i chÃ­nh")) return "financials";
-  if (value.includes("định giá") || value.includes("Ä‘á»‹nh giÃ¡")) return "valuation";
-  if (value.includes("rủi ro") || value.includes("rá»§i ro")) return "risk";
+  if (value.includes("bctc") || value.includes("tài chính")) return "financials";
+  if (value.includes("định giá")) return "valuation";
+  if (value.includes("rủi ro")) return "risk";
   if (value.includes("pvt") || value.includes("price")) return "technical";
-  if (value.includes("ngành") || value.includes("ngÃ nh")) return "industry";
-  if (value.includes("doanh nghiệp") || value.includes("doanh nghiá»‡p") || value.includes("hiểu")) return "business";
+  if (value.includes("ngành")) return "industry";
+  if (value.includes("doanh nghiệp") || value.includes("hiểu")) return "business";
   if (value.includes("checklist") || value.includes("kiểm tra")) return "checklist";
-  if (value.includes("mô phỏng") || value.includes("mÃ´ phá»ng")) return "simulation";
-  if (value.includes("vĩ mô") || value.includes("vÄ© mÃ´")) return "macro";
+  if (value.includes("mô phỏng")) return "simulation";
+  if (value.includes("vĩ mô")) return "macro";
 
   return "business";
 }
 
 function getModuleStatus(data: StockIdea, compactName: string) {
   const aliases: Record<string, string[]> = {
-    "Vĩ mô": ["Vĩ mô", "VÄ© mÃ´"],
-    "Ngành": ["Ngành", "NgÃ nh"],
-    "Doanh nghiệp": ["Hiểu doanh nghiệp", "Hiá»ƒu doanh nghiá»‡p", "Doanh nghiệp", "Doanh nghiá»‡p"],
+    "Vĩ mô": ["Vĩ mô"],
+    "Ngành": ["Ngành"],
+    "Doanh nghiệp": ["Hiểu doanh nghiệp", "Doanh nghiệp"],
     BCTC: ["BCTC"],
-    "Định giá": ["Định giá", "Äá»‹nh giÃ¡"],
+    "Định giá": ["Định giá"],
     PVT: ["PVT"],
-    "Rủi ro": ["Rủi ro", "Rá»§i ro"],
+    "Rủi ro": ["Rủi ro"],
     Checklist: ["Checklist"],
   };
   const names = aliases[compactName] ?? [compactName];
-  const fallbackStatus = "ChÆ°a lÃ m" as ModuleStatus;
+  const fallbackStatus = "Chưa làm" as ModuleStatus;
   return data.progress.find((item) => names.includes(item.moduleName))?.status ?? fallbackStatus;
 }
 
@@ -68,7 +68,7 @@ function hasFomoWarning(data: StockIdea) {
 }
 
 function isCompletedStatus(status: string) {
-  return status === "Đã xong" || status === "ÄÃ£ xong" || status === "Có thể chuyển tiếp" || status === "CÃ³ thá»ƒ chuyá»ƒn tiáº¿p";
+  return status === "Đã xong" || status === "Có thể chuyển tiếp";
 }
 
 function getNextAnalysisModule(data: StockIdea) {
@@ -84,11 +84,11 @@ function getNextAnalysisModule(data: StockIdea) {
 function getActionTargetModule(data: StockIdea, label?: string) {
   const value = normalized(label ?? "");
 
-  if (value.includes("mô phỏng") || value.includes("mÃ´ phá»ng")) return "simulation";
+  if (value.includes("mô phỏng")) return "simulation";
   if (value.includes("checklist") || value.includes("kiểm tra")) return "checklist";
-  if (value.includes("rủi ro") || value.includes("rá»§i ro")) return "risk";
-  if (value.includes("ghi nhật") || value.includes("ghi nháº­t")) return "simulation";
-  if (value.includes("phân tích") || value.includes("phÃ¢n tÃ­ch")) return getNextAnalysisModule(data);
+  if (value.includes("rủi ro")) return "risk";
+  if (value.includes("ghi nhật")) return "simulation";
+  if (value.includes("phân tích")) return getNextAnalysisModule(data);
 
   return getNextAnalysisModule(data);
 }

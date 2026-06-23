@@ -325,12 +325,12 @@ describe("vnstock market price local import command runner", () => {
     );
     const output = JSON.stringify(report).toLowerCase();
     const unsafeTerms = [
-      `nÃªn ${"mua"}`,
-      `nÃªn ${"bÃ¡n"}`,
-      `tÃ­n hiá»‡u ${"mua"}`,
-      `tÃ­n hiá»‡u ${"bÃ¡n"}`,
-      `Ä‘iá»ƒm ${"mua"}`,
-      `cá»• phiáº¿u ${"an toÃ n"}`,
+      `nên ${"mua"}`,
+      `nên ${"bán"}`,
+      `tín hiệu ${"mua"}`,
+      `tín hiệu ${"bán"}`,
+      `điểm ${"mua"}`,
+      `cổ phiếu ${"an toàn"}`,
     ];
 
     for (const term of unsafeTerms) {

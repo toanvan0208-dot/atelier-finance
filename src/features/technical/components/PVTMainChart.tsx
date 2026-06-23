@@ -31,7 +31,7 @@ function buildLinePath(
 }
 
 const hasDerivedLevel = (label: string): boolean =>
-  !/chÆ°a Ä‘á»§|khÃ´ng kháº£ dá»¥ng|chua du|khong kha dung|insufficient|unavailable|not_available/i.test(label);
+  !/chưa đủ|không khả dụng|chua du|khong kha dung|insufficient|unavailable|not_available/i.test(label);
 
 const numericValues = (points: PVTObservationPoint[]): number[] =>
   points.flatMap((point) =>
