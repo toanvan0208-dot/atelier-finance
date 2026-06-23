@@ -200,6 +200,40 @@ describe("valuation financials runtime readiness boundary", () => {
     });
   });
 
+  it("maps marketPrice from statementSnapshot.closePrice when explicit input is missing", () => {
+    const readiness = buildValuationFinancialsRuntimeReadiness({
+      financialsRuntimeData: {
+        ...localDbFinancialsRuntime,
+        statementSnapshot: {
+          ...localDbFinancialsRuntime.statementSnapshot,
+          closePrice: 71500,
+          sharesOutstanding: 1000,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } as never,
+      },
+    });
+
+    expect(readiness.inputSnapshot.marketPrice).toBe(71500);
+    expect(readiness.calculationReadiness.marketCap).toBe("ready");
+  });
+
+  it("does not calculate marketCap when closePrice is missing or non-positive", () => {
+    for (const closePrice of [null, 0, -100]) {
+      const readiness = buildValuationFinancialsRuntimeReadiness({
+        financialsRuntimeData: {
+          ...localDbFinancialsRuntime,
+          statementSnapshot: {
+            ...localDbFinancialsRuntime.statementSnapshot,
+            closePrice,
+            sharesOutstanding: 1000,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          } as never,
+        },
+      });
+      expect(readiness.calculationReadiness.marketCap).toBe("insufficient_data");
+    }
+  });
+
   it("does not expose forbidden source approval, valuation, or action wording", () => {
     const output = JSON.stringify(
       buildValuationFinancialsRuntimeReadiness({

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, expect, it } from "vitest";
 import { calculateRevenueGrowth } from "../../../../lib/financial-logic";
 import { buildFinancialReadingDeskData } from "../build-financial-reading-desk-data";

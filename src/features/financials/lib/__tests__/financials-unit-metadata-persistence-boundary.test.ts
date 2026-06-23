@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, expect, it } from "vitest";
 
 import {
@@ -204,7 +205,7 @@ describe("financials unit metadata persistence boundary", () => {
       { dataMode: "research_only", preferDb: true, sourceLabel: "phase65_csv_unit_capture", ticker: "FPT" },
       {
         adaptSeries: () => adapted(unitMetadata),
-        readSeries: async () => seriesResult(),
+        readLatestMarketPrice: async () => null as any as any, readSeries: async () => seriesResult(),
       },
     );
 
@@ -229,7 +230,7 @@ describe("financials unit metadata persistence boundary", () => {
       { dataMode: "research_only", preferDb: true, sourceLabel: "phase65_csv_unit_capture", ticker: "FPT" },
       {
         adaptSeries: () => adapted(unitMetadata),
-        readSeries: async () => seriesResult(),
+        readLatestMarketPrice: async () => null as any as any, readSeries: async () => seriesResult(),
       },
     );
     const valuation = buildControlledValuationIntegrationBoundary({

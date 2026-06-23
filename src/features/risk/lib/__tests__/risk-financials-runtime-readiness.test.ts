@@ -196,6 +196,37 @@ describe("risk financials runtime readiness boundary", () => {
     expect(readiness.inputSnapshot.operatingCashFlow).not.toBe(0);
   });
 
+  it("maps totalDebt from statementSnapshot.totalDebt when explicit input is missing", () => {
+    const readiness = buildRiskFinancialsRuntimeReadiness({
+      financialsRuntimeData: {
+        ...localDbFinancialsRuntime,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        statementSnapshot: {
+          ...localDbFinancialsRuntime.statementSnapshot,
+          totalDebt: 5000,
+        } as never,
+      },
+    });
+
+    expect(readiness.inputSnapshot.totalDebt).toBe(5000);
+  });
+
+  it("does not map totalLiabilities to totalDebt", () => {
+    const readiness = buildRiskFinancialsRuntimeReadiness({
+      financialsRuntimeData: {
+        ...localDbFinancialsRuntime,
+        statementSnapshot: {
+          ...localDbFinancialsRuntime.statementSnapshot,
+          totalDebt: null,
+          totalLiabilities: 10000,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } as never,
+      },
+    });
+
+    expect(readiness.inputSnapshot.totalDebt).toBeNull();
+  });
+
   it("does not expose forbidden source, certainty, or action wording", () => {
     const output = JSON.stringify(
       buildRiskFinancialsRuntimeReadiness({

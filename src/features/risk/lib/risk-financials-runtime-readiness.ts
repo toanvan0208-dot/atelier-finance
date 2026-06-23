@@ -75,16 +75,22 @@ const missingValuePolicy = {
 const normalizeInputs = (
   inputs: RiskRuntimeInputs = {},
   financialsRuntimeData?: FinancialsRuntimeData | null,
-): Required<RiskRuntimeInputs> => ({
-  operatingCashFlow: inputs.operatingCashFlow ?? financialsRuntimeData?.statementSnapshot?.operatingCashFlow ?? null,
-  netIncome: inputs.netIncome ?? financialsRuntimeData?.statementSnapshot?.netProfit ?? null,
-  revenue: inputs.revenue ?? financialsRuntimeData?.statementSnapshot?.revenue ?? null,
-  totalDebt: inputs.totalDebt ?? null,
-  equity: inputs.equity ?? financialsRuntimeData?.statementSnapshot?.totalEquity ?? null,
-  totalAssets: inputs.totalAssets ?? financialsRuntimeData?.statementSnapshot?.totalAssets ?? null,
-  currentAssets: inputs.currentAssets ?? financialsRuntimeData?.statementSnapshot?.currentAssets ?? null,
-  currentLiabilities: inputs.currentLiabilities ?? financialsRuntimeData?.statementSnapshot?.currentLiabilities ?? null,
-});
+): Required<RiskRuntimeInputs> => {
+  const statementDebt = financialsRuntimeData?.unitMetadata?.totalDebt?.status === "invalid_unit" 
+    ? null 
+    : (financialsRuntimeData?.statementSnapshot?.totalDebt ?? null);
+
+  return {
+    operatingCashFlow: inputs.operatingCashFlow ?? financialsRuntimeData?.statementSnapshot?.operatingCashFlow ?? null,
+    netIncome: inputs.netIncome ?? financialsRuntimeData?.statementSnapshot?.netProfit ?? null,
+    revenue: inputs.revenue ?? financialsRuntimeData?.statementSnapshot?.revenue ?? null,
+    totalDebt: inputs.totalDebt ?? statementDebt,
+    equity: inputs.equity ?? financialsRuntimeData?.statementSnapshot?.totalEquity ?? null,
+    totalAssets: inputs.totalAssets ?? financialsRuntimeData?.statementSnapshot?.totalAssets ?? null,
+    currentAssets: inputs.currentAssets ?? financialsRuntimeData?.statementSnapshot?.currentAssets ?? null,
+    currentLiabilities: inputs.currentLiabilities ?? financialsRuntimeData?.statementSnapshot?.currentLiabilities ?? null,
+  };
+};
 
 const readinessFromInputs = (input: Required<RiskRuntimeInputs>): RiskCalculationReadiness => {
   const equityMissing = input.equity === null;

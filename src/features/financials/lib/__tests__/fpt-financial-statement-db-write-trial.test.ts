@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { beforeEach, describe, expect, it } from "vitest";
 
 import type { FinancialStatementLocalWriteDb } from "@/lib/data-sources/financial-statement-local-write-service";

@@ -77,7 +77,7 @@ const normalizeInputs = (
   eps: inputs.eps ?? financialsRuntimeData?.statementSnapshot?.eps ?? null,
   equity: inputs.equity ?? financialsRuntimeData?.statementSnapshot?.totalEquity ?? null,
   bvps: inputs.bvps ?? null,
-  marketPrice: inputs.marketPrice ?? null,
+  marketPrice: inputs.marketPrice ?? financialsRuntimeData?.statementSnapshot?.closePrice ?? null,
   sharesOutstanding: inputs.sharesOutstanding ?? financialsRuntimeData?.statementSnapshot?.sharesOutstanding ?? null,
 });
 
@@ -101,6 +101,7 @@ const statusFromInputs = (input: Required<ValuationRuntimeInputs>): ValuationCal
     (typeof input.equity === "number" && input.equity <= 0) ||
     (typeof input.bvps === "number" && input.bvps <= 0);
   const marketMissing = input.marketPrice === null;
+  const marketNonPositive = typeof input.marketPrice === "number" && input.marketPrice <= 0;
   const sharesMissing = input.sharesOutstanding === null;
   const sharesNonPositive = typeof input.sharesOutstanding === "number" && input.sharesOutstanding <= 0;
 
@@ -109,7 +110,7 @@ const statusFromInputs = (input: Required<ValuationRuntimeInputs>): ValuationCal
     pb: equityMissing ? "insufficient_data" : equityNonPositive ? "not_applicable" : "ready",
     bvps: equityMissing || sharesMissing ? "insufficient_data" : equityNonPositive || sharesNonPositive ? "not_applicable" : "ready",
     roe: equityMissing ? "insufficient_data" : equityNonPositive ? "not_applicable" : "ready",
-    marketCap: marketMissing || sharesMissing || sharesNonPositive ? "insufficient_data" : "ready",
+    marketCap: marketMissing || sharesMissing || marketNonPositive || sharesNonPositive ? "insufficient_data" : "ready",
   };
 };
 
@@ -143,7 +144,11 @@ const blockedReasonsFromInputs = (input: Required<ValuationRuntimeInputs>): stri
     reasons.push("Equity or BVPS non-positive; P/B, BVPS, and ROE readiness are not_applicable.");
   }
 
-  if (input.marketPrice === null) reasons.push("Market price missing; market-based readiness is insufficient_data.");
+  if (input.marketPrice === null) {
+    reasons.push("Market price missing; market-based readiness is insufficient_data.");
+  } else if (input.marketPrice <= 0) {
+    reasons.push("Market price non-positive; market-based readiness is not_applicable.");
+  }
 
   if (input.sharesOutstanding === null) {
     reasons.push("Shares outstanding missing; market cap and share-based readiness are insufficient_data.");

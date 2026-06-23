@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, expect, it } from "vitest";
 
 import { buildControlledValuationIntegrationBoundary } from "@/features/valuation/lib/controlled-valuation-integration-boundary";
@@ -77,7 +78,7 @@ describe("loadFinancialsRuntimeData", () => {
     const result = await loadFinancialsRuntimeData(
       {},
       {
-        readLatestMarketPrice: async () => null, readSeries: async () => {
+        readLatestMarketPrice: async () => null as any, readSeries: async () => {
           readCalled = true;
           return seriesResult();
         },
@@ -98,7 +99,7 @@ describe("loadFinancialsRuntimeData", () => {
     const result = await loadFinancialsRuntimeData(
       { preferDb: false },
       {
-        readLatestMarketPrice: async () => null, readSeries: async () => {
+        readLatestMarketPrice: async () => null as any, readSeries: async () => {
           readCalled = true;
           return seriesResult();
         },
@@ -120,7 +121,7 @@ describe("loadFinancialsRuntimeData", () => {
     const result = await loadFinancialsRuntimeData(
       { env: { ATELIER_FINANCIALS_DB_SOURCE: "disabled" } },
       {
-        readLatestMarketPrice: async () => null, readSeries: async () => {
+        readLatestMarketPrice: async () => null as any, readSeries: async () => {
           readCalled = true;
           return seriesResult();
         },
@@ -139,7 +140,7 @@ describe("loadFinancialsRuntimeData", () => {
     const result = await loadFinancialsRuntimeData(
       { ticker: "FPT", sourceLabel: importedSourceLabel, dataMode: "manual" },
       {
-        readLatestMarketPrice: async () => null, readSeries: async () =>
+        readLatestMarketPrice: async () => null as any, readSeries: async () =>
           seriesResult({
             sourceLabel: importedSourceLabel,
             dataMode: "manual",
@@ -202,7 +203,7 @@ describe("loadFinancialsRuntimeData", () => {
 
     const result = await loadFinancialsRuntimeData(
       { ticker: "MWG", preferDb: true, sourceLabel, dataMode: "research_only" },
-      { readLatestMarketPrice: async () => null, readSeries: async () => mwg },
+      { readLatestMarketPrice: async () => null as any, readSeries: async () => mwg },
     );
 
     expect(result.runtimeStatus).toBe("db_backed");
@@ -219,7 +220,7 @@ describe("loadFinancialsRuntimeData", () => {
     const result = await loadFinancialsRuntimeData(
       { ticker: "FPT", preferDb: true, allowFallback: true, sourceLabel, dataMode: "research_only" },
       {
-        readLatestMarketPrice: async () => null, readSeries: async () =>
+        readLatestMarketPrice: async () => null as any, readSeries: async () =>
           seriesResult({
             ok: false,
             status: "unavailable",
@@ -239,7 +240,7 @@ describe("loadFinancialsRuntimeData", () => {
     const result = await loadFinancialsRuntimeData(
       { ticker: "FPT", preferDb: true, allowFallback: false, sourceLabel, dataMode: "research_only" },
       {
-        readLatestMarketPrice: async () => null, readSeries: async () =>
+        readLatestMarketPrice: async () => null as any, readSeries: async () =>
           seriesResult({
             ok: false,
             status: "unavailable",
@@ -259,7 +260,7 @@ describe("loadFinancialsRuntimeData", () => {
     const fallback = await loadFinancialsRuntimeData(
       { ticker: "FPT", preferDb: true, allowFallback: true, sourceLabel, dataMode: "research_only" },
       {
-        readLatestMarketPrice: async () => null, readSeries: async () => {
+        readLatestMarketPrice: async () => null as any, readSeries: async () => {
           throw new Error("read failed");
         },
       },
@@ -267,7 +268,7 @@ describe("loadFinancialsRuntimeData", () => {
     const unavailable = await loadFinancialsRuntimeData(
       { ticker: "FPT", preferDb: true, allowFallback: false, sourceLabel, dataMode: "research_only" },
       {
-        readLatestMarketPrice: async () => null, readSeries: async () => {
+        readLatestMarketPrice: async () => null as any, readSeries: async () => {
           throw new Error("read failed");
         },
       },
@@ -283,7 +284,7 @@ describe("loadFinancialsRuntimeData", () => {
     const runtime = await loadFinancialsRuntimeData(
       { ticker: "FPT", preferDb: true, sourceLabel, dataMode: "research_only" },
       {
-        readLatestMarketPrice: async () => null, readSeries: async () =>
+        readLatestMarketPrice: async () => null as any, readSeries: async () =>
           seriesResult({
             records: [
               {
@@ -353,7 +354,7 @@ describe("loadFinancialsRuntimeData", () => {
   });
 
   it("does not expose investment action wording in runtime metadata", async () => {
-    const result = await loadFinancialsRuntimeData({ preferDb: true }, { readLatestMarketPrice: async () => null, readSeries: async () => seriesResult() });
+    const result = await loadFinancialsRuntimeData({ preferDb: true }, { readLatestMarketPrice: async () => null as any, readSeries: async () => seriesResult() });
     const output = JSON.stringify(result).toLowerCase();
     const blockedPhrases = [
       ["nen", "mua"],

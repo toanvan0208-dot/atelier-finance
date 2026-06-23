@@ -131,7 +131,7 @@ const dbBackedResult = ({
   dataMode: string;
   adapted: AdaptFinancialStatementSeriesResult;
   readResult: FinancialStatementSeriesResult;
-  marketPriceRecord: { closePrice: any } | null;
+  marketPriceRecord: { closePrice: unknown } | null;
 }): FinancialsRuntimeData => {
   const firstStatement = adapted.statements[0];
   const firstRecord = readResult.records[0];
@@ -200,7 +200,7 @@ export const loadFinancialsRuntimeData = async (
       try {
         readLatestMarketPrice = (await import("../../../lib/database/services/market-price-service")).getLatestMarketPrice;
       } catch {
-        readLatestMarketPrice = async () => null;
+        readLatestMarketPrice = async () => null as unknown as ReturnType<typeof getLatestMarketPrice>;
       }
     }
 
@@ -211,9 +211,10 @@ export const loadFinancialsRuntimeData = async (
     let marketPriceRecord = null;
     try {
       if (typeof readLatestMarketPrice === "function") {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         marketPriceRecord = await readLatestMarketPrice(ticker, { dataMode: dataMode as any });
       }
-    } catch (e) {
+    } catch {
       marketPriceRecord = null;
     }
     

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -78,7 +79,7 @@ describe("Financials MVP data audit", () => {
     async (ticker) => {
       const result = await loadFinancialsRuntimeData(
         { ticker, preferDb: false },
-        { readSeries: async () => seriesForTicker(ticker) },
+        { readLatestMarketPrice: async () => null as any as any, readSeries: async () => seriesForTicker(ticker) },
       );
 
       expect(result.source.ticker).toBe(ticker);
@@ -94,7 +95,7 @@ describe("Financials MVP data audit", () => {
   it("blocks a DB record whose ticker differs from the requested ticker", async () => {
     const result = await loadFinancialsRuntimeData(
       { ticker: "FPT", preferDb: true, allowFallback: true, sourceLabel },
-      { readSeries: async () => seriesForTicker("MWG") },
+      { readLatestMarketPrice: async () => null as any as any, readSeries: async () => seriesForTicker("MWG") },
     );
 
     expect(result.runtimeStatus).toBe("unavailable");
