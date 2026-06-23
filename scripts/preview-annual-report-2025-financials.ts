@@ -282,6 +282,61 @@ export function buildManualPreviewMap(): ExtractionPreview[] {
       continue;
     }
 
+    if (ticker === "MWG") {
+      previews.push({
+        ticker: "MWG",
+        pdfFile: pdfName,
+        field: "eps",
+        value: null,
+        unit: null,
+        fiscalYear: 2025,
+        sourceLabel: "annual_report_2025_pdf_reviewed_preview",
+        dataMode: "research_only",
+        productionApproved: false,
+        status: "missing",
+        page: null,
+        tableOrSection: null,
+        extractionMethod: "not_found",
+        evidenceSnippet: null,
+        notes: "EPS is not explicitly listed in the sustainability report."
+      });
+      previews.push({
+        ticker: "MWG",
+        pdfFile: pdfName,
+        field: "sharesOutstanding",
+        value: 1468456763,
+        unit: "shares",
+        fiscalYear: 2025,
+        sourceLabel: "annual_report_2025_pdf_reviewed_preview",
+        dataMode: "research_only",
+        productionApproved: false,
+        status: "preview",
+        page: "68",
+        tableOrSection: "Thông tin liên hệ",
+        extractionMethod: "manual_map",
+        evidenceSnippet: "Số lượng cổ phiếu đang lưu hành: 1.468.456.763 (Tính đến 31/12/2025)",
+        notes: "Explicitly defined."
+      });
+      previews.push({
+        ticker: "MWG",
+        pdfFile: pdfName,
+        field: "totalDebt",
+        value: null,
+        unit: null,
+        fiscalYear: 2025,
+        sourceLabel: "annual_report_2025_pdf_reviewed_preview",
+        dataMode: "research_only",
+        productionApproved: false,
+        status: "missing",
+        page: null,
+        tableOrSection: null,
+        extractionMethod: "not_found",
+        evidenceSnippet: null,
+        notes: "Total debt (short/long-term borrowings) is not available in the sustainability report."
+      });
+      continue;
+    }
+
     for (const field of FIELDS_TO_EXTRACT) {
       let status: ExtractionPreview["status"] = "needs_review";
       const value: number | null = null;
@@ -366,7 +421,7 @@ async function run() {
   }
 
   for (const [ticker, pdfName] of Object.entries(TICKER_PDF_MAP)) {
-    if (ticker !== "HPG" && ticker !== "VNM") continue;
+    if (ticker !== "HPG" && ticker !== "VNM" && ticker !== "MWG") continue;
 
     console.log(`\nTicker: ${ticker} | Source: ${pdfName}`);
     console.log("---------------------------------------------------------");
@@ -388,7 +443,11 @@ async function run() {
   const jsonPathVNM = path.join(process.cwd(), "docs/product/evidence/PHASE139F_VNM_PDF_2025_PREVIEW.json");
   fs.writeFileSync(jsonPathVNM, JSON.stringify(vnmPreviews, null, 2));
 
-  console.log(`\nPreview mapping complete. JSON generated at ${jsonPathVNM}. No DB writes or schema changes were performed.`);
+  const mwgPreviews = previews.filter(p => p.ticker === "MWG");
+  const jsonPathMWG = path.join(process.cwd(), "docs/product/evidence/PHASE139H_MWG_PDF_2025_PREVIEW.json");
+  fs.writeFileSync(jsonPathMWG, JSON.stringify(mwgPreviews, null, 2));
+
+  console.log(`\nPreview mapping complete. JSON generated. No DB writes or schema changes were performed.`);
 }
 
 if (import.meta.url === `file://${process.argv[1].replace(/\\/g, "/")}` || require.main === module) {

@@ -1,0 +1,53 @@
+[
+  {
+    "ticker": "MWG",
+    "pdfFile": "MWG_Baocaothuongnien_2025.pdf",
+    "field": "eps",
+    "value": null,
+    "unit": null,
+    "fiscalYear": 2025,
+    "sourceLabel": "annual_report_2025_pdf_reviewed_preview",
+    "dataMode": "research_only",
+    "productionApproved": false,
+    "status": "missing",
+    "page": null,
+    "tableOrSection": null,
+    "extractionMethod": "not_found",
+    "evidenceSnippet": null,
+    "notes": "EPS is not explicitly listed in the sustainability report."
+  },
+  {
+    "ticker": "MWG",
+    "pdfFile": "MWG_Baocaothuongnien_2025.pdf",
+    "field": "sharesOutstanding",
+    "value": 1468456763,
+    "unit": "shares",
+    "fiscalYear": 2025,
+    "sourceLabel": "annual_report_2025_pdf_reviewed_preview",
+    "dataMode": "research_only",
+    "productionApproved": false,
+    "status": "preview",
+    "page": "68",
+    "tableOrSection": "Thông tin liên hệ",
+    "extractionMethod": "manual_map",
+    "evidenceSnippet": "Số lượng cổ phiếu đang lưu hành: 1.468.456.763 (Tính đến 31/12/2025)",
+    "notes": "Explicitly defined."
+  },
+  {
+    "ticker": "MWG",
+    "pdfFile": "MWG_Baocaothuongnien_2025.pdf",
+    "field": "totalDebt",
+    "value": null,
+    "unit": null,
+    "fiscalYear": 2025,
+    "sourceLabel": "annual_report_2025_pdf_reviewed_preview",
+    "dataMode": "research_only",
+    "productionApproved": false,
+    "status": "missing",
+    "page": null,
+    "tableOrSection": null,
+    "extractionMethod": "not_found",
+    "evidenceSnippet": null,
+    "notes": "Total debt (short/long-term borrowings) is not available in the sustainability report."
+  }
+]
