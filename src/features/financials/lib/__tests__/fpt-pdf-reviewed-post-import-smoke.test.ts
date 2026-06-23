@@ -4,29 +4,29 @@ import { buildRiskFinancialsRuntimeReadiness } from "../../../risk/lib/risk-fina
 import { buildValuationFinancialsRuntimeReadiness } from "../../../valuation/lib/valuation-financials-runtime-readiness";
 import { buildAssistantScreenContextPacket } from "../../../../components/layout/assistant-screen-context";
 
-describe("Phase 139E Post-Import Product Smoke Boundaries", () => {
+describe("Phase 139J Post-Import Product Smoke Boundaries", () => {
   beforeAll(() => {
     if (!process.env.DATABASE_URL) {
       process.env.DATABASE_URL = "file:./dev.db";
     }
   });
 
-  describe("HPG Runtime Financials Snapshot", () => {
+  describe("FPT Runtime Financials Snapshot", () => {
     it("resolves to annual_report_2025_pdf_reviewed_preview with expected values", async () => {
-      const hpg = await loadFinancialsRuntimeData({ ticker: "HPG", preferDb: true });
+      const fpt = await loadFinancialsRuntimeData({ ticker: "FPT", preferDb: true });
 
-      expect(hpg.source.sourceLabel).toBe("annual_report_2025_pdf_reviewed_preview");
-      expect(hpg.source.dataMode).toBe("research_only");
-      expect(hpg.source.productionApproved).toBe(false);
-      expect(hpg.source.fallbackUsed).toBe(false);
+      expect(fpt.source.sourceLabel).toBe("annual_report_2025_pdf_reviewed_preview");
+      expect(fpt.source.dataMode).toBe("research_only");
+      expect(fpt.source.productionApproved).toBe(false);
+      expect(fpt.source.fallbackUsed).toBe(false);
 
-      expect(hpg.statementSnapshot?.eps).toBe(1973);
-      expect(hpg.statementSnapshot?.sharesOutstanding).toBe(7675465855);
-      expect(hpg.statementSnapshot?.totalDebt).toBe(92174.151302217);
+      expect(fpt.statementSnapshot?.eps).toBe(5216);
+      expect(fpt.statementSnapshot?.sharesOutstanding).toBe(1703507121);
+      expect(fpt.statementSnapshot?.totalDebt).toBe(21073.487486139);
 
-      expect(hpg.unitMetadata.eps.unit).toBe("vnd_per_share");
-      expect(hpg.unitMetadata.sharesOutstanding.unit).toBe("shares");
-      expect(hpg.unitMetadata.totalDebt.unit).toBe("billion_vnd");
+      expect(fpt.unitMetadata.eps.unit).toBe("vnd_per_share");
+      expect(fpt.unitMetadata.sharesOutstanding.unit).toBe("shares");
+      expect(fpt.unitMetadata.totalDebt.unit).toBe("billion_vnd");
     });
   });
 
@@ -40,21 +40,21 @@ describe("Phase 139E Post-Import Product Smoke Boundaries", () => {
 
   describe("Module Behaviors", () => {
     it("supplies totalDebt to Risk module without marking it missing", async () => {
-      const hpg = await loadFinancialsRuntimeData({ ticker: "HPG", preferDb: true });
+      const fpt = await loadFinancialsRuntimeData({ ticker: "FPT", preferDb: true });
       const riskReadiness = buildRiskFinancialsRuntimeReadiness({
-        financialsRuntimeData: hpg,
+        financialsRuntimeData: fpt,
         hasStaticRiskPath: false,
         riskConsumesFinancialsRuntime: true,
       });
 
       expect(riskReadiness.inputSnapshot.totalDebt).not.toBeNull();
-      expect(riskReadiness.inputSnapshot.totalDebt).toBe(92174.151302217);
+      expect(riskReadiness.inputSnapshot.totalDebt).toBe(21073.487486139);
     });
 
     it("keeps Valuation source boundary unapproved", async () => {
-      const hpg = await loadFinancialsRuntimeData({ ticker: "HPG", preferDb: true });
+      const fpt = await loadFinancialsRuntimeData({ ticker: "FPT", preferDb: true });
       const valuationReadiness = buildValuationFinancialsRuntimeReadiness({
-        financialsRuntimeData: hpg,
+        financialsRuntimeData: fpt,
         hasPersistedLocalInputBridge: false,
         valuationConsumesFinancialsRuntime: true,
       });
@@ -63,18 +63,18 @@ describe("Phase 139E Post-Import Product Smoke Boundaries", () => {
     });
 
     it("populates AI Assistant Context correctly without recommendation logic", async () => {
-      const hpg = await loadFinancialsRuntimeData({ ticker: "HPG", preferDb: true });
+      const fpt = await loadFinancialsRuntimeData({ ticker: "FPT", preferDb: true });
       const context = buildAssistantScreenContextPacket({
-        ticker: "HPG",
+        ticker: "FPT",
         activeModule: "financials",
-        financialsRuntimeData: hpg,
+        financialsRuntimeData: fpt,
       });
 
       const jsonContext = JSON.stringify(context);
       
-      expect(jsonContext).toContain("1973");
-      expect(jsonContext).toContain("7675465855");
-      expect(jsonContext).toContain("92174.151302217");
+      expect(jsonContext).toContain("5216");
+      expect(jsonContext).toContain("1703507121");
+      expect(jsonContext).toContain("21073.487486139");
       expect(jsonContext).toContain("annual_report_2025_pdf_reviewed_preview");
       expect(jsonContext).toContain('"productionApproved":false');
 
