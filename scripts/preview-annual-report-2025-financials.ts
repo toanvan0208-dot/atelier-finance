@@ -337,6 +337,129 @@ export function buildManualPreviewMap(): ExtractionPreview[] {
       continue;
     }
 
+    if (ticker === "FPT") {
+      previews.push({
+        ticker: "FPT",
+        pdfFile: pdfName,
+        field: "eps",
+        value: 5216,
+        unit: "vnd_per_share",
+        fiscalYear: 2025,
+        sourceLabel: "annual_report_2025_pdf_reviewed_preview",
+        dataMode: "research_only",
+        productionApproved: false,
+        status: "preview",
+        page: "169",
+        tableOrSection: "Báo cáo kết quả hoạt động kinh doanh hợp nhất",
+        extractionMethod: "manual_map",
+        evidenceSnippet: "Lãi cơ bản trên cổ phiếu: 5.216",
+        notes: "Explicitly defined."
+      });
+      previews.push({
+        ticker: "FPT",
+        pdfFile: pdfName,
+        field: "sharesOutstanding",
+        value: 1703507121,
+        unit: "shares",
+        fiscalYear: 2025,
+        sourceLabel: "annual_report_2025_pdf_reviewed_preview",
+        dataMode: "research_only",
+        productionApproved: false,
+        status: "preview",
+        page: "204",
+        tableOrSection: "Thuyết minh 23(a) Số lượng cổ phiếu",
+        extractionMethod: "manual_map",
+        evidenceSnippet: "Số lượng cổ phiếu đang lưu hành: 1.703.507.121",
+        notes: "Explicitly defined."
+      });
+      previews.push({
+        ticker: "FPT",
+        pdfFile: pdfName,
+        field: "totalDebt",
+        value: 21073487486139,
+        unit: "VND",
+        fiscalYear: 2025,
+        sourceLabel: "annual_report_2025_pdf_reviewed_preview",
+        dataMode: "research_only",
+        productionApproved: false,
+        status: "derived_preview",
+        page: "167",
+        tableOrSection: "Bảng cân đối kế toán hợp nhất - Nguồn vốn",
+        extractionMethod: "derived_from_lines",
+        evidenceSnippet: "Vay và nợ thuê tài chính ngắn hạn: 19.169.697.497.955 + Vay và nợ thuê tài chính dài hạn: 1.903.789.988.184",
+        notes: "Derived safely from explicit short and long-term borrowings."
+      });
+      previews.push({
+        ticker: "FPT",
+        pdfFile: pdfName,
+        field: "totalAssets",
+        value: 88141991634625,
+        unit: "VND",
+        fiscalYear: 2025,
+        sourceLabel: "annual_report_2025_pdf_reviewed_preview",
+        dataMode: "research_only",
+        productionApproved: false,
+        status: "preview",
+        page: "166",
+        tableOrSection: "Bảng cân đối kế toán hợp nhất - Tài sản",
+        extractionMethod: "manual_map",
+        evidenceSnippet: "TỔNG TÀI SẢN: 88.141.991.634.625",
+        notes: "Explicitly defined."
+      });
+      previews.push({
+        ticker: "FPT",
+        pdfFile: pdfName,
+        field: "equity",
+        value: 43748040747539,
+        unit: "VND",
+        fiscalYear: 2025,
+        sourceLabel: "annual_report_2025_pdf_reviewed_preview",
+        dataMode: "research_only",
+        productionApproved: false,
+        status: "preview",
+        page: "168",
+        tableOrSection: "Bảng cân đối kế toán hợp nhất - Nguồn vốn",
+        extractionMethod: "manual_map",
+        evidenceSnippet: "VỐN CHỦ SỞ HỮU: 43.748.040.747.539",
+        notes: "Explicitly defined."
+      });
+      previews.push({
+        ticker: "FPT",
+        pdfFile: pdfName,
+        field: "revenue",
+        value: 70112825100710,
+        unit: "VND",
+        fiscalYear: 2025,
+        sourceLabel: "annual_report_2025_pdf_reviewed_preview",
+        dataMode: "research_only",
+        productionApproved: false,
+        status: "preview",
+        page: "169",
+        tableOrSection: "Báo cáo kết quả hoạt động kinh doanh hợp nhất",
+        extractionMethod: "manual_map",
+        evidenceSnippet: "Doanh thu thuần về bán hàng và cung cấp dịch vụ: 70.112.825.100.710",
+        notes: "Net revenue used."
+      });
+      previews.push({
+        ticker: "FPT",
+        pdfFile: pdfName,
+        field: "netIncome",
+        value: 11232339450734,
+        unit: "VND",
+        fiscalYear: 2025,
+        sourceLabel: "annual_report_2025_pdf_reviewed_preview",
+        dataMode: "research_only",
+        productionApproved: false,
+        status: "preview",
+        page: "169",
+        tableOrSection: "Báo cáo kết quả hoạt động kinh doanh hợp nhất",
+        extractionMethod: "manual_map",
+        evidenceSnippet: "Lợi nhuận sau thuế TNDN: 11.232.339.450.734",
+        notes: "Explicitly defined."
+      });
+      continue;
+    }
+
     for (const field of FIELDS_TO_EXTRACT) {
       let status: ExtractionPreview["status"] = "needs_review";
       const value: number | null = null;
@@ -421,7 +544,7 @@ async function run() {
   }
 
   for (const [ticker, pdfName] of Object.entries(TICKER_PDF_MAP)) {
-    if (ticker !== "HPG" && ticker !== "VNM" && ticker !== "MWG") continue;
+    if (ticker !== "HPG" && ticker !== "VNM" && ticker !== "MWG" && ticker !== "FPT") continue;
 
     console.log(`\nTicker: ${ticker} | Source: ${pdfName}`);
     console.log("---------------------------------------------------------");
@@ -446,6 +569,10 @@ async function run() {
   const mwgPreviews = previews.filter(p => p.ticker === "MWG");
   const jsonPathMWG = path.join(process.cwd(), "docs/product/evidence/PHASE139H_MWG_PDF_2025_PREVIEW.json");
   fs.writeFileSync(jsonPathMWG, JSON.stringify(mwgPreviews, null, 2));
+
+  const fptPreviews = previews.filter(p => p.ticker === "FPT");
+  const jsonPathFPT = path.join(process.cwd(), "docs/product/evidence/PHASE139I_FPT_PDF_2025_PREVIEW.json");
+  fs.writeFileSync(jsonPathFPT, JSON.stringify(fptPreviews, null, 2));
 
   console.log(`\nPreview mapping complete. JSON generated. No DB writes or schema changes were performed.`);
 }
