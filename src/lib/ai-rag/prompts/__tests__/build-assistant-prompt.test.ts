@@ -58,7 +58,7 @@ describe("buildAssistantPrompt", () => {
     expect(result.promptText).toContain("If a required field is missing, do not infer it and do not fill it with zero.");
   });
 
-  it("builds valuation prompt with fair value limitation", () => {
+  it("builds valuation prompt with fair value and conclusion limitations", () => {
     const result = buildAssistantPrompt(
       baseInput({
         activeModule: "valuation",
@@ -67,8 +67,9 @@ describe("buildAssistantPrompt", () => {
     );
 
     expect(result.promptText).toContain("Never provide fair value, target price, upside, or downside");
-    expect(result.promptText).toContain("EPS less than or equal to zero");
-    expect(result.promptText).toContain("Equity or BVPS less than or equal to zero");
+    expect(result.promptText).toContain("Never conclude that a stock is cheap, expensive, attractive, or has potential. Simply explain the metric objectively.");
+    expect(result.promptText).toContain("EPS less than or equal to zero means P/E must not be interpreted normally.");
+    expect(result.promptText).toContain("Instead, follow this example format for valuation:");
   });
 
   it("builds risk prompt with risk score limitation", () => {

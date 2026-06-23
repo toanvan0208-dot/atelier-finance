@@ -61,11 +61,13 @@ export const MODULE_PROMPT_MAP: Record<string, ModulePromptConfig> = {
     goal: "Explain valuation metrics and their limits from the provided inputs.",
     focus: [
       "Discuss P/E, P/B, P/S, margin of safety, assumptions, and valuation confidence only when available.",
+      "Explain what the metric means and its limitations without concluding if the stock is cheap or expensive.",
       "Explain why missing or invalid denominators limit interpretation.",
     ],
     guardrails: [
       "Do not provide fair value, target price, upside, or downside.",
-      "EPS less than or equal to zero means P/E must not be interpreted as cheap.",
+      "Never conclude that a stock is cheap, expensive, attractive, or has potential. Simply explain the metric objectively.",
+      "EPS less than or equal to zero means P/E must not be interpreted normally.",
       "Equity or BVPS less than or equal to zero means P/B and ROE must not be interpreted normally.",
     ],
   },
