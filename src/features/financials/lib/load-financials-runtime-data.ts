@@ -210,25 +210,25 @@ export const loadFinancialsRuntimeData = async (
     let readResult = await readSeries({ ticker, sourceLabel, dataMode, limit: 8 });
     let adapted = adaptSeries(readResult);
 
-    if (!adapted.ok && (!options.sourceLabel || options.sourceLabel.trim() === "")) {
-      if (ticker === "HPG") {
-        const hpgPdfResult = await readSeries({ ticker, sourceLabel: "annual_report_2025_pdf_reviewed_preview", dataMode: "research_only", limit: 8 });
-        const hpgPdfAdapted = adaptSeries(hpgPdfResult);
-        if (hpgPdfAdapted.ok && hpgPdfAdapted.statements.length > 0) {
-          readResult = hpgPdfResult;
-          adapted = hpgPdfAdapted;
+    if (!options.sourceLabel || options.sourceLabel.trim() === "") {
+      if (ticker === "HPG" || ticker === "VNM") {
+        const pdfResult = await readSeries({ ticker, sourceLabel: "annual_report_2025_pdf_reviewed_preview", dataMode: "research_only", limit: 8 });
+        const pdfAdapted = adaptSeries(pdfResult);
+        if (pdfAdapted.ok && pdfAdapted.statements.length > 0) {
+          readResult = pdfResult;
+          adapted = pdfAdapted;
           sourceLabel = "annual_report_2025_pdf_reviewed_preview";
         }
       }
+    }
 
-      if (!adapted.ok) {
-        const candidateResult = await readSeries({ ticker, sourceLabel: VNSTOCK_FINANCIALS_CANDIDATE_SOURCE_LABEL, dataMode: "research_only", limit: 8 });
-        const candidateAdapted = adaptSeries(candidateResult);
-        if (candidateAdapted.ok && candidateAdapted.statements.length > 0) {
-          readResult = candidateResult;
-          adapted = candidateAdapted;
-          sourceLabel = VNSTOCK_FINANCIALS_CANDIDATE_SOURCE_LABEL;
-        }
+    if (!adapted.ok && (!options.sourceLabel || options.sourceLabel.trim() === "")) {
+      const candidateResult = await readSeries({ ticker, sourceLabel: VNSTOCK_FINANCIALS_CANDIDATE_SOURCE_LABEL, dataMode: "research_only", limit: 8 });
+      const candidateAdapted = adaptSeries(candidateResult);
+      if (candidateAdapted.ok && candidateAdapted.statements.length > 0) {
+        readResult = candidateResult;
+        adapted = candidateAdapted;
+        sourceLabel = VNSTOCK_FINANCIALS_CANDIDATE_SOURCE_LABEL;
       }
     }
 

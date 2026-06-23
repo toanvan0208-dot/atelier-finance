@@ -31,14 +31,12 @@ describe("Phase 139E Post-Import Product Smoke Boundaries", () => {
   });
 
   describe("Sanity Check: Source Priority", () => {
-    it("preserves phase109_controlled_local_financials for FPT, MWG, VNM", async () => {
+    it("preserves phase109_controlled_local_financials for FPT, MWG", async () => {
       const fpt = await loadFinancialsRuntimeData({ ticker: "FPT", preferDb: true });
       const mwg = await loadFinancialsRuntimeData({ ticker: "MWG", preferDb: true });
-      const vnm = await loadFinancialsRuntimeData({ ticker: "VNM", preferDb: true });
-
+      
       expect(fpt.source.sourceLabel).toBe("phase109_controlled_local_financials");
       expect(mwg.source.sourceLabel).toBe("phase109_controlled_local_financials");
-      expect(vnm.source.sourceLabel).toBe("phase109_controlled_local_financials");
     });
   });
 
