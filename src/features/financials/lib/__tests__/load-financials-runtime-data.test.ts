@@ -264,7 +264,7 @@ describe("loadFinancialsRuntimeData", () => {
         readLatestMarketPrice: async () => null as any,
         readSeries: async ({ sourceLabel }) => {
           readCount++;
-          if (sourceLabel === "phase109_controlled_local_financials") {
+          if (sourceLabel === "phase109_controlled_local_financials" || sourceLabel === "annual_report_2025_pdf_reviewed_preview") {
             return seriesResult({
               ok: false,
               status: "unavailable",
@@ -312,7 +312,7 @@ describe("loadFinancialsRuntimeData", () => {
       },
     );
 
-    expect(readCount).toBe(2);
+    expect(readCount).toBe(3);
     expect(result.runtimeStatus).toBe("db_backed");
     expect(result.source.sourceLabel).toBe("vnstock_financials_candidate");
     expect(result.statementSnapshot?.eps).toBe(1973);
