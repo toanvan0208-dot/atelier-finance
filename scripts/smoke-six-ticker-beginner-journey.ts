@@ -1,10 +1,9 @@
 import { loadFinancialsRuntimeData } from "../src/features/financials/lib/load-financials-runtime-data";
 import { getLatestMarketPrice } from "../src/lib/database/services/market-price-service";
 import { buildControlledValuationIntegrationBoundary } from "../src/features/valuation/lib/controlled-valuation-integration-boundary";
-
 import { buildAssistantScreenContextPacket } from "../src/components/layout/assistant-screen-context";
 import { buildAssistantPrompt } from "../src/lib/ai-rag/prompts/build-assistant-prompt";
-
+import { buildRiskFinancialsRuntimeReadiness } from "../src/features/risk/lib/risk-financials-runtime-readiness";
 
 const run = async () => {
   if (!process.env.DATABASE_URL) {
@@ -12,7 +11,7 @@ const run = async () => {
   }
   const tickers = ["FPT", "MWG", "VNM", "HPG", "VCB", "MSN"];
 
-  console.log("=== PHASE 138I VERIFICATION SCRIPT ===\n");
+  console.log("=== PHASE 138J END-TO-END PRODUCT SMOKE ===\n");
 
   for (const ticker of tickers) {
     console.log(`\n===========================================`);
@@ -62,30 +61,31 @@ const run = async () => {
     });
 
     console.log(`\n[VALUATION] Valuation Source Mode: ${valuationBoundary.sourceBoundary.valuationSourceMode}`);
-    console.log(`[VALUATION] Can Claim Valuation DB Backed: ${valuationBoundary.sourceBoundary.canClaimValuationDbBacked}`);
     console.log(`[VALUATION] PE Status: ${valuationBoundary.calculation.metrics.pe.status}`);
-    console.log(`[VALUATION] PE Value: ${valuationBoundary.calculation.metrics.pe.value}`);
     console.log(`[VALUATION] Market Cap: ${valuationBoundary.calculation.metrics.marketCap.value}`);
-    // Risk metrics were removed from Valuation in previous phases
+
+    // 3. Risk Boundary
+    const riskReadiness = buildRiskFinancialsRuntimeReadiness({ financialsRuntimeData: runtimeData, riskConsumesFinancialsRuntime: true });
+    console.log(`\n[RISK] Readiness Status: ${riskReadiness.calculationReadiness}`);
+    console.log(`[RISK] Blocked Reasons: ${riskReadiness.blockedReasons.join("; ")}`);
 
     // 4. Assistant Context
     const packet = buildAssistantScreenContextPacket({
-      activeModule: "valuation",
+      activeModule: "overview",
       ticker,
       financialsRuntimeData: runtimeData
     });
     const prompt = buildAssistantPrompt({
-      activeModule: "valuation",
-      userQuestion: "Is this stock cheap?",
+      activeModule: "overview",
+      userQuestion: "Is this stock good to buy?",
       ticker,
       contextPacket: packet,
       dataQuality: packet.dataQuality
     });
     
     console.log(`\n[ASSISTANT] Included Missing Fields: ${packet.missingFields.join(", ")}`);
-    console.log(`[ASSISTANT] Prompt includes "productionApproved: false": ${prompt.promptText.includes("Production approved: no")}`);
-    console.log(`[ASSISTANT] Prompt includes "vnstock_financials_candidate" or "phase109": ${prompt.promptText.includes("vnstock_financials_candidate") || prompt.promptText.includes("phase109_controlled_local_financials")}`);
-    console.log(`[ASSISTANT] Prompt block "Missing fields" lists totalDebt (if applicable): ${prompt.promptText.includes("- totalDebt")}`);
+    console.log(`[ASSISTANT] Context mentions productionApproved: false: ${prompt.promptText.includes("Production approved: no")}`);
+    console.log(`[ASSISTANT] Safe from recommendation language: ${prompt.promptText.includes("Never recommend buy/sell/hold")}`);
   }
 };
 
