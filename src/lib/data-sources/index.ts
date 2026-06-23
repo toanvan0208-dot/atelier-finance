@@ -33,4 +33,5 @@ export * from "./valuation-api-client";
 export * from "./vnstock-market-price-import-command";
 export * from "./vnstock-market-price-persistence";
 export * from "./vnstock-manual-export-loader";
+export * from "./vnstock-financials-candidate";
 export * from "./vnstock-research-connector";

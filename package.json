@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "typecheck": "tsc --noEmit",
     "start": "next start",
     "lint": "eslint .",
     "prisma:generate": "prisma generate",
@@ -18,6 +19,7 @@
     "financials:fpt:controlled": "tsx scripts/import-fpt-financials-controlled.ts",
     "financials:write-trial": "tsx scripts/financial-statements-write-trial.ts",
     "source-records:reviewed:import": "tsx scripts/import-reviewed-source-records.ts",
+    "probe:financials:vnstock": "tsx scripts/probe-vnstock-financials.ts",
     "import:market-prices:vnstock:local": "tsx scripts/import-vnstock-market-prices.ts",
     "import:market-pvt:vnstock:controlled": "tsx scripts/import-vnstock-market-pvt-controlled.ts",
     "test": "vitest run",
