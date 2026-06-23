@@ -426,7 +426,7 @@ export function FinancialsPage({
 }: FinancialsPageProps) {
   const tickerFromUrl = useFinancialsTickerFromUrl();
   const [tickerInput, setTickerInput] = useState(
-    initialRuntimeData?.source.ticker ?? "FPTLAB",
+    initialRuntimeData?.source.ticker ?? "FPT",
   );
   const [request, setRequest] = useState<{ ticker: string; id: number } | null>(
     null,
@@ -434,7 +434,7 @@ export function FinancialsPage({
   const [bridgeState, setBridgeState] = useState<FinancialsBridgeState>(() =>
     initialRuntimeData
       ? buildRuntimeState(initialRuntimeData)
-      : { status: "empty", ticker: "FPTLAB" },
+      : { status: "empty", ticker: "FPT" },
   );
   const [activeStepId, setActiveStepId] = useState(() =>
     bridgeState.status === "runtime"

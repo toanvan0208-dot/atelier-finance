@@ -47,7 +47,7 @@ type ValuationBridgeState =
   | { status: "error"; ticker: string; message: string };
 
 const navigationChangeEvent = "app:navigation";
-const defaultValuationTicker = "FPTLAB";
+const defaultValuationTicker = "FPT";
 
 const normalizeTicker = (ticker: string | null | undefined): string | null => {
   const normalized = ticker?.trim().toUpperCase();
@@ -63,11 +63,13 @@ const tickerMatches = (expected: string | null | undefined, actual: string | nul
 export function resolveInitialValuationTicker({
   controlledTicker,
   urlTicker,
+  runtimeTicker,
 }: {
   controlledTicker?: string | null;
   urlTicker?: string | null;
+  runtimeTicker?: string | null;
 }) {
-  return normalizeTicker(controlledTicker) ?? normalizeTicker(urlTicker) ?? defaultValuationTicker;
+  return normalizeTicker(controlledTicker) ?? normalizeTicker(urlTicker) ?? normalizeTicker(runtimeTicker) ?? defaultValuationTicker;
 }
 
 const readValuationTickerFromLocation = () => {
@@ -250,6 +252,7 @@ export function ValuationPage({ initialFinancialsRuntimeData, initialScenario, o
   const initialTicker = resolveInitialValuationTicker({
     controlledTicker: controlledScenario?.ticker,
     urlTicker: tickerFromUrl,
+    runtimeTicker: initialFinancialsRuntimeData?.source.ticker,
   });
   const [tickerInput, setTickerInput] = useState(initialTicker);
   const [request, setRequest] = useState({ ticker: initialTicker, id: 0 });

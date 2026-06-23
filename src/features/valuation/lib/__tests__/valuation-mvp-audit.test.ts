@@ -22,8 +22,8 @@ describe("Valuation MVP audit guardrails", () => {
     expect(resolveInitialValuationTicker({ controlledTicker: "UNIT71", urlTicker: "FPT" })).toBe("UNIT71");
   });
 
-  it("uses FPTLAB only when no URL ticker or controlled scenario ticker exists", () => {
-    expect(resolveInitialValuationTicker({})).toBe("FPTLAB");
+  it("uses FPT only when no URL ticker or controlled scenario ticker exists", () => {
+    expect(resolveInitialValuationTicker({})).toBe("FPT");
   });
 
   it("keeps FPT, MWG, and VNM missing inputs as null instead of using wrong-ticker fallback values", () => {

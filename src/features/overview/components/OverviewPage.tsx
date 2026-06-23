@@ -197,8 +197,9 @@ function ManualDataImportCta() {
 }
 
 export function OverviewPage({ initialFinancialsRuntimeData, onNavigate }: OverviewPageProps) {
-  const [tickerInput, setTickerInput] = useState("FPTLAB");
-  const [request, setRequest] = useState({ ticker: "FPTLAB", id: 0 });
+  const initialTicker = initialFinancialsRuntimeData?.source.ticker ?? "FPT";
+  const [tickerInput, setTickerInput] = useState(initialTicker);
+  const [request, setRequest] = useState({ ticker: initialTicker, id: 0 });
   const [bridgeState, setBridgeState] = useState<OverviewBridgeState>({ status: "loading" });
   const activeTicker = request.ticker;
   const crossModuleReadiness = useMemo(
