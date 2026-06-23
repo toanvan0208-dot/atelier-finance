@@ -7,7 +7,7 @@ import { assessFinancialStatementLocalWriteDatabaseUrl } from "./financial-state
 export const PHASE114_REVIEWED_SOURCE_LABEL = "manual_reviewed_financial_statement_2024" as const;
 export const PHASE114_REVIEWED_DATA_MODE = "research_only" as const;
 export const PHASE114_REVIEW_STATUS = "reviewed_candidate" as const;
-export const PHASE114_REVIEWED_TICKERS = ["FPT", "MWG", "VNM"] as const;
+export const PHASE114_REVIEWED_TICKERS = ["FPT", "MWG", "VNM", "HPG", "VCB", "MSN"] as const;
 export const PHASE114_REVIEWED_FIELDS = ["totalDebt", "eps", "sharesOutstanding"] as const;
 
 export type Phase114ReviewedTicker = (typeof PHASE114_REVIEWED_TICKERS)[number];

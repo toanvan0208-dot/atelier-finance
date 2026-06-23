@@ -6,7 +6,7 @@ import {
 } from "./market-pvt-controlled-provider-adapter";
 import type { MarketPvtSafeImportResult } from "./market-pvt-safe-import-mvp";
 
-export const CONTROLLED_VNSTOCK_TICKERS = ["FPT", "MWG", "VNM"] as const;
+export const CONTROLLED_VNSTOCK_TICKERS = ["FPT", "MWG", "VNM", "HPG", "VCB", "MSN"] as const;
 export const VNSTOCK_RESEARCH_SOURCE_LABEL = "vnstock_research_candidate";
 export const VNSTOCK_INSECURE_SSL_BYPASS_ENV_KEY = "ATELIER_ALLOW_INSECURE_VNSTOCK_SSL_BYPASS";
 

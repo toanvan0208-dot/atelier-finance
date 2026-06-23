@@ -212,7 +212,7 @@ describe("controlled VNStock Market/PVT ingestion", () => {
   it("normalizes VNStock history rows with explicit units and transparent source metadata", () => {
     const normalized = normalizeVnstockHistoryResponse(request, vnstockRows());
 
-    expect(CONTROLLED_VNSTOCK_TICKERS).toEqual(["FPT", "MWG", "VNM"]);
+    expect(CONTROLLED_VNSTOCK_TICKERS).toEqual(["FPT", "MWG", "VNM", "HPG", "VCB", "MSN"]);
     expect(normalized).toMatchObject({
       ticker: "FPT",
       asOf: "2025-06-30",
@@ -239,7 +239,7 @@ describe("controlled VNStock Market/PVT ingestion", () => {
     await expect(
       runControlledVnstockMarketPvtIngestion({
         ...request,
-        ticker: "VCB",
+        ticker: "VIC",
         allowNetwork: true,
         fetchHistory,
       }),
