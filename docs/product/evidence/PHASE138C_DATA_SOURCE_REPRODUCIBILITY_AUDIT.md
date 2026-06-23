@@ -32,3 +32,12 @@ The fields imported were:
 
 ## Required Next Action
 The placeholder data for HPG, VCB, and MSN's financials must be purged and replaced with authentic, traceable data. An evidence trail (e.g., PDF snapshots, direct hyperlinks with page numbers) must be committed alongside the input CSV file so that the SQLite database can be rebuilt deterministically. We should not label data as `official_annual_report` if it cannot be proven.
+
+## Phase 138D purge follow-up
+
+- target rows previewed: 3 FinancialStatement rows (containing 9 UnitMetadata fields) and 9 ManualImportRecord rows.
+- rows purged: 3 FinancialStatement rows (cascading to 9 UnitMetadata fields) and 9 ManualImportRecord rows.
+- target rows remaining: 0.
+- protected rows verified: `MarketPrice` rows for HPG/VCB/MSN remain untouched (66 rows). FPT/MWG/VNM data remains fully intact.
+- runtime after purge: Safe. The UI displays proper "needs_review", "insufficient_data", or "N/A" messages instead of placeholder data without any mojibake or hydration issues.
+- remaining limitation: The local database has mutated and we still need to import authentic traceable financials to restore functionality for HPG/VCB/MSN.
