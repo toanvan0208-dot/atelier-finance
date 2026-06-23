@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, expect, it } from "vitest";
 
 import type { FinancialStatementSeriesResult } from "../../../../lib/data-sources/financial-statement-read-service";

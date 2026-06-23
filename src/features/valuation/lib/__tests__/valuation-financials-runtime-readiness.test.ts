@@ -208,7 +208,7 @@ describe("valuation financials runtime readiness boundary", () => {
           ...localDbFinancialsRuntime.statementSnapshot,
           closePrice: 71500,
           sharesOutstanding: 1000,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         } as never,
       },
     });
@@ -226,7 +226,7 @@ describe("valuation financials runtime readiness boundary", () => {
             ...localDbFinancialsRuntime.statementSnapshot,
             closePrice,
             sharesOutstanding: 1000,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+           
           } as never,
         },
       });

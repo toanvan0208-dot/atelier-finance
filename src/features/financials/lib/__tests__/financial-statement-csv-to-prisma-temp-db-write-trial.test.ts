@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { existsSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 

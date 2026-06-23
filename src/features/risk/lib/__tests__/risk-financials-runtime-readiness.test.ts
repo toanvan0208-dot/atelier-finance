@@ -200,7 +200,7 @@ describe("risk financials runtime readiness boundary", () => {
     const readiness = buildRiskFinancialsRuntimeReadiness({
       financialsRuntimeData: {
         ...localDbFinancialsRuntime,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         statementSnapshot: {
           ...localDbFinancialsRuntime.statementSnapshot,
           totalDebt: 5000,
@@ -219,7 +219,7 @@ describe("risk financials runtime readiness boundary", () => {
           ...localDbFinancialsRuntime.statementSnapshot,
           totalDebt: null,
           totalLiabilities: 10000,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         } as never,
       },
     });
