@@ -43,7 +43,7 @@ export function buildManualPreviewMap(): ExtractionPreview[] {
         value: 1973,
         unit: "vnd_per_share",
         fiscalYear: 2025,
-        sourceLabel: "annual_report_2025_pdf_preview",
+        sourceLabel: "annual_report_2025_pdf_reviewed_preview",
         dataMode: "research_only",
         productionApproved: false,
         status: "preview",
@@ -60,7 +60,7 @@ export function buildManualPreviewMap(): ExtractionPreview[] {
         value: 7675465855,
         unit: "shares",
         fiscalYear: 2025,
-        sourceLabel: "annual_report_2025_pdf_preview",
+        sourceLabel: "annual_report_2025_pdf_reviewed_preview",
         dataMode: "research_only",
         productionApproved: false,
         status: "preview",
@@ -77,7 +77,7 @@ export function buildManualPreviewMap(): ExtractionPreview[] {
         value: 92174151302217,
         unit: "VND",
         fiscalYear: 2025,
-        sourceLabel: "annual_report_2025_pdf_preview",
+        sourceLabel: "annual_report_2025_pdf_reviewed_preview",
         dataMode: "research_only",
         productionApproved: false,
         status: "derived_preview",
@@ -94,7 +94,7 @@ export function buildManualPreviewMap(): ExtractionPreview[] {
         value: 257899200817547,
         unit: "VND",
         fiscalYear: 2025,
-        sourceLabel: "annual_report_2025_pdf_preview",
+        sourceLabel: "annual_report_2025_pdf_reviewed_preview",
         dataMode: "research_only",
         productionApproved: false,
         status: "preview",
@@ -111,7 +111,7 @@ export function buildManualPreviewMap(): ExtractionPreview[] {
         value: 131220010876575,
         unit: "VND",
         fiscalYear: 2025,
-        sourceLabel: "annual_report_2025_pdf_preview",
+        sourceLabel: "annual_report_2025_pdf_reviewed_preview",
         dataMode: "research_only",
         productionApproved: false,
         status: "preview",
@@ -128,7 +128,7 @@ export function buildManualPreviewMap(): ExtractionPreview[] {
         value: 156116094618482,
         unit: "VND",
         fiscalYear: 2025,
-        sourceLabel: "annual_report_2025_pdf_preview",
+        sourceLabel: "annual_report_2025_pdf_reviewed_preview",
         dataMode: "research_only",
         productionApproved: false,
         status: "preview",
@@ -145,7 +145,7 @@ export function buildManualPreviewMap(): ExtractionPreview[] {
         value: 15514931571606,
         unit: "VND",
         fiscalYear: 2025,
-        sourceLabel: "annual_report_2025_pdf_preview",
+        sourceLabel: "annual_report_2025_pdf_reviewed_preview",
         dataMode: "research_only",
         productionApproved: false,
         status: "preview",
@@ -153,6 +153,130 @@ export function buildManualPreviewMap(): ExtractionPreview[] {
         tableOrSection: "Báo cáo kết quả hoạt động kinh doanh hợp nhất",
         extractionMethod: "manual_map",
         evidenceSnippet: "Lợi nhuận sau thuế thu nhập doanh nghiệp: 15.514.931.571.606",
+        notes: "Explicitly defined."
+      });
+      continue;
+    }
+
+    if (ticker === "VNM") {
+      // VNM Specific Manual Provenance Map
+      previews.push({
+        ticker: "VNM",
+        pdfFile: pdfName,
+        field: "eps",
+        value: 4070,
+        unit: "vnd_per_share",
+        fiscalYear: 2025,
+        sourceLabel: "annual_report_2025_pdf_reviewed_preview",
+        dataMode: "research_only",
+        productionApproved: false,
+        status: "preview",
+        page: "109",
+        tableOrSection: "Báo cáo kết quả hoạt động kinh doanh và thu nhập toàn diện khác hợp nhất",
+        extractionMethod: "manual_map",
+        evidenceSnippet: "Lãi cơ bản trên cổ phiếu (VND): 4.070",
+        notes: "Explicitly defined."
+      });
+      previews.push({
+        ticker: "VNM",
+        pdfFile: pdfName,
+        field: "sharesOutstanding",
+        value: 2089955445,
+        unit: "shares",
+        fiscalYear: 2025,
+        sourceLabel: "annual_report_2025_pdf_reviewed_preview",
+        dataMode: "research_only",
+        productionApproved: false,
+        status: "preview",
+        page: "12",
+        tableOrSection: "Cổ phần và cơ cấu cổ đông",
+        extractionMethod: "manual_map",
+        evidenceSnippet: "Khối lượng cổ phiếu đang lưu hành: 2.089.955.445 cổ phần.",
+        notes: "Matches VNStock candidate (2,089,955,445)."
+      });
+      previews.push({
+        ticker: "VNM",
+        pdfFile: pdfName,
+        field: "totalDebt",
+        value: 9456645,
+        unit: "million_vnd",
+        fiscalYear: 2025,
+        sourceLabel: "annual_report_2025_pdf_reviewed_preview",
+        dataMode: "research_only",
+        productionApproved: false,
+        status: "derived_preview",
+        page: "108",
+        tableOrSection: "Báo cáo tình hình tài chính hợp nhất",
+        extractionMethod: "derived_from_lines",
+        evidenceSnippet: "Vay ngắn hạn: 9.393.737 Triệu VND + Vay dài hạn: 62.908 Triệu VND",
+        notes: "Derived safely from explicit short and long-term borrowings."
+      });
+      previews.push({
+        ticker: "VNM",
+        pdfFile: pdfName,
+        field: "totalAssets",
+        value: 56091826,
+        unit: "million_vnd",
+        fiscalYear: 2025,
+        sourceLabel: "annual_report_2025_pdf_reviewed_preview",
+        dataMode: "research_only",
+        productionApproved: false,
+        status: "preview",
+        page: "108",
+        tableOrSection: "Báo cáo tình hình tài chính hợp nhất",
+        extractionMethod: "manual_map",
+        evidenceSnippet: "TỔNG TÀI SẢN: 56.091.826 Triệu VND",
+        notes: "Explicitly defined."
+      });
+      previews.push({
+        ticker: "VNM",
+        pdfFile: pdfName,
+        field: "equity",
+        value: 31695270,
+        unit: "million_vnd",
+        fiscalYear: 2025,
+        sourceLabel: "annual_report_2025_pdf_reviewed_preview",
+        dataMode: "research_only",
+        productionApproved: false,
+        status: "preview",
+        page: "108",
+        tableOrSection: "Báo cáo tình hình tài chính hợp nhất",
+        extractionMethod: "manual_map",
+        evidenceSnippet: "Vốn chủ sở hữu của cổ đông Công ty: 31.695.270 Triệu VND",
+        notes: "Explicitly defined."
+      });
+      previews.push({
+        ticker: "VNM",
+        pdfFile: pdfName,
+        field: "revenue",
+        value: 54248830,
+        unit: "million_vnd",
+        fiscalYear: 2025,
+        sourceLabel: "annual_report_2025_pdf_reviewed_preview",
+        dataMode: "research_only",
+        productionApproved: false,
+        status: "preview",
+        page: "109",
+        tableOrSection: "Báo cáo kết quả hoạt động kinh doanh và thu nhập toàn diện khác hợp nhất",
+        extractionMethod: "manual_map",
+        evidenceSnippet: "Doanh thu: 54.248.830 Triệu VND",
+        notes: "Net revenue used."
+      });
+      previews.push({
+        ticker: "VNM",
+        pdfFile: pdfName,
+        field: "netIncome",
+        value: 8505216,
+        unit: "million_vnd",
+        fiscalYear: 2025,
+        sourceLabel: "annual_report_2025_pdf_reviewed_preview",
+        dataMode: "research_only",
+        productionApproved: false,
+        status: "preview",
+        page: "109",
+        tableOrSection: "Báo cáo kết quả hoạt động kinh doanh và thu nhập toàn diện khác hợp nhất",
+        extractionMethod: "manual_map",
+        evidenceSnippet: "Lợi nhuận thuần: 8.505.216 Triệu VND",
         notes: "Explicitly defined."
       });
       continue;
@@ -178,7 +302,7 @@ export function buildManualPreviewMap(): ExtractionPreview[] {
         value,
         unit,
         fiscalYear: 2025,
-        sourceLabel: "annual_report_2025_pdf_preview",
+        sourceLabel: "annual_report_2025_pdf_reviewed_preview",
         dataMode: "research_only",
         productionApproved: false,
         status,
@@ -233,7 +357,7 @@ export function evaluateExtractionSafety(preview: Partial<ExtractionPreview>): s
 async function run() {
   const previews = buildManualPreviewMap();
   
-  console.log("Phase 139B — HPG PDF 2025 manual provenance extraction preview");
+  console.log("Phase 139F — VNM PDF 2025 manual provenance extraction preview");
   console.log("=================================================================\n");
   
   const pdfDir = path.join(process.cwd(), "docs/product/evidence/source-pdfs");
@@ -242,6 +366,8 @@ async function run() {
   }
 
   for (const [ticker, pdfName] of Object.entries(TICKER_PDF_MAP)) {
+    if (ticker !== "HPG" && ticker !== "VNM") continue;
+
     console.log(`\nTicker: ${ticker} | Source: ${pdfName}`);
     console.log("---------------------------------------------------------");
     const tickerPreviews = previews.filter(p => p.ticker === ticker);
@@ -255,10 +381,14 @@ async function run() {
 
   // Create JSON output
   const hpgPreviews = previews.filter(p => p.ticker === "HPG");
-  const jsonPath = path.join(process.cwd(), "docs/product/evidence/PHASE139B_HPG_PDF_2025_PREVIEW.json");
-  fs.writeFileSync(jsonPath, JSON.stringify(hpgPreviews, null, 2));
+  const jsonPathHPG = path.join(process.cwd(), "docs/product/evidence/PHASE139B_HPG_PDF_2025_PREVIEW.json");
+  fs.writeFileSync(jsonPathHPG, JSON.stringify(hpgPreviews, null, 2));
 
-  console.log(`\nPreview mapping complete. JSON generated at ${jsonPath}. No DB writes or schema changes were performed.`);
+  const vnmPreviews = previews.filter(p => p.ticker === "VNM");
+  const jsonPathVNM = path.join(process.cwd(), "docs/product/evidence/PHASE139F_VNM_PDF_2025_PREVIEW.json");
+  fs.writeFileSync(jsonPathVNM, JSON.stringify(vnmPreviews, null, 2));
+
+  console.log(`\nPreview mapping complete. JSON generated at ${jsonPathVNM}. No DB writes or schema changes were performed.`);
 }
 
 if (import.meta.url === `file://${process.argv[1].replace(/\\/g, "/")}` || require.main === module) {
