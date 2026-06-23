@@ -60,7 +60,25 @@ describe("RightAssistantPanel grounded screen context", () => {
       period: "2025",
     });
     expect(payload.contextPacket.missingFields).toEqual(["eps", "totalDebt"]);
+    expect(payload.contextPacket.dataQuality.missingFields).toEqual(["eps", "totalDebt"]);
     expect(payload.contextPacket.allowedNumericValues).toContain(125);
+    expect(payload.contextPacket.moduleContext).toMatchObject({
+      financials: {
+        revenue: 125,
+        eps: null,
+        totalDebt: null,
+      },
+      valuation: {
+        marketPrice: null,
+        eps: null,
+        peStatus: "insufficient_data",
+      },
+      risk: {
+        totalDebt: null,
+        totalDebtSource: null,
+        leverageRiskStatus: "insufficient_data",
+      },
+    });
   });
 
   it("fails closed when module context cannot be collected safely", () => {
@@ -72,9 +90,31 @@ describe("RightAssistantPanel grounded screen context", () => {
 
     expect(packet.moduleContext).toBeNull();
     expect(packet.allowedNumericValues).toEqual([]);
+    expect(packet.dataQuality.productionApproved).toBe(false);
     expect(packet.missingFields).toEqual(
       expect.arrayContaining(["moduleContext", "source", "asOf", "period"]),
     );
+  });
+
+  it("does not expose sample or fallback runtime values as grounded evidence", () => {
+    const packet = buildAssistantScreenContextPacket({
+      activeModule: "valuation",
+      ticker: "FPT",
+      financialsRuntimeData: {
+        ...runtimeData,
+        runtimeStatus: "sample_fallback",
+        source: {
+          ...runtimeData.source,
+          dataMode: "sample",
+          fallbackUsed: true,
+          readPath: "sample_static",
+        },
+      },
+    });
+
+    expect(packet.moduleContext).toBeNull();
+    expect(packet.allowedNumericValues).toEqual([]);
+    expect(packet.dataQuality.productionApproved).toBe(false);
   });
 
   it("wires the packet builder into the assistant POST body", () => {

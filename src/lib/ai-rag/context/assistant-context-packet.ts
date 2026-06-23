@@ -47,6 +47,7 @@ const normalizeDataQuality = (value: unknown): AssistantContextPacketDataQuality
     sourceLabel: asOptionalString(value.sourceLabel),
     asOf: asOptionalString(value.asOf),
     period: asOptionalString(value.period),
+    missingFields: asStringList(value.missingFields),
     warnings: asStringList(value.warnings),
   };
 };

@@ -70,6 +70,24 @@ describe("runAssistant", () => {
     );
   });
 
+  it("blocks target price even when legacy validation context claims it exists", async () => {
+    const result = await runAssistant({
+      question: "Gia muc tieu la bao nhieu?",
+      activeModule: "valuation",
+      provider: new MockAssistantProvider({
+        answer: "Gia muc tieu cua co phieu nay la 42000 dong.",
+      }),
+      validationContext: {
+        hasTargetPriceInContext: true,
+      },
+    });
+
+    expect(result.llmStatus).toBe("blocked_by_guardrails");
+    expect(result.violations.map((violation) => violation.code)).toContain(
+      "FAKE_FAIR_VALUE_OR_TARGET_PRICE",
+    );
+  });
+
   it("returns safe provider_error output when provider fails", async () => {
     const result = await runAssistant({
       question: "Giai thich giup toi",

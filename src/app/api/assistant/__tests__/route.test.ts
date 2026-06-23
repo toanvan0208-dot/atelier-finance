@@ -103,6 +103,9 @@ describe("POST /api/assistant", () => {
           moduleKey: "risk",
           ticker: "FPT",
           metrics: { revenue: 125, eps: null, totalEquity: null },
+          financials: { revenue: 125, eps: null },
+          valuation: { marketPrice: null, peStatus: "insufficient_data" },
+          risk: { totalDebt: null, totalDebtSource: null },
         },
         dataQuality: {
           dataMode: "research_only",
@@ -112,6 +115,7 @@ describe("POST /api/assistant", () => {
           sourceLabel: "Reviewed local financial statement",
           asOf: null,
           period: "2025",
+          missingFields: ["eps", "totalEquity"],
           warnings: ["Source and asOf need review."],
         },
         missingFields: ["eps", "totalEquity", "source", "asOf"],
@@ -132,6 +136,8 @@ describe("POST /api/assistant", () => {
     expect(prompt).toContain("Allowed numeric values from grounded context:\n- 125\n- 2025");
     expect(prompt).toContain("Production approved: no");
     expect(prompt).toContain("As of: not_available");
+    expect(prompt).toContain('"valuation"');
+    expect(prompt).toContain('"totalDebtSource": null');
   });
 
   it("selects PVT and guardrails for a PVT signal question", async () => {

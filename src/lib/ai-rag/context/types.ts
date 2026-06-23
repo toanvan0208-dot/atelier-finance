@@ -6,6 +6,7 @@ export type AssistantContextPacketDataQuality = {
   sourceLabel?: string | null;
   asOf?: string | null;
   period?: string | null;
+  missingFields?: string[];
   warnings?: string[];
 };
 

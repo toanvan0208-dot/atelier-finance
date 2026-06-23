@@ -53,7 +53,12 @@ const buildRuntimeInput = (body: AssistantApiRequestBody): AssistantRuntimeInput
         overallStatus: packetQuality?.status ?? "missing",
         isMockData:
           packetQuality?.dataMode === "sample" || packetQuality?.dataMode === "mock",
-        missingFields: contextPacket.missingFields,
+        missingFields: Array.from(
+          new Set([
+            ...contextPacket.missingFields,
+            ...(packetQuality?.missingFields ?? []),
+          ]),
+        ),
         sourceIssues:
           packetQuality?.sourceName || packetQuality?.sourceLabel ? [] : ["source"],
         periodIssues: packetQuality?.period ? [] : ["period"],

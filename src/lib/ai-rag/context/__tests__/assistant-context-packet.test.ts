@@ -18,6 +18,7 @@ describe("AssistantContextPacket", () => {
         sourceName: "Reviewed local record",
         asOf: "2026-06-22",
         period: "2025",
+        missingFields: ["EPS"],
       },
       missingFields: ["EPS", "source"],
       allowedNumericValues: [125],
@@ -31,6 +32,7 @@ describe("AssistantContextPacket", () => {
     expect(payload.ticker).toBe("FPT");
     expect(payload.contextPacket.missingFields).toEqual(["EPS", "source"]);
     expect(payload.contextPacket.dataQuality.productionApproved).toBe(false);
+    expect(payload.contextPacket.dataQuality.missingFields).toEqual(["EPS"]);
   });
 
   it("rejects malformed packets and removes non-finite numeric values", () => {

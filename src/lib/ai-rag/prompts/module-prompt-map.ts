@@ -64,7 +64,7 @@ export const MODULE_PROMPT_MAP: Record<string, ModulePromptConfig> = {
       "Explain why missing or invalid denominators limit interpretation.",
     ],
     guardrails: [
-      "Do not create fair value or target price unless provided in context.",
+      "Do not provide fair value, target price, upside, or downside.",
       "EPS less than or equal to zero means P/E must not be interpreted as cheap.",
       "Equity or BVPS less than or equal to zero means P/B and ROE must not be interpreted normally.",
     ],

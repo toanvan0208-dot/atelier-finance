@@ -66,7 +66,7 @@ describe("buildAssistantPrompt", () => {
       }),
     );
 
-    expect(result.promptText).toContain("Do not create fair value or target price unless provided in context.");
+    expect(result.promptText).toContain("Never provide fair value, target price, upside, or downside");
     expect(result.promptText).toContain("EPS less than or equal to zero");
     expect(result.promptText).toContain("Equity or BVPS less than or equal to zero");
   });
@@ -135,6 +135,9 @@ describe("buildAssistantPrompt", () => {
     expect(normalizedPrompt).not.toMatch(/permit(s|ted)?\s+(buy|sell|hold)/);
     expect(normalizedPrompt).not.toMatch(/can\s+recommend\s+(buy|sell|hold)/);
     expect(normalizedPrompt).toContain("never recommend buy/sell/hold");
+    expect(normalizedPrompt).toContain("answer in vietnamese by default");
+    expect(normalizedPrompt).toContain("not production-approved");
+    expect(normalizedPrompt).toContain("financials, valuation, risk, industry, and macro");
   });
 
   it("includes grounded packet metadata, missing fields, visible facts and numeric allowlist", () => {

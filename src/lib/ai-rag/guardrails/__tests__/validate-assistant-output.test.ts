@@ -49,15 +49,40 @@ describe("validateAssistantOutput", () => {
     );
   });
 
-  it("blocks fake fair value or target price when not present in context", () => {
+  it("blocks fair value or target price even when a context flag claims it is present", () => {
     const result = validateAssistantOutput("Gia tri hop ly cua co phieu nay la 42000 dong.", {
-      hasFairValueInContext: false,
+      hasFairValueInContext: true,
     });
 
     expect(result.shouldRefuse).toBe(true);
     expect(result.violations.map((violation) => violation.code)).toContain(
       "FAKE_FAIR_VALUE_OR_TARGET_PRICE",
     );
+  });
+
+  it("allows a safe refusal to provide target price", () => {
+    const result = validateAssistantOutput(
+      "Toi khong cung cap gia muc tieu. Can kiem tra them Financials, Valuation va Risk.",
+    );
+
+    expect(result.isValid).toBe(true);
+  });
+
+  it("blocks good, bad, attractive, potential and worth-buying stock conclusions", () => {
+    for (const answer of [
+      "Co phieu nay tot.",
+      "Co phieu nay xau.",
+      "Ma nay hap dan.",
+      "Co phieu nay tiem nang.",
+      "This stock is worth buying.",
+    ]) {
+      const result = validateAssistantOutput(answer);
+
+      expect(result.shouldRefuse).toBe(true);
+      expect(result.violations.map((violation) => violation.code)).toContain(
+        "VALUATION_CONCLUSION",
+      );
+    }
   });
 
   it("blocks cheap P/E interpretation when EPS is negative", () => {
@@ -108,6 +133,17 @@ describe("validateAssistantOutput", () => {
     expect(result.isValid).toBe(false);
     expect(result.shouldRefuse).toBe(false);
     expect(result.severity).toBe("warning");
+    expect(result.violations.map((violation) => violation.code)).toContain(
+      "FABRICATED_NUMERIC_DATA",
+    );
+  });
+
+  it("rejects every numeric claim when a grounded packet provides an empty allowlist", () => {
+    const result = validateAssistantOutput("Market price la 0.", {
+      allowedNumericValues: [],
+    });
+
+    expect(result.isValid).toBe(false);
     expect(result.violations.map((violation) => violation.code)).toContain(
       "FABRICATED_NUMERIC_DATA",
     );

@@ -128,25 +128,7 @@ const collectContextViolations = (
     });
   }
 
-  const mentionsFairValueOrTarget =
-    /\b(fair\s+value|target\s+price|gia\s+tri\s+hop\s+ly|gia\s+muc\s+tieu|muc\s+tieu\s+gia)\b/i.test(
-      normalizedAnswer,
-    );
-
-  if (
-    mentionsFairValueOrTarget &&
-    !context.hasFairValueInContext &&
-    !context.hasTargetPriceInContext
-  ) {
-    violations.push({
-      code: "FAKE_FAIR_VALUE_OR_TARGET_PRICE",
-      severity: "critical",
-      message: "Fair value or target price cannot be created when it is not present in context.",
-      matchedText: "fair value/target price without context",
-    });
-  }
-
-  if (context.allowedNumericValues && context.allowedNumericValues.length > 0) {
+  if (context.allowedNumericValues !== undefined) {
     const allowed = new Set(context.allowedNumericValues.map((value) => normalizeNumericToken(String(value))));
     const numericTokens = extractNumericTokens(answer);
     const fabricated = numericTokens.filter((token) => !allowed.has(normalizeNumericToken(token)));

@@ -59,9 +59,10 @@ export const FORBIDDEN_PATTERNS: ForbiddenPattern[] = [
   {
     code: "FAKE_FAIR_VALUE_OR_TARGET_PRICE",
     severity: "critical",
-    message: "Assistant output must not create fair value or target price without context.",
+    message: "Assistant output must not provide fair value or target price.",
     pattern:
-      /\b(fair\s+value|target\s+price|gia\s+tri\s+hop\s+ly|gia\s+muc\s+tieu|muc\s+tieu\s+gia)\b.{0,40}\b(la|=|khoang|about|around)?\s*\d[\d.,]*/i,
+      /\b(fair\s+value|target\s+price|gia\s+tri\s+hop\s+ly|gia\s+muc\s+tieu|muc\s+tieu\s+gia)\b/i,
+    allowNegated: true,
   },
   {
     code: "MISSING_DATA_AS_ZERO",
@@ -83,6 +84,14 @@ export const FORBIDDEN_PATTERNS: ForbiddenPattern[] = [
     message: "Assistant output must not conclude that a stock is cheap, expensive, or attractive.",
     pattern:
       /\b(co\s+phieu|ma\s+nay|stock).{0,40}\b(re|dat|hap\s+dan|cheap|expensive|attractive|undervalued|overvalued)\b/i,
+    allowNegated: true,
+  },
+  {
+    code: "VALUATION_CONCLUSION",
+    severity: "critical",
+    message: "Assistant output must not label a stock good, bad, attractive, promising, potential, or worth buying.",
+    pattern:
+      /\b(co\s+phieu|ma\s+nay|stock)\b.{0,50}\b(tot|xau|hap\s+dan|tiem\s+nang|dang\s+mua|good|bad|attractive|promising|potential|worth\s+buying)\b/i,
     allowNegated: true,
   },
 ];
