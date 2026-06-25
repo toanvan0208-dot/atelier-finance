@@ -56,12 +56,12 @@ Sử dụng tìm kiếm với các term `PrismaBetterSqlite3`, `sqlite`, `dev.db
   - `financials-unit-metadata-storage-plan.ts` định nghĩa type `provider: "sqlite" | "postgresql"`.
 
 ## 6. Validation Results
-Môi trường Dry Run với Provider PostgreSQL vượt qua các bước kiểm định cấu trúc:
+Môi trường Dry Run với Provider PostgreSQL:
 - `npx prisma validate`: **Pass**
 - `npm run typecheck`: **Pass**
 - `npm run lint`: **Pass**
 - `npm test`: **Pass_with_skips**
-- `npm run build`: **Pass**
+- `npm run build`: **Fail** (Lỗi xảy ra do Next.js đọc file `.env.local` cũ chứa `DATABASE_URL=file:./dev.db` dẫn đến đoạn code guard chặn PostgreSQL bị kích hoạt: `Error: Phase 142F Prisma runtime supports postgresql DATABASE_URL only.`)
 
 ## 7. Recommendation
 - **`readyFor142G`**: `true`

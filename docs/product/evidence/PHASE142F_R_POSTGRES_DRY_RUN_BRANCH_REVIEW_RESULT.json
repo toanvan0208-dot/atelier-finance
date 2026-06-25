@@ -63,7 +63,7 @@
     "typecheck": "pass",
     "lint": "pass",
     "tests": "pass_with_skips",
-    "build": "pass"
+    "build": "fail"
   },
   "dbWrite": false,
   "dataImport": false,
