@@ -1,0 +1,30 @@
+{
+  "phase": "142E",
+  "name": "Isolated PostgreSQL schema-switch branch and dry-run instructions",
+  "option": "A",
+  "providerChanged": false,
+  "migrationCreated": false,
+  "migrateRun": false,
+  "dbWrite": false,
+  "dataImport": false,
+  "runtimeChanged": false,
+  "productionDeploy": false,
+  "filesChanged": [
+    "docs/product/POSTGRES_SCHEMA_SWITCH_DRY_RUN_INSTRUCTIONS.md",
+    "docs/product/evidence/PHASE142E_POSTGRES_SCHEMA_SWITCH_BRANCH_DRY_RUN_INSTRUCTIONS.md",
+    "docs/product/evidence/PHASE142E_POSTGRES_SCHEMA_SWITCH_BRANCH_DRY_RUN_INSTRUCTIONS_RESULT.json"
+  ],
+  "validation": {
+    "prismaValidate": "pass",
+    "typecheck": "pass",
+    "lint": "pass",
+    "tests": "pass",
+    "build": "pass"
+  },
+  "tests": {
+    "testFiles": 142,
+    "tests": 1185
+  },
+  "commit": null,
+  "pushed": false
+}
