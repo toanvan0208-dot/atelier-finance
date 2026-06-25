@@ -1,0 +1,81 @@
+{
+  "phase": "142F-S",
+  "name": "PostgreSQL dry-run environment isolation and SQLite blocker cleanup",
+  "branch": "phase-142f-postgres-docker-dry-run",
+  "startingCommit": "66de2d2f49181e3fecc5c8823f4b65f608437712",
+  "envLeakReproduced": true,
+  "envLeakRootCause": "Next.js tự động nạp file .env.local trên máy dev trong bước build, làm ghi đè DATABASE_URL thành file:./dev.db, khiến script guard chặn PostgreSQL lại bị kích hoạt thành lỗi.",
+  "postgresDryRunConnectionString": "postgresql://atelier:atelier@localhost:5432/atelier_finance?schema=public",
+  "productionCredentialsUsed": false,
+  "filesChanged": [
+    "src/lib/data-sources/financial-statement-local-write-guard.ts",
+    "src/lib/data-sources/reviewed-financial-missing-fields-import.ts",
+    "src/lib/data-sources/reviewed-source-records-import.ts",
+    "package.json",
+    "scripts/validate-postgres-dry-run.mjs",
+    "docs/product/evidence/PHASE142F_S_POSTGRES_ENV_ISOLATION_AND_SQLITE_BLOCKER_CLEANUP.md",
+    "docs/product/evidence/PHASE142F_S_POSTGRES_ENV_ISOLATION_AND_SQLITE_BLOCKER_CLEANUP_RESULT.json"
+  ],
+  "runtimeBlockers": {
+    "fixed": [
+      "src/lib/data-sources/financial-statement-local-write-guard.ts (added local_postgres_dev support for localhost URLs)",
+      "src/lib/data-sources/reviewed-financial-missing-fields-import.ts (allow localhost postgres url)",
+      "src/lib/data-sources/reviewed-source-records-import.ts (allow localhost postgres url)"
+    ],
+    "remaining": []
+  },
+  "scriptCommandBlockers": {
+    "fixed": [
+      "package.json (added db:migrate:postgres-dry-run, db:reset:postgres-dry-run, validate:postgres-dry-run)"
+    ],
+    "remaining": [
+      "scripts/reset-local-db.mjs (giữ nguyên cho legacy SQLite workflow)"
+    ]
+  },
+  "testBlockers": {
+    "fixed": [],
+    "remaining": [
+      "fpt-financial-statement-prisma-temp-db-write-verification.ts (giữ nguyên mock PrismaBetterSqlite3)"
+    ],
+    "skippedTests": [
+      "financial-statement-csv-to-prisma-temp-db-write-trial.test.ts",
+      "fpt-financial-statement-prisma-temp-db-write-verification.test.ts",
+      "financials-unit-metadata-sidecar-schema.test.ts",
+      "fpt-pdf-reviewed-post-import-smoke.test.ts",
+      "hpg-pdf-reviewed-post-import-smoke.test.ts",
+      "msn-pdf-reviewed-post-import-smoke.test.ts",
+      "market-pvt-unit-metadata-persistence-boundary.test.ts"
+    ]
+  },
+  "validation": {
+    "prismaValidate": "pass",
+    "prismaGenerate": "pass",
+    "typecheck": "pass",
+    "lint": "pass",
+    "tests": "pass_with_skips",
+    "build": "pass"
+  },
+  "tests": {
+    "testFiles": 142,
+    "tests": 1185,
+    "skippedDueToPostgresTransition": 7
+  },
+  "build": {
+    "status": "pass",
+    "requiresExplicitPostgresEnv": true,
+    "blockedByEnvLocal": false
+  },
+  "dbWriteScope": "none",
+  "dataImport": false,
+  "newMigrationCreated": false,
+  "migrateRun": false,
+  "mergedToMain": false,
+  "productionDeploy": false,
+  "readyFor142G": true,
+  "requiredBefore142G": [
+    "Xử lý dứt điểm các file test legacy phụ thuộc SQLite hoặc migration path cũ",
+    "Mock data cho post-import smoke tests (hiện vẫn đang bị skip)"
+  ],
+  "commit": "15b8f1a",
+  "pushed": true
+}

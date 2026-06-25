@@ -476,8 +476,13 @@ export const runReviewedSourceRecordImport = async ({
     errors.push("ATELIER_LOCAL_IMPORTS_ENABLED=true is required for confirmed reviewed source record writes.");
   }
   if (confirmWrite && !isLocalImportsEnabled()) errors.push("Local imports guard is disabled.");
-  if (confirmWrite && databaseUrl?.trim() !== "file:./dev.db") {
-    errors.push("DATABASE_URL must be exactly file:./dev.db for Phase 114 intended local app DB writes.");
+  if (confirmWrite) {
+    const trimmed = databaseUrl?.trim() || "";
+    const isDevDb = trimmed === "file:./dev.db";
+    const isLocalPostgres = (trimmed.startsWith("postgresql://") || trimmed.startsWith("postgres://")) && (trimmed.includes("localhost") || trimmed.includes("127.0.0.1"));
+    if (!isDevDb && !isLocalPostgres) {
+      errors.push("DATABASE_URL must be local file:./dev.db or localhost postgresql for intended local app DB writes.");
+    }
   }
   if (confirmWrite && !databaseGuard.accepted) errors.push(...databaseGuard.errors);
   if (confirmWrite && parseResult.invalidRows.length > 0) errors.push("Invalid reviewed source records block confirmed write.");
