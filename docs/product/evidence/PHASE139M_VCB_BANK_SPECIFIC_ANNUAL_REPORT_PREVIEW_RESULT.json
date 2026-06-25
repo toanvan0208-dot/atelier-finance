@@ -1,0 +1,17 @@
+{
+  "ticker": "VCB",
+  "entityStatus": "valid_vcb_consolidated",
+  "annualReportStatus": "confirmed",
+  "auditStatus": "audited",
+  "consolidatedScopeStatus": "consolidated",
+  "epsPreview": null,
+  "sharesOutstandingPreview": null,
+  "totalDebtPreview": null,
+  "debtMappingStatus": "needs_bank_mapping",
+  "warnings": [
+    "VCB is a bank. Do not apply corporate total debt logic."
+  ],
+  "dbWrites": 0,
+  "productionApproved": false,
+  "dataMode": "research_only"
+}
