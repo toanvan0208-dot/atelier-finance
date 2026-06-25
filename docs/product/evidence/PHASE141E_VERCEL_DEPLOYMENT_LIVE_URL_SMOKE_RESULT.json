@@ -1,0 +1,11 @@
+{
+  "liveUrlStatus": "missing",
+  "smokeResults": "skipped",
+  "reason": "No live Vercel URL was found in the repository configuration or documentation.",
+  "gaps": {
+    "P0": 0,
+    "P1": 0,
+    "P2": 0,
+    "P3": 0
+  }
+}
