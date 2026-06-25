@@ -1,0 +1,31 @@
+{
+  "phase": "142C",
+  "mode": "documentation_only",
+  "filesCreated": [
+    "docs/product/AGENT_STANDING_RULES.md",
+    "docs/product/POSTGRES_TRANSITION_PLAN.md",
+    "docs/product/evidence/PHASE142C_STANDING_RULES_AND_POSTGRES_TRANSITION_PLAN.md",
+    "docs/product/evidence/PHASE142C_STANDING_RULES_AND_POSTGRES_TRANSITION_PLAN_RESULT.json"
+  ],
+  "currentProvider": "sqlite",
+  "productionTarget": "postgresql",
+  "providerChanged": false,
+  "schemaChanged": false,
+  "migrationCreated": false,
+  "migrationDeleted": false,
+  "databaseWrite": false,
+  "dataImport": false,
+  "runtimeLogicChanged": false,
+  "recommendedNextPhase": "142D",
+  "validation": {
+    "status": "passed",
+    "prismaValidateExitCode": 0,
+    "typecheckExitCode": 0,
+    "lintExitCode": 0,
+    "lintWarnings": 1,
+    "testExitCode": 0,
+    "testFiles": 142,
+    "tests": 1185,
+    "buildExitCode": 0
+  }
+}
