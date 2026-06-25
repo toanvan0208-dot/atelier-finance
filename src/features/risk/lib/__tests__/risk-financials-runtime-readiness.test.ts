@@ -250,4 +250,26 @@ describe("risk financials runtime readiness boundary", () => {
       expect(output).not.toContain(phrase);
     }
   });
+
+  it("injects bank specific leverage risk missing reason and warning for VCB", () => {
+    const readiness = buildRiskFinancialsRuntimeReadiness({
+      financialsRuntimeData: {
+        ...localDbFinancialsRuntime,
+        source: {
+          ...localDbFinancialsRuntime.source,
+          ticker: "VCB",
+        },
+        statementSnapshot: {
+          ...localDbFinancialsRuntime.statementSnapshot,
+          ticker: "VCB",
+          totalDebt: null,
+        } as never,
+      },
+      inputs: { operatingCashFlow: 100, netIncome: 90, revenue: 1000, totalDebt: null, equity: 1200, totalAssets: 2000, currentAssets: 500, currentLiabilities: 250 },
+    });
+
+    expect(readiness.calculationReadiness.leverageRisk).toBe("insufficient_data");
+    expect(readiness.blockedReasons.join(" ")).toContain("debt missing; bank_specific_debt_not_applicable; leverage risk is insufficient_data.");
+    expect(readiness.warnings.join(" ")).toContain("VCB is a bank; corporate debt/leverage interpretation is not applicable.");
+  });
 });

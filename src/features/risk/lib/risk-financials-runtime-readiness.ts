@@ -143,13 +143,19 @@ const riskRuntimeStatus = ({
   return hasStaticRiskPath ? "mixed_source" : "financials_runtime_available";
 };
 
-const blockedReasonsFromInputs = (input: Required<RiskRuntimeInputs>): string[] => {
+const blockedReasonsFromInputs = (input: Required<RiskRuntimeInputs>, isBank: boolean = false): string[] => {
   const reasons: string[] = [];
 
   if (input.operatingCashFlow === null) reasons.push("operatingCashFlow missing; cash-flow quality is insufficient_data.");
   if (input.netIncome === null) reasons.push("netIncome missing; earnings quality is insufficient_data.");
   if (input.revenue === null) reasons.push("revenue missing; data quality risk is insufficient_data.");
-  if (input.totalDebt === null) reasons.push("debt missing; leverage risk is insufficient_data.");
+  if (input.totalDebt === null) {
+    if (isBank) {
+      reasons.push("debt missing; bank_specific_debt_not_applicable; leverage risk is insufficient_data.");
+    } else {
+      reasons.push("debt missing; leverage risk is insufficient_data.");
+    }
+  }
   if (input.equity === null) reasons.push("equity missing; leverage risk is insufficient_data.");
   else if (input.equity <= 0) reasons.push("equity non-positive; equity-based risk is not_applicable.");
   if (input.totalAssets === null) reasons.push("totalAssets missing; asset-scaled risk is insufficient_data.");
@@ -175,7 +181,8 @@ export const buildRiskFinancialsRuntimeReadiness = ({
     moduleDataSourceMode: riskConsumesFinancialsRuntime ? "financials_runtime_ready" : "sample_static",
     equity: normalizedInputs.equity,
   });
-  const blockedReasons = blockedReasonsFromInputs(normalizedInputs);
+  const isBank = financialsRuntimeData?.source.ticker === "VCB";
+  const blockedReasons = blockedReasonsFromInputs(normalizedInputs, isBank);
   const warnings = [
     ...blockedReasons,
     ...(financialsRuntimeData && !riskConsumesFinancialsRuntime
@@ -187,6 +194,7 @@ export const buildRiskFinancialsRuntimeReadiness = ({
     "Local, research-only, sample, or missing Financials source remains unapproved for production use.",
     "Missing values must remain null/unavailable and must not be replaced with 0.",
     "Risk readiness is only a data-readiness state, not a guarantee.",
+    ...(isBank ? ["VCB is a bank; corporate debt/leverage interpretation is not applicable. Do not use total liabilities or customer deposits as totalDebt."] : []),
   ];
 
   return {

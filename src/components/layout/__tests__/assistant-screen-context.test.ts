@@ -127,4 +127,32 @@ describe("RightAssistantPanel grounded screen context", () => {
     expect(source).toContain("readAssistantTickerFromSearch(window.location.search)");
     expect(source).toContain("JSON.stringify(buildAssistantApiPayload(trimmed, contextPacket))");
   });
+
+  it("injects banking caveat into module context and visible facts if ticker is VCB", () => {
+    const packet = buildAssistantScreenContextPacket({
+      activeModule: "risk",
+      ticker: "VCB",
+      financialsRuntimeData: {
+        ...runtimeData,
+        source: {
+          ...runtimeData.source,
+          ticker: "VCB",
+        },
+        statementSnapshot: {
+          ...runtimeData.statementSnapshot,
+          ticker: "VCB",
+        } as never,
+      },
+    });
+
+    expect(packet.moduleContext).toMatchObject({
+      entityType: "bank",
+      bankingCaveat: true,
+      debtMappingStatus: "needs_bank_mapping",
+    });
+    const warnings = (packet.moduleContext as { warnings: string[] })?.warnings ?? [];
+    expect(warnings.join(" ")).toContain("VCB is a bank; corporate debt/leverage interpretation is not applicable");
+    
+    expect(packet.visibleFacts.join(" ")).toContain("Entity type: bank. Corporate debt/leverage interpretation is not applicable");
+  });
 });

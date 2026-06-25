@@ -135,6 +135,8 @@ export const buildAssistantScreenContextPacket = ({
     leverageRiskStatus: riskReadiness.calculationReadiness.leverageRisk,
     missingFields: missingNumericFields(riskInputs),
   };
+  const isBank = normalizedTicker === "VCB";
+
   const moduleContext = {
     moduleKey: activeModule,
     moduleName: activeModule,
@@ -150,7 +152,15 @@ export const buildAssistantScreenContextPacket = ({
     valuation: valuationEvidence,
     risk: riskEvidence,
     missingFields,
-    warnings: financialsRuntimeData.dataQuality.warnings,
+    warnings: [
+      ...financialsRuntimeData.dataQuality.warnings,
+      ...(isBank ? ["VCB is a bank; corporate debt/leverage interpretation is not applicable. Do not use total liabilities or customer deposits as totalDebt."] : []),
+    ],
+    ...(isBank && {
+      entityType: "bank",
+      bankingCaveat: true,
+      debtMappingStatus: "needs_bank_mapping",
+    }),
   };
   const visibleFacts = [
     `Active module: ${activeModule}`,
@@ -164,6 +174,7 @@ export const buildAssistantScreenContextPacket = ({
     missingFields.length > 0
       ? `Missing financial fields: ${missingFields.join(", ")}`
       : "Missing financial fields: none reported",
+    ...(isBank ? ["Entity type: bank. Corporate debt/leverage interpretation is not applicable. Do not use total liabilities or customer deposits as totalDebt."] : []),
   ];
 
   return createAssistantContextPacket({

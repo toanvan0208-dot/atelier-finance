@@ -1,0 +1,12 @@
+{
+  "phase": "140B",
+  "target": "VCB",
+  "aiContext": {
+    "entityType": "bank",
+    "bankingCaveat": true,
+    "debtMappingStatus": "needs_bank_mapping"
+  },
+  "riskContext": {
+    "blockedReason": "debt missing; bank_specific_debt_not_applicable; leverage risk is insufficient_data."
+  }
+}
