@@ -211,7 +211,7 @@ export const loadFinancialsRuntimeData = async (
     let adapted = adaptSeries(readResult);
 
     if (!options.sourceLabel || options.sourceLabel.trim() === "") {
-      if (ticker === "HPG" || ticker === "VNM" || ticker === "FPT" || ticker === "MSN") {
+      if (ticker === "HPG" || ticker === "VNM" || ticker === "FPT" || ticker === "MSN" || ticker === "MWG") {
         const pdfResult = await readSeries({ ticker, sourceLabel: "annual_report_2025_pdf_reviewed_preview", dataMode: "research_only", limit: 8 });
         const pdfAdapted = adaptSeries(pdfResult);
         if (pdfAdapted.ok && pdfAdapted.statements.length > 0) {

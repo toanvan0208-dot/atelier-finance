@@ -31,10 +31,10 @@ describe("Phase 139J Post-Import Product Smoke Boundaries", () => {
   });
 
   describe("Sanity Check: Source Priority", () => {
-    it("preserves phase109_controlled_local_financials for MWG", async () => {
+    it("resolves to annual_report_2025_pdf_reviewed_preview for MWG now", async () => {
       const mwg = await loadFinancialsRuntimeData({ ticker: "MWG", preferDb: true });
       
-      expect(mwg.source.sourceLabel).toBe("phase109_controlled_local_financials");
+      expect(mwg.source.sourceLabel).toBe("annual_report_2025_pdf_reviewed_preview");
     });
   });
 

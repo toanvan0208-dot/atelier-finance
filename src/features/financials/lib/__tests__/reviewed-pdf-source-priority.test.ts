@@ -48,15 +48,15 @@ const result = (
             netIncome: null,
             totalAssets: null,
             totalLiabilities: null,
-            totalDebt: ticker === "MSN" ? 64877.178 : null,
+            totalDebt: ticker === "MSN" ? 64877.178 : ticker === "MWG" ? 29930.943 : null,
             totalEquity: null,
             cashAndEquivalents: null,
             currentAssets: null,
             currentLiabilities: null,
             operatingCashFlow: null,
             capitalExpenditure: null,
-            sharesOutstanding: ticker === "MSN" ? 1520491927 : 1,
-            eps: ticker === "MSN" ? 2710 : 1,
+            sharesOutstanding: ticker === "MSN" ? 1520491927 : ticker === "MWG" ? 1468456763 : 1,
+            eps: ticker === "MSN" ? 2710 : ticker === "MWG" ? 4774 : 1,
           },
           dataQuality: {
             status: "partial",
@@ -70,8 +70,8 @@ const result = (
     : [],
 });
 
-describe("Phase 139L reviewed-PDF source priority", () => {
-  it.each(["FPT", "HPG", "VNM", "MSN"])(
+describe("Phase 140G reviewed-PDF source priority", () => {
+  it.each(["FPT", "HPG", "VNM", "MSN", "MWG"])(
     "prefers reviewed PDF source for %s",
     async (ticker) => {
       const runtime = await loadFinancialsRuntimeData(
@@ -92,7 +92,7 @@ describe("Phase 139L reviewed-PDF source priority", () => {
     },
   );
 
-  it("keeps MWG on phase109 and does not probe reviewed PDF", async () => {
+  it("keeps MWG on phase109 if reviewed PDF is absent", async () => {
     const calls: string[] = [];
     const runtime = await loadFinancialsRuntimeData(
       { ticker: "MWG", preferDb: true, allowFallback: false },
@@ -111,7 +111,7 @@ describe("Phase 139L reviewed-PDF source priority", () => {
     expect(runtime.source.sourceLabel).toBe(
       "phase109_controlled_local_financials",
     );
-    expect(calls).not.toContain("annual_report_2025_pdf_reviewed_preview");
+    expect(calls).toContain("annual_report_2025_pdf_reviewed_preview");
   });
 
   it("keeps VCB behavior unchanged and does not probe reviewed PDF", async () => {

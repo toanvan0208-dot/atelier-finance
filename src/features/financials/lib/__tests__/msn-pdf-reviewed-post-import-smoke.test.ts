@@ -110,7 +110,7 @@ describe("Phase 139L MSN post-import product smoke", () => {
       FPT: "annual_report_2025_pdf_reviewed_preview",
       HPG: "annual_report_2025_pdf_reviewed_preview",
       VNM: "annual_report_2025_pdf_reviewed_preview",
-      MWG: "phase109_controlled_local_financials",
+      MWG: "annual_report_2025_pdf_reviewed_preview",
     };
     for (const [ticker, sourceLabel] of Object.entries(expected)) {
       const runtime = await loadFinancialsRuntimeData({
