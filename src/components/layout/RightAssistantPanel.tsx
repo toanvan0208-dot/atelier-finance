@@ -382,7 +382,7 @@ function AITutorAskRuntimeTab({
   const [runtimeResponse, setRuntimeResponse] = useState<AssistantApiResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(
-    "Chon mot cau hoi goi y hoac nhap cau hoi. Runtime se chuan bi prompt, chua goi LLM."
+    "Chọn một câu hỏi gợi ý hoặc nhập câu hỏi. Runtime sẽ chuẩn bị prompt, chưa gọi LLM."
   );
 
   async function submitQuestion() {
@@ -390,7 +390,7 @@ function AITutorAskRuntimeTab({
 
     if (!trimmed) {
       setRuntimeResponse(null);
-      setError("Hay nhap cau hoi cu the hon truoc khi goi AI runtime.");
+      setError("Hãy nhập câu hỏi cụ thể hơn trước khi gọi AI runtime.");
       return;
     }
 
@@ -414,14 +414,14 @@ function AITutorAskRuntimeTab({
 
       if (!response.ok || !payload.ok) {
         setRuntimeResponse(payload);
-        setError(payload.message || "Khong the chuan bi AI runtime.");
+        setError(payload.message || "Không thể chuẩn bị AI runtime.");
         return;
       }
 
       setRuntimeResponse(payload);
     } catch {
       setRuntimeResponse(null);
-      setError("Khong the goi /api/assistant. Vui long thu lai sau.");
+      setError("Không thể gọi /api/assistant. Vui lòng thử lại sau.");
     } finally {
       setIsLoading(false);
     }
@@ -430,7 +430,7 @@ function AITutorAskRuntimeTab({
   function pickQuestion(nextQuestion: string) {
     setQuestion(nextQuestion);
     setRuntimeResponse(null);
-    setError("Cau hoi da duoc dien. Bam Hoi AI de chuan bi runtime prompt.");
+    setError("Câu hỏi đã được điền. Bấm Hỏi AI để chuẩn bị runtime prompt.");
   }
 
   return (
@@ -450,10 +450,10 @@ function AITutorAskRuntimeTab({
             : runtimeResponse
               ? getStatusMessage(runtimeResponse.llmStatus)
               : error ??
-                "AI runtime da san sang prompt, nhung LLM chua duoc cau hinh."}
+                "AI runtime đã sẵn sàng prompt, nhưng LLM chưa được cấu hình. Lưu ý: AI chỉ giải thích dữ liệu, không đưa lời khuyên đầu tư."}
         </p>
         <p className="hidden">
-          LLM status: {runtimeResponse?.llmStatus ?? "not_configured"} Â· Answer: {runtimeResponse?.answer ?? "null"}
+          LLM status: {runtimeResponse?.llmStatus ?? "not_configured"} · Answer: {runtimeResponse?.answer ?? "null"}
         </p>
 
         {runtimeResponse?.answer ? (
@@ -471,7 +471,7 @@ function AITutorAskRuntimeTab({
       </section>
 
       <AITutorSoftWarning>{config.softWarning}</AITutorSoftWarning>
-      <AITutorSoftWarning>AI khong dua khuyen nghi mua, ban hoac nam giu.</AITutorSoftWarning>
+      <AITutorSoftWarning>AI không đưa lời khuyên mua, bán hoặc nắm giữ. Nguồn dữ liệu AI đang dùng là dữ liệu nghiên cứu, chưa phê duyệt sản xuất.</AITutorSoftWarning>
     </div>
   );
 }

@@ -189,11 +189,10 @@ describe("Financials runtime UI boundary", () => {
       }),
     );
 
-    expect(html).toContain("Du lieu local research-only");
+    expect(html).toContain("Dữ liệu nghiên cứu (productionApproved: false)");
     expect(html).toContain("chưa phê duyệt sản xuất");
-    expect(html).toContain("trạng thái nguồn");
     expect(html).toContain("revenue");
-    expect(html).not.toContain("Du lieu co metadata nguon");
+    expect(html).not.toContain("Dữ liệu có metadata nguồn");
   });
 
   it("keeps partial missing fields visible instead of rendering them as zero", () => {

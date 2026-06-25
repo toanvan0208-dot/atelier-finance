@@ -30,9 +30,9 @@ const statusLabel = ({
   isDemoData: boolean;
   isResearchOnly: boolean;
 }): string => {
-  if (isDemoData) return "Du lieu mau tinh";
-  if (isResearchOnly) return "Du lieu local research-only";
-  return "Du lieu co metadata nguon";
+  if (isDemoData) return "Dữ liệu minh họa";
+  if (isResearchOnly) return "Dữ liệu nghiên cứu (productionApproved: false)";
+  return "Dữ liệu có metadata nguồn";
 };
 
 const statusDescription = ({
@@ -43,14 +43,14 @@ const statusDescription = ({
   isResearchOnly: boolean;
 }): string => {
   if (isDemoData) {
-    return "Du lieu sample/static chi dung de minh hoa cach doc va kiem tra, khong phai du lieu san sang cho production.";
+    return "Dữ liệu minh họa chỉ dùng để tham khảo cách hiển thị, không dùng để ra quyết định thật.";
   }
 
   if (isResearchOnly) {
-    return "Dữ liệu local/research-only dùng cho kiểm thử và nghiên cứu; chưa phê duyệt sản xuất và cần đọc kèm trạng thái nguồn.";
+    return "Nguồn đang kiểm tra, chưa phê duyệt sản xuất. Dữ liệu chưa dùng như dữ liệu chính thức.";
   }
 
-  return "Du lieu co metadata nguon va moc thoi gian, van can kiem tra pham vi, readiness va quyen su dung truoc khi tin cay.";
+  return "Dữ liệu có metadata nguồn, nhưng vẫn cần kiểm tra kỹ trước khi tin cậy.";
 };
 
 export function DataQualityBanner({
@@ -81,32 +81,32 @@ export function DataQualityBanner({
             </span>
             {isStale ? (
               <span className="rounded-[3px] border border-[#D6B15C] bg-surface px-2 py-1 text-[11px] font-bold text-[#765416]">
-                Co the da cu
+                Có thể đã cũ
               </span>
             ) : null}
             {hasMissingFields ? (
               <span className="rounded-[3px] border border-[#D6B15C] bg-surface px-2 py-1 text-[11px] font-bold text-[#765416]">
-                Thieu {missingFields.length} truong
+                Thiếu {missingFields.length} trường (Chưa đủ dữ liệu)
               </span>
             ) : null}
           </div>
           <p className="mt-2 font-semibold">{statusDescription({ isDemoData, isResearchOnly })}</p>
           {hasMissingFields ? (
             <p className="mt-1">
-              Mot so truong du lieu con thieu: {missingFields.slice(0, 5).join(", ")}
+              Một số trường dữ liệu còn thiếu: {missingFields.slice(0, 5).join(", ")}
               {missingFields.length > 5 ? ", ..." : ""}.
             </p>
           ) : null}
-          <p className="mt-1">Khong xem day la ket luan dau tu.</p>
+          <p className="mt-1">Không xem đây là lời khuyên đầu tư.</p>
         </div>
         <dl className="grid shrink-0 gap-1 text-[11px] lg:min-w-[220px]">
           <div className="flex justify-between gap-3">
-            <dt className="font-bold">Nguon</dt>
-            <dd className="text-right">{source || "Chua co nguon du lieu"}</dd>
+            <dt className="font-bold">Nguồn</dt>
+            <dd className="text-right">{source || "Chưa rõ nguồn dữ liệu"}</dd>
           </div>
           <div className="flex justify-between gap-3">
-            <dt className="font-bold">Moc du lieu</dt>
-            <dd className="text-right">{formattedAsOf || "Chua co moc du lieu"}</dd>
+            <dt className="font-bold">Mốc dữ liệu</dt>
+            <dd className="text-right">{formattedAsOf || "Chưa có mốc dữ liệu"}</dd>
           </div>
         </dl>
       </div>

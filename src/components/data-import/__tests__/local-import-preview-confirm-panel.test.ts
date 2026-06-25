@@ -84,7 +84,7 @@ describe("LocalImportPreviewConfirmPanel", () => {
 
       expect(content).toContain("Nhập dữ liệu local hiện đang tắt.");
       expect(content).toContain("Chỉ bật chức năng này trong môi trường local/dev có kiểm soát.");
-      expect(content).toContain("Dữ liệu local/imported chưa được duyệt làm nguồn sản xuất.");
+      expect(content).toContain("Dữ liệu local/imported chưa được duyệt làm nguồn sản xuất (productionApproved: false).");
     });
 
     it("disables dry-run and confirm buttons when not enabled", () => {

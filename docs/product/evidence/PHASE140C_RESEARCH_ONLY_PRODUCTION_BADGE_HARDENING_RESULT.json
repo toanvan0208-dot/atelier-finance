@@ -1,0 +1,11 @@
+{
+  "phase": "140C",
+  "goal": "UI badge hardening for research_only and productionApproved",
+  "result": "success",
+  "changes": {
+    "research_only_label": "Dữ liệu nghiên cứu",
+    "production_approved_label": "Chưa phê duyệt sản xuất",
+    "missing_data_label": "Chưa đủ dữ liệu",
+    "investment_advice_guardrail": "Active and explicit"
+  }
+}

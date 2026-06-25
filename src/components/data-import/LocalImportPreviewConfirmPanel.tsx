@@ -142,18 +142,18 @@ export function LocalImportPreviewConfirmPanel({ enabled = false }: { enabled?: 
               Chỉ bật chức năng này trong môi trường local/dev có kiểm soát.
             </p>
             <p className="mt-1 text-xs text-muted">
-              Dữ liệu local/imported chưa được duyệt làm nguồn sản xuất. productionApproved:false.
+              Dữ liệu local/imported chưa được duyệt làm nguồn sản xuất (productionApproved: false).
             </p>
           </div>
         ) : null}
         <div className="grid gap-3 rounded-[4px] border border-border-soft bg-surface-soft p-3 text-xs leading-5 text-muted md:grid-cols-4">
           <div>
             <p className="font-bold uppercase text-ink">Approval</p>
-            <p>productionApproved:false</p>
+            <p>Chưa phê duyệt sản xuất</p>
           </div>
           <div>
             <p className="font-bold uppercase text-ink">Source</p>
-            <p>local/imported; not approved for production use</p>
+            <p>local/imported; chưa phê duyệt sản xuất</p>
           </div>
           <div>
             <p className="font-bold uppercase text-ink">External API</p>
