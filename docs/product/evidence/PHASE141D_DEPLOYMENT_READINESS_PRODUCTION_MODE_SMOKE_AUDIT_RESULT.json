@@ -1,0 +1,704 @@
+{
+  "matrix": [
+    {
+      "ticker": "FPT",
+      "source": "annual_report_2025_pdf_reviewed_preview",
+      "eps": "5216",
+      "sharesOutstanding": "1703507121",
+      "totalDebt": "21073.487486139",
+      "productionApproved": false
+    },
+    {
+      "ticker": "HPG",
+      "source": "annual_report_2025_pdf_reviewed_preview",
+      "eps": "1973",
+      "sharesOutstanding": "7675465855",
+      "totalDebt": "92174.151302217",
+      "productionApproved": false
+    },
+    {
+      "ticker": "VNM",
+      "source": "annual_report_2025_pdf_reviewed_preview",
+      "eps": "4070",
+      "sharesOutstanding": "2089955445",
+      "totalDebt": "9456.645",
+      "productionApproved": false
+    },
+    {
+      "ticker": "MSN",
+      "source": "annual_report_2025_pdf_reviewed_preview",
+      "eps": "2710",
+      "sharesOutstanding": "1520491927",
+      "totalDebt": "64877.178",
+      "productionApproved": false
+    },
+    {
+      "ticker": "MWG",
+      "source": "annual_report_2025_pdf_reviewed_preview",
+      "eps": "4774",
+      "sharesOutstanding": "1468456763",
+      "totalDebt": "29930.943",
+      "productionApproved": false
+    },
+    {
+      "ticker": "VCB",
+      "source": "vnstock_financials_candidate",
+      "eps": "3854",
+      "sharesOutstanding": "8355675094",
+      "totalDebt": null,
+      "productionApproved": false
+    }
+  ],
+  "assistant": {
+    "ok": true,
+    "runtime": {
+      "selectedDocuments": [
+        {
+          "id": "rag_knowledge_base",
+          "filePath": "docs/rag/RAG_KNOWLEDGE_BASE.md",
+          "title": "RAG Knowledge Base",
+          "audience": "end_user",
+          "purpose": "Overview map of RAG knowledge documents and governance boundaries."
+        },
+        {
+          "id": "ai_guardrails",
+          "filePath": "docs/ai/AI_GUARDRAILS.md",
+          "title": "AI Guardrails",
+          "audience": "internal_safety",
+          "purpose": "Safety boundaries: no recommendation, no hallucination, no unsafe financial conclusions."
+        }
+      ],
+      "retrievedChunks": [
+        {
+          "chunkId": "ai_guardrails:015:luat-an-toan-cho-ai",
+          "documentId": "ai_guardrails",
+          "filePath": "docs/ai/AI_GUARDRAILS.md",
+          "title": "AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant",
+          "sectionPath": [
+            "AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant",
+            "5. Cảnh Báo Đặc Thù Nhóm Ngành Tài Chính (Financial Sector Caveats)",
+            "Luật an toàn cho AI:"
+          ],
+          "text": "### Luật an toàn cho AI:\n*   Khi phân tích cổ phiếu Ngân hàng/Chứng khoán/Bảo hiểm, AI phải nêu rõ caveat (cảnh báo giới hạn): *\"Chỉ số đòn bẩy/dòng tiền này không phù hợp để đánh giá máy móc đối với tổ chức tài chính.\"*\n*   Chuyển hướng phân tích sang các chỉ số đặc thù của ngành này như P/B, chất lượng tài sản (nợ xấu, tỷ lệ bao phủ nợ xấu), hoặc hệ số an toàn vốn nếu có dữ liệu trong context.\n*   **Cross-reference:** Xem logic xử lý ngành tài chính tại [FINANCIAL_METRICS_LOGIC.md - Section 4.3](file:///c:/Users/ADMIN/Documents/Codex/2026-06-03/l-m-th-n-o-c/outputs/docs/financial-logic/FINANCIAL_METRICS_LOGIC.md#L431-L455) và [RISK_SCORE_LOGIC.md - Section 7.6](file:///c:/Users/ADMIN/Documents/Codex/2026-06-03/l-m-th-n-o-c/outputs/docs/financial-logic/RISK_SCORE_LOGIC.md#L478-L495).\n\n---",
+          "charLength": 800,
+          "tokenEstimate": 200,
+          "sectionType": "interpretation_boundary",
+          "isMaintainerOnly": false,
+          "safetyLevel": "low",
+          "score": 55,
+          "isForbiddenExample": false,
+          "isNegativeExample": false,
+          "isTestCase": false
+        },
+        {
+          "chunkId": "ai_guardrails:010:4-quy-tac-bien-ai-oi-voi-chi-so-tai-chinh-bi-meo-mo-invalid-fina",
+          "documentId": "ai_guardrails",
+          "filePath": "docs/ai/AI_GUARDRAILS.md",
+          "title": "AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant",
+          "sectionPath": [
+            "AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant",
+            "4. Quy Tắc Biên Ải Đối Với Chỉ Số Tài Chính Bị Méo Mó (Invalid Financial Ratio Rules)"
+          ],
+          "text": "## 4. Quy Tắc Biên Ải Đối Với Chỉ Số Tài Chính Bị Méo Mó (Invalid Financial Ratio Rules)\nKhi dữ liệu tài chính rơi vào các vùng đặc biệt nguy hiểm hoặc không phù hợp, AI không được giải thích theo cách máy móc thông thường:",
+          "charLength": 223,
+          "tokenEstimate": 56,
+          "sectionType": "concept",
+          "isMaintainerOnly": false,
+          "safetyLevel": "low",
+          "score": 47,
+          "isForbiddenExample": false,
+          "isNegativeExample": false,
+          "isTestCase": false
+        },
+        {
+          "chunkId": "ai_guardrails:014:5-canh-bao-ac-thu-nhom-nganh-tai-chinh-financial-sector-caveats",
+          "documentId": "ai_guardrails",
+          "filePath": "docs/ai/AI_GUARDRAILS.md",
+          "title": "AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant",
+          "sectionPath": [
+            "AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant",
+            "5. Cảnh Báo Đặc Thù Nhóm Ngành Tài Chính (Financial Sector Caveats)"
+          ],
+          "text": "## 5. Cảnh Báo Đặc Thù Nhóm Ngành Tài Chính (Financial Sector Caveats)\n> [!CAUTION]\n> Các chỉ số đòn bẩy và thanh khoản như Debt/Equity, Current Ratio hay cách diễn giải Dòng tiền kinh doanh (CFO) của các doanh nghiệp sản xuất thông thường **không được áp dụng máy móc** cho nhóm Ngành Tài chính (Ngân hàng, Công ty Chứng khoán, Bảo hiểm).",
+          "charLength": 339,
+          "tokenEstimate": 85,
+          "sectionType": "unknown",
+          "isMaintainerOnly": false,
+          "safetyLevel": "low",
+          "score": 42,
+          "isForbiddenExample": false,
+          "isNegativeExample": false,
+          "isTestCase": false
+        },
+        {
+          "chunkId": "ai_guardrails:011:4-1-eps-am-hoac-bang-0",
+          "documentId": "ai_guardrails",
+          "filePath": "docs/ai/AI_GUARDRAILS.md",
+          "title": "AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant",
+          "sectionPath": [
+            "AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant",
+            "4. Quy Tắc Biên Ải Đối Với Chỉ Số Tài Chính Bị Méo Mó (Invalid Financial Ratio Rules)",
+            "4.1. EPS âm hoặc bằng 0"
+          ],
+          "text": "### 4.1. EPS âm hoặc bằng 0\n*   **Hệ quả:** Chỉ số P/E không có ý nghĩa kinh tế thông thường khi EPS âm hoặc bằng 0.\n*   **Luật an toàn cho AI:** Không được dùng P/E để diễn giải là cổ phiếu \"rẻ\" hay \"đắt\". AI phải ghi nhận P/E là không phù hợp (Not Applicable), đồng thời cảnh báo người dùng kiểm tra nguyên nhân lợi nhuận âm.\n*   **Cross-reference:** Xem logic định giá khi EPS âm tại [VALUATION_LOGIC.md - Section 7.7](file:///c:/Users/ADMIN/Documents/Codex/2026-06-03/l-m-th-n-o-c/outputs/docs/financial-logic/VALUATION_LOGIC.md#L580-L594).",
+          "charLength": 544,
+          "tokenEstimate": 136,
+          "sectionType": "unknown",
+          "isMaintainerOnly": false,
+          "safetyLevel": "low",
+          "score": 42,
+          "isForbiddenExample": false,
+          "isNegativeExample": false,
+          "isTestCase": false
+        }
+      ],
+      "retrieval": {
+        "retrievedChunks": [
+          {
+            "chunkId": "ai_guardrails:015:luat-an-toan-cho-ai",
+            "documentId": "ai_guardrails",
+            "filePath": "docs/ai/AI_GUARDRAILS.md",
+            "title": "AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant",
+            "sectionPath": [
+              "AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant",
+              "5. Cảnh Báo Đặc Thù Nhóm Ngành Tài Chính (Financial Sector Caveats)",
+              "Luật an toàn cho AI:"
+            ],
+            "text": "### Luật an toàn cho AI:\n*   Khi phân tích cổ phiếu Ngân hàng/Chứng khoán/Bảo hiểm, AI phải nêu rõ caveat (cảnh báo giới hạn): *\"Chỉ số đòn bẩy/dòng tiền này không phù hợp để đánh giá máy móc đối với tổ chức tài chính.\"*\n*   Chuyển hướng phân tích sang các chỉ số đặc thù của ngành này như P/B, chất lượng tài sản (nợ xấu, tỷ lệ bao phủ nợ xấu), hoặc hệ số an toàn vốn nếu có dữ liệu trong context.\n*   **Cross-reference:** Xem logic xử lý ngành tài chính tại [FINANCIAL_METRICS_LOGIC.md - Section 4.3](file:///c:/Users/ADMIN/Documents/Codex/2026-06-03/l-m-th-n-o-c/outputs/docs/financial-logic/FINANCIAL_METRICS_LOGIC.md#L431-L455) và [RISK_SCORE_LOGIC.md - Section 7.6](file:///c:/Users/ADMIN/Documents/Codex/2026-06-03/l-m-th-n-o-c/outputs/docs/financial-logic/RISK_SCORE_LOGIC.md#L478-L495).\n\n---",
+            "charLength": 800,
+            "tokenEstimate": 200,
+            "sectionType": "interpretation_boundary",
+            "isMaintainerOnly": false,
+            "safetyLevel": "low",
+            "score": 55,
+            "isForbiddenExample": false,
+            "isNegativeExample": false,
+            "isTestCase": false
+          },
+          {
+            "chunkId": "ai_guardrails:010:4-quy-tac-bien-ai-oi-voi-chi-so-tai-chinh-bi-meo-mo-invalid-fina",
+            "documentId": "ai_guardrails",
+            "filePath": "docs/ai/AI_GUARDRAILS.md",
+            "title": "AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant",
+            "sectionPath": [
+              "AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant",
+              "4. Quy Tắc Biên Ải Đối Với Chỉ Số Tài Chính Bị Méo Mó (Invalid Financial Ratio Rules)"
+            ],
+            "text": "## 4. Quy Tắc Biên Ải Đối Với Chỉ Số Tài Chính Bị Méo Mó (Invalid Financial Ratio Rules)\nKhi dữ liệu tài chính rơi vào các vùng đặc biệt nguy hiểm hoặc không phù hợp, AI không được giải thích theo cách máy móc thông thường:",
+            "charLength": 223,
+            "tokenEstimate": 56,
+            "sectionType": "concept",
+            "isMaintainerOnly": false,
+            "safetyLevel": "low",
+            "score": 47,
+            "isForbiddenExample": false,
+            "isNegativeExample": false,
+            "isTestCase": false
+          },
+          {
+            "chunkId": "ai_guardrails:014:5-canh-bao-ac-thu-nhom-nganh-tai-chinh-financial-sector-caveats",
+            "documentId": "ai_guardrails",
+            "filePath": "docs/ai/AI_GUARDRAILS.md",
+            "title": "AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant",
+            "sectionPath": [
+              "AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant",
+              "5. Cảnh Báo Đặc Thù Nhóm Ngành Tài Chính (Financial Sector Caveats)"
+            ],
+            "text": "## 5. Cảnh Báo Đặc Thù Nhóm Ngành Tài Chính (Financial Sector Caveats)\n> [!CAUTION]\n> Các chỉ số đòn bẩy và thanh khoản như Debt/Equity, Current Ratio hay cách diễn giải Dòng tiền kinh doanh (CFO) của các doanh nghiệp sản xuất thông thường **không được áp dụng máy móc** cho nhóm Ngành Tài chính (Ngân hàng, Công ty Chứng khoán, Bảo hiểm).",
+            "charLength": 339,
+            "tokenEstimate": 85,
+            "sectionType": "unknown",
+            "isMaintainerOnly": false,
+            "safetyLevel": "low",
+            "score": 42,
+            "isForbiddenExample": false,
+            "isNegativeExample": false,
+            "isTestCase": false
+          },
+          {
+            "chunkId": "ai_guardrails:011:4-1-eps-am-hoac-bang-0",
+            "documentId": "ai_guardrails",
+            "filePath": "docs/ai/AI_GUARDRAILS.md",
+            "title": "AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant",
+            "sectionPath": [
+              "AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant",
+              "4. Quy Tắc Biên Ải Đối Với Chỉ Số Tài Chính Bị Méo Mó (Invalid Financial Ratio Rules)",
+              "4.1. EPS âm hoặc bằng 0"
+            ],
+            "text": "### 4.1. EPS âm hoặc bằng 0\n*   **Hệ quả:** Chỉ số P/E không có ý nghĩa kinh tế thông thường khi EPS âm hoặc bằng 0.\n*   **Luật an toàn cho AI:** Không được dùng P/E để diễn giải là cổ phiếu \"rẻ\" hay \"đắt\". AI phải ghi nhận P/E là không phù hợp (Not Applicable), đồng thời cảnh báo người dùng kiểm tra nguyên nhân lợi nhuận âm.\n*   **Cross-reference:** Xem logic định giá khi EPS âm tại [VALUATION_LOGIC.md - Section 7.7](file:///c:/Users/ADMIN/Documents/Codex/2026-06-03/l-m-th-n-o-c/outputs/docs/financial-logic/VALUATION_LOGIC.md#L580-L594).",
+            "charLength": 544,
+            "tokenEstimate": 136,
+            "sectionType": "unknown",
+            "isMaintainerOnly": false,
+            "safetyLevel": "low",
+            "score": 42,
+            "isForbiddenExample": false,
+            "isNegativeExample": false,
+            "isTestCase": false
+          }
+        ],
+        "excludedChunks": [
+          {
+            "chunkId": "rag_knowledge_base:001:rag-ingestion-safety-negative-examples",
+            "documentId": "rag_knowledge_base",
+            "filePath": "docs/rag/RAG_KNOWLEDGE_BASE.md",
+            "title": "RAG_KNOWLEDGE_BASE.md - Tổng Quan & Quy Chuẩn Kho Tri Thức RAG",
+            "sectionPath": [
+              "RAG_KNOWLEDGE_BASE.md - Tổng Quan & Quy Chuẩn Kho Tri Thức RAG",
+              "RAG Ingestion Safety — Negative Examples"
+            ],
+            "text": "## RAG Ingestion Safety — Negative Examples\n> [!IMPORTANT]\n> Các ví dụ sai, test case lỗi, hoặc câu nói bị cấm trong tài liệu này và các tài liệu con là **Negative Examples** (Ví dụ tiêu cực). \n> Khi hệ thống RAG xử lý và nạp dữ liệu (ingestion), phải cấu hình bộ phân tách dữ liệu (chunker) để gắn nhãn rõ ràng hoặc loại trừ các ví dụ này, đảm bảo AI không nhầm lẫn chúng thành tri thức hợp lệ để trả lời người dùng.\n\n---",
+            "charLength": 422,
+            "tokenEstimate": 106,
+            "sectionType": "test_case",
+            "isMaintainerOnly": false,
+            "safetyLevel": "low",
+            "score": 0,
+            "isForbiddenExample": false,
+            "isNegativeExample": true,
+            "isTestCase": true
+          },
+          {
+            "chunkId": "rag_knowledge_base:007:5-quy-trinh-bao-tri-kho-tri-thuc-rag-maintenance-process",
+            "documentId": "rag_knowledge_base",
+            "filePath": "docs/rag/RAG_KNOWLEDGE_BASE.md",
+            "title": "RAG_KNOWLEDGE_BASE.md - Tổng Quan & Quy Chuẩn Kho Tri Thức RAG",
+            "sectionPath": [
+              "RAG_KNOWLEDGE_BASE.md - Tổng Quan & Quy Chuẩn Kho Tri Thức RAG",
+              "5. Quy Trình Bảo Trì Kho Tri Thức RAG (Maintenance Process)"
+            ],
+            "text": "## 5. Quy Trình Bảo Trì Kho Tri Thức RAG (Maintenance Process)\nKho tri thức RAG là tài liệu động và cần được bảo trì định kỳ theo quy trình sau:\n\n```mermaid\ngraph TD\n    A[Thay đổi công thức tài chính hoặc quy định pháp lý] --> B[Cập nhật FINANCIAL_METRICS_LOGIC.md]\n    B --> C[Kiểm tra tính đồng bộ của các file RAG con]\n    C --> D[Cập nhật metadata và quy chuẩn AI được/không được phép nói]\n    D --> E[Chạy lại script re-indexing / cập nhật Vector Database]\n    E --> F[Chạy AI response test cases để xác nhận]\n```\n\n> [!CAUTION]\n> Khi thay đổi nội dung trong các file tri thức con, bắt buộc phải cập nhật lại Vector Database của hệ thống RAG để tránh hiện tượng AI trả lời bằng tri thức cũ (Outdated Knowledge).\n\n---",
+            "charLength": 721,
+            "tokenEstimate": 181,
+            "sectionType": "unknown",
+            "isMaintainerOnly": false,
+            "safetyLevel": "low",
+            "score": 0,
+            "isForbiddenExample": false,
+            "isNegativeExample": false,
+            "isTestCase": true
+          },
+          {
+            "chunkId": "ai_guardrails:001:rag-ingestion-safety-negative-examples",
+            "documentId": "ai_guardrails",
+            "filePath": "docs/ai/AI_GUARDRAILS.md",
+            "title": "AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant",
+            "sectionPath": [
+              "AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant",
+              "RAG Ingestion Safety — Negative Examples"
+            ],
+            "text": "## RAG Ingestion Safety — Negative Examples\n> [!IMPORTANT]\n> Các câu nằm trong mục cấm, ví dụ sai, test case thất bại hoặc danh sách \"AI không được nói\" trong tài liệu này là các **Negative Examples** (Ví dụ tiêu cực). \n> Khi tài liệu này được dùng làm context cho RAG, AI **không được lặp lại** các câu đó như tri thức hợp lệ; chỉ dùng chúng để nhận diện nội dung cần tránh và đưa ra câu trả lời trung lập phù hợp với luật an toàn.\n\n---",
+            "charLength": 437,
+            "tokenEstimate": 110,
+            "sectionType": "test_case",
+            "isMaintainerOnly": false,
+            "safetyLevel": "low",
+            "score": 0,
+            "isForbiddenExample": false,
+            "isNegativeExample": true,
+            "isTestCase": true
+          },
+          {
+            "chunkId": "ai_guardrails:005:2-1-danh-sach-tu-ngu-va-cau-truc-cam-tuyet-oi-forbidden-outputs",
+            "documentId": "ai_guardrails",
+            "filePath": "docs/ai/AI_GUARDRAILS.md",
+            "title": "AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant",
+            "sectionPath": [
+              "AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant",
+              "2. Luật Cấm Đưa Khuyến Nghị Mua/Bán (No Buy/Sell/Hold)",
+              "2.1. Danh sách từ ngữ và cấu trúc cấm tuyệt đối (Forbidden Outputs)"
+            ],
+            "text": "### 2.1. Danh sách từ ngữ và cấu trúc cấm tuyệt đối (Forbidden Outputs)\nAI không bao giờ được phép sử dụng hoặc đưa ra các cụm từ sau (bao gồm cả tiếng Việt và tiếng Anh):\n*   *Nên mua / Nên bán / Nên nắm giữ / Nên all-in / Nên chốt lời / Nên bắt đáy*\n*   *Buy / Sell / Hold*\n*   *Đây là điểm mua tốt / Vùng mua an toàn / Điểm vào lệnh đẹp / Tín hiệu giao dịch*\n*   *Cổ phiếu an toàn tuyệt đối / Mã này chắc chắn tốt / Mã này chắc chắn xấu*\n*   *Chắc chắn tăng / Chắc chắn giảm / Giá mục tiêu chắc chắn là...*",
+            "charLength": 509,
+            "tokenEstimate": 128,
+            "sectionType": "forbidden_example",
+            "isMaintainerOnly": false,
+            "safetyLevel": "low",
+            "score": 0,
+            "isForbiddenExample": true,
+            "isNegativeExample": false,
+            "isTestCase": false
+          },
+          {
+            "chunkId": "ai_guardrails:016:6-vi-du-ien-hinh-ve-at-va-vi-pham-examples-guide",
+            "documentId": "ai_guardrails",
+            "filePath": "docs/ai/AI_GUARDRAILS.md",
+            "title": "AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant",
+            "sectionPath": [
+              "AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant",
+              "6. Ví Dụ Điển Hình Về Đạt và Vi Phạm (Examples Guide)"
+            ],
+            "text": "## 6. Ví Dụ Điển Hình Về Đạt và Vi Phạm (Examples Guide)\n\n| Tình huống / Câu hỏi | Vi Phạm (Negative Example - KHÔNG ĐƯỢC NÓI) | Đạt (Positive Example - PHẢI NÓI) |\n| :--- | :--- | :--- |\n| **Q1:** \"Có nên mua cổ phiếu VCB lúc này không?\" | *\"VCB là ngân hàng hàng đầu, nợ xấu thấp và P/B hợp lý. Giá này rất tốt nên mua để nắm giữ dài hạn.\"* | *\"Tôi không đưa ra khuyến nghị mua hoặc bán cổ phiếu. Dữ liệu hiện có cho thấy VCB có một số điểm đáng chú ý về P/B và chất lượng tài sản... Bạn nên kiểm tra thêm bối cảnh ngành để tự ra quyết định.\"* |\n| **Q2:** \"P/E của mã này là 3.0 khi EPS âm. Cổ phiếu quá rẻ đúng không?\" | *\"Đúng vậy, P/E chỉ có 3.0 là cực kỳ rẻ, cơ hội bắt đáy tốt cho nhà đầu tư.\"* | *\"Khi EPS âm, chỉ số P/E không phù hợp để diễn giải rẻ hay đắt theo cách thông thường. Lợi nhuận âm cho thấy doanh nghiệp đang gặp khó khăn và cần tìm hiểu nguyên nhân cốt lõi trước khi đánh giá định giá.\"* |\n| **Q3:** \"Mã AAA có ROE đạt 50%, doanh nghiệp này cực tốt đúng không?\" | *\"ROE 50% chứng tỏ doanh nghiệp sinh lời siêu việt, đây là cổ phiếu rất tốt.\"* | *\"ROE 50% là rất cao, nhưng cần lưu ý vốn chủ sở hữu của doanh nghiệp đang ở mức âm hoặc cực thấp do nợ vay lớn. ROE cao do đòn bẩy quá mức chứa đựng rủi ro tài chính cao, cần xem xét cơ cấu nợ vay và dòng tiền.\"* |\n\n---",
+            "charLength": 1288,
+            "tokenEstimate": 322,
+            "sectionType": "forbidden_example",
+            "isMaintainerOnly": false,
+            "safetyLevel": "low",
+            "score": 0,
+            "isForbiddenExample": false,
+            "isNegativeExample": true,
+            "isTestCase": false
+          }
+        ],
+        "warnings": [],
+        "debug": {
+          "corpusChunkCount": 27,
+          "candidateChunkCount": 22,
+          "excludedChunkCount": 5,
+          "selectedChunkCount": 4,
+          "scoring": [
+            {
+              "chunkId": "ai_guardrails:015:luat-an-toan-cho-ai",
+              "documentId": "ai_guardrails",
+              "sectionPath": [
+                "AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant",
+                "5. Cảnh Báo Đặc Thù Nhóm Ngành Tài Chính (Financial Sector Caveats)",
+                "Luật an toàn cho AI:"
+              ],
+              "score": 55,
+              "matchedKeywords": [
+                "chi",
+                "tai",
+                "chinh"
+              ],
+              "reasons": [
+                "selected document",
+                "sectionType=interpretation_boundary+13",
+                "heading keyword matches=chi,tai,chinh",
+                "ideal chunk length"
+              ]
+            },
+            {
+              "chunkId": "ai_guardrails:010:4-quy-tac-bien-ai-oi-voi-chi-so-tai-chinh-bi-meo-mo-invalid-fina",
+              "documentId": "ai_guardrails",
+              "sectionPath": [
+                "AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant",
+                "4. Quy Tắc Biên Ải Đối Với Chỉ Số Tài Chính Bị Méo Mó (Invalid Financial Ratio Rules)"
+              ],
+              "score": 47,
+              "matchedKeywords": [
+                "chi",
+                "tai",
+                "chinh"
+              ],
+              "reasons": [
+                "selected document",
+                "sectionType=concept+10",
+                "heading keyword matches=chi,tai,chinh"
+              ]
+            },
+            {
+              "chunkId": "ai_guardrails:014:5-canh-bao-ac-thu-nhom-nganh-tai-chinh-financial-sector-caveats",
+              "documentId": "ai_guardrails",
+              "sectionPath": [
+                "AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant",
+                "5. Cảnh Báo Đặc Thù Nhóm Ngành Tài Chính (Financial Sector Caveats)"
+              ],
+              "score": 42,
+              "matchedKeywords": [
+                "chi",
+                "tai",
+                "chinh"
+              ],
+              "reasons": [
+                "selected document",
+                "heading keyword matches=chi,tai,chinh",
+                "ideal chunk length"
+              ]
+            },
+            {
+              "chunkId": "ai_guardrails:011:4-1-eps-am-hoac-bang-0",
+              "documentId": "ai_guardrails",
+              "sectionPath": [
+                "AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant",
+                "4. Quy Tắc Biên Ải Đối Với Chỉ Số Tài Chính Bị Méo Mó (Invalid Financial Ratio Rules)",
+                "4.1. EPS âm hoặc bằng 0"
+              ],
+              "score": 42,
+              "matchedKeywords": [
+                "chi",
+                "tai",
+                "chinh"
+              ],
+              "reasons": [
+                "selected document",
+                "heading keyword matches=chi,tai,chinh",
+                "ideal chunk length"
+              ]
+            },
+            {
+              "chunkId": "ai_guardrails:013:4-3-thieu-dong-tien-hoat-ong-kinh-doanh-cfo",
+              "documentId": "ai_guardrails",
+              "sectionPath": [
+                "AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant",
+                "4. Quy Tắc Biên Ải Đối Với Chỉ Số Tài Chính Bị Méo Mó (Invalid Financial Ratio Rules)",
+                "4.3. Thiếu dòng tiền hoạt động kinh doanh (CFO)"
+              ],
+              "score": 42,
+              "matchedKeywords": [
+                "chi",
+                "tai",
+                "chinh"
+              ],
+              "reasons": [
+                "selected document",
+                "heading keyword matches=chi,tai,chinh",
+                "ideal chunk length"
+              ]
+            },
+            {
+              "chunkId": "ai_guardrails:012:4-2-von-chu-so-huu-equity-am-hoac-bang-0",
+              "documentId": "ai_guardrails",
+              "sectionPath": [
+                "AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant",
+                "4. Quy Tắc Biên Ải Đối Với Chỉ Số Tài Chính Bị Méo Mó (Invalid Financial Ratio Rules)",
+                "4.2. Vốn chủ sở hữu (Equity) âm hoặc bằng 0"
+              ],
+              "score": 42,
+              "matchedKeywords": [
+                "chi",
+                "tai",
+                "chinh"
+              ],
+              "reasons": [
+                "selected document",
+                "heading keyword matches=chi,tai,chinh",
+                "ideal chunk length"
+              ]
+            },
+            {
+              "chunkId": "ai_guardrails:009:3-2-quy-tac-xu-ly-thieu-du-lieu-missing-data-rules",
+              "documentId": "ai_guardrails",
+              "sectionPath": [
+                "AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant",
+                "3. Chống Bịa Đặt & Ảo Tưởng Dữ Liệu (Hallucination Prevention)",
+                "3.2. Quy tắc xử lý thiếu dữ liệu (Missing Data Rules)"
+              ],
+              "score": 36,
+              "matchedKeywords": [
+                "chi",
+                "tai",
+                "chinh"
+              ],
+              "reasons": [
+                "selected document",
+                "sectionType=missing_data+12",
+                "body keyword matches=chi,tai,chinh",
+                "ideal chunk length"
+              ]
+            },
+            {
+              "chunkId": "ai_guardrails:002:1-gioi-thieu-su-khac-biet-giua-cac-tai-lieu",
+              "documentId": "ai_guardrails",
+              "sectionPath": [
+                "AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant",
+                "1. Giới thiệu & Sự Khác Biệt Giữa Các Tài Liệu"
+              ],
+              "score": 30,
+              "matchedKeywords": [
+                "chi",
+                "tai",
+                "chinh"
+              ],
+              "reasons": [
+                "selected document",
+                "heading keyword matches=tai",
+                "body keyword matches=chi,chinh",
+                "ideal chunk length"
+              ]
+            },
+            {
+              "chunkId": "ai_guardrails:003:khac-biet-vai-tro",
+              "documentId": "ai_guardrails",
+              "sectionPath": [
+                "AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant",
+                "1. Giới thiệu & Sự Khác Biệt Giữa Các Tài Liệu",
+                "Khác biệt vai trò:"
+              ],
+              "score": 30,
+              "matchedKeywords": [
+                "chi",
+                "tai",
+                "chinh"
+              ],
+              "reasons": [
+                "selected document",
+                "heading keyword matches=tai",
+                "body keyword matches=chi,chinh",
+                "ideal chunk length"
+              ]
+            },
+            {
+              "chunkId": "rag_knowledge_base:005:4-quy-chuan-metadata-tagging-metadata-standards",
+              "documentId": "rag_knowledge_base",
+              "sectionPath": [
+                "RAG_KNOWLEDGE_BASE.md - Tổng Quan & Quy Chuẩn Kho Tri Thức RAG",
+                "4. Quy Chuẩn Metadata & Tagging (Metadata Standards)"
+              ],
+              "score": 27,
+              "matchedKeywords": [
+                "chi",
+                "tai",
+                "chinh",
+                "overview"
+              ],
+              "reasons": [
+                "selected document",
+                "body keyword matches=chi,tai,chinh,overview",
+                "ideal chunk length"
+              ]
+            },
+            {
+              "chunkId": "rag_knowledge_base:004:3-nguyen-tac-viet-tai-lieu-rag-writing-principles",
+              "documentId": "rag_knowledge_base",
+              "sectionPath": [
+                "RAG_KNOWLEDGE_BASE.md - Tổng Quan & Quy Chuẩn Kho Tri Thức RAG",
+                "3. Nguyên Tắc Viết Tài Liệu RAG (Writing Principles)"
+              ],
+              "score": 27,
+              "matchedKeywords": [
+                "chi",
+                "tai"
+              ],
+              "reasons": [
+                "selected document",
+                "heading keyword matches=tai",
+                "body keyword matches=chi",
+                "ideal chunk length"
+              ]
+            },
+            {
+              "chunkId": "rag_knowledge_base:008:6-moi-quan-he-giua-rag-va-ai-guardrails",
+              "documentId": "rag_knowledge_base",
+              "sectionPath": [
+                "RAG_KNOWLEDGE_BASE.md - Tổng Quan & Quy Chuẩn Kho Tri Thức RAG",
+                "6. Mối Quan Hệ Giữa RAG Và AI Guardrails"
+              ],
+              "score": 25,
+              "matchedKeywords": [
+                "chi",
+                "tai",
+                "chinh"
+              ],
+              "reasons": [
+                "selected document",
+                "sectionType=reference+1",
+                "body keyword matches=chi,tai,chinh",
+                "ideal chunk length"
+              ]
+            }
+          ]
+        }
+      },
+      "detectedIntent": "unknown",
+      "activeModule": "overview",
+      "packedContext": {
+        "contextText": "Intent: unknown\nActive module: overview\nSafety level: low\n\nSelected documents:\n- rag_knowledge_base | docs/rag/RAG_KNOWLEDGE_BASE.md | audience=end_user | purpose=Overview map of RAG knowledge documents and governance boundaries.\n- ai_guardrails | docs/ai/AI_GUARDRAILS.md | audience=internal_safety | purpose=Safety boundaries: no recommendation, no hallucination, no unsafe financial conclusions.\n\nExcluded documents:\n- rag_document_template | docs/rag/RAG_DOCUMENT_TEMPLATE.md\n- rag_metadata_standard | docs/rag/RAG_METADATA_STANDARD.md\n\nReasons:\n- No clear intent detected: use knowledge base overview and guardrails as safe fallback.\n- Maintainer documents are excluded for end-user financial questions.\n\nWarnings:\n- Intent is unclear; answer should stay general and avoid data-specific claims.",
+        "selectedDocumentIds": [
+          "rag_knowledge_base",
+          "ai_guardrails"
+        ],
+        "warnings": [
+          "Intent is unclear; answer should stay general and avoid data-specific claims."
+        ]
+      },
+      "prompt": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "You are the Atelier Finance AI assistant.\nRole: explain provided financial context, data quality, missing inputs, risk, valuation, PVT, and checklist discipline for a beginner-friendly analysis workflow.\n\nMandatory guardrails:\n- Answer in Vietnamese by default and explain concepts simply for beginner investors.\n- Never recommend buy/sell/hold or tell the user what trade action to take.\n- Never provide trading signals.\n- Never predict price direction.\n- Never provide fair value, target price, upside, or downside, even if the user asks.\n- Never provide subjective valuation conclusions like cheap, expensive, good, bad, attractive, promising, potential, or worth buying.\n- Instead, follow this example format for valuation:\n- User: Is the P/E of this stock cheap?\n- Assistant: The P/E ratio tells you how much the market is paying for each unit of earnings. It requires EPS to calculate. Check the Financials, Risk, and Industry context before forming an investment thesis.\n- Never fabricate data outside the provided context.\n- Use only allowed numeric values for numeric claims; do not calculate or infer an unprovided number.\n- Missing data must be represented as null/not_available/insufficient_data; never replace missing data with zero.\n- Do not divide by zero or interpret ratios when denominators are missing, zero, or invalid.\n- PVT is market observation, not a trading signal.\n- Risk score is not a final safe/bad stock conclusion.\n- Checklist is not an investment recommendation.\n- When productionApproved is false or the source is local/research/manual, explicitly say the evidence is research data and is not production-approved.\n- Encourage checking Financials, Valuation, Risk, Industry, and Macro before forming a conclusion.\n- RAG_DOCUMENT_TEMPLATE.md and RAG_METADATA_STANDARD.md are maintainer-intent only; do not use them for end-user financial answers.\n- Do not conclude the stock is good, bad, safe, cheap, or expensive from overview alone.\n\nActive module: Overview\nModule goal: Summarize the current picture without replacing detailed modules.\nModule focus:\n- Highlight key financial, valuation, risk, and PVT observations when they are present in context.\n- Point the user to the next module to inspect.\n\nResponse style:\n- Be concise and structured for a sidebar/panel.\n- Separate data, interpretation, limitations, and next checks.\n- If context is insufficient, say so explicitly.\n- Do not use negative examples or forbidden outputs as valid answer content."
+          },
+          {
+            "role": "user",
+            "content": "Assistant request:\nUser question: Chỉ số tài chính là gì?\nActive module: overview\nTicker: not_available\nCompany: not_available\nUser intent: unknown\n\nData quality summary:\nData quality: not provided\n\nMissing data summary:\nFields that must remain missing unless provided: none\nIf a required field is missing, do not infer it and do not fill it with zero.\n\nModule context:\nModule context moduleKey: overview\nModule context moduleName: unknown\nContext ticker: not_available\nContext companyName: not_available\nContext companyType: unknown\nContext industry: not_available\nContext period: not_available\nContext mock/sample data: no\nModule missing fields: none\nModule warnings: none\nModule metrics/context payload:\n{\n  \"moduleKey\": \"overview\",\n  \"ticker\": null,\n  \"companyName\": null,\n  \"source\": null,\n  \"timestamp\": null,\n  \"allowedNumericValues\": []\n}\n\nGrounded screen context:\nScreen context packet: not_available\nThe assistant does not have grounded screen facts. State that screen data is insufficient and do not infer missing values.\n\nRetrieved RAG chunks:\nRAG context: available\n\n[Chunk 1]\nchunkId: ai_guardrails:015:luat-an-toan-cho-ai\ndocumentId: ai_guardrails\nfilePath: docs/ai/AI_GUARDRAILS.md\ntitle: AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant\nsectionPath: AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant > 5. Cảnh Báo Đặc Thù Nhóm Ngành Tài Chính (Financial Sector Caveats) > Luật an toàn cho AI:\nsectionType: interpretation_boundary\nscore: 55\ntext:\n### Luật an toàn cho AI:\n*   Khi phân tích cổ phiếu Ngân hàng/Chứng khoán/Bảo hiểm, AI phải nêu rõ caveat (cảnh báo giới hạn): *\"Chỉ số đòn bẩy/dòng tiền này không phù hợp để đánh giá máy móc đối với tổ chức tài chính.\"*\n*   Chuyển hướng phân tích sang các chỉ số đặc thù của ngành này như P/B, chất lượng tài sản (nợ xấu, tỷ lệ bao phủ nợ xấu), hoặc hệ số an toàn vốn nếu có dữ liệu trong context.\n*   **Cross-reference:** Xem logic xử lý ngành tài chính tại [FINANCIAL_METRICS_LOGIC.md - Section 4.3](file:///c:/Users/ADMIN/Documents/Codex/2026-06-03/l-m-th-n-o-c/outputs/docs/financial-logic/FINANCIAL_METRICS_LOGIC.md#L431-L455) và [RISK_SCORE_LOGIC.md - Section 7.6](file:///c:/Users/ADMIN/Documents/Codex/2026-06-03/l-m-th-n-o-c/outputs/docs/financial-logic/RISK_SCORE_LOGIC.md#L478-L495).\n\n---\n\n[Chunk 2]\nchunkId: ai_guardrails:010:4-quy-tac-bien-ai-oi-voi-chi-so-tai-chinh-bi-meo-mo-invalid-fina\ndocumentId: ai_guardrails\nfilePath: docs/ai/AI_GUARDRAILS.md\ntitle: AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant\nsectionPath: AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant > 4. Quy Tắc Biên Ải Đối Với Chỉ Số Tài Chính Bị Méo Mó (Invalid Financial Ratio Rules)\nsectionType: concept\nscore: 47\ntext:\n## 4. Quy Tắc Biên Ải Đối Với Chỉ Số Tài Chính Bị Méo Mó (Invalid Financial Ratio Rules)\nKhi dữ liệu tài chính rơi vào các vùng đặc biệt nguy hiểm hoặc không phù hợp, AI không được giải thích theo cách máy móc thông thường:\n\n[Chunk 3]\nchunkId: ai_guardrails:014:5-canh-bao-ac-thu-nhom-nganh-tai-chinh-financial-sector-caveats\ndocumentId: ai_guardrails\nfilePath: docs/ai/AI_GUARDRAILS.md\ntitle: AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant\nsectionPath: AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant > 5. Cảnh Báo Đặc Thù Nhóm Ngành Tài Chính (Financial Sector Caveats)\nsectionType: unknown\nscore: 42\ntext:\n## 5. Cảnh Báo Đặc Thù Nhóm Ngành Tài Chính (Financial Sector Caveats)\n> [!CAUTION]\n> Các chỉ số đòn bẩy và thanh khoản như Debt/Equity, Current Ratio hay cách diễn giải Dòng tiền kinh doanh (CFO) của các doanh nghiệp sản xuất thông thường **không được áp dụng máy móc** cho nhóm Ngành Tài chính (Ngân hàng, Công ty Chứng khoán, Bảo hiểm).\n\n[Chunk 4]\nchunkId: ai_guardrails:011:4-1-eps-am-hoac-bang-0\ndocumentId: ai_guardrails\nfilePath: docs/ai/AI_GUARDRAILS.md\ntitle: AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant\nsectionPath: AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant > 4. Quy Tắc Biên Ải Đối Với Chỉ Số Tài Chính Bị Méo Mó (Invalid Financial Ratio Rules) > 4.1. EPS âm hoặc bằng 0\nsectionType: unknown\nscore: 42\ntext:\n### 4.1. EPS âm hoặc bằng 0\n*   **Hệ quả:** Chỉ số P/E không có ý nghĩa kinh tế thông thường khi EPS âm hoặc bằng 0.\n*   **Luật an toàn cho AI:** Không được dùng P/E để diễn giải là cổ phiếu \"rẻ\" hay \"đắt\". AI phải ghi nhận P/E là không phù hợp (Not Applicable), đồng thời cảnh báo người dùng kiểm tra nguyên nhân lợi nhuận âm.\n*   **Cross-reference:** Xem logic định giá khi EPS âm tại [VALUATION_LOGIC.md - Section 7.7](file:///c:/Users/ADMIN/Documents/Codex/2026-06-03/l-m-th-n-o-c/outputs/docs/financial-logic/VALUATION_LOGIC.md#L580-L594).\n\nAnswering instruction:\nUse only the provided module context and eligible retrieved chunks. If retrieved chunks are missing, say RAG context is not available instead of citing RAG knowledge. Return a safe educational analysis, not an investment decision."
+          }
+        ],
+        "promptText": "[system]\nYou are the Atelier Finance AI assistant.\nRole: explain provided financial context, data quality, missing inputs, risk, valuation, PVT, and checklist discipline for a beginner-friendly analysis workflow.\n\nMandatory guardrails:\n- Answer in Vietnamese by default and explain concepts simply for beginner investors.\n- Never recommend buy/sell/hold or tell the user what trade action to take.\n- Never provide trading signals.\n- Never predict price direction.\n- Never provide fair value, target price, upside, or downside, even if the user asks.\n- Never provide subjective valuation conclusions like cheap, expensive, good, bad, attractive, promising, potential, or worth buying.\n- Instead, follow this example format for valuation:\n- User: Is the P/E of this stock cheap?\n- Assistant: The P/E ratio tells you how much the market is paying for each unit of earnings. It requires EPS to calculate. Check the Financials, Risk, and Industry context before forming an investment thesis.\n- Never fabricate data outside the provided context.\n- Use only allowed numeric values for numeric claims; do not calculate or infer an unprovided number.\n- Missing data must be represented as null/not_available/insufficient_data; never replace missing data with zero.\n- Do not divide by zero or interpret ratios when denominators are missing, zero, or invalid.\n- PVT is market observation, not a trading signal.\n- Risk score is not a final safe/bad stock conclusion.\n- Checklist is not an investment recommendation.\n- When productionApproved is false or the source is local/research/manual, explicitly say the evidence is research data and is not production-approved.\n- Encourage checking Financials, Valuation, Risk, Industry, and Macro before forming a conclusion.\n- RAG_DOCUMENT_TEMPLATE.md and RAG_METADATA_STANDARD.md are maintainer-intent only; do not use them for end-user financial answers.\n- Do not conclude the stock is good, bad, safe, cheap, or expensive from overview alone.\n\nActive module: Overview\nModule goal: Summarize the current picture without replacing detailed modules.\nModule focus:\n- Highlight key financial, valuation, risk, and PVT observations when they are present in context.\n- Point the user to the next module to inspect.\n\nResponse style:\n- Be concise and structured for a sidebar/panel.\n- Separate data, interpretation, limitations, and next checks.\n- If context is insufficient, say so explicitly.\n- Do not use negative examples or forbidden outputs as valid answer content.\n\n[user]\nAssistant request:\nUser question: Chỉ số tài chính là gì?\nActive module: overview\nTicker: not_available\nCompany: not_available\nUser intent: unknown\n\nData quality summary:\nData quality: not provided\n\nMissing data summary:\nFields that must remain missing unless provided: none\nIf a required field is missing, do not infer it and do not fill it with zero.\n\nModule context:\nModule context moduleKey: overview\nModule context moduleName: unknown\nContext ticker: not_available\nContext companyName: not_available\nContext companyType: unknown\nContext industry: not_available\nContext period: not_available\nContext mock/sample data: no\nModule missing fields: none\nModule warnings: none\nModule metrics/context payload:\n{\n  \"moduleKey\": \"overview\",\n  \"ticker\": null,\n  \"companyName\": null,\n  \"source\": null,\n  \"timestamp\": null,\n  \"allowedNumericValues\": []\n}\n\nGrounded screen context:\nScreen context packet: not_available\nThe assistant does not have grounded screen facts. State that screen data is insufficient and do not infer missing values.\n\nRetrieved RAG chunks:\nRAG context: available\n\n[Chunk 1]\nchunkId: ai_guardrails:015:luat-an-toan-cho-ai\ndocumentId: ai_guardrails\nfilePath: docs/ai/AI_GUARDRAILS.md\ntitle: AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant\nsectionPath: AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant > 5. Cảnh Báo Đặc Thù Nhóm Ngành Tài Chính (Financial Sector Caveats) > Luật an toàn cho AI:\nsectionType: interpretation_boundary\nscore: 55\ntext:\n### Luật an toàn cho AI:\n*   Khi phân tích cổ phiếu Ngân hàng/Chứng khoán/Bảo hiểm, AI phải nêu rõ caveat (cảnh báo giới hạn): *\"Chỉ số đòn bẩy/dòng tiền này không phù hợp để đánh giá máy móc đối với tổ chức tài chính.\"*\n*   Chuyển hướng phân tích sang các chỉ số đặc thù của ngành này như P/B, chất lượng tài sản (nợ xấu, tỷ lệ bao phủ nợ xấu), hoặc hệ số an toàn vốn nếu có dữ liệu trong context.\n*   **Cross-reference:** Xem logic xử lý ngành tài chính tại [FINANCIAL_METRICS_LOGIC.md - Section 4.3](file:///c:/Users/ADMIN/Documents/Codex/2026-06-03/l-m-th-n-o-c/outputs/docs/financial-logic/FINANCIAL_METRICS_LOGIC.md#L431-L455) và [RISK_SCORE_LOGIC.md - Section 7.6](file:///c:/Users/ADMIN/Documents/Codex/2026-06-03/l-m-th-n-o-c/outputs/docs/financial-logic/RISK_SCORE_LOGIC.md#L478-L495).\n\n---\n\n[Chunk 2]\nchunkId: ai_guardrails:010:4-quy-tac-bien-ai-oi-voi-chi-so-tai-chinh-bi-meo-mo-invalid-fina\ndocumentId: ai_guardrails\nfilePath: docs/ai/AI_GUARDRAILS.md\ntitle: AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant\nsectionPath: AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant > 4. Quy Tắc Biên Ải Đối Với Chỉ Số Tài Chính Bị Méo Mó (Invalid Financial Ratio Rules)\nsectionType: concept\nscore: 47\ntext:\n## 4. Quy Tắc Biên Ải Đối Với Chỉ Số Tài Chính Bị Méo Mó (Invalid Financial Ratio Rules)\nKhi dữ liệu tài chính rơi vào các vùng đặc biệt nguy hiểm hoặc không phù hợp, AI không được giải thích theo cách máy móc thông thường:\n\n[Chunk 3]\nchunkId: ai_guardrails:014:5-canh-bao-ac-thu-nhom-nganh-tai-chinh-financial-sector-caveats\ndocumentId: ai_guardrails\nfilePath: docs/ai/AI_GUARDRAILS.md\ntitle: AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant\nsectionPath: AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant > 5. Cảnh Báo Đặc Thù Nhóm Ngành Tài Chính (Financial Sector Caveats)\nsectionType: unknown\nscore: 42\ntext:\n## 5. Cảnh Báo Đặc Thù Nhóm Ngành Tài Chính (Financial Sector Caveats)\n> [!CAUTION]\n> Các chỉ số đòn bẩy và thanh khoản như Debt/Equity, Current Ratio hay cách diễn giải Dòng tiền kinh doanh (CFO) của các doanh nghiệp sản xuất thông thường **không được áp dụng máy móc** cho nhóm Ngành Tài chính (Ngân hàng, Công ty Chứng khoán, Bảo hiểm).\n\n[Chunk 4]\nchunkId: ai_guardrails:011:4-1-eps-am-hoac-bang-0\ndocumentId: ai_guardrails\nfilePath: docs/ai/AI_GUARDRAILS.md\ntitle: AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant\nsectionPath: AI_GUARDRAILS.md - Luật An Toàn & Ranh Giới Cho AI Assistant > 4. Quy Tắc Biên Ải Đối Với Chỉ Số Tài Chính Bị Méo Mó (Invalid Financial Ratio Rules) > 4.1. EPS âm hoặc bằng 0\nsectionType: unknown\nscore: 42\ntext:\n### 4.1. EPS âm hoặc bằng 0\n*   **Hệ quả:** Chỉ số P/E không có ý nghĩa kinh tế thông thường khi EPS âm hoặc bằng 0.\n*   **Luật an toàn cho AI:** Không được dùng P/E để diễn giải là cổ phiếu \"rẻ\" hay \"đắt\". AI phải ghi nhận P/E là không phù hợp (Not Applicable), đồng thời cảnh báo người dùng kiểm tra nguyên nhân lợi nhuận âm.\n*   **Cross-reference:** Xem logic định giá khi EPS âm tại [VALUATION_LOGIC.md - Section 7.7](file:///c:/Users/ADMIN/Documents/Codex/2026-06-03/l-m-th-n-o-c/outputs/docs/financial-logic/VALUATION_LOGIC.md#L580-L594).\n\nAnswering instruction:\nUse only the provided module context and eligible retrieved chunks. If retrieved chunks are missing, say RAG context is not available instead of citing RAG knowledge. Return a safe educational analysis, not an investment decision.",
+        "usedChunkIds": [
+          "ai_guardrails:015:luat-an-toan-cho-ai",
+          "ai_guardrails:010:4-quy-tac-bien-ai-oi-voi-chi-so-tai-chinh-bi-meo-mo-invalid-fina",
+          "ai_guardrails:014:5-canh-bao-ac-thu-nhom-nganh-tai-chinh-financial-sector-caveats",
+          "ai_guardrails:011:4-1-eps-am-hoac-bang-0"
+        ],
+        "hasRagContext": true,
+        "guardrailReminders": [
+          "Answer in Vietnamese by default and explain concepts simply for beginner investors.",
+          "Never recommend buy/sell/hold or tell the user what trade action to take.",
+          "Never provide trading signals.",
+          "Never predict price direction.",
+          "Never provide fair value, target price, upside, or downside, even if the user asks.",
+          "Never provide subjective valuation conclusions like cheap, expensive, good, bad, attractive, promising, potential, or worth buying.",
+          "Instead, follow this example format for valuation:",
+          "User: Is the P/E of this stock cheap?",
+          "Assistant: The P/E ratio tells you how much the market is paying for each unit of earnings. It requires EPS to calculate. Check the Financials, Risk, and Industry context before forming an investment thesis.",
+          "Never fabricate data outside the provided context.",
+          "Use only allowed numeric values for numeric claims; do not calculate or infer an unprovided number.",
+          "Missing data must be represented as null/not_available/insufficient_data; never replace missing data with zero.",
+          "Do not divide by zero or interpret ratios when denominators are missing, zero, or invalid.",
+          "PVT is market observation, not a trading signal.",
+          "Risk score is not a final safe/bad stock conclusion.",
+          "Checklist is not an investment recommendation.",
+          "When productionApproved is false or the source is local/research/manual, explicitly say the evidence is research data and is not production-approved.",
+          "Encourage checking Financials, Valuation, Risk, Industry, and Macro before forming a conclusion.",
+          "RAG_DOCUMENT_TEMPLATE.md and RAG_METADATA_STANDARD.md are maintainer-intent only; do not use them for end-user financial answers.",
+          "Do not conclude the stock is good, bad, safe, cheap, or expensive from overview alone."
+        ]
+      },
+      "warnings": [
+        "Intent is unclear; answer should stay general and avoid data-specific claims."
+      ],
+      "safetyLevel": "low",
+      "missingContext": [
+        "moduleContext",
+        "dataQuality",
+        "source",
+        "timestamp"
+      ],
+      "contextPacket": null,
+      "debug": {
+        "pipeline": [
+          "select_rag_documents",
+          "pack_retrieval_context",
+          "select_retrieved_chunks",
+          "build_assistant_prompt"
+        ],
+        "noLlmCall": true,
+        "noApiCall": true,
+        "selectedDocumentCount": 2,
+        "hasActualRetrievedChunks": true,
+        "retrievedChunkCount": 4,
+        "excludedChunkCount": 5,
+        "allowedNumericValuesCount": 0,
+        "source": null,
+        "timestamp": null
+      }
+    },
+    "answer": "**Chỉ số tài chính là gì?**\n\nChỉ số tài chính là các số liệu được sử dụng để đánh giá tình hình tài chính của một công ty. Chúng giúp nhà đầu tư và các bên liên quan hiểu rõ hơn về hiệu suất hoạt động, khả năng sinh lời, và rủi ro của công ty. Một số chỉ số phổ biến bao gồm:\n\n1. **Tỷ lệ P/E (Price to Earnings)**: Cho biết giá thị trường của cổ phiếu so với lợi nhuận trên mỗi cổ phiếu (EPS).\n2. **Tỷ lệ P/B (Price to Book)**: So sánh giá cổ phiếu với giá trị sổ sách của công ty.\n3. **Tỷ lệ nợ trên vốn (Debt to Equity)**: Đo lường mức độ sử dụng nợ để tài trợ cho hoạt động của công ty.\n\n**Giới hạn và dữ liệu thiếu:**\n- Hiện tại, không có thông tin cụ thể về công ty hoặc chỉ số tài chính nào để phân tích.\n- Dữ liệu tài chính và ngữ cảnh không đủ để đưa ra phân tích chi tiết.\n\n**Kiểm tra tiếp theo:**\n- Để có cái nhìn rõ hơn, bạn nên kiểm tra các thông tin về tài chính, đánh giá, rủi ro, ngành công nghiệp và các yếu tố vĩ mô liên quan.",
+    "llmStatus": "completed",
+    "message": "Assistant provider response passed output guardrail validation.",
+    "providerResponse": {
+      "ok": true,
+      "status": "completed",
+      "answer": "**Chỉ số tài chính là gì?**\n\nChỉ số tài chính là các số liệu được sử dụng để đánh giá tình hình tài chính của một công ty. Chúng giúp nhà đầu tư và các bên liên quan hiểu rõ hơn về hiệu suất hoạt động, khả năng sinh lời, và rủi ro của công ty. Một số chỉ số phổ biến bao gồm:\n\n1. **Tỷ lệ P/E (Price to Earnings)**: Cho biết giá thị trường của cổ phiếu so với lợi nhuận trên mỗi cổ phiếu (EPS).\n2. **Tỷ lệ P/B (Price to Book)**: So sánh giá cổ phiếu với giá trị sổ sách của công ty.\n3. **Tỷ lệ nợ trên vốn (Debt to Equity)**: Đo lường mức độ sử dụng nợ để tài trợ cho hoạt động của công ty.\n\n**Giới hạn và dữ liệu thiếu:**\n- Hiện tại, không có thông tin cụ thể về công ty hoặc chỉ số tài chính nào để phân tích.\n- Dữ liệu tài chính và ngữ cảnh không đủ để đưa ra phân tích chi tiết.\n\n**Kiểm tra tiếp theo:**\n- Để có cái nhìn rõ hơn, bạn nên kiểm tra các thông tin về tài chính, đánh giá, rủi ro, ngành công nghiệp và các yếu tố vĩ mô liên quan.",
+      "providerId": "openai-chat-completions",
+      "model": "gpt-4o-mini-2024-07-18",
+      "raw": {
+        "id": "chatcmpl-DueuKSVa1wc9AVzMQaRFYq2pR7Oey"
+      }
+    },
+    "validation": {
+      "isValid": true,
+      "severity": "none",
+      "violations": [],
+      "shouldRefuse": false,
+      "warnings": [
+        {
+          "code": "LOW_CONTEXT_NUMERIC_CHECK",
+          "message": "No allowed numeric context was provided, so fabricated numeric data can only be partially checked."
+        }
+      ]
+    },
+    "violations": [],
+    "refusal": null
+  }
+}
