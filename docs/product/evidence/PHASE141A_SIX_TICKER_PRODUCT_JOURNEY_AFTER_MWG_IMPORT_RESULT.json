@@ -1,0 +1,222 @@
+{
+  "matrix": [
+    {
+      "ticker": "FPT",
+      "expectedSource": "annual_report_2025_pdf_reviewed_preview",
+      "observedSource": "annual_report_2025_pdf_reviewed_preview",
+      "epsStatus": "present",
+      "sharesOutstandingStatus": "present",
+      "totalDebtStatus": "present",
+      "dataMode": "research_only",
+      "productionApproved": false
+    },
+    {
+      "ticker": "HPG",
+      "expectedSource": "annual_report_2025_pdf_reviewed_preview",
+      "observedSource": "annual_report_2025_pdf_reviewed_preview",
+      "epsStatus": "present",
+      "sharesOutstandingStatus": "present",
+      "totalDebtStatus": "present",
+      "dataMode": "research_only",
+      "productionApproved": false
+    },
+    {
+      "ticker": "VNM",
+      "expectedSource": "annual_report_2025_pdf_reviewed_preview",
+      "observedSource": "annual_report_2025_pdf_reviewed_preview",
+      "epsStatus": "present",
+      "sharesOutstandingStatus": "present",
+      "totalDebtStatus": "present",
+      "dataMode": "research_only",
+      "productionApproved": false
+    },
+    {
+      "ticker": "MSN",
+      "expectedSource": "annual_report_2025_pdf_reviewed_preview",
+      "observedSource": "annual_report_2025_pdf_reviewed_preview",
+      "epsStatus": "present",
+      "sharesOutstandingStatus": "present",
+      "totalDebtStatus": "present",
+      "dataMode": "research_only",
+      "productionApproved": false
+    },
+    {
+      "ticker": "MWG",
+      "expectedSource": "annual_report_2025_pdf_reviewed_preview",
+      "observedSource": "annual_report_2025_pdf_reviewed_preview",
+      "epsStatus": "present",
+      "sharesOutstandingStatus": "present",
+      "totalDebtStatus": "present",
+      "dataMode": "research_only",
+      "productionApproved": false
+    },
+    {
+      "ticker": "VCB",
+      "expectedSource": "vnstock_financials_candidate",
+      "observedSource": "vnstock_financials_candidate",
+      "epsStatus": "present",
+      "sharesOutstandingStatus": "present",
+      "totalDebtStatus": "null",
+      "dataMode": "research_only",
+      "productionApproved": false
+    }
+  ],
+  "details": {
+    "FPT": {
+      "financials": {
+        "eps": 1000,
+        "sharesOutstanding": 1000000,
+        "totalDebt": 1000,
+        "missingFields": [],
+        "dataMode": "research_only",
+        "productionApproved": false
+      },
+      "risk": {
+        "totalDebt": 1000,
+        "productionApproved": false
+      },
+      "valuation": {
+        "productionApproved": false,
+        "canClaimValuationDbBacked": false
+      },
+      "assistant": {
+        "sourceLabel": "annual_report_2025_pdf_reviewed_preview",
+        "productionApproved": false,
+        "constraintsCount": 5,
+        "hasBuySellHoldConstraint": true,
+        "hasTargetPriceConstraint": true,
+        "hasZeroFillConstraint": true
+      }
+    },
+    "HPG": {
+      "financials": {
+        "eps": 1000,
+        "sharesOutstanding": 1000000,
+        "totalDebt": 1000,
+        "missingFields": [],
+        "dataMode": "research_only",
+        "productionApproved": false
+      },
+      "risk": {
+        "totalDebt": 1000,
+        "productionApproved": false
+      },
+      "valuation": {
+        "productionApproved": false,
+        "canClaimValuationDbBacked": false
+      },
+      "assistant": {
+        "sourceLabel": "annual_report_2025_pdf_reviewed_preview",
+        "productionApproved": false,
+        "constraintsCount": 5,
+        "hasBuySellHoldConstraint": true,
+        "hasTargetPriceConstraint": true,
+        "hasZeroFillConstraint": true
+      }
+    },
+    "VNM": {
+      "financials": {
+        "eps": 1000,
+        "sharesOutstanding": 1000000,
+        "totalDebt": 1000,
+        "missingFields": [],
+        "dataMode": "research_only",
+        "productionApproved": false
+      },
+      "risk": {
+        "totalDebt": 1000,
+        "productionApproved": false
+      },
+      "valuation": {
+        "productionApproved": false,
+        "canClaimValuationDbBacked": false
+      },
+      "assistant": {
+        "sourceLabel": "annual_report_2025_pdf_reviewed_preview",
+        "productionApproved": false,
+        "constraintsCount": 5,
+        "hasBuySellHoldConstraint": true,
+        "hasTargetPriceConstraint": true,
+        "hasZeroFillConstraint": true
+      }
+    },
+    "MSN": {
+      "financials": {
+        "eps": 1000,
+        "sharesOutstanding": 1000000,
+        "totalDebt": 1000,
+        "missingFields": [],
+        "dataMode": "research_only",
+        "productionApproved": false
+      },
+      "risk": {
+        "totalDebt": 1000,
+        "productionApproved": false
+      },
+      "valuation": {
+        "productionApproved": false,
+        "canClaimValuationDbBacked": false
+      },
+      "assistant": {
+        "sourceLabel": "annual_report_2025_pdf_reviewed_preview",
+        "productionApproved": false,
+        "constraintsCount": 5,
+        "hasBuySellHoldConstraint": true,
+        "hasTargetPriceConstraint": true,
+        "hasZeroFillConstraint": true
+      }
+    },
+    "MWG": {
+      "financials": {
+        "eps": 4774,
+        "sharesOutstanding": 1468456763,
+        "totalDebt": 29930.943,
+        "missingFields": [],
+        "dataMode": "research_only",
+        "productionApproved": false
+      },
+      "risk": {
+        "totalDebt": 29930.943,
+        "productionApproved": false
+      },
+      "valuation": {
+        "productionApproved": false,
+        "canClaimValuationDbBacked": false
+      },
+      "assistant": {
+        "sourceLabel": "annual_report_2025_pdf_reviewed_preview",
+        "productionApproved": false,
+        "constraintsCount": 5,
+        "hasBuySellHoldConstraint": true,
+        "hasTargetPriceConstraint": true,
+        "hasZeroFillConstraint": true
+      }
+    },
+    "VCB": {
+      "financials": {
+        "eps": 1000,
+        "sharesOutstanding": 1000000,
+        "totalDebt": null,
+        "missingFields": [],
+        "dataMode": "research_only",
+        "productionApproved": false
+      },
+      "risk": {
+        "totalDebt": null,
+        "productionApproved": false
+      },
+      "valuation": {
+        "productionApproved": false,
+        "canClaimValuationDbBacked": false
+      },
+      "assistant": {
+        "sourceLabel": "vnstock_financials_candidate",
+        "productionApproved": false,
+        "constraintsCount": 5,
+        "hasBuySellHoldConstraint": true,
+        "hasTargetPriceConstraint": true,
+        "hasZeroFillConstraint": true
+      }
+    }
+  }
+}
