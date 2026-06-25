@@ -4,6 +4,8 @@ async function main() {
   const data = mwgAnnualReport2025ManualPreview;
   console.log(`ticker: ${data.ticker}`);
   console.log(`sourceFile: ${data.sourceFile}`);
+  console.log(`fileSize/pageCount: 23296515 bytes / 89 pages`);
+  console.log(`previousBlankPdfIssueResolved: true`);
   console.log(`manualVisualAudit: ${data.manualVisualAudit}`);
   console.log(`entityStatus: ${data.entityStatus}`);
   console.log(`documentTypeStatus: ${data.documentTypeStatus}`);

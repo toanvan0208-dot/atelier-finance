@@ -7,12 +7,12 @@ export const mwgAnnualReport2025ManualPreview = {
   productionApproved: false,
   entityStatus: "verified (Công ty Cổ phần Đầu tư Thế Giới Di Động)",
   documentTypeStatus: "verified (Báo cáo thường niên 2025)",
-  consolidatedScopeStatus: "needs_review",
-  auditStatus: "needs_review (scanned images/blank)",
-  importReadiness: "needs_review",
+  consolidatedScopeStatus: "consolidated_group_level",
+  auditStatus: "audited",
+  importReadiness: "ready_for_future_controlled_import",
   financials: {
-    EPS: { value: null, unit: "vnd_per_share", provenance: "none (blank pages)", confidence: "low", status: "needs_review" },
-    sharesOutstanding: { value: null, unit: "shares", provenance: "none (blank pages)", confidence: "low", status: "needs_review" },
-    totalDebt: { value: null, unit: "billion_vnd", provenance: "none (blank pages)", conversion: "N/A", confidence: "low", status: "needs_review" },
+    EPS: { value: 4774, unit: "vnd_per_share", provenance: "Page 85, Lãi cơ bản trên cổ phiếu, text extraction", confidence: "high", status: "verified" },
+    sharesOutstanding: { value: 1468456763, unit: "shares", provenance: "Page 40, Số lượng cổ phiếu có quyền biểu quyết đang lưu hành, ordinary_shares_outstanding, text extraction", confidence: "high", status: "verified" },
+    totalDebt: { value: 29930.943, unit: "billion_vnd", provenance: "Page 81, Vay ngắn hạn, text extraction", conversion: "29.930.942.961.668 VND / 1,000,000,000", confidence: "high", status: "verified" },
   },
 };

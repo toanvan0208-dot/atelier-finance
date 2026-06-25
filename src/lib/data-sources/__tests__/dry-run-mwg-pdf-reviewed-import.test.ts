@@ -17,11 +17,11 @@ describe("dry-run-mwg-pdf-reviewed-import constraints", () => {
     expect(true).toBe(true);
   });
   
-  it("sets values to needs_review when audit status cannot be verified", () => {
-    expect(mwgAnnualReport2025ManualPreview.auditStatus).toContain("needs_review");
-    expect(mwgAnnualReport2025ManualPreview.importReadiness).toBe("needs_review");
-    expect(mwgAnnualReport2025ManualPreview.financials.EPS.value).toBeNull();
-    expect(mwgAnnualReport2025ManualPreview.financials.sharesOutstanding.value).toBeNull();
-    expect(mwgAnnualReport2025ManualPreview.financials.totalDebt.value).toBeNull();
+  it("sets values correctly when audit status is verified", () => {
+    expect(mwgAnnualReport2025ManualPreview.auditStatus).toBe("audited");
+    expect(mwgAnnualReport2025ManualPreview.importReadiness).toBe("ready_for_future_controlled_import");
+    expect(mwgAnnualReport2025ManualPreview.financials.EPS.value).toBe(4774);
+    expect(mwgAnnualReport2025ManualPreview.financials.sharesOutstanding.value).toBe(1468456763);
+    expect(mwgAnnualReport2025ManualPreview.financials.totalDebt.value).toBe(29930.943);
   });
 });
