@@ -1,0 +1,49 @@
+{
+  "phase": "142G-P",
+  "name": "Staging PostgreSQL readiness plan and environment contract",
+  "branch": "phase-142f-postgres-docker-dry-run",
+  "startingCommit": "72e6182dd9342c1b8580d6acd8418ef4d753da03",
+  "filesChanged": [
+    "docs/product/POSTGRES_STAGING_READINESS_CONTRACT.md",
+    "docs/product/POSTGRES_STAGING_DRY_RUN_CHECKLIST.md",
+    "docs/product/evidence/PHASE142G_P_POSTGRES_STAGING_READINESS_PLAN.md",
+    "docs/product/evidence/PHASE142G_P_POSTGRES_STAGING_READINESS_PLAN_RESULT.json"
+  ],
+  "stagingDbCreated": false,
+  "stagingMigrateRun": false,
+  "productionCredentialsUsed": false,
+  "dataImport": false,
+  "productionDeploy": false,
+  "mergedToMain": false,
+  "contractCreated": true,
+  "checklistCreated": true,
+  "skippedTestsAcknowledged": {
+    "countFiles": 7,
+    "countTests": 48,
+    "files": [
+      "financial-statement-csv-to-prisma-temp-db-write-trial.test.ts",
+      "fpt-financial-statement-prisma-temp-db-write-verification.test.ts",
+      "financials-unit-metadata-sidecar-schema.test.ts",
+      "fpt-pdf-reviewed-post-import-smoke.test.ts",
+      "hpg-pdf-reviewed-post-import-smoke.test.ts",
+      "msn-pdf-reviewed-post-import-smoke.test.ts",
+      "market-pvt-unit-metadata-persistence-boundary.test.ts"
+    ]
+  },
+  "readiness": {
+    "readyFor142GActual": true,
+    "readyForMainMerge": false,
+    "readyForProduction": false
+  },
+  "remainingBlockers": [
+    "7 test files skip phụ thuộc vào SQLite và test data từ dev.db",
+    "Các test post-import smoke cần được mock data lại hoặc sử dụng test-container thay vì phụ thuộc database file cứng."
+  ],
+  "validation": {
+    "prismaValidate": "pass",
+    "typecheck": "pass",
+    "lint": "pass"
+  },
+  "commit": "[Pending Commit]",
+  "pushed": false
+}
