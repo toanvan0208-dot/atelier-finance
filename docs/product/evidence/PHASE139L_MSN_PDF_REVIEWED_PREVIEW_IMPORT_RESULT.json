@@ -1,0 +1,60 @@
+{
+  "phase": "139L",
+  "ticker": "MSN",
+  "sourceLabel": "annual_report_2025_pdf_reviewed_preview",
+  "dataMode": "research_only",
+  "productionApproved": false,
+  "dryRun": {
+    "acceptedRows": 1,
+    "invalidRows": 0
+  },
+  "confirmWrite": {
+    "writtenRows": 1,
+    "skippedRows": 0,
+    "invalidRows": 0
+  },
+  "duplicateRun": {
+    "writtenRows": 0,
+    "skippedRows": 1,
+    "invalidRows": 0
+  },
+  "importedValues": {
+    "eps": {
+      "value": 2710,
+      "unit": "vnd_per_share"
+    },
+    "sharesOutstanding": {
+      "value": 1520491927,
+      "unit": "shares"
+    },
+    "totalDebt": {
+      "sourceValue": 64877178,
+      "sourceUnit": "million_vnd",
+      "conversionRule": "divide by 1,000",
+      "value": 64877.178,
+      "unit": "billion_vnd"
+    }
+  },
+  "runtime": {
+    "sourceLabel": "annual_report_2025_pdf_reviewed_preview",
+    "fallbackUsed": false,
+    "eps": 2710,
+    "sharesOutstanding": 1520491927,
+    "totalDebt": 64877.178
+  },
+  "preservedSources": {
+    "MSN": [
+      "annual_report_2025_pdf_reviewed_preview",
+      "vnstock_financials_candidate"
+    ],
+    "FPT": "annual_report_2025_pdf_reviewed_preview",
+    "HPG": "annual_report_2025_pdf_reviewed_preview",
+    "VNM": "annual_report_2025_pdf_reviewed_preview",
+    "MWG": "phase109_controlled_local_financials",
+    "VCB": "vnstock_financials_candidate"
+  },
+  "secondaryFieldsImported": false,
+  "schemaChanged": false,
+  "migrationCreated": false,
+  "pdfBinaryCommitted": false
+}
