@@ -1,0 +1,30 @@
+{
+  "phase": "142A",
+  "currentDbProvider": "sqlite",
+  "localDevDb": "dev.db",
+  "productionDbTarget": "postgresql",
+  "recommendedStrategy": "Fresh PostgreSQL + Prisma migrate + deterministic seed",
+  "shouldUseDevDbForProduction": false,
+  "vcbHandling": {
+    "path": "vnstock_financials_candidate",
+    "totalDebt": "null / needs_bank_mapping"
+  },
+  "reviewedPreviewTickers": [
+    "FPT",
+    "HPG",
+    "VNM",
+    "MSN",
+    "MWG"
+  ],
+  "reviewedPreviewSourceLabel": "annual_report_2025_pdf_reviewed_preview",
+  "fieldsToImport": [
+    "eps",
+    "sharesOutstanding",
+    "totalDebt"
+  ],
+  "productionApproved": false,
+  "envChecklist": [
+    "DATABASE_URL",
+    "OPENAI_API_KEY"
+  ]
+}
