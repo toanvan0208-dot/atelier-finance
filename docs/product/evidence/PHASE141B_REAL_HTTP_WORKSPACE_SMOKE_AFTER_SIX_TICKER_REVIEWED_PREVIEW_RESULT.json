@@ -1,0 +1,78 @@
+{
+  "matrix": [
+    {
+      "ticker": "FPT",
+      "expectedSource": "annual_report_2025_pdf_reviewed_preview",
+      "observedSource": "annual_report_2025_pdf_reviewed_preview",
+      "workspaceStatus": 200,
+      "epsStatus": "checked",
+      "sharesOutstandingStatus": "checked",
+      "totalDebtStatus": "present",
+      "productionApproved": "possibly_true",
+      "notes": "Route 200, SSR badges found: false"
+    },
+    {
+      "ticker": "HPG",
+      "expectedSource": "annual_report_2025_pdf_reviewed_preview",
+      "observedSource": "annual_report_2025_pdf_reviewed_preview",
+      "workspaceStatus": 200,
+      "epsStatus": "checked",
+      "sharesOutstandingStatus": "checked",
+      "totalDebtStatus": "present",
+      "productionApproved": "possibly_true",
+      "notes": "Route 200, SSR badges found: false"
+    },
+    {
+      "ticker": "VNM",
+      "expectedSource": "annual_report_2025_pdf_reviewed_preview",
+      "observedSource": "annual_report_2025_pdf_reviewed_preview",
+      "workspaceStatus": 200,
+      "epsStatus": "checked",
+      "sharesOutstandingStatus": "checked",
+      "totalDebtStatus": "present",
+      "productionApproved": "possibly_true",
+      "notes": "Route 200, SSR badges found: false"
+    },
+    {
+      "ticker": "MSN",
+      "expectedSource": "annual_report_2025_pdf_reviewed_preview",
+      "observedSource": "annual_report_2025_pdf_reviewed_preview",
+      "workspaceStatus": 200,
+      "epsStatus": "checked",
+      "sharesOutstandingStatus": "checked",
+      "totalDebtStatus": "present",
+      "productionApproved": "possibly_true",
+      "notes": "Route 200, SSR badges found: false"
+    },
+    {
+      "ticker": "MWG",
+      "expectedSource": "annual_report_2025_pdf_reviewed_preview",
+      "observedSource": "annual_report_2025_pdf_reviewed_preview",
+      "workspaceStatus": 200,
+      "epsStatus": "checked",
+      "sharesOutstandingStatus": "checked",
+      "totalDebtStatus": "present",
+      "productionApproved": "possibly_true",
+      "notes": "Route 200, SSR badges found: false"
+    },
+    {
+      "ticker": "VCB",
+      "expectedSource": "vnstock_financials_candidate",
+      "observedSource": "vnstock_financials_candidate",
+      "workspaceStatus": 200,
+      "epsStatus": "checked",
+      "sharesOutstandingStatus": "checked",
+      "totalDebtStatus": "unknown",
+      "productionApproved": "possibly_true",
+      "notes": "Route 200, SSR badges found: false"
+    }
+  ],
+  "details": {
+    "assistantApiStatus": 400
+  },
+  "gaps": [
+    "P0: Found investment advice \"hấp dẫn\" in SSR HTML for FPT",
+    "P0: Found investment advice \"hấp dẫn\" in SSR HTML for VNM",
+    "P0: Found investment advice \"hấp dẫn\" in SSR HTML for MWG"
+  ]
+}
