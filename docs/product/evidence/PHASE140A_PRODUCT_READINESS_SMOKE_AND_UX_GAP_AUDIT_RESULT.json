@@ -1,0 +1,50 @@
+[
+  {
+    "ticker": "FPT",
+    "source": "annual_report_2025_pdf_reviewed_preview",
+    "epsStatus": "present",
+    "sharesOutstandingStatus": "present",
+    "totalDebtStatus": "present",
+    "productionApproved": false
+  },
+  {
+    "ticker": "HPG",
+    "source": "annual_report_2025_pdf_reviewed_preview",
+    "epsStatus": "present",
+    "sharesOutstandingStatus": "present",
+    "totalDebtStatus": "present",
+    "productionApproved": false
+  },
+  {
+    "ticker": "VNM",
+    "source": "annual_report_2025_pdf_reviewed_preview",
+    "epsStatus": "present",
+    "sharesOutstandingStatus": "present",
+    "totalDebtStatus": "present",
+    "productionApproved": false
+  },
+  {
+    "ticker": "MSN",
+    "source": "annual_report_2025_pdf_reviewed_preview",
+    "epsStatus": "present",
+    "sharesOutstandingStatus": "present",
+    "totalDebtStatus": "present",
+    "productionApproved": false
+  },
+  {
+    "ticker": "MWG",
+    "source": "phase109_controlled_local_financials",
+    "epsStatus": "present",
+    "sharesOutstandingStatus": "present",
+    "totalDebtStatus": "present",
+    "productionApproved": false
+  },
+  {
+    "ticker": "VCB",
+    "source": "vnstock_financials_candidate",
+    "epsStatus": "present",
+    "sharesOutstandingStatus": "present",
+    "totalDebtStatus": "needs_bank_mapping",
+    "productionApproved": false
+  }
+]
