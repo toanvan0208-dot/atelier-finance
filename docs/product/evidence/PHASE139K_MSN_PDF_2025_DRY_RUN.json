@@ -1,0 +1,86 @@
+{
+  "phase": "139K",
+  "mode": "preview_dry_run_only",
+  "pdfFile": "docs/product/evidence/source-pdfs/MSN_Baocaothuongnien_2025.pdf",
+  "entityIdentity": {
+    "companyName": "Công ty Cổ phần Tập đoàn Masan",
+    "ticker": "MSN",
+    "reportTitle": "Báo cáo Thường niên 2025",
+    "consolidatedTitle": "Báo cáo tài chính hợp nhất của Công ty Cổ phần Tập đoàn Masan và các công ty con",
+    "auditor": "Chi nhánh Công ty TNHH KPMG Việt Nam",
+    "auditorReportNumber": "25-01-01312-26-2",
+    "status": "valid_msn_consolidated",
+    "subsidiaryOnlyRuledOut": true
+  },
+  "dryRunImportCandidate": {
+    "ticker": "MSN",
+    "fiscalYear": 2025,
+    "sourceLabel": "annual_report_2025_pdf_reviewed_preview",
+    "dataMode": "research_only",
+    "productionApproved": false,
+    "status": "dry_run_import_candidate",
+    "values": {
+      "eps": {
+        "sourceValue": 2710,
+        "sourceUnit": "vnd_per_share",
+        "normalizedValue": 2710,
+        "normalizedUnit": "vnd_per_share",
+        "status": "preview",
+        "pdfPage": 102,
+        "reportPages": "206-207",
+        "section": "Thuyết minh 36(c) - Lãi cơ bản trên cổ phiếu"
+      },
+      "sharesOutstanding": {
+        "sourceValue": 1520491927,
+        "sourceUnit": "shares",
+        "normalizedValue": 1520491927,
+        "normalizedUnit": "shares",
+        "status": "preview",
+        "pdfPage": 97,
+        "reportPages": "196-197",
+        "section": "Thuyết minh 23 - Vốn cổ phần và thặng dư vốn cổ phần"
+      },
+      "totalDebt": {
+        "sourceValue": 64877178,
+        "sourceUnit": "million_vnd",
+        "normalizedValue": 64877.178,
+        "normalizedUnit": "billion_vnd",
+        "conversionRule": "million VND / 1,000",
+        "status": "derived_preview",
+        "pdfPage": 64,
+        "reportPages": "130-131",
+        "section": "Bảng cân đối kế toán hợp nhất - Nguồn vốn",
+        "components": [
+          {
+            "label": "Vay, trái phiếu phát hành và nợ thuê tài chính ngắn hạn",
+            "value": 24330984,
+            "unit": "million_vnd"
+          },
+          {
+            "label": "Vay, trái phiếu phát hành và nợ thuê tài chính dài hạn",
+            "value": 40546194,
+            "unit": "million_vnd"
+          }
+        ]
+      }
+    },
+    "existingRuntime": {
+      "sourceLabel": "vnstock_financials_candidate",
+      "eps": 2710,
+      "sharesOutstanding": 1520491927,
+      "totalDebt": null
+    },
+    "collisionRecommendation": "Create a parallel reviewed-preview row in a later controlled import phase; do not overwrite the vnstock candidate and do not change runtime priority in Phase 139K.",
+    "importReadiness": "ready_for_future_controlled_import"
+  },
+  "safeguards": {
+    "databaseWrite": false,
+    "importExecuted": false,
+    "confirmWriteExecuted": false,
+    "schemaChanged": false,
+    "migrationCreated": false,
+    "runtimePriorityChanged": false,
+    "productionApproved": false,
+    "pdfBinaryCommitted": false
+  }
+}
