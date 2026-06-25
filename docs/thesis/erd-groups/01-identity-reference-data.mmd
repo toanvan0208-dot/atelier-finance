@@ -1,0 +1,32 @@
+erDiagram
+    USER {
+        String id PK
+        String email UK
+        String displayName
+        DateTime createdAt
+        DateTime updatedAt
+    }
+
+    INDUSTRY {
+        String id PK
+        String industryCode UK
+        String industryName
+        String classificationSystem
+        String description
+    }
+
+    COMPANY {
+        String id PK
+        String industryId FK
+        String profileSourceId FK
+        String ticker
+        String exchange
+        String companyName
+        String companyType
+        String country
+        String currency
+        String dataMode
+        DateTime profileAsOf
+    }
+
+    INDUSTRY ||--o{ COMPANY : classifies

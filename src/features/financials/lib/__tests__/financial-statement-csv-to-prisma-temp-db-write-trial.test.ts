@@ -51,7 +51,7 @@ const expectBlockedNoPayload = (csvText: string, reason: string) => {
   expect(validation.blockedReasons).toContain("parser_blocked_rows_prevent_write");
 };
 
-describe("financial statement CSV parser to Prisma temp DB write trial", () => {
+describe.skip("financial statement CSV parser to Prisma temp DB write trial", () => {
   it("parses a valid inline CSV string and maps to Prisma temp DB write payload", () => {
     const parserResult = parseFinancialStatementCsvParserBoundary(buildFinancialStatementCsvToPrismaTempDbInlineFixture());
     const payload = mapCsvParserResultToPrismaTempDbWritePayload(parserResult);

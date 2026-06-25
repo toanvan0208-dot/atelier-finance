@@ -1,0 +1,96 @@
+erDiagram
+    USER {
+        String id PK
+        String email UK
+    }
+
+    COMPANY {
+        String id PK
+        String ticker
+        String companyName
+    }
+
+    DATA_SOURCE {
+        String id PK
+        String name
+        String sourceType
+        String supportedDataGroups
+        String usageStatus
+        String licenseStatus
+        String tosStatus
+        String accessMethod
+        String runtimeDisplayAllowed
+        String cachingAllowed
+        String redistributionAllowed
+        String attributionText
+    }
+
+    SOURCE_EVIDENCE {
+        String id PK
+        String sourceId FK
+        String homepageUrl
+        String documentationUrl
+        String licenseUrl
+        String termsUrl
+        String evidenceStatus
+        DateTime reviewedAt
+        String reviewedBy
+        String risks
+        String blockedReason
+    }
+
+    IMPORT_JOB {
+        String id PK
+        String userId FK
+        String sourceId FK
+        String jobType
+        String mode
+        String fileName
+        String targetTicker
+        String targetPeriod
+        Int rowCount
+        Int validRowCount
+        Int warningRowCount
+        Int errorRowCount
+        String status
+        String readiness
+    }
+
+    MANUAL_IMPORT_RECORD {
+        String id PK
+        String importJobId FK
+        String companyId FK
+        Int rowIndex
+        String rawPayload
+        String normalizedPayload
+        String targetEntityType
+        String targetEntityId
+        String dataMode
+        String readiness
+        String qualityStatus
+        String missingFields
+        String warnings
+        String errors
+    }
+
+    DATA_QUALITY_REPORT {
+        String id PK
+        String importJobId FK
+        String scopeType
+        String scopeId
+        String qualityStatus
+        String readiness
+        String missingFields
+        String warningCodes
+        String errorCodes
+        String fieldCoverage
+        String calculationVersion
+        DateTime generatedAt
+    }
+
+    DATA_SOURCE ||--o{ SOURCE_EVIDENCE : documented_by
+    DATA_SOURCE ||--o{ IMPORT_JOB : feeds
+    USER ||--o{ IMPORT_JOB : initiates
+    IMPORT_JOB ||--o{ MANUAL_IMPORT_RECORD : contains
+    IMPORT_JOB ||--o{ DATA_QUALITY_REPORT : produces
+    COMPANY ||--o{ MANUAL_IMPORT_RECORD : targets

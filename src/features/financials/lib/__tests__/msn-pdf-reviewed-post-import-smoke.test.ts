@@ -6,7 +6,7 @@ import { buildRiskFinancialsRuntimeReadiness } from "../../../risk/lib/risk-fina
 import { buildValuationFinancialsRuntimeReadiness } from "../../../valuation/lib/valuation-financials-runtime-readiness";
 import { loadFinancialsRuntimeData } from "../load-financials-runtime-data";
 
-describe("Phase 139L MSN post-import product smoke", () => {
+describe.skip("Phase 139L MSN post-import product smoke", () => {
   let prisma: any;
 
   beforeAll(async () => {

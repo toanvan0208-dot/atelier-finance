@@ -1,0 +1,71 @@
+erDiagram
+    MACRO_INDICATOR {
+        String id PK
+        String indicatorCode UK
+        String indicatorName
+        String description
+        String frequency
+        String defaultUnit
+        String countryCode
+    }
+
+    MACRO_INDICATOR_OBSERVATION {
+        String id PK
+        String macroIndicatorId FK
+        String sourceId FK
+        String period
+        DateTime observedAt
+        DateTime asOf
+        Decimal value
+        String unit
+        String sourceLabel
+        String dataMode
+        Boolean productionApproved
+        String qualityStatus
+        String readiness
+        String missingFields
+    }
+
+    INDUSTRY {
+        String id PK
+        String industryCode UK
+        String industryName
+        String classificationSystem
+    }
+
+    COMPANY {
+        String id PK
+        String industryId FK
+        String ticker
+        String companyName
+    }
+
+    INDUSTRY_METRIC {
+        String id PK
+        String industryId FK
+        String sourceId FK
+        String metricCode
+        String metricName
+        String period
+        DateTime asOf
+        Decimal value
+        String unit
+        String benchmarkType
+        String dataMode
+        Boolean productionApproved
+        String qualityStatus
+        String readiness
+    }
+
+    DATA_SOURCE {
+        String id PK
+        String name
+        String sourceType
+        String usageStatus
+    }
+
+    MACRO_INDICATOR ||--o{ MACRO_INDICATOR_OBSERVATION : observes
+    DATA_SOURCE ||--o{ MACRO_INDICATOR_OBSERVATION : provides
+    INDUSTRY ||--o{ COMPANY : classifies
+    INDUSTRY ||--o{ INDUSTRY_METRIC : has
+    DATA_SOURCE ||--o{ INDUSTRY_METRIC : provides

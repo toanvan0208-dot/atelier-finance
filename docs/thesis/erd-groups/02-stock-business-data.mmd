@@ -1,0 +1,81 @@
+erDiagram
+    COMPANY {
+        String id PK
+        String ticker
+        String exchange
+        String companyName
+    }
+
+    DATA_SOURCE {
+        String id PK
+        String name
+        String sourceType
+        String usageStatus
+    }
+
+    FINANCIAL_STATEMENT {
+        String id PK
+        String companyId FK
+        String sourceId FK
+        String period
+        String periodType
+        Decimal revenue
+        Decimal netIncome
+        Decimal totalAssets
+        Decimal equity
+        Decimal totalDebt
+        Decimal eps
+        Decimal sharesOutstanding
+        String dataMode
+        Boolean productionApproved
+        String qualityStatus
+        String readiness
+        String missingFields
+    }
+
+    FINANCIAL_STATEMENT_UNIT_METADATA {
+        String id PK
+        String financialStatementId FK
+        String field
+        String unit
+        String status
+        String warningCodes
+        Boolean productionApproved
+    }
+
+    MARKET_PRICE {
+        String id PK
+        String companyId FK
+        String sourceId FK
+        DateTime tradingDate
+        Decimal openPrice
+        Decimal highPrice
+        Decimal lowPrice
+        Decimal closePrice
+        Decimal volume
+        Decimal tradingValue
+        Decimal marketCap
+        String dataMode
+        Boolean productionApproved
+        String qualityStatus
+        String readiness
+        String missingFields
+    }
+
+    MARKET_PRICE_UNIT_METADATA {
+        String id PK
+        String marketPriceId FK
+        String field
+        String unit
+        String status
+        DateTime asOf
+        String warningCodes
+        Boolean productionApproved
+    }
+
+    COMPANY ||--o{ FINANCIAL_STATEMENT : reports
+    COMPANY ||--o{ MARKET_PRICE : has
+    DATA_SOURCE ||--o{ FINANCIAL_STATEMENT : provides
+    DATA_SOURCE ||--o{ MARKET_PRICE : provides
+    FINANCIAL_STATEMENT ||--o{ FINANCIAL_STATEMENT_UNIT_METADATA : describes
+    MARKET_PRICE ||--o{ MARKET_PRICE_UNIT_METADATA : describes

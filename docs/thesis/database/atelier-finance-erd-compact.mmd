@@ -1,0 +1,61 @@
+```mermaid
+erDiagram
+    USER {
+        String id PK
+    }
+    COMPANY {
+        String id PK
+        String ticker
+        String companyName
+    }
+    FINANCIAL_STATEMENT {
+        String id PK
+        String companyId FK
+        String period
+        Decimal netIncome
+        Decimal equity
+        Decimal eps
+    }
+    MARKET_PRICE {
+        String id PK
+        String companyId FK
+        DateTime tradingDate
+        Decimal closePrice
+    }
+    DATA_SOURCE {
+        String id PK
+        String name
+        SourceType sourceType
+    }
+    MANUAL_IMPORT_SESSION {
+        String id PK
+        ManualImportStatus status
+    }
+    ASSISTANT_INTERACTION {
+        String id PK
+        String question
+    }
+    WATCHLIST {
+        String id PK
+        String ticker
+    }
+    PAPER_TRADE {
+        String id PK
+        String ticker
+    }
+
+    USER ||--o{ WATCHLIST : "has"
+    USER ||--o{ PAPER_TRADE : "has"
+    USER ||--o{ ASSISTANT_INTERACTION : "interacts"
+    USER ||--o{ MANUAL_IMPORT_SESSION : "conducts"
+    
+    COMPANY ||--o{ WATCHLIST : "tracked_in"
+    COMPANY ||--o{ PAPER_TRADE : "traded_in"
+    COMPANY ||--o{ ASSISTANT_INTERACTION : "context_for"
+    COMPANY ||--o{ FINANCIAL_STATEMENT : "has"
+    COMPANY ||--o{ MARKET_PRICE : "has"
+    
+    DATA_SOURCE ||--o{ COMPANY : "provides_profile"
+    DATA_SOURCE ||--o{ FINANCIAL_STATEMENT : "provides"
+    DATA_SOURCE ||--o{ MARKET_PRICE : "provides"
+```

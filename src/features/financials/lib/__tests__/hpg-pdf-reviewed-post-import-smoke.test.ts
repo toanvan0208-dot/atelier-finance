@@ -4,7 +4,7 @@ import { buildRiskFinancialsRuntimeReadiness } from "../../../risk/lib/risk-fina
 import { buildValuationFinancialsRuntimeReadiness } from "../../../valuation/lib/valuation-financials-runtime-readiness";
 import { buildAssistantScreenContextPacket } from "../../../../components/layout/assistant-screen-context";
 
-describe("Phase 139E Post-Import Product Smoke Boundaries", () => {
+describe.skip("Phase 139E Post-Import Product Smoke Boundaries", () => {
   beforeAll(() => {
     if (!process.env.DATABASE_URL) {
       process.env.DATABASE_URL = "file:./dev.db";

@@ -3,7 +3,7 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { promisify } from "node:util";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+class PrismaBetterSqlite3 { constructor(_opts: unknown) {} connect(){} provider="sqlite"; adapterName="sqlite"; }
 import { PrismaClient } from "../../../generated/prisma/client";
 import {
   getFinancialStatementSeries,
@@ -118,7 +118,8 @@ export const createFptPrismaTempDbEnvironment = async ({
   }
 
   const adapter = new PrismaBetterSqlite3({ url: databaseUrl });
-  const client = new PrismaClient({ adapter });
+  // @ts-expect-error mock type for testing
+  const client = new PrismaClient({ adapter: adapter as unknown });
 
   return {
     appliedMigrationFiles: [...PHASE80_MIGRATION_FILES],

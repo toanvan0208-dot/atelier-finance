@@ -25,7 +25,7 @@ async function waitForServer() {
     try {
       const res = await fetch(`${BASE_URL}/`);
       if (res.ok) return true;
-    } catch (_e) {
+    } catch {
       // ignore
     }
     await new Promise(resolve => setTimeout(resolve, 1000));

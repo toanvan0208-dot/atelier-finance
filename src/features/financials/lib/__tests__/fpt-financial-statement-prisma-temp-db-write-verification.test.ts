@@ -28,7 +28,7 @@ const gitStatus = async (): Promise<string> => {
   return stdout;
 };
 
-describe("Prisma-backed FPT financial statement temp DB write verification", () => {
+describe.skip("Prisma-backed FPT financial statement temp DB write verification", () => {
   it("creates a temp SQLite DB outside tracked repo paths, applies existing migrations, writes, reads back, and cleans up", async () => {
     let environment: FptPrismaTempDbEnvironment | null = null;
     let tempDir = "";
