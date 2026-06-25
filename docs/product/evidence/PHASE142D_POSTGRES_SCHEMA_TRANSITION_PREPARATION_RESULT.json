@@ -1,0 +1,55 @@
+{
+  "phase": "142D",
+  "mode": "read_only_schema_transition_preparation",
+  "currentProvider": "sqlite",
+  "targetProvider": "postgresql",
+  "providerChanged": false,
+  "schemaChanged": false,
+  "migrationCreated": false,
+  "migrationDeleted": false,
+  "migrationApplied": false,
+  "databaseWrite": false,
+  "dataImport": false,
+  "runtimeLogicChanged": false,
+  "importScriptsChanged": false,
+  "currentMigrationCount": 3,
+  "migrationPortability": "not_portable",
+  "runtimeAdapter": "@prisma/adapter-better-sqlite3",
+  "runtimeUrlPolicy": "file_only",
+  "minimumFutureChangeGroups": [
+    "prisma/schema.prisma",
+    "prisma/migrations",
+    "prisma.config.ts",
+    "src/lib/database/client.ts",
+    "package.json",
+    "package-lock.json",
+    ".env.example",
+    "local reset/migrate/setup scripts",
+    "database-coupled tests and smoke scripts"
+  ],
+  "baselineMigrationName": "init_postgres",
+  "recommendedNextPhase": {
+    "phase": "142E",
+    "preferredOption": "isolated schema-switch branch and dry-run instructions",
+    "dockerOption": "provider-switch dry run against disposable local Docker PostgreSQL if available"
+  },
+  "guardrails": {
+    "productionApproved": false,
+    "reviewedPreviewDataMode": "research_only",
+    "missingToZero": false,
+    "totalLiabilitiesAsTotalDebt": false,
+    "vcbCorporateImport": false,
+    "investmentAdvice": false
+  },
+  "validation": {
+    "status": "passed",
+    "prismaValidateExitCode": 0,
+    "typecheckExitCode": 0,
+    "lintExitCode": 0,
+    "lintWarnings": 1,
+    "testExitCode": 0,
+    "testFiles": 142,
+    "tests": 1185,
+    "buildExitCode": 0
+  }
+}
