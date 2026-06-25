@@ -1,0 +1,69 @@
+{
+  "phase": "142G",
+  "name": "Actual Staging PostgreSQL dry run",
+  "branch": "phase-142f-postgres-docker-dry-run",
+  "startingCommit": "f273dd3438b0b2b1febaf994c25e8f6db06f3be3",
+  "staging": {
+    "provider": "Supabase",
+    "connectionType": "session_pooler",
+    "database": "postgres",
+    "schema": "public",
+    "credentialsSource": "process.env.DATABASE_URL",
+    "fullConnectionStringRedacted": true,
+    "isPostgresUrl": false,
+    "isLocalhost": false,
+    "isFileUrl": false,
+    "productionCredentialsUsed": false
+  },
+  "preMigration": {
+    "connectionOk": false,
+    "publicSchemaTableCount": null,
+    "publicSchemaWasEmpty": null
+  },
+  "migration": {
+    "command": "npx prisma migrate deploy",
+    "migrationApplied": false,
+    "migrationName": "20260625164749_init_postgres",
+    "createdNewMigration": false,
+    "issues": [],
+    "blockers": [
+      "process.env.DATABASE_URL is missing or empty in the current agent shell session."
+    ]
+  },
+  "postMigration": {
+    "schemaVerified": false,
+    "publicSchemaTableCount": null,
+    "enumCount": null,
+    "businessDataImported": false
+  },
+  "validation": {
+    "prismaValidate": "pending",
+    "prismaGenerate": "pending",
+    "typecheck": "pending",
+    "lint": "pending",
+    "tests": "pending",
+    "build": "pending"
+  },
+  "tests": {
+    "testFiles": null,
+    "tests": null,
+    "skippedFiles": 7,
+    "skippedTests": 48,
+    "passWithSkips": null
+  },
+  "dbWriteScope": "staging_schema_migration_only",
+  "dataImport": false,
+  "seedRealData": false,
+  "productionDeploy": false,
+  "mergedToMain": false,
+  "productionApprovedTrueIntroduced": false,
+  "readyForMainMerge": false,
+  "readyForProduction": false,
+  "readyForDataImportPhase": false,
+  "requiredBeforeMainMerge": [
+    "Resolve or rewrite PostgreSQL transition skipped tests",
+    "Remove legacy SQLite test blockers or mark them provider-specific with replacement PostgreSQL coverage"
+  ],
+  "commit": "cb18f70",
+  "pushed": true
+}
