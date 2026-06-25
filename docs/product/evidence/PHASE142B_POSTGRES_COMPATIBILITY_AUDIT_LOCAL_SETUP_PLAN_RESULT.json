@@ -1,0 +1,10 @@
+{
+  "phase": "142B",
+  "currentProvider": "sqlite",
+  "postgresCompatibility": "Moderate (schema compatible, migrations and scripts are not)",
+  "migrationPortability": "Not portable (SQLite specific syntax and lack of native enums). Require fresh migrations.",
+  "scriptPortability": "Not portable (hardcoded file deletion and explicit Postgres rejection guards).",
+  "recommendedSetup": "Fresh Docker/Neon Postgres + drop sqlite migrations + recreate postgres migrations.",
+  "keepSqliteLocal": false,
+  "recommendedNextPhase": "142C (PostgreSQL staging setup and portable import scripts)"
+}
