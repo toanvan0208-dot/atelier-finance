@@ -1,0 +1,42 @@
+{
+  "phase": "142G-M2",
+  "name": "Merge PostgreSQL transition branch into main",
+  "preMergeMainCommit": "925c2366f02c8477335b8f5b85d7a4227b0d41d4",
+  "mergedBranch": "phase-142f-postgres-docker-dry-run",
+  "mergedBranchHead": "9e2ca299444c9e5656da6b551bfad0ceb6a7d4ec",
+  "mergeCommit": "df9f6eb80cbb6df4247be9549bed0b28d3347f34",
+  "pushedMain": true,
+  "diffScopeCleanBeforeMerge": true,
+  "outOfScopeFilesMerged": [],
+  "validation": {
+    "prismaValidate": "success",
+    "prismaGenerate": "success",
+    "typecheck": "success",
+    "lint": "success",
+    "tests": "success",
+    "build": "success"
+  },
+  "tests": {
+    "testFilesPassed": 142,
+    "testsPassed": 1185,
+    "testFilesSkipped": 0,
+    "testsSkipped": 0,
+    "testFilesFailed": 0,
+    "testsFailed": 0
+  },
+  "postMergeSafetyChecks": {
+    "transitionSkipsRemaining": 0,
+    "productionApprovedTrueIntroduced": false,
+    "investmentAdviceLanguageIntroduced": false,
+    "secretsCommitted": false,
+    "devDbCommitted": false
+  },
+  "dbWrite": false,
+  "dataImport": false,
+  "productionDeploy": false,
+  "readyForStagingDataImport": true,
+  "readyForProduction": false,
+  "nextRecommendedPhase": "142H-S \u2014 Controlled reviewed-preview import to staging PostgreSQL",
+  "commit": null,
+  "pushed": false
+}
