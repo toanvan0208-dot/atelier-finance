@@ -1,0 +1,98 @@
+{
+  "phase": "142G-M",
+  "name": "PostgreSQL branch final merge review and main integration plan",
+  "branch": "phase-142f-postgres-docker-dry-run",
+  "branchHead": "f7186d213a242194256ea253675b081b04dca5fd",
+  "comparedAgainst": "origin/main",
+  "originMainCommit": "925c2366f02c8477335b8f5b85d7a4227b0d41d4",
+  "filesChanged": [
+    "docs/product/POSTGRES_MAIN_MERGE_PLAN.md",
+    "docs/product/evidence/PHASE142G_M_POSTGRES_BRANCH_FINAL_MERGE_REVIEW.md",
+    "docs/product/evidence/PHASE142G_M_POSTGRES_BRANCH_FINAL_MERGE_REVIEW_RESULT.json"
+  ],
+  "diffReview": {
+    "scopeClean": false,
+    "outOfScopeFiles": [
+      "diagrams/sequence-financial-ai.md",
+      "diagrams/sequence-financial-ai.svg",
+      "docs/product/evidence/source-pdfs/FPT_Annual_Report_2025.pdf",
+      "docs/product/evidence/source-pdfs/HPG_Annual_Report_2025.pdf",
+      "docs/product/evidence/source-pdfs/MSN_Baocaothuongnien_2025.pdf",
+      "docs/product/evidence/source-pdfs/MWG_Annual_Report_2025.pdf",
+      "docs/product/evidence/source-pdfs/VCB_Annual_Report_2025.pdf",
+      "docs/product/evidence/source-pdfs/VNM_Annual_Report_2025.pdf",
+      "docs/thesis/database-erd.png",
+      "docs/thesis/database/atelier-finance-erd-compact.mmd",
+      "docs/thesis/database/atelier-finance-erd-macro-industry.mmd",
+      "docs/thesis/database/atelier-finance-erd-summary.md",
+      "docs/thesis/database/atelier-finance-erd.mmd",
+      "docs/thesis/erd-groups/01-identity-reference-data.mmd",
+      "docs/thesis/erd-groups/02-stock-business-data.mmd",
+      "docs/thesis/erd-groups/03-macro-industry-data.mmd",
+      "docs/thesis/erd-groups/04-source-unit-quality-data.mmd",
+      "docs/thesis/erd-groups/05-user-interaction-data.mmd",
+      "docs/thesis/erd-groups/rendered/01-identity-reference-data.png",
+      "docs/thesis/erd-groups/rendered/02-stock-business-data.png",
+      "docs/thesis/erd-groups/rendered/03-macro-industry-data.png",
+      "docs/thesis/erd-groups/rendered/04-source-unit-quality-data.png",
+      "docs/thesis/erd-groups/rendered/05-user-interaction-data.png",
+      "docs/thesis/use-case-diagram-visual-paradigm-ortho.png",
+      "docs/thesis/use-case-diagram-visual-paradigm.png",
+      "docs/thesis/use-case-diagram.png"
+    ]
+  },
+  "migrationReview": {
+    "migrationPath": "prisma/migrations/20260625164749_init_postgres/migration.sql",
+    "reviewed": true,
+    "issues": [],
+    "blockers": []
+  },
+  "runtimeReview": {
+    "providerIsPostgres": true,
+    "sqliteRuntimeFallbackRemoved": true,
+    "databaseUrlFailClosed": true,
+    "productionCredentialsFound": false,
+    "issues": [],
+    "blockers": []
+  },
+  "testReview": {
+    "transitionSkipsRemaining": 0,
+    "eslintDisableReviewed": true,
+    "unsafeSuppressions": [],
+    "vCBFixtureGuardrailsPreserved": true,
+    "issues": [],
+    "blockers": []
+  },
+  "evidenceReview": {
+    "chainComplete": true,
+    "missingMetadata": [],
+    "issues": []
+  },
+  "validation": {
+    "prismaValidate": "success",
+    "prismaGenerate": "success",
+    "typecheck": "success",
+    "lint": "success",
+    "tests": "success",
+    "build": "success"
+  },
+  "tests": {
+    "testFilesPassed": 142,
+    "testsPassed": 1185,
+    "testFilesSkipped": 0,
+    "testsSkipped": 0,
+    "testFilesFailed": 0,
+    "testsFailed": 0
+  },
+  "dbWrite": false,
+  "dataImport": false,
+  "productionDeploy": false,
+  "mergedToMain": false,
+  "readyForMainMerge": false,
+  "readyForProduction": false,
+  "requiredForMergePhase": [
+    "Clean up out-of-scope files (diagrams/, docs/thesis/, source-pdfs/) from the postgres branch before merging."
+  ],
+  "commit": null,
+  "pushed": false
+}
