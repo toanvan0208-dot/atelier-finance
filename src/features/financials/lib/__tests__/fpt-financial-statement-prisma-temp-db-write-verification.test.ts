@@ -11,7 +11,6 @@ import {
   createFptPrismaTempDbEnvironment,
   phase80ExposedFunctionNames,
   phase80ForbiddenExposureTerms,
-  PHASE80_MIGRATION_FILES,
   runFptPrismaTempDbWriteVerification,
   validateFptPrismaTempDbVerificationPayload,
   verifyFptPrismaTempDbReadBack,

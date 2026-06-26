@@ -16,4 +16,12 @@ During the PostgreSQL transition, several test files using `dev.db` (SQLite) wer
 6. Removed `describe.skip` from all tests. Run `npm run test` ensuring `142 files` and `1185 tests` completely passed.
 
 ## Outcome
-The local testing suite is fully compatible with PostgreSQL and no tests are skipped. The Vitest parallel processing operates cleanly against `atelier_finance_test` without cross-test data wiping.
+The local testing suite is fully compatible with PostgreSQL and no tests are skipped (`0 skippedFiles, 0 skipped tests`). The Vitest parallel processing operates cleanly against `atelier_finance_test` without cross-test data wiping.
+
+## Phase 142G-T-R Additions (VCB Fixture Guardrail Audit)
+1. **VCB Test Fixture Isolation:** Updated `src/test-utils/smoke-test-seeder.ts` to assign VCB's dummy data specifically to a `postgres_test_fixture` source label rather than a production-like or candidate label.
+2. **VCB Total Debt Safety:** Verified that VCB dummy total debt remains `null` (matching its bank mapping guardrail `needs_bank_mapping`), and it is never forcibly injected as corporate debt.
+3. **VCB Production Status:** Verified that `productionApproved` stays `false` and `dataMode` is `research_only`/`test-only`.
+4. Added VCB guardrail checks directly into `msn-pdf-reviewed-post-import-smoke.test.ts` so regressions are caught immediately.
+5. Removed an outdated import in `fpt-financial-statement-prisma-temp-db-write-verification.test.ts` to resolve a typecheck error.
+6. Ran full validation (`npx prisma validate`, `npx prisma generate`, `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`) which succeeded entirely.

@@ -138,7 +138,10 @@ describe("Phase 139L MSN post-import product smoke", () => {
       ticker: "VCB",
       preferDb: true,
       allowFallback: false,
+      sourceLabel: "postgres_test_fixture",
     }, deps);
-    expect(vcb.source.sourceLabel).toBe("vnstock_financials_candidate");
+    expect(vcb.source.sourceLabel).toBe("postgres_test_fixture");
+    expect(vcb.source.productionApproved).toBe(false);
+    expect(vcb.statementSnapshot?.totalDebt ?? null).toBeNull();
   });
 });

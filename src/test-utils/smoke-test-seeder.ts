@@ -4,12 +4,15 @@ export async function seedSmokeTestsFixture(db: ReturnType<typeof getPostgresTes
   const reviewedLabel = "annual_report_2025_pdf_reviewed_preview";
   const candidateLabel = "vnstock_financials_candidate";
   const dataMode = "research_only";
+  const testFixtureLabel = "postgres_test_fixture";
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const getOrCreateSource = async (name: string, sourceType: any, usageStatus: any) => {
     let s = await db.prisma.dataSource.findFirst({ where: { name, sourceType } });
     if (!s) {
       try {
         s = await db.prisma.dataSource.create({ data: { name, sourceType, usageStatus } });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (e: any) {
         if (e.code !== "P2002") throw e;
         s = await db.prisma.dataSource.findFirst({ where: { name, sourceType } });
@@ -20,6 +23,7 @@ export async function seedSmokeTestsFixture(db: ReturnType<typeof getPostgresTes
 
   const sourceReviewed = await getOrCreateSource(reviewedLabel, "user_input", "research_only");
   const sourceCandidate = await getOrCreateSource(candidateLabel, "unknown", "unknown");
+  const sourceTestFixture = await getOrCreateSource(testFixtureLabel, "unknown", "research_only");
 
   const getOrCreateCompany = async (ticker: string) => {
     let c = await db.prisma.company.findFirst({ where: { ticker, dataMode } });
@@ -82,7 +86,7 @@ export async function seedSmokeTestsFixture(db: ReturnType<typeof getPostgresTes
     }
 
     if (c.ticker === "MSN") {
-      let msnCand = await db.prisma.financialStatement.findFirst({
+      const msnCand = await db.prisma.financialStatement.findFirst({
         where: { ticker: c.ticker, sourceId: sourceCandidate.id, dataMode }
       });
       if (!msnCand) {
@@ -112,15 +116,15 @@ export async function seedSmokeTestsFixture(db: ReturnType<typeof getPostgresTes
   }
 
   const vcb = await getOrCreateCompany("VCB");
-  let vcbStmt = await db.prisma.financialStatement.findFirst({
-    where: { ticker: "VCB", sourceId: sourceCandidate.id, dataMode }
+  const vcbStmt = await db.prisma.financialStatement.findFirst({
+    where: { ticker: "VCB", sourceId: sourceTestFixture.id, dataMode }
   });
   if (!vcbStmt) {
     await db.prisma.financialStatement.create({
       data: {
         companyId: vcb.id,
-        sourceId: sourceCandidate.id,
-        sourceLabel: candidateLabel,
+        sourceId: sourceTestFixture.id,
+        sourceLabel: testFixtureLabel,
         ticker: "VCB",
         periodType: "year",
         period: "2025",
