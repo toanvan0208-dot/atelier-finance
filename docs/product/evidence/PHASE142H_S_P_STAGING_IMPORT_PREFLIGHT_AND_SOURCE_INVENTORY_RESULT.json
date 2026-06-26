@@ -1,0 +1,81 @@
+{
+  "phase": "142H-S-P",
+  "name": "Staging import preflight and source inventory",
+  "mainCommit": "e0926ef83070d8df812f27e474bee946ef574657",
+  "stagingConnectionChecked": true,
+  "stagingSchemaReadOnlyChecked": true,
+  "importScriptsReviewed": [
+    "scripts/import-fpt-pdf-reviewed-preview.ts",
+    "scripts/import-hpg-pdf-reviewed-preview.ts",
+    "scripts/import-msn-pdf-reviewed-preview.ts",
+    "scripts/import-mwg-pdf-reviewed-preview.ts",
+    "scripts/import-vnm-pdf-reviewed-preview.ts",
+    "scripts/import-reviewed-source-records.ts",
+    "src/lib/data-sources/financial-statement-local-write-service.ts",
+    "src/lib/data-sources/financial-statement-local-write-guard.ts"
+  ],
+  "approvedImportScope": {
+    "tickers": [
+      "FPT",
+      "HPG",
+      "VNM",
+      "MSN",
+      "MWG"
+    ],
+    "excludedTickers": [
+      "VCB"
+    ],
+    "allowedFields": [
+      "eps",
+      "sharesOutstanding",
+      "totalDebt"
+    ],
+    "rejectedFields": [
+      "revenue",
+      "netIncome",
+      "totalAssets",
+      "equity",
+      "cashAndEquivalents",
+      "capitalExpenditure",
+      "operatingCashFlow"
+    ],
+    "sourceLabel": "annual_report_2025_pdf_reviewed_preview",
+    "dataMode": "research_only",
+    "productionApproved": false
+  },
+  "targetTables": [
+    "Company",
+    "DataSource",
+    "FinancialStatement",
+    "FinancialStatementUnitMetadata"
+  ],
+  "rollbackCriteria": [
+    "sourceLabel = 'annual_report_2025_pdf_reviewed_preview'",
+    "ticker IN ('FPT', 'HPG', 'VNM', 'MSN', 'MWG')",
+    "productionApproved = false",
+    "dataMode = 'research_only'"
+  ],
+  "guardrails": {
+    "noVCBCorporateImport": true,
+    "noMissingToZero": true,
+    "noTotalLiabilitiesAsDebt": true,
+    "noProductionApprovedTrue": true,
+    "noSampleFallbackAsReal": true
+  },
+  "stagingWrite": false,
+  "dataImport": false,
+  "productionDeploy": false,
+  "productionDbUsed": false,
+  "validation": {
+    "prismaValidate": "success",
+    "typecheck": "success",
+    "lint": "success"
+  },
+  "readyFor142H_SActual": false,
+  "requiredBeforeActualImport": [
+    "Create a staging-specific import script or a bypass for financial-statement-local-write-guard to allow writing to Supabase staging",
+    "Run dry-run with staging script to verify strictly only the 3 allowed fields and 5 tickers"
+  ],
+  "commit": null,
+  "pushed": false
+}

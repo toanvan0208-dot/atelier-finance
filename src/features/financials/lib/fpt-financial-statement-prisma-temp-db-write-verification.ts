@@ -80,7 +80,7 @@ export const createFptPrismaTempDbEnvironment = async ({
 };
 
 export const cleanupFptPrismaTempDbEnvironment = async (
-  environment: FptPrismaTempDbEnvironment,
+  environment: FptPrismaTempDbEnvironment | null,
 ): Promise<boolean> => {
   if (!environment) return true;
   if (environment.prisma) {
