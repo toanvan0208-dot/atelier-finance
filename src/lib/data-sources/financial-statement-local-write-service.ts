@@ -206,7 +206,6 @@ const unitMetadataRowsFor = ({
       status: metadata.status,
       sourceLabel: metadata.sourceLabel ?? sourceLabel,
       dataMode: metadata.dataMode ?? dataMode,
-      warningCodes: JSON.stringify(metadata.warnings),
       productionApproved: false,
     }));
 

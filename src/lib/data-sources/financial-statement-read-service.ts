@@ -144,7 +144,6 @@ type StoredFinancialStatementUnitMetadata = {
   status: string;
   sourceLabel: string | null;
   dataMode: string | null;
-  warningCodes: string;
   productionApproved: boolean;
 };
 
@@ -545,7 +544,6 @@ export const getFinancialStatementSeries = async (
             status: true,
             sourceLabel: true,
             dataMode: true,
-            warningCodes: true,
             productionApproved: true,
           },
         },
@@ -617,7 +615,6 @@ export const getFinancialStatementSeries = async (
             status: true,
             sourceLabel: true,
             dataMode: true,
-            warningCodes: true,
             productionApproved: true,
           },
         },
