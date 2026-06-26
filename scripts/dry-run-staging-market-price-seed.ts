@@ -33,6 +33,7 @@ async function main() {
       console.log(`Created DataSource: ${SOURCE_LABEL}`);
     } else {
       console.log(`[Dry Run] Would create DataSource: ${SOURCE_LABEL}`);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       dataSource = { id: "dry-run-source-id", name: SOURCE_LABEL } as any;
     }
   }

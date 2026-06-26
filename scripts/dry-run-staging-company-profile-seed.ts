@@ -2,6 +2,7 @@ import { prisma } from "../src/lib/database/client";
 
 const APPROVED_TICKERS = ["FPT", "HPG", "VNM", "MSN", "MWG"];
 const SOURCE_LABEL = "staging_company_business_profile_research_seed";
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const DATA_MODE = "research_only" as any;
 
 interface ProfileSeed {
@@ -70,7 +71,7 @@ async function main() {
   console.log(`connection string: masked only`);
   console.log("rollback criteria: Delete precisely the CompanyBusinessProfile rows with captured IDs\n");
 
-  const results: any[] = [];
+  const results: { ticker: string; id: string }[] = [];
   let insertedCount = 0;
   let updatedCount = 0;
   let skippedCount = 0;

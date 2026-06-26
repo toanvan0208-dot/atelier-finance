@@ -1,5 +1,4 @@
 import { getLatestMarketPrice } from "../src/lib/database/services/market-price-service";
-import { prisma } from "../src/lib/database/client";
 
 async function runSmoke() {
   console.log("=== Smoke Test: Staging Market Price Read-Path ===\n");
@@ -24,8 +23,8 @@ async function runSmoke() {
       }
 
       console.log(`[PASS] ${ticker}: Found price ${record.closePrice.toString()} VND (As of ${record.tradingDate.toISOString().slice(0, 10)})`);
-    } catch (e: any) {
-      console.error(`[FAIL] ${ticker}: Exception occurred - ${e.message}`);
+    } catch (e: unknown) {
+      console.error(`[FAIL] ${ticker}: Exception occurred - ${(e as Error).message}`);
       passed = false;
     }
   }
