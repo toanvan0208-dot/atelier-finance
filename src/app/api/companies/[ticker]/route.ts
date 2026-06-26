@@ -1,5 +1,6 @@
 import { apiError, apiInternalError, apiSuccess } from "@/lib/api/response";
 import { getCompanyByTicker } from "@/lib/database";
+import { loadCompanyBusinessProfile } from "@/features/business/lib/load-company-business-profile";
 
 type CompanyRouteContext = {
   params: Promise<{ ticker: string }> | { ticker: string };
@@ -29,7 +30,12 @@ export const GET = async (
       });
     }
 
-    return apiSuccess(company, {
+    const businessProfile = await loadCompanyBusinessProfile(ticker);
+
+    return apiSuccess({
+      ...company,
+      businessProfile: businessProfile || undefined,
+    }, {
       meta: {
         source: "database",
         fallback: false,
