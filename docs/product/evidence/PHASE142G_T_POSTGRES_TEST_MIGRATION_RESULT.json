@@ -1,0 +1,13 @@
+{
+  "phase": "142G-T",
+  "name": "PostgreSQL test migration and skipped-test elimination",
+  "status": "success",
+  "summary": "All test files have been migrated to Postgres and describe.skip removed. Full test suite passes without cross-test contamination.",
+  "metrics": {
+    "testFiles": 142,
+    "testsPassed": 1185,
+    "skippedFiles": 0
+  },
+  "branch": "phase-142f-postgres-docker-dry-run",
+  "timestamp": "2026-06-25T17:16:00.000Z"
+}

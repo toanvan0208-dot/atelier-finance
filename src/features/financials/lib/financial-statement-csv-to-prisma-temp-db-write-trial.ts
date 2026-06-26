@@ -252,7 +252,7 @@ export const runFinancialStatementCsvToPrismaTempDbWriteTrial = async ({
     throw new Error(`CSV parser to Prisma temp DB trial blocked: ${validation.blockedReasons.join(", ")}`);
   }
 
-  const db = environment.client as Parameters<typeof runFinancialStatementLocalWriteTrial>[1] extends { db?: infer Db }
+  const db = environment.prisma as Parameters<typeof runFinancialStatementLocalWriteTrial>[1] extends { db?: infer Db }
     ? Db
     : never;
   const writeReport = await runFinancialStatementLocalWriteTrial(
@@ -278,7 +278,7 @@ export const runFinancialStatementCsvToPrismaTempDbWriteTrial = async ({
       sourceLabel: payload.sourceLabel,
       ticker: "FPT",
     },
-    { db: environment.client as Parameters<typeof getFinancialStatementSeries>[1] extends { db?: infer Db } ? Db : never },
+    { db: environment.prisma as Parameters<typeof getFinancialStatementSeries>[1] extends { db?: infer Db } ? Db : never },
   );
   const record = readBack.records[0] ?? null;
   const units = record?.unitMetadata ? financialsUnitsForValuation(record.unitMetadata) : financialsUnitsForValuation(null);

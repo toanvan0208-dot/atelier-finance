@@ -1,19 +1,32 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeAll, afterAll, describe, expect, it } from "vitest";
 
 import { buildAssistantScreenContextPacket } from "../../../../components/layout/assistant-screen-context";
 import { buildRiskFinancialsRuntimeReadiness } from "../../../risk/lib/risk-financials-runtime-readiness";
 import { buildValuationFinancialsRuntimeReadiness } from "../../../valuation/lib/valuation-financials-runtime-readiness";
 import { loadFinancialsRuntimeData } from "../load-financials-runtime-data";
 
-describe.skip("Phase 139L MSN post-import product smoke", () => {
+import { getPostgresTestDatabase } from "@/test-utils/postgres-test-database";
+import { seedSmokeTestsFixture } from "@/test-utils/smoke-test-seeder";
+import { getFinancialStatementSeries } from "../../../../lib/data-sources/financial-statement-read-service";
+
+describe("Phase 139L MSN post-import product smoke", () => {
   let prisma: any;
+  let db: ReturnType<typeof getPostgresTestDatabase>;
+  let deps: any;
 
   beforeAll(async () => {
-    if (!process.env.DATABASE_URL) {
-      process.env.DATABASE_URL = "file:./dev.db";
-    }
-    prisma = (await import("../../../../lib/database/client")).prisma;
+    process.env.DATABASE_URL = process.env.TEST_DATABASE_URL || "postgresql://atelier:atelier@localhost:5432/atelier_finance_test?schema=public";
+    db = getPostgresTestDatabase();
+    await seedSmokeTestsFixture(db);
+    prisma = db.prisma;
+    deps = {
+      readSeries: (opt: any) => getFinancialStatementSeries(opt, { db: db.prisma as any })
+    };
+  });
+
+  afterAll(async () => {
+    await db.cleanup();
   });
 
   it("preserves both MSN source rows and resolves reviewed PDF values", async () => {
@@ -38,7 +51,7 @@ describe.skip("Phase 139L MSN post-import product smoke", () => {
       ticker: "MSN",
       preferDb: true,
       allowFallback: false,
-    });
+    }, deps);
     expect(runtime.source).toMatchObject({
       sourceLabel: "annual_report_2025_pdf_reviewed_preview",
       dataMode: "research_only",
@@ -60,7 +73,7 @@ describe.skip("Phase 139L MSN post-import product smoke", () => {
       ticker: "MSN",
       preferDb: true,
       allowFallback: false,
-    });
+    }, deps);
     const risk = buildRiskFinancialsRuntimeReadiness({
       financialsRuntimeData: runtime,
       hasStaticRiskPath: false,
@@ -117,7 +130,7 @@ describe.skip("Phase 139L MSN post-import product smoke", () => {
         ticker,
         preferDb: true,
         allowFallback: false,
-      });
+      }, deps);
       expect(runtime.source.sourceLabel).toBe(sourceLabel);
     }
 
@@ -125,7 +138,7 @@ describe.skip("Phase 139L MSN post-import product smoke", () => {
       ticker: "VCB",
       preferDb: true,
       allowFallback: false,
-    });
+    }, deps);
     expect(vcb.source.sourceLabel).toBe("vnstock_financials_candidate");
   });
 });

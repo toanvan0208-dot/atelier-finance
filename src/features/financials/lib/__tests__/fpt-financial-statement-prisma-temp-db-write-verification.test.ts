@@ -28,8 +28,8 @@ const gitStatus = async (): Promise<string> => {
   return stdout;
 };
 
-describe.skip("Prisma-backed FPT financial statement temp DB write verification", () => {
-  it("creates a temp SQLite DB outside tracked repo paths, applies existing migrations, writes, reads back, and cleans up", async () => {
+describe("Prisma-backed FPT financial statement temp DB write verification", () => {
+  it("creates a test Postgres DB, writes, reads back, and cleans up", async () => {
     let environment: FptPrismaTempDbEnvironment | null = null;
     let tempDir = "";
 
@@ -38,14 +38,11 @@ describe.skip("Prisma-backed FPT financial statement temp DB write verification"
       tempDir = environment.tempDir;
 
       expect(environment.tempDirOutsideRepo).toBe(true);
-      expect(resolve(environment.tempDir).toLowerCase()).toContain(resolve(tmpdir()).toLowerCase());
-      expect(environment.appliedMigrationFiles).toEqual([...PHASE80_MIGRATION_FILES]);
-      expect(existsSync(environment.dbPath)).toBe(true);
 
       const result = await runFptPrismaTempDbWriteVerification(environment);
       const verification = verifyFptPrismaTempDbReadBack(result);
       const record = result.readBack.records[0];
-      const metadataRows = await environment.client.financialStatementUnitMetadata.findMany({
+      const metadataRows = await environment.prisma.financialStatementUnitMetadata.findMany({
         where: { financialStatementId: record.id },
         orderBy: { field: "asc" },
       });
@@ -79,7 +76,6 @@ describe.skip("Prisma-backed FPT financial statement temp DB write verification"
     } finally {
       const cleaned = await cleanupFptPrismaTempDbEnvironment(environment);
       expect(cleaned).toBe(true);
-      if (tempDir) expect(existsSync(tempDir)).toBe(false);
     }
   }, 60_000);
 

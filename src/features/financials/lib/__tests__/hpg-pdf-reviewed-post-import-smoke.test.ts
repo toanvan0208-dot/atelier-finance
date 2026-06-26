@@ -1,19 +1,33 @@
-import { describe, it, expect, beforeAll } from "vitest";
+import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { loadFinancialsRuntimeData } from "../load-financials-runtime-data";
 import { buildRiskFinancialsRuntimeReadiness } from "../../../risk/lib/risk-financials-runtime-readiness";
 import { buildValuationFinancialsRuntimeReadiness } from "../../../valuation/lib/valuation-financials-runtime-readiness";
 import { buildAssistantScreenContextPacket } from "../../../../components/layout/assistant-screen-context";
 
-describe.skip("Phase 139E Post-Import Product Smoke Boundaries", () => {
-  beforeAll(() => {
-    if (!process.env.DATABASE_URL) {
-      process.env.DATABASE_URL = "file:./dev.db";
-    }
+import { getPostgresTestDatabase } from "@/test-utils/postgres-test-database";
+import { seedSmokeTestsFixture } from "@/test-utils/smoke-test-seeder";
+import { getFinancialStatementSeries } from "../../../../lib/data-sources/financial-statement-read-service";
+
+describe("Phase 139E Post-Import Product Smoke Boundaries", () => {
+  let db: ReturnType<typeof getPostgresTestDatabase>;
+  let deps: any;
+
+  beforeAll(async () => {
+    process.env.DATABASE_URL = process.env.TEST_DATABASE_URL || "postgresql://atelier:atelier@localhost:5432/atelier_finance_test?schema=public";
+    db = getPostgresTestDatabase();
+    await seedSmokeTestsFixture(db);
+    deps = {
+      readSeries: (opt: any) => getFinancialStatementSeries(opt, { db: db.prisma as any })
+    };
+  });
+
+  afterAll(async () => {
+    await db.cleanup();
   });
 
   describe("HPG Runtime Financials Snapshot", () => {
     it("resolves to annual_report_2025_pdf_reviewed_preview with expected values", async () => {
-      const hpg = await loadFinancialsRuntimeData({ ticker: "HPG", preferDb: true });
+      const hpg = await loadFinancialsRuntimeData({ ticker: "HPG", preferDb: true }, deps);
 
       expect(hpg.source.sourceLabel).toBe("annual_report_2025_pdf_reviewed_preview");
       expect(hpg.source.dataMode).toBe("research_only");
@@ -32,7 +46,7 @@ describe.skip("Phase 139E Post-Import Product Smoke Boundaries", () => {
 
   describe("Sanity Check: Source Priority", () => {
     it("resolves to annual_report_2025_pdf_reviewed_preview for MWG now", async () => {
-      const mwg = await loadFinancialsRuntimeData({ ticker: "MWG", preferDb: true });
+      const mwg = await loadFinancialsRuntimeData({ ticker: "MWG", preferDb: true }, deps);
       
       expect(mwg.source.sourceLabel).toBe("annual_report_2025_pdf_reviewed_preview");
     });
@@ -40,7 +54,7 @@ describe.skip("Phase 139E Post-Import Product Smoke Boundaries", () => {
 
   describe("Module Behaviors", () => {
     it("supplies totalDebt to Risk module without marking it missing", async () => {
-      const hpg = await loadFinancialsRuntimeData({ ticker: "HPG", preferDb: true });
+      const hpg = await loadFinancialsRuntimeData({ ticker: "HPG", preferDb: true }, deps);
       const riskReadiness = buildRiskFinancialsRuntimeReadiness({
         financialsRuntimeData: hpg,
         hasStaticRiskPath: false,
@@ -52,7 +66,7 @@ describe.skip("Phase 139E Post-Import Product Smoke Boundaries", () => {
     });
 
     it("keeps Valuation source boundary unapproved", async () => {
-      const hpg = await loadFinancialsRuntimeData({ ticker: "HPG", preferDb: true });
+      const hpg = await loadFinancialsRuntimeData({ ticker: "HPG", preferDb: true }, deps);
       const valuationReadiness = buildValuationFinancialsRuntimeReadiness({
         financialsRuntimeData: hpg,
         hasPersistedLocalInputBridge: false,
@@ -63,7 +77,7 @@ describe.skip("Phase 139E Post-Import Product Smoke Boundaries", () => {
     });
 
     it("populates AI Assistant Context correctly without recommendation logic", async () => {
-      const hpg = await loadFinancialsRuntimeData({ ticker: "HPG", preferDb: true });
+      const hpg = await loadFinancialsRuntimeData({ ticker: "HPG", preferDb: true }, deps);
       const context = buildAssistantScreenContextPacket({
         ticker: "HPG",
         activeModule: "financials",

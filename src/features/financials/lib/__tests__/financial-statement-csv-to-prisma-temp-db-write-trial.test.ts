@@ -51,7 +51,7 @@ const expectBlockedNoPayload = (csvText: string, reason: string) => {
   expect(validation.blockedReasons).toContain("parser_blocked_rows_prevent_write");
 };
 
-describe.skip("financial statement CSV parser to Prisma temp DB write trial", () => {
+describe("financial statement CSV parser to Prisma temp DB write trial", () => {
   it("parses a valid inline CSV string and maps to Prisma temp DB write payload", () => {
     const parserResult = parseFinancialStatementCsvParserBoundary(buildFinancialStatementCsvToPrismaTempDbInlineFixture());
     const payload = mapCsvParserResultToPrismaTempDbWritePayload(parserResult);
@@ -83,7 +83,7 @@ describe.skip("financial statement CSV parser to Prisma temp DB write trial", ()
       tempDir = environment.tempDir;
       const result = await runFinancialStatementCsvToPrismaTempDbWriteTrial({ environment });
       const record = result.readBack.records[0];
-      const metadataRows = await environment.client.financialStatementUnitMetadata.findMany({
+      const metadataRows = await environment.prisma.financialStatementUnitMetadata.findMany({
         where: { financialStatementId: record.id },
       });
 
