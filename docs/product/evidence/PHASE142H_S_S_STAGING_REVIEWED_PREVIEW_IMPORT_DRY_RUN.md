@@ -1,7 +1,7 @@
 # Phase 142H-S-S: Staging Reviewed Preview Import Dry Run
 
 ## 1. Objective
-Create a staging-specific, heavily guarded import script for the Phase 139 reviewed-preview data (`FPT`, `HPG`, `VNM`, `MSN`, `MWG`). The script must strictly validate the staging target, enforce hardcoded constraints for approved metrics, entirely exclude VCB, and default to dry-run mode without modifying the database.
+Create a staging-specific guarded import path for the Phase 139 reviewed-preview data (`FPT`, `HPG`, `VNM`, `MSN`, `MWG`). The existing `local-write-guard` remains fully intact and unmodified. This script establishes a separate, fail-closed, narrow-scoped path exclusively for staging imports. The script must strictly validate the staging target, enforce hardcoded constraints for approved metrics, entirely exclude VCB, and default to dry-run mode without modifying the database.
 
 ## 2. Environment Status Before Phase
 - **Main commit:** `51650833`
@@ -61,4 +61,6 @@ WHERE "sourceLabel" = 'annual_report_2025_pdf_reviewed_preview'
 - **Data import:** No
 - **Production deploy:** No
 - **VCB corporate import:** No
-- **readyFor142H_SActual:** true (The staging script is tested, validated, and ready for actual write implementation when authorized).
+- **Script readiness:** true (The staging script is tested, validated, and ready for actual write implementation when authorized).
+- **Full validation readiness:** true (npm run build passed with PostgreSQL DATABASE_URL).
+- **readyFor142H_SActual:** true after PostgreSQL build validation pass.
