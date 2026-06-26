@@ -1,0 +1,230 @@
+erDiagram
+    USER {
+        String id PK
+        String email UK
+        String displayName
+        DateTime createdAt
+    }
+    INDUSTRY {
+        String id PK
+        String industryCode UK
+        String industryName
+        String classificationSystem
+    }
+    COMPANY {
+        String id PK
+        String industryId FK
+        String profileSourceId FK
+        String ticker
+        String exchange
+        String companyName
+        String dataMode
+    }
+    FINANCIAL_STATEMENT {
+        String id PK
+        String companyId FK
+        String sourceId FK
+        String period
+        String periodType
+        Decimal revenue
+        Decimal netIncome
+        Decimal totalDebt
+        Decimal eps
+        Boolean productionApproved
+        String qualityStatus
+        String missingFields
+    }
+    FINANCIAL_STATEMENT_UNIT_METADATA {
+        String id PK
+        String financialStatementId FK
+        String field
+        String unit
+        String status
+        Boolean productionApproved
+    }
+    MARKET_PRICE {
+        String id PK
+        String companyId FK
+        String sourceId FK
+        DateTime tradingDate
+        Decimal closePrice
+        Decimal volume
+        Decimal marketCap
+        Boolean productionApproved
+        String qualityStatus
+        String missingFields
+    }
+    MARKET_PRICE_UNIT_METADATA {
+        String id PK
+        String marketPriceId FK
+        String field
+        String unit
+        String status
+        Boolean productionApproved
+    }
+    MACRO_INDICATOR {
+        String id PK
+        String indicatorCode UK
+        String indicatorName
+        String frequency
+        String defaultUnit
+    }
+    MACRO_INDICATOR_OBSERVATION {
+        String id PK
+        String macroIndicatorId FK
+        String sourceId FK
+        String period
+        DateTime asOf
+        Decimal value
+        String unit
+        Boolean productionApproved
+        String qualityStatus
+        String readiness
+    }
+    INDUSTRY_METRIC {
+        String id PK
+        String industryId FK
+        String sourceId FK
+        String metricCode
+        String period
+        DateTime asOf
+        Decimal value
+        String unit
+        String benchmarkType
+        Boolean productionApproved
+        String qualityStatus
+    }
+    DATA_SOURCE {
+        String id PK
+        String name
+        String sourceType
+        String usageStatus
+        String licenseStatus
+        String accessMethod
+    }
+    SOURCE_EVIDENCE {
+        String id PK
+        String sourceId FK
+        String documentationUrl
+        String termsUrl
+        String evidenceStatus
+        DateTime reviewedAt
+    }
+    IMPORT_JOB {
+        String id PK
+        String userId FK
+        String sourceId FK
+        String jobType
+        String status
+        String readiness
+        Int rowCount
+    }
+    MANUAL_IMPORT_RECORD {
+        String id PK
+        String importJobId FK
+        String companyId FK
+        Int rowIndex
+        String rawPayload
+        String normalizedPayload
+        String targetEntityType
+        String targetEntityId
+        String qualityStatus
+    }
+    DATA_QUALITY_REPORT {
+        String id PK
+        String importJobId FK
+        String scopeType
+        String scopeId
+        String qualityStatus
+        String readiness
+        String missingFields
+    }
+    WATCHLIST {
+        String id PK
+        String userId FK
+        String companyId FK
+        String status
+        String thesisSummary
+    }
+    CHECKLIST_ITEM {
+        String id PK
+        String itemCode UK
+        String moduleKey
+        String question
+        String evidenceRule
+        Int version
+    }
+    USER_CHECKLIST {
+        String id PK
+        String userId FK
+        String companyId FK
+        String status
+        String readiness
+        String contextSnapshot
+    }
+    CHECKLIST_RESULT {
+        String id PK
+        String userChecklistId FK
+        String checklistItemId FK
+        String status
+        String evidenceSnapshot
+        String missingFields
+    }
+    SIMULATION_SCENARIO {
+        String id PK
+        String userId FK
+        String companyId FK
+        String scenarioType
+        String assumptions
+        String inputSnapshot
+        String reflection
+        String status
+    }
+    ASSISTANT_CONVERSATION {
+        String id PK
+        String userId FK
+        String companyId FK
+        String activeModule
+        String tickerContext
+        DateTime createdAt
+    }
+    ASSISTANT_MESSAGE {
+        String id PK
+        String conversationId FK
+        String role
+        String content
+        String contextSnapshot
+        String dataQualityContext
+        String allowedNumericValues
+        String guardrailStatus
+    }
+
+    INDUSTRY ||--o{ COMPANY : classifies
+    INDUSTRY ||--o{ INDUSTRY_METRIC : has
+    COMPANY ||--o{ FINANCIAL_STATEMENT : reports
+    COMPANY ||--o{ MARKET_PRICE : has
+    FINANCIAL_STATEMENT ||--o{ FINANCIAL_STATEMENT_UNIT_METADATA : describes
+    MARKET_PRICE ||--o{ MARKET_PRICE_UNIT_METADATA : describes
+    MACRO_INDICATOR ||--o{ MACRO_INDICATOR_OBSERVATION : observes
+    DATA_SOURCE ||--o{ COMPANY : profiles
+    DATA_SOURCE ||--o{ FINANCIAL_STATEMENT : provides
+    DATA_SOURCE ||--o{ MARKET_PRICE : provides
+    DATA_SOURCE ||--o{ MACRO_INDICATOR_OBSERVATION : provides
+    DATA_SOURCE ||--o{ INDUSTRY_METRIC : provides
+    DATA_SOURCE ||--o{ SOURCE_EVIDENCE : documented_by
+    DATA_SOURCE ||--o{ IMPORT_JOB : feeds
+    USER ||--o{ IMPORT_JOB : initiates
+    IMPORT_JOB ||--o{ MANUAL_IMPORT_RECORD : contains
+    IMPORT_JOB ||--o{ DATA_QUALITY_REPORT : produces
+    COMPANY ||--o{ MANUAL_IMPORT_RECORD : targets
+    USER ||--o{ WATCHLIST : owns
+    COMPANY ||--o{ WATCHLIST : appears_in
+    USER ||--o{ USER_CHECKLIST : performs
+    COMPANY ||--o{ USER_CHECKLIST : assessed_in
+    USER_CHECKLIST ||--o{ CHECKLIST_RESULT : contains
+    CHECKLIST_ITEM ||--o{ CHECKLIST_RESULT : answered_by
+    USER ||--o{ SIMULATION_SCENARIO : creates
+    COMPANY ||--o{ SIMULATION_SCENARIO : contextualizes
+    USER ||--o{ ASSISTANT_CONVERSATION : owns
+    COMPANY ||--o{ ASSISTANT_CONVERSATION : contextualizes
+    ASSISTANT_CONVERSATION ||--o{ ASSISTANT_MESSAGE : contains
