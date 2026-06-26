@@ -166,6 +166,7 @@ model Company {
   watchlists            Watchlist[]
   paperTrades           PaperTrade[]
   assistantInteractions AssistantInteraction[]
+  businessProfiles      CompanyBusinessProfile[]
 
   @@unique([ticker, exchange])
   @@index([ticker])
@@ -524,4 +525,29 @@ model AssistantInteraction {
   @@index([userId, createdAt])
   @@index([ticker, activeModule])
   @@index([sourceMode])
+}
+
+model CompanyBusinessProfile {
+  id                    String   @id @default(uuid())
+  ticker                String
+  companyId             String?
+  businessDescription   String?
+  businessModelSummary  String?
+  mainProducts          String?
+  revenueDrivers        String?
+  businessRiskNotes     String?
+  profileLanguage       String   @default("vi")
+  asOfDate              DateTime?
+  sourceLabel           String
+  dataMode              DataMode
+  productionApproved    Boolean  @default(false)
+  needsReview           Boolean  @default(true)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  company               Company? @relation(fields: [companyId], references: [id])
+
+  @@index([ticker])
+  @@index([sourceLabel])
+  @@unique([ticker, sourceLabel, profileLanguage])
 }
