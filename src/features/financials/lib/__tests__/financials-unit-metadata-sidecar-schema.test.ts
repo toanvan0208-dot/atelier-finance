@@ -1,17 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
  
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-
-const repoRoot = process.cwd();
-const schema = readFileSync(join(repoRoot, "prisma", "schema.prisma"), "utf8");
-const migrationSql = readFileSync(
-  join(repoRoot, "prisma", "migrations", "20260621070000_phase_68_financials_unit_metadata_sidecar", "migration.sql"),
-  "utf8",
-);
+import { getPostgresTestDatabase } from "@/test-utils/postgres-test-database";
 
 describe("financials unit metadata sidecar schema", () => {
-  it("adds the sidecar model and parent relation", () => {
+  it("adds the sidecar model and parent relation to schema.prisma", () => {
+    const schema = readFileSync(join(process.cwd(), "prisma/schema.prisma"), "utf-8");
     expect(schema).toContain("model FinancialStatementUnitMetadata");
     expect(schema).toContain("unitMetadata        FinancialStatementUnitMetadata[]");
     expect(schema).toContain("@@unique([financialStatementId, field])");
@@ -19,17 +15,28 @@ describe("financials unit metadata sidecar schema", () => {
     expect(schema).toContain("productionApproved   Boolean            @default(false)");
   });
 
-  it("keeps the migration additive and sidecar-only", () => {
-    expect(migrationSql).toContain('CREATE TABLE "FinancialStatementUnitMetadata"');
-    expect(migrationSql).toContain(
-      'CREATE UNIQUE INDEX "FinancialStatementUnitMetadata_financialStatementId_field_key"',
-    );
-    expect(migrationSql).toContain("ON DELETE CASCADE ON UPDATE CASCADE");
+  it("actually creates the table, index and constraints in PostgreSQL", async () => {
+    const db = getPostgresTestDatabase();
+    
+    // Check table exists
+    const tableRes = await db.prisma.$queryRawUnsafe<any[]>(`SELECT * FROM information_schema.tables WHERE table_name = 'FinancialStatementUnitMetadata'`);
+    expect(tableRes.length).toBeGreaterThan(0);
+    
+    // Check unique index
+    const indexRes = await db.prisma.$queryRawUnsafe<any[]>(`
+      SELECT indexname, indexdef FROM pg_indexes 
+      WHERE tablename = 'FinancialStatementUnitMetadata' AND indexname LIKE '%_key';
+    `);
+    expect(indexRes.some(r => r.indexdef.includes('financialStatementId') && r.indexdef.includes('field'))).toBe(true);
 
-    expect(migrationSql).not.toMatch(/(^|\n)\s*DROP\b/i);
-    expect(migrationSql).not.toMatch(/(^|\n)\s*DELETE\b/i);
-    expect(migrationSql).not.toMatch(/(^|\n)\s*TRUNCATE\b/i);
-    expect(migrationSql).not.toMatch(/(^|\n)\s*RESET\b/i);
-    expect(migrationSql).not.toMatch(/(^|\n)\s*SEED\b/i);
+    // Check cascade constraint
+    const cascadeRes = await db.prisma.$queryRawUnsafe<any[]>(`
+      SELECT confdeltype::text, confupdtype::text FROM pg_constraint 
+      WHERE conrelid = '"FinancialStatementUnitMetadata"'::regclass AND contype = 'f';
+    `);
+    // In pg, 'a' = no action, 'r' = restrict, 'c' = cascade, 'n' = set null, 'd' = set default
+    expect(cascadeRes.some(r => r.confdeltype === 'c' && r.confupdtype === 'c')).toBe(true);
+    
+    await db.cleanup();
   });
 });

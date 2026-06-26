@@ -1,19 +1,34 @@
-import { describe, it, expect, beforeAll } from "vitest";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { loadFinancialsRuntimeData } from "../load-financials-runtime-data";
 import { buildRiskFinancialsRuntimeReadiness } from "../../../risk/lib/risk-financials-runtime-readiness";
 import { buildValuationFinancialsRuntimeReadiness } from "../../../valuation/lib/valuation-financials-runtime-readiness";
 import { buildAssistantScreenContextPacket } from "../../../../components/layout/assistant-screen-context";
 
+import { getPostgresTestDatabase } from "@/test-utils/postgres-test-database";
+import { seedSmokeTestsFixture } from "@/test-utils/smoke-test-seeder";
+import { getFinancialStatementSeries } from "../../../../lib/data-sources/financial-statement-read-service";
+
 describe("Phase 139J Post-Import Product Smoke Boundaries", () => {
-  beforeAll(() => {
-    if (!process.env.DATABASE_URL) {
-      process.env.DATABASE_URL = "file:./dev.db";
-    }
+  let db: ReturnType<typeof getPostgresTestDatabase>;
+  let deps: any;
+
+  beforeAll(async () => {
+    process.env.DATABASE_URL = process.env.TEST_DATABASE_URL || "postgresql://atelier:atelier@localhost:5432/atelier_finance_test?schema=public";
+    db = getPostgresTestDatabase();
+    await seedSmokeTestsFixture(db);
+    deps = {
+      readSeries: (opt: any) => getFinancialStatementSeries(opt, { db: db.prisma as any })
+    };
+  });
+
+  afterAll(async () => {
+    await db.cleanup();
   });
 
   describe("FPT Runtime Financials Snapshot", () => {
     it("resolves to annual_report_2025_pdf_reviewed_preview with expected values", async () => {
-      const fpt = await loadFinancialsRuntimeData({ ticker: "FPT", preferDb: true });
+      const fpt = await loadFinancialsRuntimeData({ ticker: "FPT", preferDb: true }, deps);
 
       expect(fpt.source.sourceLabel).toBe("annual_report_2025_pdf_reviewed_preview");
       expect(fpt.source.dataMode).toBe("research_only");
@@ -32,7 +47,7 @@ describe("Phase 139J Post-Import Product Smoke Boundaries", () => {
 
   describe("Sanity Check: Source Priority", () => {
     it("resolves to annual_report_2025_pdf_reviewed_preview for MWG now", async () => {
-      const mwg = await loadFinancialsRuntimeData({ ticker: "MWG", preferDb: true });
+      const mwg = await loadFinancialsRuntimeData({ ticker: "MWG", preferDb: true }, deps);
       
       expect(mwg.source.sourceLabel).toBe("annual_report_2025_pdf_reviewed_preview");
     });
@@ -40,7 +55,7 @@ describe("Phase 139J Post-Import Product Smoke Boundaries", () => {
 
   describe("Module Behaviors", () => {
     it("supplies totalDebt to Risk module without marking it missing", async () => {
-      const fpt = await loadFinancialsRuntimeData({ ticker: "FPT", preferDb: true });
+      const fpt = await loadFinancialsRuntimeData({ ticker: "FPT", preferDb: true }, deps);
       const riskReadiness = buildRiskFinancialsRuntimeReadiness({
         financialsRuntimeData: fpt,
         hasStaticRiskPath: false,
@@ -52,7 +67,7 @@ describe("Phase 139J Post-Import Product Smoke Boundaries", () => {
     });
 
     it("keeps Valuation source boundary unapproved", async () => {
-      const fpt = await loadFinancialsRuntimeData({ ticker: "FPT", preferDb: true });
+      const fpt = await loadFinancialsRuntimeData({ ticker: "FPT", preferDb: true }, deps);
       const valuationReadiness = buildValuationFinancialsRuntimeReadiness({
         financialsRuntimeData: fpt,
         hasPersistedLocalInputBridge: false,
@@ -63,7 +78,7 @@ describe("Phase 139J Post-Import Product Smoke Boundaries", () => {
     });
 
     it("populates AI Assistant Context correctly without recommendation logic", async () => {
-      const fpt = await loadFinancialsRuntimeData({ ticker: "FPT", preferDb: true });
+      const fpt = await loadFinancialsRuntimeData({ ticker: "FPT", preferDb: true }, deps);
       const context = buildAssistantScreenContextPacket({
         ticker: "FPT",
         activeModule: "financials",

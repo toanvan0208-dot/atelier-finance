@@ -1,0 +1,62 @@
+{
+  "phase": "142G-T",
+  "name": "PostgreSQL test migration and skipped-test elimination",
+  "status": "success",
+  "branch": "phase-142f-postgres-docker-dry-run",
+  "startingCommit": "7ac534884ae782db8caa302b0882b0705649ce85",
+  "commit": "a2592cbef617cfc1b8968daf720da158626ade98",
+  "pushed": true,
+  "filesChanged": [
+    "src/test-utils/smoke-test-seeder.ts",
+    "src/features/financials/lib/__tests__/msn-pdf-reviewed-post-import-smoke.test.ts"
+  ],
+  "testDatabase": {
+    "provider": "local_docker_postgresql",
+    "container": "atelier-postgres-dryrun",
+    "database": "atelier_finance_test",
+    "supabaseStagingTouched": false,
+    "remoteDatabaseUsed": false,
+    "credentialsCommitted": false
+  },
+  "vCBFixtureGuardrailAudit": {
+    "fixtureOnly": true,
+    "productionApproved": false,
+    "totalDebtRemainsNullOrNeedsBankMapping": true,
+    "notCorporateReviewedPreviewPath": true,
+    "sourceLabelClearlyTestOnly": true,
+    "issues": []
+  },
+  "skipsBefore": {
+    "files": 7,
+    "tests": 48
+  },
+  "skipsAfter": {
+    "files": 0,
+    "tests": 0,
+    "remaining": []
+  },
+  "validation": {
+    "prismaValidate": "success",
+    "prismaGenerate": "success",
+    "typecheck": "success",
+    "lint": "success",
+    "tests": "success",
+    "build": "success"
+  },
+  "tests": {
+    "testFilesPassed": 142,
+    "testsPassed": 1185,
+    "testFilesSkipped": 0,
+    "testsSkipped": 0,
+    "testFilesFailed": 0,
+    "testsFailed": 0
+  },
+  "dbWriteScope": "local_disposable_postgresql_test_database_only",
+  "stagingDataImport": false,
+  "productionDeploy": false,
+  "mergedToMain": false,
+  "readyForMainMerge": true,
+  "readyForProduction": false,
+  "remainingBlockers": [],
+  "timestamp": "2026-06-26T01:26:00.000Z"
+}

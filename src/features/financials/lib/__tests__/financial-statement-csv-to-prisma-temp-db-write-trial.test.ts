@@ -83,7 +83,7 @@ describe("financial statement CSV parser to Prisma temp DB write trial", () => {
       tempDir = environment.tempDir;
       const result = await runFinancialStatementCsvToPrismaTempDbWriteTrial({ environment });
       const record = result.readBack.records[0];
-      const metadataRows = await environment.client.financialStatementUnitMetadata.findMany({
+      const metadataRows = await environment.prisma.financialStatementUnitMetadata.findMany({
         where: { financialStatementId: record.id },
       });
 

@@ -1,0 +1,82 @@
+{
+  "phase": "142F-R",
+  "name": "PostgreSQL dry-run branch review and blocker audit",
+  "branch": "phase-142f-postgres-docker-dry-run",
+  "reviewedCommit": "c8eb6ec6fc36b5e3a2800f8a75a62aa79a8f0fb9",
+  "comparedAgainst": "origin/main",
+  "filesChanged": [
+    "package.json",
+    "package-lock.json",
+    "prisma/schema.prisma",
+    "prisma.config.ts",
+    ".env.example",
+    "prisma/migrations/*",
+    "scripts/*",
+    "src/features/*",
+    "docs/product/evidence/*",
+    "docs/thesis/*"
+  ],
+  "migration": {
+    "path": "prisma/migrations/20260625164749_init_postgres/migration.sql",
+    "reviewed": true,
+    "issues": [],
+    "blockers": []
+  },
+  "skippedTests": {
+    "count": 7,
+    "files": [
+      "financial-statement-csv-to-prisma-temp-db-write-trial.test.ts",
+      "fpt-financial-statement-prisma-temp-db-write-verification.test.ts",
+      "financials-unit-metadata-sidecar-schema.test.ts",
+      "fpt-pdf-reviewed-post-import-smoke.test.ts",
+      "hpg-pdf-reviewed-post-import-smoke.test.ts",
+      "msn-pdf-reviewed-post-import-smoke.test.ts",
+      "market-pvt-unit-metadata-persistence-boundary.test.ts"
+    ],
+    "riskSummary": "Thiếu độ phủ test post-import smoke khi chạy trên CI không có dev.db. Giữ lại legacy test gây nợ kỹ thuật.",
+    "mustFixBeforeStaging": [
+      "Xóa test phụ thuộc text file migration SQLite bị xóa.",
+      "Xóa test temp DB SQLite.",
+      "Mô phỏng data hoặc seed trước cho các bài post-import smoke."
+    ]
+  },
+  "sqliteDependencyAudit": {
+    "runtimeBlockers": [
+      "src/lib/data-sources/financial-statement-local-write-guard.ts",
+      "src/lib/data-sources/reviewed-financial-missing-fields-import.ts",
+      "src/lib/data-sources/reviewed-source-records-import.ts"
+    ],
+    "testOnlyBlockers": [
+      "fpt-financial-statement-prisma-temp-db-write-verification.ts"
+    ],
+    "scriptCommandBlockers": [
+      "package.json (db:migrate, db:reset)",
+      "scripts/reset-local-db.mjs"
+    ],
+    "documentationOnlyMentions": [
+      "financials-unit-metadata-storage-plan.ts"
+    ],
+    "legacyAcceptableMentions": []
+  },
+  "validation": {
+    "prismaValidate": "pass",
+    "typecheck": "pass",
+    "lint": "pass",
+    "tests": "pass_with_skips",
+    "build": "fail"
+  },
+  "dbWrite": false,
+  "dataImport": false,
+  "newMigrationCreated": false,
+  "migrateRun": false,
+  "mergedToMain": false,
+  "productionDeploy": false,
+  "readyFor142G": true,
+  "requiredBefore142G": [
+    "Gỡ bỏ hardcode chặn file:./dev.db trong guard và scripts.",
+    "Cập nhật package.json scripts (db:migrate, db:reset).",
+    "Xử lý dứt điểm các file test legacy phụ thuộc SQLite/Migration path."
+  ],
+  "commit": "4172d8a",
+  "pushed": true
+}

@@ -1,0 +1,31 @@
+{
+  "phase": "142F",
+  "name": "Local Docker PostgreSQL provider-switch dry run",
+  "branch": "phase-142f-postgres-docker-dry-run",
+  "providerChanged": true,
+  "migrationCreated": true,
+  "migrateRun": true,
+  "dbWrite": false,
+  "dataImport": false,
+  "runtimeChanged": true,
+  "productionDeploy": false,
+  "filesChanged": [
+    "prisma/schema.prisma",
+    "prisma/migrations/20260625164749_init_postgres/migration.sql",
+    "prisma.config.ts",
+    ".env.example",
+    "src/features/financials/lib/fpt-financial-statement-prisma-temp-db-write-verification.ts",
+    "src/features/financials/lib/__tests__/*",
+    "docs/product/evidence/PHASE142F_POSTGRES_DOCKER_DRY_RUN_RESULT.md",
+    "docs/product/evidence/PHASE142F_POSTGRES_DOCKER_DRY_RUN_RESULT.json"
+  ],
+  "validation": {
+    "prismaValidate": "pass",
+    "typecheck": "pass",
+    "lint": "pass",
+    "tests": "pass_with_skips",
+    "build": "pass"
+  },
+  "commit": "7a928ef",
+  "pushed": true
+}

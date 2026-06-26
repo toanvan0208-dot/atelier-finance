@@ -12,8 +12,11 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
     "db:migrate": "prisma db execute --file prisma/migrations/20260618162000_phase_29e_local_database_foundation/migration.sql",
+    "db:migrate:postgres-dry-run": "prisma migrate dev",
     "db:seed": "prisma db execute --file prisma/seed.sql",
     "db:reset": "node scripts/reset-local-db.mjs",
+    "db:reset:postgres-dry-run": "prisma migrate reset --force",
+    "validate:postgres-dry-run": "node scripts/validate-postgres-dry-run.mjs",
     "financials:dry-run": "tsx scripts/financial-statements-dry-run.ts",
     "financials:controlled": "tsx scripts/import-controlled-financials.ts",
     "financials:fpt:controlled": "tsx scripts/import-fpt-financials-controlled.ts",
@@ -27,15 +30,17 @@
     "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
-    "@prisma/adapter-better-sqlite3": "^7.8.0",
+    "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "next": "^16.2.7",
+    "pg": "^8.22.0",
     "react": "19.0.0",
     "react-dom": "19.0.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.60.0",
     "@types/node": "22.15.29",
+    "@types/pg": "^8.20.0",
     "@types/react": "19.0.12",
     "@types/react-dom": "19.0.4",
     "autoprefixer": "10.4.21",

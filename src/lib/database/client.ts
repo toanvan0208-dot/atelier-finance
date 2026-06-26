@@ -1,4 +1,5 @@
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { Pool } from "pg";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../../generated/prisma/client";
 
 const globalForPrisma = globalThis as unknown as {
@@ -12,11 +13,12 @@ if (!databaseUrl) {
 }
 
 const createPrismaClient = (): PrismaClient => {
-  if (!databaseUrl.startsWith("file:")) {
-    throw new Error("Phase 29F.1 Prisma runtime supports local SQLite file: DATABASE_URL only.");
+  if (databaseUrl.startsWith("file:")) {
+    throw new Error("Phase 142F Prisma runtime supports postgresql DATABASE_URL only.");
   }
 
-  const adapter = new PrismaBetterSqlite3({ url: databaseUrl });
+  const pool = new Pool({ connectionString: databaseUrl });
+  const adapter = new PrismaPg(pool);
   return new PrismaClient({ adapter });
 };
 
