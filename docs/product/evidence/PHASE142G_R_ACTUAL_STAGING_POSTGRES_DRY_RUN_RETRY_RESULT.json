@@ -1,0 +1,69 @@
+{
+  "phase": "142G-R",
+  "name": "Retry actual staging PostgreSQL dry run with local secret file",
+  "branch": "phase-142f-postgres-docker-dry-run",
+  "startingCommit": "d3f4069551bd3a3d22bc44755590869890673c03",
+  "staging": {
+    "provider": "Supabase",
+    "connectionType": "session_pooler",
+    "database": "postgres",
+    "schema": "public",
+    "credentialsSource": "ignored_local_env_file",
+    "secretFileCommitted": false,
+    "fullConnectionStringRedacted": true,
+    "isPostgresUrl": true,
+    "isLocalhost": false,
+    "isFileUrl": false,
+    "hostIsSupabase": true,
+    "productionCredentialsUsed": false
+  },
+  "preMigration": {
+    "connectionOk": true,
+    "publicSchemaTableCount": 0,
+    "publicSchemaWasEmpty": true
+  },
+  "migration": {
+    "command": "npx prisma migrate deploy",
+    "migrationApplied": true,
+    "migrationName": "20260625164749_init_postgres",
+    "createdNewMigration": false,
+    "issues": [],
+    "blockers": []
+  },
+  "postMigration": {
+    "schemaVerified": true,
+    "publicSchemaTableCount": 15,
+    "enumCount": 31,
+    "businessDataImported": false
+  },
+  "validation": {
+    "prismaValidate": "pass",
+    "prismaGenerate": "pass",
+    "typecheck": "pass",
+    "lint": "pass",
+    "tests": "pass_with_skips",
+    "build": "pass"
+  },
+  "tests": {
+    "testFiles": 142,
+    "tests": 1185,
+    "skippedFiles": 7,
+    "skippedTests": 48,
+    "passWithSkips": true
+  },
+  "dbWriteScope": "staging_schema_migration_only",
+  "dataImport": false,
+  "seedRealData": false,
+  "productionDeploy": false,
+  "mergedToMain": false,
+  "productionApprovedTrueIntroduced": false,
+  "readyForMainMerge": false,
+  "readyForProduction": false,
+  "readyForDataImportPhase": true,
+  "requiredBeforeMainMerge": [
+    "Resolve or rewrite PostgreSQL transition skipped tests",
+    "Remove legacy SQLite test blockers or mark them provider-specific with replacement PostgreSQL coverage"
+  ],
+  "commit": "9e44eb5",
+  "pushed": true
+}
