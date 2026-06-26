@@ -1,0 +1,72 @@
+{
+  "phase": "142G-M-R",
+  "name": "Re-run final PostgreSQL merge review after scope cleanup",
+  "branch": "phase-142f-postgres-docker-dry-run",
+  "startingCommit": "7f55817f646cc2b8eddeb0f3a9b6fe8b34f5b4b1",
+  "branchHead": "4a81e833633e082f42a03fc5cd1006e1cc8b6250",
+  "comparedAgainst": "origin/main",
+  "originMainCommit": "925c2366f02c8477335b8f5b85d7a4227b0d41d4",
+  "scopeCleanupVerified": true,
+  "outOfScopeDiffRemaining": [],
+  "filesChanged": [
+    "docs/thesis/database-design-final.md",
+    "docs/thesis/database-erd.mmd",
+    "docs/thesis/use-case-design-final.md",
+    "docs/thesis/use-case-diagram.puml"
+  ],
+  "diffReview": {
+    "scopeClean": true,
+    "outOfScopeFiles": []
+  },
+  "migrationReview": {
+    "migrationPath": "prisma/migrations/20260625164749_init_postgres/migration.sql",
+    "reviewed": true,
+    "issues": [],
+    "blockers": []
+  },
+  "runtimeReview": {
+    "providerIsPostgres": true,
+    "sqliteRuntimeFallbackRemoved": true,
+    "databaseUrlFailClosed": true,
+    "productionCredentialsFound": false,
+    "issues": [],
+    "blockers": []
+  },
+  "testReview": {
+    "transitionSkipsRemaining": 0,
+    "flakyRiskObserved": true,
+    "flakyTests": [
+      "financial-statement-csv-to-prisma-temp-db-write-trial.test.ts"
+    ],
+    "vCBFixtureGuardrailsPreserved": true,
+    "issues": [
+      "The CSV write trial test had a flaky execution in previous runs due to parallel tests clearing the same sourceLabel. It passed cleanly in the most recent run."
+    ],
+    "blockers": []
+  },
+  "validation": {
+    "prismaValidate": "success",
+    "prismaGenerate": "success",
+    "typecheck": "success",
+    "lint": "success",
+    "tests": "success",
+    "build": "success"
+  },
+  "tests": {
+    "testFilesPassed": 142,
+    "testsPassed": 1185,
+    "testFilesSkipped": 0,
+    "testsSkipped": 0,
+    "testFilesFailed": 0,
+    "testsFailed": 0
+  },
+  "dbWrite": false,
+  "dataImport": false,
+  "productionDeploy": false,
+  "mergedToMain": false,
+  "readyForMainMerge": true,
+  "readyForProduction": false,
+  "requiredForMergePhase": [],
+  "commit": "4a81e83",
+  "pushed": false
+}
