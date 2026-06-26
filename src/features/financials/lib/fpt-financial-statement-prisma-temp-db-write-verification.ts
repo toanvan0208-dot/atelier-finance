@@ -68,6 +68,19 @@ export const createFptPrismaTempDbEnvironment = async ({
   repoRoot?: string;
 } = {}): Promise<FptPrismaTempDbEnvironment> => {
   const db = getPostgresTestDatabase();
+  await db.prisma.financialStatement.deleteMany({
+    where: {
+      sourceLabel: {
+        in: [
+          "phase79_prisma_temp_db_write_verification",
+          "phase82_csv_parser_to_prisma_temp_db_write_trial",
+          "phase80_prisma_backed_fpt_financial_statement_temp_db_write_verification",
+          "phase80_not_csv_importer",
+          "phase80_no_source_approval",
+        ],
+      },
+    },
+  });
 
   return {
     ...db,
