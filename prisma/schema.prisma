@@ -233,8 +233,7 @@ model FinancialStatementUnitMetadata {
   unit                 String
   status               String
   sourceLabel          String?
-  dataMode             String?
-  warningCodes         String             @default("[]")
+  dataMode             SourceUsageStatus  @default(research_only)
   productionApproved   Boolean            @default(false)
   createdAt            DateTime           @default(now())
   updatedAt            DateTime           @updatedAt
