@@ -145,21 +145,21 @@ model User {
 }
 
 model Company {
-  id                    String                 @id @default(cuid())
+  id                    String                   @id @default(cuid())
   ticker                String
   exchange              String?
   companyName           String
-  companyType           CompanyType            @default(unknown)
+  companyType           CompanyType              @default(unknown)
   industryCode          String?
   industryName          String?
   country               String?
   currency              String?
-  dataMode              DataMode               @default(unknown)
+  dataMode              DataMode                 @default(unknown)
   profileSourceId       String?
   profileAsOf           DateTime?
-  createdAt             DateTime               @default(now())
-  updatedAt             DateTime               @updatedAt
-  profileSource         DataSource?            @relation("CompanyProfileSource", fields: [profileSourceId], references: [id])
+  createdAt             DateTime                 @default(now())
+  updatedAt             DateTime                 @updatedAt
+  profileSource         DataSource?              @relation("CompanyProfileSource", fields: [profileSourceId], references: [id])
   financialStatements   FinancialStatement[]
   marketPrices          MarketPrice[]
   manualImportRecords   ManualImportRecord[]
@@ -175,10 +175,10 @@ model Company {
 }
 
 model FinancialStatement {
-  id                  String                @id @default(cuid())
+  id                  String                           @id @default(cuid())
   companyId           String
   ticker              String
-  companyType         CompanyType           @default(unknown)
+  companyType         CompanyType                      @default(unknown)
   periodType          PeriodType
   period              String
   fiscalYear          Int?
@@ -207,15 +207,15 @@ model FinancialStatement {
   dataMode            DataMode
   asOf                DateTime
   collectedAt         DateTime?
-  qualityStatus       QualityStatus         @default(unknown)
-  readiness           ReadinessStatus       @default(unknown)
-  missingFields       String                @default("[]")
-  warningCodes        String                @default("[]")
-  errorCodes          String                @default("[]")
-  createdAt           DateTime              @default(now())
-  updatedAt           DateTime              @updatedAt
-  company             Company               @relation(fields: [companyId], references: [id])
-  source              DataSource            @relation(fields: [sourceId], references: [id])
+  qualityStatus       QualityStatus                    @default(unknown)
+  readiness           ReadinessStatus                  @default(unknown)
+  missingFields       String                           @default("[]")
+  warningCodes        String                           @default("[]")
+  errorCodes          String                           @default("[]")
+  createdAt           DateTime                         @default(now())
+  updatedAt           DateTime                         @updatedAt
+  company             Company                          @relation(fields: [companyId], references: [id])
+  source              DataSource                       @relation(fields: [sourceId], references: [id])
   manualImportRecords ManualImportRecord[]
   unitMetadata        FinancialStatementUnitMetadata[]
 
@@ -246,11 +246,11 @@ model FinancialStatementUnitMetadata {
 }
 
 model MarketPrice {
-  id                  String                @id @default(cuid())
+  id                  String                    @id @default(cuid())
   companyId           String
   ticker              String
   tradingDate         DateTime
-  periodType          PeriodType            @default(day)
+  periodType          PeriodType                @default(day)
   period              String
   openPrice           Decimal?
   highPrice           Decimal?
@@ -268,15 +268,15 @@ model MarketPrice {
   dataMode            DataMode
   asOf                DateTime
   collectedAt         DateTime?
-  qualityStatus       QualityStatus         @default(unknown)
-  readiness           ReadinessStatus       @default(unknown)
-  missingFields       String                @default("[]")
-  warningCodes        String                @default("[]")
-  errorCodes          String                @default("[]")
-  createdAt           DateTime              @default(now())
-  updatedAt           DateTime              @updatedAt
-  company             Company               @relation(fields: [companyId], references: [id])
-  source              DataSource            @relation(fields: [sourceId], references: [id])
+  qualityStatus       QualityStatus             @default(unknown)
+  readiness           ReadinessStatus           @default(unknown)
+  missingFields       String                    @default("[]")
+  warningCodes        String                    @default("[]")
+  errorCodes          String                    @default("[]")
+  createdAt           DateTime                  @default(now())
+  updatedAt           DateTime                  @updatedAt
+  company             Company                   @relation(fields: [companyId], references: [id])
+  source              DataSource                @relation(fields: [sourceId], references: [id])
   manualImportRecords ManualImportRecord[]
   unitMetadata        MarketPriceUnitMetadata[]
 
@@ -310,23 +310,23 @@ model MarketPriceUnitMetadata {
 }
 
 model DataSource {
-  id                    String                @id @default(cuid())
+  id                    String               @id @default(cuid())
   name                  String
   sourceType            SourceType
-  supportedDataGroups   String                @default("[]")
-  usageStatus           SourceUsageStatus     @default(unknown)
-  licenseStatus         LegalReviewStatus     @default(not_checked)
-  tosStatus             LegalReviewStatus     @default(not_checked)
-  accessMethod          SourceAccessMethod    @default(unknown)
-  cachingAllowed        PermissionFlag        @default(unknown)
-  redistributionAllowed PermissionFlag         @default(unknown)
-  runtimeDisplayAllowed PermissionFlag         @default(unknown)
-  derivedDataAllowed    PermissionFlag        @default(unknown)
+  supportedDataGroups   String               @default("[]")
+  usageStatus           SourceUsageStatus    @default(unknown)
+  licenseStatus         LegalReviewStatus    @default(not_checked)
+  tosStatus             LegalReviewStatus    @default(not_checked)
+  accessMethod          SourceAccessMethod   @default(unknown)
+  cachingAllowed        PermissionFlag       @default(unknown)
+  redistributionAllowed PermissionFlag       @default(unknown)
+  runtimeDisplayAllowed PermissionFlag       @default(unknown)
+  derivedDataAllowed    PermissionFlag       @default(unknown)
   attributionText       String?
   notes                 String?
-  createdAt             DateTime              @default(now())
-  updatedAt             DateTime              @updatedAt
-  profileCompanies      Company[]             @relation("CompanyProfileSource")
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+  profileCompanies      Company[]            @relation("CompanyProfileSource")
   financialStatements   FinancialStatement[]
   marketPrices          MarketPrice[]
   sourceEvidence        SourceEvidence[]
@@ -337,31 +337,31 @@ model DataSource {
 }
 
 model SourceEvidence {
-  id                    String               @id @default(cuid())
-  sourceId              String
-  homepageUrl           String?
-  documentationUrl      String?
-  licenseName           String?
-  licenseUrl            String?
-  termsUrl              String?
-  allowsPersonalUse     PermissionFlag       @default(unknown)
-  allowsAcademicUse     PermissionFlag       @default(unknown)
-  allowsCommercialUse   PermissionFlag       @default(unknown)
-  allowsRuntimeDisplay  PermissionFlag       @default(unknown)
-  allowsCaching         PermissionFlag       @default(unknown)
-  allowsRedistribution  PermissionFlag       @default(unknown)
-  allowsDerivedData     PermissionFlag       @default(unknown)
-  requiresAttribution   PermissionFlag       @default(unknown)
-  evidenceStatus        SourceEvidenceStatus @default(missing)
-  reviewedAt            DateTime?
-  reviewedBy            String?
-  reviewNote            String?
-  notes                 String?
-  risks                 String               @default("[]")
-  blockedReason         String?
-  createdAt             DateTime             @default(now())
-  updatedAt             DateTime             @updatedAt
-  source                DataSource           @relation(fields: [sourceId], references: [id])
+  id                   String               @id @default(cuid())
+  sourceId             String
+  homepageUrl          String?
+  documentationUrl     String?
+  licenseName          String?
+  licenseUrl           String?
+  termsUrl             String?
+  allowsPersonalUse    PermissionFlag       @default(unknown)
+  allowsAcademicUse    PermissionFlag       @default(unknown)
+  allowsCommercialUse  PermissionFlag       @default(unknown)
+  allowsRuntimeDisplay PermissionFlag       @default(unknown)
+  allowsCaching        PermissionFlag       @default(unknown)
+  allowsRedistribution PermissionFlag       @default(unknown)
+  allowsDerivedData    PermissionFlag       @default(unknown)
+  requiresAttribution  PermissionFlag       @default(unknown)
+  evidenceStatus       SourceEvidenceStatus @default(missing)
+  reviewedAt           DateTime?
+  reviewedBy           String?
+  reviewNote           String?
+  notes                String?
+  risks                String               @default("[]")
+  blockedReason        String?
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+  source               DataSource           @relation(fields: [sourceId], references: [id])
 
   @@index([sourceId])
   @@index([evidenceStatus])
@@ -390,26 +390,26 @@ model DataQualityReport {
 }
 
 model ManualImportSession {
-  id                  String                @id @default(cuid())
+  id                  String               @id @default(cuid())
   userId              String?
-  mode                String                @default("thesis_verification")
-  sourceLabel         String                @default("manual_upload")
-  sourceType          SourceType            @default(user_input)
-  dataMode            DataMode              @default(user_input)
+  mode                String               @default("thesis_verification")
+  sourceLabel         String               @default("manual_upload")
+  sourceType          SourceType           @default(user_input)
+  dataMode            DataMode             @default(user_input)
   targetTicker        String?
   targetPeriod        String?
   fileName            String?
-  rowCount            Int                   @default(0)
-  validRowCount       Int                   @default(0)
-  warningRowCount     Int                   @default(0)
-  errorRowCount       Int                   @default(0)
-  status              ManualImportStatus    @default(draft)
-  readiness           ReadinessStatus       @default(unknown)
+  rowCount            Int                  @default(0)
+  validRowCount       Int                  @default(0)
+  warningRowCount     Int                  @default(0)
+  errorRowCount       Int                  @default(0)
+  status              ManualImportStatus   @default(draft)
+  readiness           ReadinessStatus      @default(unknown)
   dataQualityReportId String?
-  createdAt           DateTime              @default(now())
-  updatedAt           DateTime              @updatedAt
-  user                User?                 @relation(fields: [userId], references: [id])
-  dataQualityReport   DataQualityReport?    @relation(fields: [dataQualityReportId], references: [id])
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  user                User?                @relation(fields: [userId], references: [id])
+  dataQualityReport   DataQualityReport?   @relation(fields: [dataQualityReportId], references: [id])
   records             ManualImportRecord[]
 
   @@index([userId, createdAt])
@@ -528,26 +528,65 @@ model AssistantInteraction {
 }
 
 model CompanyBusinessProfile {
-  id                    String   @id @default(uuid())
-  ticker                String
-  companyId             String?
-  businessDescription   String?
-  businessModelSummary  String?
-  mainProducts          String?
-  revenueDrivers        String?
-  businessRiskNotes     String?
-  profileLanguage       String   @default("vi")
-  asOfDate              DateTime?
-  sourceLabel           String
-  dataMode              DataMode
-  productionApproved    Boolean  @default(false)
-  needsReview           Boolean  @default(true)
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  id                   String    @id @default(uuid())
+  ticker               String
+  companyId            String?
+  businessDescription  String?
+  businessModelSummary String?
+  mainProducts         String?
+  revenueDrivers       String?
+  businessRiskNotes    String?
+  profileLanguage      String    @default("vi")
+  asOfDate             DateTime?
+  sourceLabel          String
+  dataMode             DataMode
+  productionApproved   Boolean   @default(false)
+  needsReview          Boolean   @default(true)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
 
-  company               Company? @relation(fields: [companyId], references: [id])
+  company Company? @relation(fields: [companyId], references: [id])
 
+  @@unique([ticker, sourceLabel, profileLanguage])
   @@index([ticker])
   @@index([sourceLabel])
-  @@unique([ticker, sourceLabel, profileLanguage])
+}
+
+model MacroContext {
+  id                  String   @id @default(uuid())
+  asOfDate            DateTime
+  contextLanguage     String   @default("vi")
+  gdpGrowthContext    String?
+  inflationContext    String?
+  interestRateContext String?
+  exchangeRateContext String?
+  marketContext       String?
+  sourceLabel         String
+  dataMode            DataMode
+  productionApproved  Boolean  @default(false)
+  needsReview         Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@unique([asOfDate, sourceLabel, contextLanguage])
+}
+
+model IndustryContext {
+  id                 String   @id @default(uuid())
+  industryCode       String?
+  industryName       String
+  contextLanguage    String   @default("vi")
+  industryOverview   String?
+  keyDrivers         String?
+  industryRisks      String?
+  relatedTickers     String[]
+  asOfDate           DateTime
+  sourceLabel        String
+  dataMode           DataMode
+  productionApproved Boolean  @default(false)
+  needsReview        Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@unique([industryName, asOfDate, sourceLabel, contextLanguage])
 }
