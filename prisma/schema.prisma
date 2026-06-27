@@ -590,3 +590,37 @@ model IndustryContext {
 
   @@unique([industryName, asOfDate, sourceLabel, contextLanguage])
 }
+
+model MarketPriceProvenanceMetadata {
+  id                 String    @id @default(cuid())
+  ticker             String
+  marketDate         DateTime
+  providerName       String
+  providerType       String
+  sourceLabel        String
+  dataMode           String
+  productionApproved Boolean   @default(false)
+  fetchedAt          DateTime?
+  exchange           String?
+  currency           String?
+  priceUnit          String?
+  volumeUnit         String?
+  adjustmentStatus   String
+  stalenessStatus    String
+  fallbackUsed       Boolean   @default(false)
+  needsReview        Boolean   @default(true)
+  importRunId        String?
+  payloadChecksum    String?
+  warningCodes       Json?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  @@unique([ticker, marketDate, sourceLabel])
+  @@index([ticker])
+  @@index([marketDate])
+  @@index([sourceLabel])
+  @@index([dataMode])
+  @@index([productionApproved])
+  @@index([stalenessStatus])
+  @@index([adjustmentStatus])
+}
