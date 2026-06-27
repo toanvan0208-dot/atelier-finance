@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { Button, Card, CardBody, CardHeader, Chip } from "@/components/ui";
@@ -72,7 +72,7 @@ export function BusinessUnderstandingDashboard({
       </Card>
 
       <Card className="border-border-soft">
-        <CardHeader icon="OP" title="Chỉ số vận hành cần nhìn trước" description="Mock data, cần thay bằng API thật khi nối dữ liệu." />
+        <CardHeader icon="OP" title="Chỉ số vận hành cần nhìn trước" description="Chưa có dữ liệu vận hành từ hệ thống (Data source chưa khả dụng)." />
         <CardBody>
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {data.operatingMetrics.map((metric) => (
@@ -84,9 +84,8 @@ export function BusinessUnderstandingDashboard({
               >
                 <div className="flex items-start justify-between gap-2">
                   <p className="text-[11px] font-bold uppercase text-subtle">{metric.label}</p>
-                  {metric.isMock ? <Chip size="sm" variant="neutral">Mock</Chip> : null}
                 </div>
-                <p className="mt-2 text-xl font-bold text-ink">{metric.value}</p>
+                <p className="mt-2 text-xl font-bold text-ink">N/A</p>
                 <div className="mt-2 flex items-center justify-between gap-2">
                   <p className="text-[11px] text-muted">{metric.period}</p>
                   <Chip size="sm" variant={statusTone(metric.status)}>{metric.status}</Chip>

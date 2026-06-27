@@ -42,6 +42,7 @@ import type {
 } from "@/features/watchlist/lib/load-portfolio-readiness";
 import type { CheckThinkingData } from "@/features/checklist/types";
 import type { ScreeningRuntimeData } from "@/features/screening";
+import { PRODUCT_MODULE_GATES } from "@/lib/product/module-readiness";
 
 const modulesWithInternalProgress = new Set([
   "macro",
@@ -160,9 +161,12 @@ function AppShellContent({
   const activeItem = useMemo(
     () =>
       navigationItems.find((item) => item.key === activeModule) ??
-      navigationItems[0],
+      navigationItems[0] ?? { key: activeModule, label: activeModule },
     [activeModule]
   );
+  
+  const activeGate = PRODUCT_MODULE_GATES[activeModule];
+  const isGated = activeGate?.readiness === "gated_not_real_yet";
   const activeJourney =
     shellConfig.moduleJourney[
       activeModule as keyof typeof shellConfig.moduleJourney
@@ -194,16 +198,16 @@ function AppShellContent({
         onNavigate={handleNavigate}
       />
       <MainContent
-        activeLabel={activeItem.label}
-        description={shellConfig.mainContent.description}
-        kicker={shellConfig.mainContent.kicker}
-        status={shellConfig.mainContent.status}
-        title={shellConfig.mainContent.title}
+        activeLabel={isGated ? activeGate.userFacingLabel : activeItem.label}
+        description={isGated ? activeGate.reason : shellConfig.mainContent.description}
+        kicker={isGated ? "Tính năng chưa khả dụng" : shellConfig.mainContent.kicker}
+        status={isGated ? "CHƯA KHẢ DỤNG" : shellConfig.mainContent.status}
+        title={isGated ? "Gated Feature" : shellConfig.mainContent.title}
         journey={
           modulesWithInternalProgress.has(activeModule) ? undefined : activeJourney
         }
       >
-        {activeModule === "overview" ? (
+        {isGated ? null : activeModule === "overview" ? (
           <OverviewPage
             initialFinancialsRuntimeData={initialFinancialsRuntimeData}
             onNavigate={handleNavigate}

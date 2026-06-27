@@ -164,6 +164,11 @@ export function LearningPage({ initialData, onNavigate }: LearningPageProps) {
 
   return (
     <div className="mx-auto w-full max-w-[1320px] space-y-5">
+      <div className="rounded-[4px] border border-blue-200 bg-blue-50/50 p-4">
+        <p className="text-sm font-medium text-blue-900">
+          <strong>Nội dung học tập / kiến thức nền tảng:</strong> Không phải dữ liệu thị trường hoặc khuyến nghị đầu tư.
+        </p>
+      </div>
       <LearningCoachBar
         lesson={coachLesson}
         status={getLessonStatus(coachLesson)}
