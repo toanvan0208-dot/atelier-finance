@@ -5,7 +5,7 @@ import { resolveValuationUnitAwareReadyMetricsScenarioId } from "@/features/valu
 import { loadPortfolioReadiness } from "@/features/watchlist/lib/load-portfolio-readiness";
 import { loadChecklistRuntimeData } from "@/features/checklist/lib/load-checklist-runtime-data";
 import { loadScreeningRuntimeData } from "@/features/screening/lib/load-screening-runtime-data";
-
+import { loadLearningRuntimeData } from "@/features/learning";
 type WorkspacePageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
@@ -30,7 +30,7 @@ export default async function WorkspacePage({ searchParams }: WorkspacePageProps
   const technicalSourceLabel = firstParam(params.technicalSourceLabel);
   const technicalPreferDb = boolParam(params.technicalPreferDb);
   const valuationScenario = resolveValuationUnitAwareReadyMetricsScenarioId(params.valuationScenario);
-  const [initialTechnicalData, initialFinancialsRuntimeData, initialPortfolioReadiness, initialChecklistData, initialScreeningData] = await Promise.all([
+  const [initialTechnicalData, initialFinancialsRuntimeData, initialPortfolioReadiness, initialChecklistData, initialScreeningData, initialLearningData] = await Promise.all([
     loadTechnicalRuntimeData({
       ticker: technicalTicker,
       from: technicalFrom,
@@ -42,12 +42,14 @@ export default async function WorkspacePage({ searchParams }: WorkspacePageProps
     loadPortfolioReadiness(),
     loadChecklistRuntimeData({ ticker }),
     loadScreeningRuntimeData(),
+    loadLearningRuntimeData(),
   ]);
 
   return (
     <AppShell
       initialChecklistData={initialChecklistData}
       initialFinancialsRuntimeData={initialFinancialsRuntimeData}
+      initialLearningData={initialLearningData}
       initialModule={initialModule}
       initialPortfolioReadiness={initialPortfolioReadiness}
       initialScreeningData={initialScreeningData}

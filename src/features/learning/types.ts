@@ -98,3 +98,9 @@ export type LearningPageData = {
   mistakes: LearningMistake[];
   profile: LearningProfile;
 };
+
+export type LearningRuntimeData = LearningPageData & {
+  contentMode: "educational_static";
+  sourceLabel: "atelier_learning_static_content";
+  productionApproved: false;
+};

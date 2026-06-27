@@ -2,8 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { Card, CardBody, CardHeader, Chip } from "@/components/ui";
-import { learningPageData } from "../data/learning.data";
 import type {
+  LearningRuntimeData,
   LearningLesson,
   LearningTabId,
   LessonStatus,
@@ -35,11 +35,12 @@ const moduleKeyMap: Record<string, string> = {
 };
 
 type LearningPageProps = {
+  initialData: LearningRuntimeData;
   onNavigate?: (moduleKey: string) => void;
 };
 
-export function LearningPage({ onNavigate }: LearningPageProps) {
-  const data = learningPageData;
+export function LearningPage({ initialData, onNavigate }: LearningPageProps) {
+  const data = initialData;
   const [activeTab, setActiveTab] = useState<LearningTabId>("today");
   const [activeStageId, setActiveStageId] = useState(data.stages[0].id);
   const [activeLessonId, setActiveLessonId] = useState(data.todayLessonId);

@@ -7,7 +7,7 @@ import { BusinessPage } from "@/features/business";
 import { ChecklistPage } from "@/features/checklist";
 import { FinancialsPage } from "@/features/financials/components/FinancialsPage";
 import { IndustryPage } from "@/features/industry";
-import { LearningPage } from "@/features/learning";
+import { LearningPage, type LearningRuntimeData } from "@/features/learning";
 import { MacroPage } from "@/features/macro";
 import { OverviewPage } from "@/features/overview";
 import {
@@ -66,6 +66,7 @@ type AppShellProps = {
   initialValuationScenario?: ValuationUnitAwareReadyMetricsScenarioId | null;
   initialChecklistData?: CheckThinkingData;
   initialScreeningData?: ScreeningRuntimeData;
+  initialLearningData?: LearningRuntimeData;
 };
 
 export function AppShell({
@@ -76,6 +77,7 @@ export function AppShell({
   initialValuationScenario,
   initialChecklistData,
   initialScreeningData,
+  initialLearningData,
 }: AppShellProps) {
   return (
     <PersonalAnalysisProfileProvider>
@@ -87,6 +89,7 @@ export function AppShell({
         initialTechnicalData={initialTechnicalData}
         initialValuationScenario={initialValuationScenario}
         initialScreeningData={initialScreeningData}
+        initialLearningData={initialLearningData}
       />
     </PersonalAnalysisProfileProvider>
   );
@@ -100,6 +103,7 @@ function AppShellContent({
   initialValuationScenario,
   initialChecklistData,
   initialScreeningData,
+  initialLearningData,
 }: AppShellProps) {
   const { openDrawer } = usePersonalAnalysisProfile();
   const moduleKeys = useMemo(
@@ -208,7 +212,7 @@ function AppShellContent({
         {activeModule === "macro" ? (
           <MacroPage onNavigate={handleNavigate} />
         ) : null}
-        {activeModule === "learning" ? <LearningPage onNavigate={handleNavigate} /> : null}
+        {activeModule === "learning" && initialLearningData ? <LearningPage onNavigate={handleNavigate} initialData={initialLearningData} /> : null}
         {activeModule === "industry" ? <IndustryPage onNavigate={handleNavigate} /> : null}
         {activeModule === "screening" ? <ScreeningPage onNavigate={handleNavigate} initialData={initialScreeningData} /> : null}
         {activeModule === "business" ? (
