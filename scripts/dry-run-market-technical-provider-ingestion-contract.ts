@@ -142,7 +142,7 @@ async function runDryRun() {
         stalenessStatus,
         adjustmentStatus,
         fallbackUsed: row.fallbackUsed || row.dataMode === "sample",
-        needsReview: stalenessStatus === "needs_review" || adjustmentStatus === "unknown",
+        needsReview: adjustmentStatus === "unknown",
         importRunId,
         rawPayloadChecksum: checksum
       });
