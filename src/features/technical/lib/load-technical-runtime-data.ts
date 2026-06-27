@@ -55,7 +55,16 @@ export const loadTechnicalRuntimeData = async (
   const runtimeInput = buildInput(input, dependencies.env);
 
   try {
-    return await loadDeskData(runtimeInput);
+    const data = await loadDeskData(runtimeInput);
+    
+    // Load provenance integration
+    const { loadTechnicalProvenanceRuntime } = await import("./technical-provenance-runtime");
+    const provenance = await loadTechnicalProvenanceRuntime(runtimeInput.ticker);
+    
+    return {
+      ...data,
+      provenance: provenance ?? undefined,
+    } as any;
   } catch (error) {
     const fallback = await loadTechnicalDeskData({
       ...runtimeInput,

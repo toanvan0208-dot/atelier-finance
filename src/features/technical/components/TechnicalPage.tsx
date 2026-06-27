@@ -25,6 +25,20 @@ export type TechnicalPageRuntimeData = {
   issuerMetadata?: TechnicalIssuerMetadata;
   fallbackUsed?: boolean;
   warnings?: string[];
+  provenance?: {
+    ticker: string;
+    provenanceStatus: string;
+    sourceLabel: string;
+    dataModeLabel: string;
+    productionApproved: boolean;
+    needsReview: boolean;
+    providerTypeLabel: string;
+    adjustmentStatusLabel: string;
+    stalenessStatusLabel: string;
+    warningLabels: string[];
+    latestMarketDate: string | null;
+    rowCount: number;
+  };
 };
 
 type TechnicalPageProps = {
@@ -50,7 +64,7 @@ const fallbackIssuerMetadata = (
   sharesStatus: "unavailable",
   limitations: [
     sourceType === "sample_static_fallback"
-      ? "Static sample issuer metadata is not verified production metadata."
+      ? "Static sample issuer metadata is not approved production metadata."
       : "Company/issuer metadata is unavailable for this DB-backed ticker.",
   ],
   warnings: [],
@@ -147,6 +161,7 @@ export function TechnicalPage({ initialRuntimeData, onNavigate }: TechnicalPageP
         marketDataSource={marketDataSource}
         pvtChartSeries={data.pvtChartSeries}
         pvtDerivedMetrics={data.pvtDerivedMetrics}
+        provenance={initialRuntimeData?.provenance}
       />
       <PVTHeroStatus data={data} />
       <PVTMainChart
@@ -179,11 +194,13 @@ function SourceTransparencyStrip({
   marketDataSource,
   pvtDerivedMetrics,
   pvtChartSeries,
+  provenance,
 }: {
   issuerMetadata: TechnicalIssuerMetadata;
   marketDataSource: TechnicalMarketDataSource;
   pvtDerivedMetrics: PVTObservationData["pvtDerivedMetrics"];
   pvtChartSeries: PVTObservationData["pvtChartSeries"];
+  provenance?: TechnicalPageRuntimeData["provenance"];
 }) {
   const sourceText =
     marketDataSource.sourceType === "local_db_manual_import"
@@ -216,6 +233,21 @@ function SourceTransparencyStrip({
       className="rounded-[4px] border border-ink/10 bg-surface px-4 py-3 text-xs leading-5 text-muted"
     >
       <p className="mb-2 font-bold uppercase text-subtle">Minh bạch nguồn dữ liệu</p>
+      
+      {provenance && (
+        <div className="mb-4 rounded bg-red-50 p-3 text-red-900 dark:bg-red-950/30 dark:text-red-200">
+          <p className="font-bold mb-1">Cảnh báo nguồn dữ liệu Market Price (Chưa được phê duyệt production)</p>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Trạng thái: <span className="font-semibold">{provenance.provenanceStatus}</span></li>
+            <li>Nguồn: {provenance.dataModeLabel} ({provenance.providerTypeLabel})</li>
+            <li>Dữ liệu: {provenance.stalenessStatusLabel} - {provenance.adjustmentStatusLabel}</li>
+            {provenance.warningLabels.length > 0 && (
+              <li>Vấn đề: {provenance.warningLabels.join(", ")}</li>
+            )}
+          </ul>
+        </div>
+      )}
+
       <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <div>
           <p className="font-semibold text-ink">
