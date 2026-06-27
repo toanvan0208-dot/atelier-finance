@@ -17,7 +17,7 @@ const REQUIRED_PROMPT_GUARDRAILS = [
   "null/not_available/insufficient_data",
   "PVT is market observation, not a trading signal.",
   "Risk score is not a final safe/bad stock conclusion.",
-  "Checklist is not an investment recommendation.",
+  "Checklist is a tool to help you think critically",
   "RAG_DOCUMENT_TEMPLATE.md and RAG_METADATA_STANDARD.md are maintainer-intent only",
 ];
 

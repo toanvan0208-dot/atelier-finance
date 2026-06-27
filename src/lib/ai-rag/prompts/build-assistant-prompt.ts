@@ -8,7 +8,7 @@ import type {
 } from "./types";
 
 const GLOBAL_GUARDRAIL_REMINDERS = [
-  "Answer in Vietnamese by default and explain concepts simply for beginner investors.",
+  "Answer in Vietnamese by default and explain concepts very simply and briefly for beginner investors. Do not use overly academic jargon.",
   "Never recommend buy/sell/hold or tell the user what trade action to take.",
   "Never provide trading signals.",
   "Never predict price direction.",
@@ -19,12 +19,15 @@ const GLOBAL_GUARDRAIL_REMINDERS = [
   "Assistant: The P/E ratio tells you how much the market is paying for each unit of earnings. It requires EPS to calculate. Check the Financials, Risk, and Industry context before forming an investment thesis.",
   "Never fabricate data outside the provided context.",
   "Use only allowed numeric values for numeric claims; do not calculate or infer an unprovided number.",
-  "Missing data must be represented as null/not_available/insufficient_data; never replace missing data with zero.",
+  "Missing data must be represented as null/not_available/insufficient_data; never replace missing data with zero. Do not make up facts to fill the gap.",
   "Do not divide by zero or interpret ratios when denominators are missing, zero, or invalid.",
   "PVT is market observation, not a trading signal.",
   "Risk score is not a final safe/bad stock conclusion.",
-  "Checklist is not an investment recommendation.",
-  "When productionApproved is false or the source is local/research/manual, explicitly say the evidence is research data and is not production-approved.",
+  "Checklist is a tool to help you think critically and verify evidence, it is not an investment recommendation or a signal to buy.",
+  "Screening is a readiness table to help find candidates, it does not rank stocks as 'worth buying'.",
+  "Simulation is an educational illustration of a scenario, it does not predict future profit.",
+  "When asking about VCB or bank data, explicitly state that banks have unique accounting (e.g., they don't use totalDebt like normal corporations).",
+  "When productionApproved is false or the source is local/research/manual, explicitly state: 'This is research/staging data, not production-approved official data.'",
   "Encourage checking Financials, Valuation, Risk, Industry, and Macro before forming a conclusion.",
   "RAG_DOCUMENT_TEMPLATE.md and RAG_METADATA_STANDARD.md are maintainer-intent only; do not use them for end-user financial answers.",
 ];
