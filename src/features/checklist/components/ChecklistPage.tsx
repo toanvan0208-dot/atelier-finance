@@ -22,7 +22,10 @@ import { StockReadinessResult } from "./StockReadinessResult";
 import { StockSelector } from "./StockSelector";
 import { ThinkingScorePanel } from "./ThinkingScorePanel";
 
+import type { CheckThinkingData } from "../types";
+
 type ChecklistPageProps = {
+  initialChecklistData?: CheckThinkingData;
   onNavigate: (key: string) => void;
 };
 
@@ -46,7 +49,9 @@ const defaultChecklistState: ChecklistPersistentState = {
   selectedTicker: "MWG",
 };
 
-export function ChecklistPage({ onNavigate }: ChecklistPageProps) {
+export function ChecklistPage({ initialChecklistData, onNavigate }: ChecklistPageProps) {
+  const activeCheckData = initialChecklistData ?? checkThinkingData;
+
   const [persistedState, setPersistedState] = useLocalStorageState(
     checklistStorageKey,
     defaultChecklistState
@@ -61,8 +66,8 @@ export function ChecklistPage({ onNavigate }: ChecklistPageProps) {
   } = persistedState;
 
   const selectedQuestions = useMemo(
-    () => checkThinkingData.questionBank[selectedModuleId] ?? [],
-    [selectedModuleId]
+    () => activeCheckData.questionBank[selectedModuleId] ?? [],
+    [selectedModuleId, activeCheckData]
   );
   const currentQuestionIndex = Math.min(
     questionIndexByModule[selectedModuleId] ?? 0,
@@ -70,8 +75,8 @@ export function ChecklistPage({ onNavigate }: ChecklistPageProps) {
   );
   const currentQuestion = selectedQuestions[currentQuestionIndex];
   const selectedStock =
-    checkThinkingData.stockReadinessByTicker.find((stock) => stock.ticker === selectedTicker) ??
-    checkThinkingData.stockReadinessByTicker[0];
+    activeCheckData.stockReadinessByTicker.find((stock) => stock.ticker === selectedTicker) ??
+    activeCheckData.stockReadinessByTicker[0];
 
   function handleSelectModule(moduleId: ThinkingModuleId) {
     setPersistedState((current) => ({ ...current, selectedModuleId: moduleId }));
@@ -99,7 +104,7 @@ export function ChecklistPage({ onNavigate }: ChecklistPageProps) {
     <div className="mx-auto w-full max-w-[1240px] space-y-5">
       <CheckThinkingHero
         activeMode={activeMode}
-        hero={checkThinkingData.hero}
+        hero={activeCheckData.hero}
         onModeChange={(mode) => setPersistedState((current) => ({ ...current, activeMode: mode }))}
       />
 
@@ -111,12 +116,12 @@ export function ChecklistPage({ onNavigate }: ChecklistPageProps) {
       {activeMode === "understanding" ? (
         <div className="space-y-5">
           <ModuleCheckCardGrid
-            modules={checkThinkingData.modules}
+            modules={activeCheckData.modules}
             selectedModuleId={selectedModuleId}
             onSelectModule={handleSelectModule}
           />
           <CheckSetupPanel
-            options={checkThinkingData.questionCountOptions}
+            options={activeCheckData.questionCountOptions}
             selectedCount={selectedCount}
             onSelectCount={(count) => setPersistedState((current) => ({ ...current, selectedCount: count }))}
           />
@@ -140,7 +145,7 @@ export function ChecklistPage({ onNavigate }: ChecklistPageProps) {
               onPrevious={() => handleQuestionStep(-1)}
             />
           ) : null}
-          <ThinkingScorePanel score={checkThinkingData.thinkingScore} />
+          <ThinkingScorePanel score={activeCheckData.thinkingScore} />
           <CheckNextActions onNavigate={onNavigate} />
         </div>
       ) : null}
@@ -149,7 +154,7 @@ export function ChecklistPage({ onNavigate }: ChecklistPageProps) {
         <div className="space-y-5">
           <StockSelector
             selectedTicker={selectedTicker}
-            stocks={checkThinkingData.stockReadinessByTicker}
+            stocks={activeCheckData.stockReadinessByTicker}
             onSelectTicker={(ticker) => setPersistedState((current) => ({ ...current, selectedTicker: ticker }))}
           />
           <ModuleReadinessMap modules={selectedStock.moduleReadiness} onNavigate={onNavigate} />

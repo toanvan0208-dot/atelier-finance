@@ -40,6 +40,7 @@ import type {
   PortfolioReadinessItem,
   PortfolioReadinessResult,
 } from "@/features/watchlist/lib/load-portfolio-readiness";
+import type { CheckThinkingData } from "@/features/checklist/types";
 
 const modulesWithInternalProgress = new Set([
   "macro",
@@ -62,6 +63,7 @@ type AppShellProps = {
   initialPortfolioReadiness?: PortfolioReadinessResult;
   initialTechnicalData?: TechnicalPageRuntimeData;
   initialValuationScenario?: ValuationUnitAwareReadyMetricsScenarioId | null;
+  initialChecklistData?: CheckThinkingData;
 };
 
 export function AppShell({
@@ -70,10 +72,12 @@ export function AppShell({
   initialPortfolioReadiness,
   initialTechnicalData,
   initialValuationScenario,
+  initialChecklistData,
 }: AppShellProps) {
   return (
     <PersonalAnalysisProfileProvider>
       <AppShellContent
+        initialChecklistData={initialChecklistData}
         initialFinancialsRuntimeData={initialFinancialsRuntimeData}
         initialModule={initialModule}
         initialPortfolioReadiness={initialPortfolioReadiness}
@@ -90,6 +94,7 @@ function AppShellContent({
   initialPortfolioReadiness,
   initialTechnicalData,
   initialValuationScenario,
+  initialChecklistData,
 }: AppShellProps) {
   const { openDrawer } = usePersonalAnalysisProfile();
   const moduleKeys = useMemo(
@@ -238,7 +243,7 @@ function AppShellContent({
           />
         ) : null}
         {activeModule === "checklist" ? (
-          <ChecklistPage onNavigate={handleNavigate} />
+          <ChecklistPage onNavigate={handleNavigate} initialChecklistData={initialChecklistData} />
         ) : null}
       </MainContent>
       <RightAssistantPanel
