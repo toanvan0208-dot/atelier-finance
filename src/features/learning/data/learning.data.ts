@@ -413,7 +413,7 @@ export const learningPageData: LearningPageData = {
       simpleExplanation: "Giống như cắt một chiếc bánh, EPS cho biết mỗi phần bánh có bao nhiêu kem. Lợi nhuận to nhưng chia cho quá nhiều cổ phiếu thì EPS vẫn thấp.",
       usedInModule: "Định giá, Lọc cổ phiếu.",
       realExample: "EPS tăng do lợi nhuận tăng là tốt, nhưng nếu EPS giảm vì phát hành thêm cổ phiếu quá nhiều (pha loãng) thì cần thận trọng.",
-      commonMistake: "Nhìn EPS cao rồi kết luận công ty đáng mua mà quên không xem giá cổ phiếu đã phản ánh chưa.",
+      commonMistake: "Nhìn EPS cao rồi kết luận doanh nghiệp khỏe mà quên không xem giá cổ phiếu đã phản ánh chưa.",
       dataToCheck: ["Lợi nhuận sau thuế", "Số lượng cổ phiếu", "P/E"],
       quiz: {
         question: "EPS cao có tự động nghĩa là cổ phiếu rẻ không?",
