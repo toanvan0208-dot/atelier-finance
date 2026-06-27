@@ -109,6 +109,19 @@ export function TechnicalPage({ initialRuntimeData, onNavigate }: TechnicalPageP
           aria-label="Technical/PVT unavailable"
           className="rounded-[4px] border border-ink/10 bg-surface px-5 py-5 text-sm leading-6 text-muted"
         >
+          {initialRuntimeData.provenance && (
+            <div className="mb-4 rounded bg-red-50 p-3 text-red-900 dark:bg-red-950/30 dark:text-red-200">
+              <p className="font-bold mb-1">Cảnh báo nguồn dữ liệu Market Price (Chưa được phê duyệt production)</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li>Trạng thái: <span className="font-semibold">{initialRuntimeData.provenance.provenanceStatus}</span></li>
+                <li>Nguồn: {initialRuntimeData.provenance.dataModeLabel} ({initialRuntimeData.provenance.providerTypeLabel})</li>
+                <li>Dữ liệu: {initialRuntimeData.provenance.stalenessStatusLabel} - {initialRuntimeData.provenance.adjustmentStatusLabel}</li>
+                {initialRuntimeData.provenance.warningLabels.length > 0 && (
+                  <li>Vấn đề: {initialRuntimeData.provenance.warningLabels.join(", ")}</li>
+                )}
+              </ul>
+            </div>
+          )}
           <p className="text-base font-bold text-ink">
             Chua du du lieu Technical/PVT cho {requestedTicker}
           </p>
