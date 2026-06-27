@@ -11,10 +11,12 @@ import {
   type RedesignedScreeningGate,
   type ScreeningMetricKey,
 } from "../data/screeningRedesign.data";
+import type { ScreeningRuntimeData } from "../lib/load-screening-runtime-data";
 import type { ScreeningCandidateGroupKey, ScreeningGuideTone } from "../types";
 
 type ScreeningPageProps = {
   onNavigate?: (moduleKey: string) => void;
+  initialData?: ScreeningRuntimeData;
 };
 
 type ScreeningInputSource = typeof screeningRedesignData.defaultInputSource;
@@ -159,8 +161,10 @@ function ScreeningGuideDrawer({ open, onClose }: { open: boolean; onClose: () =>
 
 function TickerQuickCheck({
   onAnalyze,
+  candidatesByTicker,
 }: {
   onAnalyze: (candidate: RedesignedScreeningCandidate) => void;
+  candidatesByTicker: Record<string, RedesignedScreeningCandidate>;
 }) {
   const [tickerInput, setTickerInput] = useState("");
   const [error, setError] = useState("");
@@ -525,10 +529,12 @@ function DetailBlock({ label, value }: { label: string; value: string }) {
 
 function ScreeningResults({
   onAnalyze,
+  candidates,
 }: {
   onAnalyze: (candidate: RedesignedScreeningCandidate) => void;
+  candidates: RedesignedScreeningCandidate[];
 }) {
-  const { candidates, resultGroups } = screeningRedesignData;
+  const { resultGroups } = screeningRedesignData;
 
   return (
     <section className="space-y-4">
@@ -737,20 +743,26 @@ function NextStepPanel() {
   );
 }
 
-export function ScreeningPage({ onNavigate }: ScreeningPageProps) {
+export function ScreeningPage({ onNavigate, initialData }: ScreeningPageProps) {
   const [guideOpen, setGuideOpen] = useState(false);
   const [activeCandidate, setActiveCandidate] = useState<RedesignedScreeningCandidate | null>(null);
   const [inputSource] = useState(readScreeningInputSource);
 
+  const candidates = initialData?.candidates ?? screeningRedesignData.candidates;
+  const activeCandidatesByTicker = useMemo(
+    () => Object.fromEntries(candidates.map((c) => [c.ticker, c])),
+    [candidates]
+  );
+
   const priorityCount = useMemo(
-    () => screeningRedesignData.candidates.filter((candidate) => candidate.group === "priority").length,
-    []
+    () => candidates.filter((candidate) => candidate.group === "priority").length,
+    [candidates]
   );
 
   return (
     <div className="mx-auto w-[calc(100vw-40px)] max-w-[1180px] min-w-0 space-y-8 overflow-x-hidden md:w-full">
       <ScreeningHeader onGuideOpen={() => setGuideOpen(true)} />
-      <TickerQuickCheck onAnalyze={setActiveCandidate} />
+      <TickerQuickCheck onAnalyze={setActiveCandidate} candidatesByTicker={activeCandidatesByTicker} />
       <ScreeningInputSourceBanner inputSource={inputSource} onNavigate={onNavigate} />
       <ActiveScreeningQuery />
       <ScreeningFunnel />
@@ -759,7 +771,7 @@ export function ScreeningPage({ onNavigate }: ScreeningPageProps) {
           Sau kiểm tra dữ liệu có {priorityCount} mã đủ dữ liệu để phân tích tiếp. Đây không phải xếp hạng đầu tư.
         </p>
       </div>
-      <ScreeningResults onAnalyze={setActiveCandidate} />
+      <ScreeningResults onAnalyze={setActiveCandidate} candidates={candidates} />
       <NextStepPanel />
       <ScreeningGuideDrawer open={guideOpen} onClose={() => setGuideOpen(false)} />
       <AnalysisPathDrawer

@@ -41,6 +41,7 @@ import type {
   PortfolioReadinessResult,
 } from "@/features/watchlist/lib/load-portfolio-readiness";
 import type { CheckThinkingData } from "@/features/checklist/types";
+import type { ScreeningRuntimeData } from "@/features/screening";
 
 const modulesWithInternalProgress = new Set([
   "macro",
@@ -64,6 +65,7 @@ type AppShellProps = {
   initialTechnicalData?: TechnicalPageRuntimeData;
   initialValuationScenario?: ValuationUnitAwareReadyMetricsScenarioId | null;
   initialChecklistData?: CheckThinkingData;
+  initialScreeningData?: ScreeningRuntimeData;
 };
 
 export function AppShell({
@@ -73,6 +75,7 @@ export function AppShell({
   initialTechnicalData,
   initialValuationScenario,
   initialChecklistData,
+  initialScreeningData,
 }: AppShellProps) {
   return (
     <PersonalAnalysisProfileProvider>
@@ -83,6 +86,7 @@ export function AppShell({
         initialPortfolioReadiness={initialPortfolioReadiness}
         initialTechnicalData={initialTechnicalData}
         initialValuationScenario={initialValuationScenario}
+        initialScreeningData={initialScreeningData}
       />
     </PersonalAnalysisProfileProvider>
   );
@@ -95,6 +99,7 @@ function AppShellContent({
   initialTechnicalData,
   initialValuationScenario,
   initialChecklistData,
+  initialScreeningData,
 }: AppShellProps) {
   const { openDrawer } = usePersonalAnalysisProfile();
   const moduleKeys = useMemo(
@@ -205,7 +210,7 @@ function AppShellContent({
         ) : null}
         {activeModule === "learning" ? <LearningPage onNavigate={handleNavigate} /> : null}
         {activeModule === "industry" ? <IndustryPage onNavigate={handleNavigate} /> : null}
-        {activeModule === "screening" ? <ScreeningPage onNavigate={handleNavigate} /> : null}
+        {activeModule === "screening" ? <ScreeningPage onNavigate={handleNavigate} initialData={initialScreeningData} /> : null}
         {activeModule === "business" ? (
           <BusinessPage onNavigate={handleNavigate} />
         ) : null}
