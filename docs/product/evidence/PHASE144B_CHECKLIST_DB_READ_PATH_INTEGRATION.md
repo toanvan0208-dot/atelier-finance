@@ -36,11 +36,18 @@ This phase successfully integrated the Checklist module UI (`ChecklistPage.tsx`)
 
 *(Note: "MISSING" for Financials means Checklist successfully identified missing data chunks without crashing or hallucinating 0).*
 
-## Validation
-- [x] typecheck
-- [x] lint
-- [x] test
-- [x] build
+## Validation Status
+- typecheck: pass
+- lint: pass
+- build: pass
+- checklist smoke: pass
+- npm test: not clean (failed in legacy suites only)
+- failing suites: `hpg-pdf-reviewed-post-import-smoke.test.ts`, `msn-pdf-reviewed-post-import-smoke.test.ts`, `financial-statement-csv-to-prisma-temp-db-write-trial.test.ts`, `financials-unit-metadata-sidecar-schema.test.ts`, `fpt-financial-statement-prisma-temp-db-write-verification.test.ts`, `market-pvt-unit-metadata-persistence-boundary.test.ts`
+- classification: A. unrelated local temp DB container / test infrastructure issue
+- impact on Checklist: None. Checklist integration logic does not execute during these test failures.
+- DB write: No
+- data seed/import: No
+- production deploy: No
 
 ## Known Limitations
 - The Checklist UI is now fully dynamic but defaults to a local state engine (`buildChecklistDeskData`) running synchronously. If calculations grow complex, moving this entirely to a Route Handler API (SSR) may be better.

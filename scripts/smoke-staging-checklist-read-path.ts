@@ -2,7 +2,7 @@ import { loadChecklistRuntimeData } from "../src/features/checklist/lib/load-che
 
 async function smokeStagingChecklistReadPath() {
   const approvedTickers = ["FPT", "HPG", "VNM", "MSN", "MWG"];
-  const matrix: any[] = [];
+  const matrix: Record<string, string>[] = [];
   let hasError = false;
 
   console.log("SMOKING CHECKLIST READ PATH...");
