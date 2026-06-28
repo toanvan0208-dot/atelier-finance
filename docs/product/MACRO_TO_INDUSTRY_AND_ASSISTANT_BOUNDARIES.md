@@ -11,6 +11,7 @@ Atelier Finance is an educational platform, not an investment advisory service. 
 - **Phase 148D**: Developed a parser strategy indicating which sources have `api_ready` vs `manual_review_only` feasibility. The Assistant is strictly instructed that *parser strategy/feasibility is not data*, preventing it from hallucinating numbers just because a parser is planned.
 - **Phase 148E**: Executed parser dry-runs on real sources. Confirmed that candidate preview data generated from these dry-runs does not pollute the DB and the Assistant handles blocked fetches (due to missing/unstable sources) gracefully without inventing data.
 - **Phase 148F**: Verified actual source URLs for blocked indicators (USD_VND and INTERBANK_RATE_OVERNIGHT) are reachable. Source URL reachability is strictly separated from observation data, so the Assistant is aware of parser intent but does not invent observations from URL existence.
+- **Phase 148G**: Executed parser dry-runs on verified SBV URLs. The parser blocked gracefully due to HTML instability, and the Assistant correctly maintained its guardrail of explicitly stating the data is not available, avoiding any hallucinations.
 
 ### Strict Data Provenance and Guardrails
 - **No Fake Data Rule**: Absolutely no fallback, mock, or hardcoded macro values may be used or passed to the LLM. 
