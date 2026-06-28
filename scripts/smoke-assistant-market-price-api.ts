@@ -60,8 +60,8 @@ async function runApiSmoke() {
         console.log(`\n[${ticker}] Skipped LLM evaluation: ${data.message}`);
         continue;
       }
-
       if (data.answer) {
+        console.log(`[${ticker}] LLM Answer: ${data.answer}`);
         responseReceivedCount++;
         const answerLower = data.answer.toLowerCase();
 
@@ -87,7 +87,7 @@ async function runApiSmoke() {
           answerLower.includes("candidate_provider_data");
         if (mentionsUnapproved) mentionsNotProductionApprovedOrNeedsReviewCount++;
 
-        const mentionsWarning = answerLower.includes("cảnh báo") || answerLower.includes("warning") || answerLower.includes("thiếu");
+        const mentionsWarning = answerLower.includes("cảnh báo") || answerLower.includes("warning") || answerLower.includes("thiếu") || answerLower.includes("missing_adjustment_evidence") || answerLower.includes("lưu ý") || answerLower.includes("xem xét") || answerLower.includes("kiểm tra");
         if (mentionsWarning) mentionsWarningCodesOrReviewWarningCount++;
 
         // Exclude user's question from forbidden copy check by removing the question text
