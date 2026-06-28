@@ -24,6 +24,12 @@ Từ Phase 148B, việc mở rộng dữ liệu và đánh giá nguồn được
 - `inCurrentFrontend=true`: Các chỉ số đang được trình bày trên giao diện. Chỉ các chỉ số này mới được fetch, import và cập nhật dữ liệu từ nguồn thực tế.
 - `inCurrentFrontend=false`: Các chỉ số nằm ngoài scope UI (e.g. `VNINDEX_CLOSE`, `VN30_CLOSE`, `INDUSTRIAL_PRODUCTION_GROWTH`). Hệ thống tuyệt đối không fetch, import hoặc giả lập dữ liệu cho các chỉ số này.
 
+## Source Verification & Automation Level (Phase 148C)
+Phase 148C xác minh trạng thái tự động hóa của các chỉ số trong Frontend:
+- **machine_readable_api**: Đã có/dễ dàng có API tự động (World Bank cho CPI/GDP, Market Provider cho VNINDEX/thanh khoản/khối ngoại, FRED cho Fed rate).
+- **html_table_manual_review**: Nguồn công bố dưới dạng HTML/PDF khó parse (SBV cho tỷ giá/lãi suất, GSO cho xuất nhập khẩu/đầu tư công).
+- **blocked**: Các chỉ số có bản quyền (S&P Global PMI).
+
 ## Stale Data Policy
 Mọi indicator đều bị đánh giá độ trễ dữ liệu (`freshness`) theo tần suất kỳ vọng:
 - `daily`: stale sau 5 ngày

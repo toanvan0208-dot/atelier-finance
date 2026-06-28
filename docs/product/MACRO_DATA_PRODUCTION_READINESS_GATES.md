@@ -21,6 +21,8 @@ This document tracks the safety requirements and verification steps that must be
 | `readyForAssistantMacroContextIntegration` | **TRUE** | Assistant successfully receives DB-grounded `macroContext` (with provenance/warnings/freshness) via `/api/assistant`. |
 | `macroIndicatorUniverseDefined` | **TRUE** | Phase 148A defined the indicator registry, cleared all fake data from UI/Assistant, and enforced strict db-backed validation rules. |
 | `readyForFrontendLockedProviderExpansion` | **TRUE** | Phase 148B locked the provider expansion scope solely to indicators currently in the Macro frontend. |
+| `macroSourceVerificationCompleted` | **TRUE** | Phase 148C evaluated automation levels for all frontend-locked indicators, restricting machine_readable fetch paths only. |
+| `readyForExpandedConfirmWrite` | **FALSE** | Currently only CPI/GDP (World Bank) is verified as machine readable and implemented. Other APIs (e.g. FRED, FMP) require parser implementation in Phase 148D. |
 | `readyForProductionApproval` | **FALSE** | Requires full execution of human review. Data remains `productionApproved=false` and `world_bank_candidate`. |
 
 ## Why Macro Data is Not Production-Ready Yet

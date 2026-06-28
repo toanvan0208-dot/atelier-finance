@@ -63,4 +63,10 @@ This document evaluates potential sources for real macroeconomic data integratio
 Phase 148B established the **Frontend-Locked Policy**: Only indicators currently represented in the Macro UI (`inCurrentFrontend=true`) are eligible for provider expansion, automated ingestion, and source assessment.
 Indicators not present in the frontend (e.g. `VNINDEX_CLOSE`, `VN30_CLOSE`) have been blocked from fetch attempts to prevent hallucination and wasted ingestion efforts.
 
+Phase 148C audited and classified the source verification status of all 14 `inCurrentFrontend=true` indicators:
+- **Machine Readable API (ready for parser design)**: CPI_YOY, GDP_GROWTH.
+- **Machine Readable API (needs implementation/key/market source)**: FED_FUNDS_RATE, DXY, BRENT_OIL_PRICE, MARKET_TRADING_VALUE, FOREIGN_NET_FLOW.
+- **HTML/PDF Table (Needs Manual Review / Scraper)**: EXPORT_GROWTH, PUBLIC_INVESTMENT, INTERBANK_RATE_OVERNIGHT, CREDIT_GROWTH, USD_VND.
+- **Blocked/Not Assessed**: PMI_MANUFACTURING, GLOBAL_FLOW.
+
 Until rigorous integrations are completed for the remaining frontend indicators, UI and Assistant read-paths explicitly reject fabrication of data, treating them gracefully as "Dự kiến hỗ trợ" or "Chưa có dữ liệu hệ thống". All indicators also have a stale-data policy applied to ensure out-of-date metrics are clearly flagged.
