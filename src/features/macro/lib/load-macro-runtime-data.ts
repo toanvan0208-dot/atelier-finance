@@ -3,7 +3,7 @@ import { macroCompassData } from "../data/macroCompass.data";
 import type { MacroCompassData, MacroCompassMetric } from "../types";
 import { MACRO_INDICATOR_UNIVERSE } from "./macro-indicator-registry";
 import { evaluateMacroObservationFreshness } from "./macro-stale-policy";
-
+import { DOMESTIC_RATE_FRONTEND_INDICATOR_CODE } from "./macro-domestic-rate-semantic-mapping";
 export async function loadMacroRuntimeData(): Promise<MacroCompassData> {
   // Extract all indicator codes from the registry
   const indicatorCodes = MACRO_INDICATOR_UNIVERSE.map(item => item.indicatorCode);
@@ -156,7 +156,7 @@ export async function loadMacroRuntimeData(): Promise<MacroCompassData> {
     "global-flow": "GLOBAL_FLOW",
     "pmi": "PMI_MANUFACTURING",
     "exports": "EXPORT_GROWTH",
-    "domestic-rate": "INTERBANK_RATE_OVERNIGHT",
+    "domestic-rate": DOMESTIC_RATE_FRONTEND_INDICATOR_CODE,
     "foreign-flow": "FOREIGN_NET_FLOW",
     "credit-growth": "CREDIT_GROWTH",
     "public-investment": "PUBLIC_INVESTMENT",

@@ -19,10 +19,10 @@ This document tracks the safety requirements and verification steps that must be
 | `readyForMacroConfirmWrite` | **TRUE** | Prisma schema successfully staged and preview data successfully written to staging under `candidate_macro_data` mode. |
 | `readyForMacroUiIntegration` | **TRUE** | Macro UI now successfully reads `CPI_YOY` and `GDP_GROWTH` from the database read path (`loadMacroRuntimeData`) instead of static mock data. |
 | `readyForAssistantMacroContextIntegration` | **TRUE** | Assistant successfully receives DB-grounded `macroContext` (with provenance/warnings/freshness) via `/api/assistant`. |
-| `macroIndicatorUniverseDefined` | **TRUE** | Phase 148A defined the indicator registry, cleared all fake data from UI/Assistant, and enforced strict db-backed validation rules. |
+| `macroIndicatorUniverseDefined` | **TRUE** | Phase 148A completed and committed. All necessary metrics identified. Phase 148B restricted future additions to strictly match the existing frontend. |
 | `readyForFrontendLockedProviderExpansion` | **TRUE** | Phase 148B locked the provider expansion scope solely to indicators currently in the Macro frontend. |
 | `macroSourceVerificationCompleted` | **TRUE** | Phase 148C evaluated automation levels for all frontend-locked indicators, restricting machine_readable fetch paths only. |
-| `macroParserStrategyCompleted` | **TRUE** | Phase 148D evaluated parser feasibility. `USD_VND`, `INTERBANK_RATE_OVERNIGHT`, `MARKET_TRADING_VALUE`, and `FOREIGN_NET_FLOW` are prioritized. |
+| `macroParserStrategyCompleted` | **TRUE** | Phase 148D evaluated parser feasibility. Phase 148I audited semantic mapping for domestic-rate. |
 | `readyForParserPrototypePhase` | **TRUE** | Approved to build prototypes for the Phase 148D candidates. |
 | `parserDryRunCompleted` | **TRUE** | Phase 148E executed real-source parser dry runs. `USD_VND` and `INTERBANK_RATE_OVERNIGHT` safely blocked due to missing formal source URLs. Phase 148G attempted dry run with verified URLs but blocked due to complex HTML. |
 | `sourceUrlVerificationCompleted` | **TRUE** | Phase 148F verified SBV URLs for `USD_VND` and `INTERBANK_RATE_OVERNIGHT` as reachable without parsing numeric data. Phase 148H identified an alternate reachable XML API for `USD_VND`. |
