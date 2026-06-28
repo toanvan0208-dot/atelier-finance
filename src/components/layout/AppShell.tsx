@@ -42,6 +42,7 @@ import type {
 } from "@/features/watchlist/lib/load-portfolio-readiness";
 import type { CheckThinkingData } from "@/features/checklist/types";
 import type { ScreeningRuntimeData } from "@/features/screening";
+import type { MacroCompassData } from "@/features/macro/types";
 import { PRODUCT_MODULE_GATES } from "@/lib/product/module-readiness";
 
 const modulesWithInternalProgress = new Set([
@@ -68,6 +69,7 @@ type AppShellProps = {
   initialChecklistData?: CheckThinkingData;
   initialScreeningData?: ScreeningRuntimeData;
   initialLearningData?: LearningRuntimeData;
+  initialMacroData?: MacroCompassData;
 };
 
 export function AppShell({
@@ -79,6 +81,7 @@ export function AppShell({
   initialChecklistData,
   initialScreeningData,
   initialLearningData,
+  initialMacroData,
 }: AppShellProps) {
   return (
     <PersonalAnalysisProfileProvider>
@@ -91,6 +94,7 @@ export function AppShell({
         initialValuationScenario={initialValuationScenario}
         initialScreeningData={initialScreeningData}
         initialLearningData={initialLearningData}
+        initialMacroData={initialMacroData}
       />
     </PersonalAnalysisProfileProvider>
   );
@@ -105,6 +109,7 @@ function AppShellContent({
   initialChecklistData,
   initialScreeningData,
   initialLearningData,
+  initialMacroData,
 }: AppShellProps) {
   const { openDrawer } = usePersonalAnalysisProfile();
   const moduleKeys = useMemo(
@@ -214,7 +219,7 @@ function AppShellContent({
           />
         ) : null}
         {activeModule === "macro" ? (
-          <MacroPage onNavigate={handleNavigate} />
+          <MacroPage onNavigate={handleNavigate} initialData={initialMacroData} />
         ) : null}
         {activeModule === "learning" && initialLearningData ? <LearningPage onNavigate={handleNavigate} initialData={initialLearningData} /> : null}
         {activeModule === "industry" ? <IndustryPage onNavigate={handleNavigate} /> : null}

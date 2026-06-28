@@ -2,11 +2,13 @@ import { loadFinancialsRuntimeData } from "@/features/financials/lib/load-financ
 import { financialsUnitsForValuation } from "@/features/financials/lib/financials-unit-metadata-contract";
 import { buildControlledValuationIntegrationBoundary } from "@/features/valuation/lib/controlled-valuation-integration-boundary";
 import { prisma } from "@/lib/database/client";
+import { loadLatestMacroObservations, type MacroObservationResult } from "@/features/macro/lib/macro-observation-read-path";
 import type { RedesignedScreeningCandidate } from "../data/screeningRedesign.data";
 import type { ScreeningReadinessCheck, ScreeningDataMode } from "../types";
 
 export type ScreeningRuntimeData = {
   candidates: RedesignedScreeningCandidate[];
+  macroContext?: MacroObservationResult;
 };
 
 export type LoadScreeningRuntimeDataOptions = {
@@ -206,7 +208,17 @@ export const loadScreeningRuntimeData = async (
     });
   }
 
+  let macroContext;
+  try {
+    macroContext = await loadLatestMacroObservations({
+      indicatorCodes: ["CPI_YOY", "GDP_GROWTH"]
+    });
+  } catch (err) {
+    macroContext = undefined;
+  }
+
   return {
-    candidates
+    candidates,
+    macroContext
   };
 };

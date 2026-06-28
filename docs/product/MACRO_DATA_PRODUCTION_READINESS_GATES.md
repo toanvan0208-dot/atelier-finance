@@ -17,9 +17,9 @@ This document tracks the safety requirements and verification steps that must be
 | `macroStaleDataPolicyDefined` | **FALSE** | We must define what happens if the API fails for >X days (does the UI warn the user?). |
 | `macroAssistantGuardrailsReady` | **TRUE** | Strict boundaries have been documented forbidding the AI from making definitive macro-to-industry conclusions. |
 | `readyForMacroConfirmWrite` | **TRUE** | Prisma schema successfully staged and preview data successfully written to staging under `candidate_macro_data` mode. |
-| `readyForMacroUiIntegration` | **FALSE** | Audit reveals Macro UI still relies on static mock data. Needs read-path integration. |
-| `readyForAssistantMacroContextIntegration` | **FALSE** | Audit reveals Assistant does not yet inject `MacroObservation` DB context. |
-| `readyForProductionApproval` | **FALSE** | Requires full execution of UI/Assistant integration and human review. Data remains `productionApproved=false` and `world_bank_candidate`. |
+| `readyForMacroUiIntegration` | **TRUE** | Macro UI now successfully reads `CPI_YOY` and `GDP_GROWTH` from the database read path (`loadMacroRuntimeData`) instead of static mock data. |
+| `readyForAssistantMacroContextIntegration` | **TRUE** | Assistant successfully receives DB-grounded `macroContext` (with provenance/warnings) via `/api/assistant`. |
+| `readyForProductionApproval` | **FALSE** | Requires full execution of human review. Data remains `productionApproved=false` and `world_bank_candidate`. |
 
 ## Why Macro Data is Not Production-Ready Yet
-Atelier Finance demands verifiable data to prevent the Assistant from hallucinating financial reality. We have successfully written real CPI/GDP candidate data from the World Bank to the staging database (Phase 147C). However, the Macro UI and AI Assistant are not yet integrated to read this database context. Further, the data remains classified as unverified candidate data (`productionApproved=false`), meaning it cannot be shipped to production until the read paths and human verification processes are fully integrated.
+Atelier Finance demands verifiable data to prevent the Assistant from hallucinating financial reality. We have successfully written real CPI/GDP candidate data from the World Bank to the staging database (Phase 147C), and now (Phase 147D) both the UI and AI Assistant actively read from this DB. However, the data remains classified as unverified candidate data (`productionApproved=false`), meaning it cannot be shipped to production until human verification processes are fully integrated and data sources are formally approved.

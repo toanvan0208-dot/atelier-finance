@@ -43,6 +43,7 @@ const cmd = process.argv[2];
 const args = process.argv.slice(3);
 
 process.env.DATABASE_URL = dbUrl;
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 const isWin = process.platform === "win32";
 
 // Special handling if the user wants to pass DATABASE_URL to a docker command inline

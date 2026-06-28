@@ -5,7 +5,7 @@ import type { AssistantRuntimeInput } from "../../../lib/ai-rag/runtime";
 import type { AssistantDataQuality, AssistantModuleContext } from "../../../lib/ai-rag/prompts";
 import { parseAssistantContextPacket } from "../../../lib/ai-rag/context";
 import { loadAssistantMarketPriceContext } from "../../../features/assistant/lib/assistant-market-price-context";
-
+import { loadLatestMacroObservations } from "../../../features/macro/lib/macro-observation-read-path";
 
 type AssistantApiRequestBody = {
   question?: unknown;
@@ -143,6 +143,16 @@ export const createAssistantPostHandler =
           marketPriceContext,
         };
       }
+    }
+
+    const macroContext = await loadLatestMacroObservations({
+      indicatorCodes: ["CPI_YOY", "GDP_GROWTH"]
+    });
+    if (macroContext && macroContext.available) {
+      runtimeInput.moduleContext = {
+        ...runtimeInput.moduleContext,
+        macroContext,
+      };
     }
 
     const assistantResult = await runAssistant({

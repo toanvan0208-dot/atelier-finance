@@ -1,6 +1,7 @@
 "use client";
 
 import { macroCompassData } from "../data/macroCompass.data";
+import type { MacroCompassData } from "../types";
 import {
   AffectedSectorsSection,
   EarlyWarningSection,
@@ -14,10 +15,11 @@ import { MacroIndustryReadinessSkeleton } from "./MacroIndustryReadinessSkeleton
 
 type MacroPageProps = {
   onNavigate?: (moduleKey: string) => void;
+  initialData?: MacroCompassData;
 };
 
-export function MacroPage({ onNavigate }: MacroPageProps) {
-  const data = macroCompassData;
+export function MacroPage({ onNavigate, initialData }: MacroPageProps) {
+  const data = initialData || macroCompassData;
 
   return (
     <div className="mx-auto w-full max-w-[1120px] space-y-7">
