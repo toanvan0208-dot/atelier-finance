@@ -7,11 +7,13 @@ This document outlines the strategy for building parsers to fetch data for the f
 All manual-review indicators from Phase 148C have been classified:
 
 ### 1. High Priority Candidates (Phase 148E Targets)
-These indicators have feasible data paths and are domestic/critical:
-- `USD_VND` (SBV HTML): `html_parser_feasible`
-- `INTERBANK_RATE_OVERNIGHT` (SBV HTML): `html_parser_feasible`
+These indicators have feasible data paths and are domestic/critical. In Phase 148E, a real-source parser dry-run was attempted for `USD_VND` and `INTERBANK_RATE_OVERNIGHT`:
+- `USD_VND` (SBV HTML): `html_parser_feasible` -> **Blocked** (MISSING_SOURCE_URL)
+- `INTERBANK_RATE_OVERNIGHT` (SBV HTML): `html_parser_feasible` -> **Blocked** (MISSING_SOURCE_URL)
 - `MARKET_TRADING_VALUE` (Market API): `api_ready`
 - `FOREIGN_NET_FLOW` (Market API): `api_ready`
+
+Since specific URLs for the SBV tables have not yet been formalized in the codebase strategy, `USD_VND` and `INTERBANK_RATE_OVERNIGHT` successfully failed-closed in the dry-run, meaning no hardcoded or fake data was used.
 
 ### 2. Medium Priority Candidates
 These indicators have feasible paths but are either lower priority (global) or more difficult to parse (Excel downloads):

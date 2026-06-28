@@ -30,9 +30,10 @@ Phase 148C xác minh trạng thái tự động hóa của các chỉ số trong
 - **html_table_manual_review**: Nguồn công bố dưới dạng HTML/PDF khó parse (SBV cho tỷ giá/lãi suất, GSO cho xuất nhập khẩu/đầu tư công).
 - **blocked**: Các chỉ số có bản quyền (S&P Global PMI).
 
-## Parser Feasibility Strategy (Phase 148D)
+## Parser Feasibility Strategy (Phase 148D & 148E)
 Đánh giá mức độ ưu tiên và khả năng viết parser tự động cho các nguồn manual-review:
 - **Candidate for Phase 148E**: `USD_VND` (SBV HTML), `INTERBANK_RATE_OVERNIGHT` (SBV HTML), `MARKET_TRADING_VALUE` (Market API), `FOREIGN_NET_FLOW` (Market API).
+- **Phase 148E Dry Run Result**: `USD_VND` và `INTERBANK_RATE_OVERNIGHT` bị fail-closed (`previewBlocked=true`) do chưa có `sourceUrl` cụ thể trong strategy, chứng minh hệ thống không bịa số liệu hay parse bừa bãi.
 - **Manual Review Only**: `CREDIT_GROWTH` (do dữ liệu ẩn trong PDF press release của SBV).
 - Lưu ý: Parser feasibility không phải là dữ liệu. Hệ thống vẫn tiếp tục báo "Chưa có dữ liệu" cho đến khi parser hoàn thiện và test pass.
 
