@@ -22,8 +22,10 @@ This document tracks the safety requirements and verification steps that must be
 | `macroIndicatorUniverseDefined` | **TRUE** | Phase 148A defined the indicator registry, cleared all fake data from UI/Assistant, and enforced strict db-backed validation rules. |
 | `readyForFrontendLockedProviderExpansion` | **TRUE** | Phase 148B locked the provider expansion scope solely to indicators currently in the Macro frontend. |
 | `macroSourceVerificationCompleted` | **TRUE** | Phase 148C evaluated automation levels for all frontend-locked indicators, restricting machine_readable fetch paths only. |
-| `readyForExpandedConfirmWrite` | **FALSE** | Currently only CPI/GDP (World Bank) is verified as machine readable and implemented. Other APIs (e.g. FRED, FMP) require parser implementation in Phase 148D. |
-| `readyForProductionApproval` | **FALSE** | Requires full execution of human review. Data remains `productionApproved=false` and `world_bank_candidate`. |
+| `macroParserStrategyCompleted` | **TRUE** | Phase 148D evaluated parser feasibility. `USD_VND`, `INTERBANK_RATE_OVERNIGHT`, `MARKET_TRADING_VALUE`, and `FOREIGN_NET_FLOW` are prioritized. |
+| `readyForParserPrototypePhase` | **TRUE** | Approved to build prototypes for the Phase 148D candidates. |
+| `readyForExpandedConfirmWrite` | **FALSE** | Currently only CPI/GDP (World Bank) is verified as machine readable and implemented. Other APIs (e.g. FRED, FMP) require parser implementation in Phase 148D/148E. |
+| `readyForProductionApproval` | **FALSE** | Requires full execution of human review. Data remains `productionApproved=false`. |
 
 ## Why Macro Data is Not Production-Ready Yet
 Atelier Finance demands verifiable data to prevent the Assistant from hallucinating financial reality. We have successfully written real CPI/GDP candidate data from the World Bank to the staging database (Phase 147C), and now (Phase 147D) both the UI and AI Assistant actively read from this DB. However, the data remains classified as unverified candidate data (`productionApproved=false`), meaning it cannot be shipped to production until human verification processes are fully integrated and data sources are formally approved.

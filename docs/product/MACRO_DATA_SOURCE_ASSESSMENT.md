@@ -69,4 +69,10 @@ Phase 148C audited and classified the source verification status of all 14 `inCu
 - **HTML/PDF Table (Needs Manual Review / Scraper)**: EXPORT_GROWTH, PUBLIC_INVESTMENT, INTERBANK_RATE_OVERNIGHT, CREDIT_GROWTH, USD_VND.
 - **Blocked/Not Assessed**: PMI_MANUFACTURING, GLOBAL_FLOW.
 
+Phase 148D formulated a **Parser Strategy** for the manual-review/unverified indicators:
+- Prioritized domestic indicators: `USD_VND` and `INTERBANK_RATE_OVERNIGHT` are identified as `html_parser_feasible` (SBV HTML tables).
+- Prioritized market indicators: `MARKET_TRADING_VALUE` and `FOREIGN_NET_FLOW` are `api_ready` (Vnstock/market provider).
+- These 4 are designated as `candidateFor148E` to undergo parser prototype development.
+- `CREDIT_GROWTH` remains `manual_review_only` due to complex unstructured PDFs from SBV.
+
 Until rigorous integrations are completed for the remaining frontend indicators, UI and Assistant read-paths explicitly reject fabrication of data, treating them gracefully as "Dự kiến hỗ trợ" or "Chưa có dữ liệu hệ thống". All indicators also have a stale-data policy applied to ensure out-of-date metrics are clearly flagged.

@@ -8,6 +8,7 @@ Atelier Finance is an educational platform, not an investment advisory service. 
 - **Phase 148A**: Defined `db_backed` versus `planned` or `source_assessment_needed` indicators to prevent hallucinating data for newly added macro indicators.
 - **Phase 148B**: Locked provider expansion to the 14 indicators currently in the Macro frontend. Added strict stale data policy.
 - **Phase 148C**: Verified sources for frontend indicators, strictly enforcing `machine_readable_api` and `providerFetchEligible` to avoid dangerous scraping or unverified manual parses. Assistant explicitly knows which metrics need manual review vs which are candidate/DB-backed.
+- **Phase 148D**: Developed a parser strategy indicating which sources have `api_ready` vs `manual_review_only` feasibility. The Assistant is strictly instructed that *parser strategy/feasibility is not data*, preventing it from hallucinating numbers just because a parser is planned.
 
 ### Strict Data Provenance and Guardrails
 - **No Fake Data Rule**: Absolutely no fallback, mock, or hardcoded macro values may be used or passed to the LLM. 
