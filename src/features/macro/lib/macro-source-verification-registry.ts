@@ -98,11 +98,11 @@ export const MACRO_SOURCE_VERIFICATION_REGISTRY: MacroSourceVerificationItem[] =
     inCurrentFrontend: true,
     sourceCandidate: "State Bank of Vietnam",
     sourceUrl: "https://www.sbv.gov.vn/webcenter/portal/vi/menu/trangchu/tstttlm/lstlnt/lstlnt",
-    automationLevel: "html_table_manual_review", // We don't have html_table_candidate in MacroSourceAutomationLevel
-    verificationStatus: "needs_manual_review", // Keeping it consistent
+    automationLevel: "html_table_manual_review",
+    verificationStatus: "blocked",
     providerFetchEligible: false,
-    limitations: ["Requires parser for HTML table"],
-    notes: ["Source URL is reachable, parser required."]
+    limitations: ["SBV HTML structure unstable. Blocked until hardened."],
+    notes: ["Source URL reachable, but pure HTML parsing fails."]
   },
   {
     indicatorCode: "CREDIT_GROWTH",
@@ -117,13 +117,13 @@ export const MACRO_SOURCE_VERIFICATION_REGISTRY: MacroSourceVerificationItem[] =
   {
     indicatorCode: "USD_VND",
     inCurrentFrontend: true,
-    sourceCandidate: "State Bank of Vietnam",
-    sourceUrl: "https://www.sbv.gov.vn/TyGia/faces/TyGia.jspx",
-    automationLevel: "html_table_manual_review",
-    verificationStatus: "needs_manual_review",
-    providerFetchEligible: false,
-    limitations: ["SBV central rate published via HTML table."],
-    notes: ["Source URL is reachable, parser required."]
+    sourceCandidate: "Vietcombank Exchange Rate API",
+    sourceUrl: "https://portal.vietcombank.com.vn/Usercontrols/TVPortal.TyGia/pXML.aspx",
+    automationLevel: "machine_readable_api",
+    verificationStatus: "verified_candidate",
+    providerFetchEligible: true,
+    limitations: ["VCB rate used as an alternate since SBV HTML is unstable."],
+    notes: ["Source URL is reachable XML API."]
   },
   {
     indicatorCode: "DXY",

@@ -6,14 +6,14 @@ This document outlines the strategy for building parsers to fetch data for the f
 ## Parser Feasibility Classification (Phase 148D)
 All manual-review indicators from Phase 148C have been classified:
 
-### 1. High Priority Candidates (Phase 148G Targets)
-These indicators have feasible data paths and are domestic/critical. In Phase 148G, a real-source parser dry run was attempted using verified URLs for `USD_VND` and `INTERBANK_RATE_OVERNIGHT`:
-- `USD_VND` (SBV HTML): `html_parser_feasible` -> **Blocked** (PARSER_EXTRACTION_FAILED, USD_ROW_NOT_FOUND)
-- `INTERBANK_RATE_OVERNIGHT` (SBV HTML): `html_parser_feasible` -> **Blocked** (PARSER_EXTRACTION_FAILED, OVERNIGHT_ROW_NOT_FOUND)
+### 1. High Priority Candidates (Phase 148H Targets)
+These indicators have feasible data paths and are domestic/critical. In Phase 148G, a real-source parser dry run was attempted using verified URLs for `USD_VND` and `INTERBANK_RATE_OVERNIGHT`, which failed gracefully due to unstable SBV HTML. In Phase 148H, the source was inspected for stable endpoints:
+- `USD_VND` (SBV HTML): Inspected, HTML highly unstable. Identified alternate source: **Vietcombank Exchange Rate XML API** -> `api_ready` -> Eligible for parser dry-run.
+- `INTERBANK_RATE_OVERNIGHT` (SBV HTML): Inspected, HTML heavily JS-rendered. No stable alternate API found -> `manual_review_only` -> **Blocked** from automated parser.
 - `MARKET_TRADING_VALUE` (Market API): `api_ready`
 - `FOREIGN_NET_FLOW` (Market API): `api_ready`
 
-Due to the complex and unstable structure of the SBV HTML tables, the naive regex parser successfully failed-closed. No hardcoded or fake data was extracted. Both indicators remain gracefully blocked from downstream DB updates until the parser is hardened.
+Due to the complex structure of the SBV site, `USD_VND` will transition to using an alternate XML API in the next parser dry-run phase, while `INTERBANK_RATE_OVERNIGHT` will require a manual workflow or paid provider.
 
 ### 2. Medium Priority Candidates
 These indicators have feasible paths but are either lower priority (global) or more difficult to parse (Excel downloads):

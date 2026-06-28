@@ -36,6 +36,7 @@ Phase 148C xác minh trạng thái tự động hóa của các chỉ số trong
 - **Phase 148E Dry Run Result**: `USD_VND` và `INTERBANK_RATE_OVERNIGHT` bị fail-closed (`previewBlocked=true`) do chưa có `sourceUrl` cụ thể trong strategy, chứng minh hệ thống không bịa số liệu hay parse bừa bãi.
 - **Phase 148F Source URL Verification**: `USD_VND` và `INTERBANK_RATE_OVERNIGHT` đã được verify URL nguồn thật (từ SBV). Đã sẵn sàng để test parser dry-run tiếp theo. Không extract data nào trong phase này.
 - **Phase 148G Verified URL Parser Dry-Run**: `USD_VND` và `INTERBANK_RATE_OVERNIGHT` được parse thử từ URL thật của SBV. Cả hai tiếp tục fail-closed an toàn do cấu trúc HTML phức tạp, không trích xuất số liệu giả hay số liệu cứng. Đang đợi update parser cứng cáp hơn.
+- **Phase 148H Source Hardening**: Inspect cấu trúc HTML của SBV cho thấy sự phụ thuộc nặng nề vào JS (Oracle WebCenter/ADF). Chuyển `USD_VND` sang dùng alternate source (VCB Exchange Rate XML API) cho dry-run tiếp theo. `INTERBANK_RATE_OVERNIGHT` bị blocked chờ quy trình manual review.
 - **Manual Review Only**: `CREDIT_GROWTH` (do dữ liệu ẩn trong PDF press release của SBV).
 - Lưu ý: Parser feasibility không phải là dữ liệu. Hệ thống vẫn tiếp tục báo "Chưa có dữ liệu" cho đến khi parser hoàn thiện và test pass.
 

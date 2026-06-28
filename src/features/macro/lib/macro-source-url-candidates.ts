@@ -33,18 +33,18 @@ export const MACRO_SOURCE_URL_CANDIDATES: MacroSourceUrlCandidate[] = [
   {
     indicatorCode: "USD_VND",
     inCurrentFrontend: true,
-    sourceName: "State Bank of Vietnam",
-    sourceLabel: "SBV Central Exchange Rate",
-    sourceUrl: "https://www.sbv.gov.vn/TyGia/faces/TyGia.jspx",
-    sourceOwner: "SBV",
-    automationLevel: "html_table_candidate",
-    verificationStatus: "not_verified",
-    parserEligibleForNextPhase: false, // will be updated to true if reachable
-    requiresManualReview: true,
+    sourceName: "Vietcombank Exchange Rate API",
+    sourceLabel: "VCB Exchange Rate API",
+    sourceUrl: "https://portal.vietcombank.com.vn/Usercontrols/TVPortal.TyGia/pXML.aspx",
+    sourceOwner: "VCB",
+    automationLevel: "machine_readable_api",
+    verificationStatus: "url_reachable_but_parser_needed",
+    parserEligibleForNextPhase: true,
+    requiresManualReview: false,
     expectedFrequency: "daily",
     expectedUnit: "VND",
-    limitations: ["HTML table scraping is fragile and subject to UI changes without notice."],
-    verificationNotes: ["Need to verify if this URL is reachable and returns an HTML body with expected content-type."]
+    limitations: ["VCB rate used as fallback since SBV HTML is unstable."],
+    verificationNotes: ["Reachable XML endpoint. Alternate source identified in 148H."]
   },
   {
     indicatorCode: "INTERBANK_RATE_OVERNIGHT",
@@ -53,13 +53,13 @@ export const MACRO_SOURCE_URL_CANDIDATES: MacroSourceUrlCandidate[] = [
     sourceLabel: "SBV Interbank Market Rate",
     sourceUrl: "https://www.sbv.gov.vn/webcenter/portal/vi/menu/trangchu/tstttlm/lstlnt/lstlnt",
     sourceOwner: "SBV",
-    automationLevel: "html_table_candidate",
-    verificationStatus: "not_verified",
-    parserEligibleForNextPhase: false, // will be updated to true if reachable
+    automationLevel: "blocked",
+    verificationStatus: "blocked",
+    parserEligibleForNextPhase: false,
     requiresManualReview: true,
     expectedFrequency: "daily",
     expectedUnit: "percent",
-    limitations: ["HTML table scraping is fragile and subject to UI changes without notice."],
-    verificationNotes: ["Need to verify if this URL is reachable and returns an HTML body with expected content-type."]
+    limitations: ["SBV HTML is highly unstable and JS-rendered. Blocked parser."],
+    verificationNotes: ["Blocked in 148H after structure inspection. Needs manual workflow."]
   }
 ];
