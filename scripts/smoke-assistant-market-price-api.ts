@@ -1,3 +1,4 @@
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 import { prisma } from "../src/lib/database/client";
 
 async function runApiSmoke() {
@@ -120,11 +121,12 @@ async function runApiSmoke() {
         }
 
         if (hasForbidden) {
+          console.log(`\n[${ticker}] Forbidden answer: ${data.answer}`);
           forbiddenCopyDetected = true;
           allAssistantResponsesOk = false;
         }
 
-        if (!mentionsSystemData || !mentionsUnapproved) {
+        if (!mentionsSystemData || !mentionsUnapproved || !mentionsWarning) {
           allAssistantResponsesOk = false;
         }
       }
