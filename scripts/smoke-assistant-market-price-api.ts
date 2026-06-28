@@ -1,8 +1,8 @@
 import { prisma } from "../src/lib/database/client";
 
 async function runApiSmoke() {
-  const phase = "146B";
-  const mode = "assistant_market_price_api_http_smoke";
+  const phase = "146B-2";
+  const mode = "assistant_api_smoke_with_running_server_and_configured_provider";
   const baseUrl = process.env.ASSISTANT_SMOKE_BASE_URL || "http://localhost:3000";
   const tickersStr = process.env.ASSISTANT_SMOKE_TICKERS || "FPT,MWG";
   const tickersToCheck = tickersStr.split(",").map((t) => t.trim());
@@ -11,6 +11,11 @@ async function runApiSmoke() {
   console.log(`mode: ${mode}`);
   console.log(`baseUrl: ${baseUrl}`);
   console.log(`tickersChecked: ${tickersToCheck.join(", ")}`);
+
+  // Count before
+  const preMarketPriceRowCount = await prisma.marketPrice.count();
+  const preProvenanceRowCount = await prisma.marketPriceProvenanceMetadata.count();
+  const preMarketPriceUnitMetadataRowCount = await prisma.marketPriceUnitMetadata.count();
 
   let serverReachable = false;
   let providerModeDetected = "unknown";
@@ -63,7 +68,8 @@ async function runApiSmoke() {
           answerLower.includes("dữ liệu") &&
           (answerLower.includes("hệ thống") ||
             answerLower.includes("hiện có") ||
-            answerLower.includes("ghi nhận"));
+            answerLower.includes("ghi nhận") ||
+            answerLower.includes("hiện tại"));
         if (mentionsSystemData) mentionsSystemDataCount++;
 
         const mentionsPrice = answerLower.includes("giá") && answerLower.includes("đóng cửa");
@@ -75,10 +81,12 @@ async function runApiSmoke() {
           answerLower.includes("cần rà soát") ||
           answerLower.includes("needs review") ||
           answerLower.includes("staging") ||
-          answerLower.includes("research");
+          answerLower.includes("research") ||
+          answerLower.includes("chưa được kiểm chứng") ||
+          answerLower.includes("candidate_provider_data");
         if (mentionsUnapproved) mentionsNotProductionApprovedOrNeedsReviewCount++;
 
-        const mentionsWarning = answerLower.includes("cảnh báo") || answerLower.includes("warning");
+        const mentionsWarning = answerLower.includes("cảnh báo") || answerLower.includes("warning") || answerLower.includes("thiếu");
         if (mentionsWarning) mentionsWarningCodesOrReviewWarningCount++;
 
         // Exclude user's question from forbidden copy check by removing the question text
@@ -125,7 +133,18 @@ async function runApiSmoke() {
     }
   }
 
-  if (serverReachable && providerModeDetected === "completed") {
+  // Count after
+  const postMarketPriceRowCount = await prisma.marketPrice.count();
+  const postProvenanceRowCount = await prisma.marketPriceProvenanceMetadata.count();
+  const postMarketPriceUnitMetadataRowCount = await prisma.marketPriceUnitMetadata.count();
+
+  const marketPriceRowsChanged = postMarketPriceRowCount - preMarketPriceRowCount;
+  const provenanceRowsChanged = postProvenanceRowCount - preProvenanceRowCount;
+  const marketPriceUnitMetadataRowsChanged = postMarketPriceUnitMetadataRowCount - preMarketPriceUnitMetadataRowCount;
+
+  const dbWriteAttempted = marketPriceRowsChanged !== 0 || provenanceRowsChanged !== 0 || marketPriceUnitMetadataRowsChanged !== 0;
+
+  if (serverReachable && providerModeDetected === "completed" && responseReceivedCount >= tickersToCheck.length) {
     apiSmokeStatus = allAssistantResponsesOk && !forbiddenCopyDetected ? "passed" : "failed";
   } else if (!serverReachable) {
     apiSmokeStatus = "skipped";
@@ -144,8 +163,20 @@ async function runApiSmoke() {
   console.log(`mentionsWarningCodesOrReviewWarningCount: ${mentionsWarningCodesOrReviewWarningCount}`);
   console.log(`forbiddenCopyDetected: ${forbiddenCopyDetected}`);
   console.log(`assistantResponseGuardrailOk: ${allAssistantResponsesOk}`);
-  console.log(`dbWriteAttempted: false`);
+  console.log(`dbWriteAttempted: ${dbWriteAttempted}`);
   
+  console.log(`preMarketPriceRowCount: ${preMarketPriceRowCount}`);
+  console.log(`postMarketPriceRowCount: ${postMarketPriceRowCount}`);
+  console.log(`marketPriceRowsChanged: ${marketPriceRowsChanged}`);
+  
+  console.log(`preProvenanceRowCount: ${preProvenanceRowCount}`);
+  console.log(`postProvenanceRowCount: ${postProvenanceRowCount}`);
+  console.log(`provenanceRowsChanged: ${provenanceRowsChanged}`);
+  
+  console.log(`preMarketPriceUnitMetadataRowCount: ${preMarketPriceUnitMetadataRowCount}`);
+  console.log(`postMarketPriceUnitMetadataRowCount: ${postMarketPriceUnitMetadataRowCount}`);
+  console.log(`marketPriceUnitMetadataRowsChanged: ${marketPriceUnitMetadataRowsChanged}`);
+
   const smokePassed = apiSmokeStatus === "passed" || apiSmokeStatus === "partial" || apiSmokeStatus === "skipped";
   console.log(`smokePassed: ${smokePassed}`);
   console.log(`knownGaps: API test may be skipped or partial if server is not running or LLM key is missing.`);
