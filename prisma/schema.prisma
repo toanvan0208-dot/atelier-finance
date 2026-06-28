@@ -624,3 +624,76 @@ model MarketPriceProvenanceMetadata {
   @@index([stalenessStatus])
   @@index([adjustmentStatus])
 }
+
+model MacroIndicator {
+  id               String             @id @default(cuid())
+  indicatorCode    String             @unique
+  indicatorName    String
+  description      String?
+  category         String?
+  defaultUnit      String?
+  defaultFrequency String?
+  regionScope      String?
+  sourceLabel      String?
+  isActive         Boolean            @default(true)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  observations     MacroObservation[]
+}
+
+model MacroObservation {
+  id                 String         @id @default(cuid())
+  indicatorId        String
+  indicatorCode      String
+  region             String
+  observationDate    DateTime
+  value              Decimal?
+  unit               String?
+  frequency          String?
+  periodLabel        String?
+  sourceLabel        String
+  dataMode           String
+  productionApproved Boolean        @default(false)
+  needsReview        Boolean        @default(true)
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+
+  indicator MacroIndicator @relation(fields: [indicatorId], references: [id])
+
+  @@unique([indicatorCode, region, observationDate, sourceLabel])
+  @@index([indicatorId])
+  @@index([indicatorCode])
+  @@index([region])
+  @@index([observationDate])
+  @@index([sourceLabel])
+  @@index([dataMode])
+}
+
+model MacroObservationProvenance {
+  id                 String    @id @default(cuid())
+  indicatorCode      String
+  region             String
+  observationDate    DateTime
+  sourceLabel        String
+  providerType       String
+  dataMode           String
+  productionApproved Boolean   @default(false)
+  needsReview        Boolean   @default(true)
+  sourceUrl          String?
+  retrievedAt        DateTime?
+  publishedAt        DateTime?
+  payloadChecksum    String?
+  rawPayloadSnippet  String?
+  warningCodes       String?
+  evidenceNotes      String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  @@unique([indicatorCode, region, observationDate, sourceLabel])
+  @@index([indicatorCode])
+  @@index([region])
+  @@index([observationDate])
+  @@index([sourceLabel])
+  @@index([dataMode])
+}
+
