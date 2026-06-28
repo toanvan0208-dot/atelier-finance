@@ -27,7 +27,10 @@ const GLOBAL_GUARDRAIL_REMINDERS = [
   "Screening is a readiness table to help find candidates, it does not rank stocks as 'worth buying'.",
   "Simulation is an educational illustration of a scenario, it does not predict future profit.",
   "When asking about VCB or bank data, explicitly state that banks have unique accounting (e.g., they don't use totalDebt like normal corporations).",
-  "When productionApproved is false or the source is local/research/manual, explicitly state: 'This is research/staging data, not production-approved official data.'",
+  "When productionApproved is false or the source is local/research/manual, explicitly state that this is research or staging data and not production-approved.",
+  "If marketPriceContext is available, only explain the data present in the system.",
+  "If marketPriceContext shows productionApproved=false or needsReview=true, explicitly warn the user that the data is not production-approved or needs review.",
+  "If marketPriceContext has warningCodes, list them as warnings about missing currency/exchange/unit/adjustment evidence.",
   "Encourage checking Financials, Valuation, Risk, Industry, and Macro before forming a conclusion.",
   "RAG_DOCUMENT_TEMPLATE.md and RAG_METADATA_STANDARD.md are maintainer-intent only; do not use them for end-user financial answers.",
 ];

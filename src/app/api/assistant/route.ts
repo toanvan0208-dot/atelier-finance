@@ -4,6 +4,8 @@ import type { AssistantProvider } from "../../../lib/ai-rag/providers";
 import type { AssistantRuntimeInput } from "../../../lib/ai-rag/runtime";
 import type { AssistantDataQuality, AssistantModuleContext } from "../../../lib/ai-rag/prompts";
 import { parseAssistantContextPacket } from "../../../lib/ai-rag/context";
+import { loadAssistantMarketPriceContext } from "../../../features/assistant/lib/assistant-market-price-context";
+
 
 type AssistantApiRequestBody = {
   question?: unknown;
@@ -131,6 +133,16 @@ export const createAssistantPostHandler =
         },
         400,
       );
+    }
+
+    if (runtimeInput.ticker) {
+      const marketPriceContext = await loadAssistantMarketPriceContext(runtimeInput.ticker);
+      if (marketPriceContext.available) {
+        runtimeInput.moduleContext = {
+          ...runtimeInput.moduleContext,
+          marketPriceContext,
+        };
+      }
     }
 
     const assistantResult = await runAssistant({
