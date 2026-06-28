@@ -10,6 +10,7 @@ import {
   MacroTransmissionSection,
   VietnamContextSection,
   WorldContextSection,
+  MacroIndicatorUniverseSection
 } from "./MacroCompassSections";
 import { MacroIndustryReadinessSkeleton } from "./MacroIndustryReadinessSkeleton";
 
@@ -38,6 +39,10 @@ export function MacroPage({ onNavigate, initialData }: MacroPageProps) {
       <main className="space-y-8">
         <MacroIndustryReadinessSkeleton domain="macro" />
         <MacroCurrentPicture data={data.currentPicture} onNavigate={onNavigate} />
+        
+        {/* NEW: Macro Indicator Universe */}
+        <MacroIndicatorUniverseSection data={data} />
+        
         <MacroTransmissionSection paths={data.transmissionPaths} terms={data.terms} />
         <WorldContextSection metrics={data.worldMetrics} />
         <VietnamContextSection metrics={data.vietnamMetrics} />

@@ -263,6 +263,68 @@ export function VietnamContextSection({ metrics }: { metrics: MacroCompassMetric
   );
 }
 
+export function MacroIndicatorUniverseSection({ data }: { data: MacroCompassData }) {
+  if (!data.indicatorUniverse || data.indicatorUniverse.length === 0) return null;
+
+  return (
+    <section className="space-y-4">
+      <SectionIntro
+        id="indicator-universe"
+        question="Hệ thống hỗ trợ những dữ liệu vĩ mô nào?"
+        title="Danh mục chỉ số vĩ mô"
+        description="Tổng hợp các chỉ số vĩ mô Atelier Finance dự kiến cung cấp và trạng thái dữ liệu hiện tại."
+      />
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {data.indicatorUniverse.map((indicator) => {
+          let tone: "success" | "warning" | "neutral" | "danger" | "accent" = "neutral";
+          let statusText = "Chưa hỗ trợ";
+
+          if (indicator.supportStatus === "db_backed") {
+            tone = "success";
+            statusText = "Có dữ liệu hệ thống";
+          } else if (indicator.supportStatus === "candidate_source_identified") {
+            tone = "accent";
+            statusText = "Đã xác định nguồn candidate";
+          } else if (indicator.supportStatus === "source_assessment_needed") {
+            tone = "warning";
+            statusText = "Cần đánh giá nguồn";
+          } else if (indicator.supportStatus === "planned") {
+            tone = "neutral";
+            statusText = "Dự kiến hỗ trợ";
+          }
+
+          return (
+            <article key={indicator.indicatorCode} className="rounded-[8px] border-[1.5px] border-border-soft bg-surface p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h3 className="text-sm font-extrabold text-ink">{indicator.displayName}</h3>
+                  <p className="mt-1 text-xs font-bold text-muted">{indicator.indicatorCode}</p>
+                </div>
+                <Chip size="sm" variant={tone}>{statusText}</Chip>
+              </div>
+              
+              <div className="mt-4 text-xs leading-5 text-muted">
+                <p>{indicator.description}</p>
+                {indicator.latestObservation && (
+                  <div className="mt-3 rounded border border-border-soft bg-canvas p-3">
+                    <p className="font-bold text-ink">Số liệu gần nhất:</p>
+                    <p className="mt-1 text-sm font-bold">{indicator.latestObservation.value} {indicator.latestObservation.unit}</p>
+                    <p className="mt-1">Kỳ: {indicator.latestObservation.observationDate?.split('T')[0]}</p>
+                    <p className="mt-1">Nguồn: {indicator.latestObservation.sourceLabel}</p>
+                    {!indicator.latestObservation.productionApproved && (
+                      <p className="mt-1 text-danger">Chưa được phê duyệt production</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 function MetricSection({
   description,
   id,

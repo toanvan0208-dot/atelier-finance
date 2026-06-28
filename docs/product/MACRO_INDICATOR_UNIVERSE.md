@@ -1,0 +1,25 @@
+# Macro Indicator Universe Expansion & Source Strategy
+
+## Mục tiêu (Phase 148A)
+Định nghĩa danh mục các chỉ số vĩ mô (Macro Indicator Universe) mà Atelier Finance dự kiến hỗ trợ, xác định trạng thái sẵn sàng về dữ liệu của từng chỉ số (DB-backed, Candidate identified, Assessment needed), loại bỏ toàn bộ mock data khỏi UI và Assistant, đảm bảo quy tắc "Không bịa số, không dùng data giả".
+
+## Phân loại trạng thái dữ liệu (Support Status)
+1. **db_backed**: Đã có dữ liệu thật trong hệ thống, cập nhật định kỳ.
+2. **candidate_source_identified**: Đã có nguồn khả thi (VD: GSO, SBV, FRED), cần tích hợp.
+3. **source_assessment_needed**: Đang lên kế hoạch nhưng chưa chốt nguồn cung cấp.
+4. **planned**: Nằm trong kế hoạch mở rộng dài hạn.
+5. **unsupported**: Nằm ngoài phạm vi của sản phẩm.
+
+## Danh mục (Universe)
+Được quản lý tập trung tại `src/features/macro/lib/macro-indicator-registry.ts`.
+Gồm 5 nhóm chính:
+- **Tăng trưởng kinh tế**: GDP_GROWTH (db_backed), INDUSTRIAL_PRODUCTION_GROWTH, RETAIL_SALES_GROWTH...
+- **Lạm phát và giá cả**: CPI_YOY (db_backed), CPI_MOM, CORE_INFLATION, PPI...
+- **Lãi suất và tiền tệ**: POLICY_RATE, INTERBANK_RATE_OVERNIGHT, CREDIT_GROWTH, M2_GROWTH...
+- **Tỷ giá và quốc tế**: USD_VND, DXY, FED_FUNDS_RATE...
+- **Thị trường chứng khoán**: VNINDEX_CLOSE, VN30_CLOSE, MARKET_TRADING_VALUE, FOREIGN_NET_FLOW...
+
+## Assistant Guardrails
+- Assistant được tiêm danh sách các chỉ số db_backed, planned và assessment_needed.
+- Nếu được hỏi về một chỉ số không thuộc db_backed (VD: tỷ giá, lãi suất, thanh khoản), Assistant bắt buộc trả lời: "Hệ thống hiện chưa có dữ liệu quan sát cho chỉ số này..."
+- Nghiêm cấm bịa số liệu.

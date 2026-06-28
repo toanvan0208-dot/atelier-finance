@@ -145,15 +145,23 @@ export const createAssistantPostHandler =
       }
     }
 
-    const macroContext = await loadLatestMacroObservations({
+    const dbResult = await loadLatestMacroObservations({
       indicatorCodes: ["CPI_YOY", "GDP_GROWTH"]
     });
-    if (macroContext && macroContext.available) {
-      runtimeInput.moduleContext = {
-        ...runtimeInput.moduleContext,
-        macroContext,
-      };
-    }
+    
+    // Inject macro universe awareness
+    const macroContext = {
+      ...dbResult,
+      dbBackedIndicators: ["CPI_YOY", "GDP_GROWTH"],
+      plannedIndicators: ["USD_VND", "POLICY_RATE", "VNINDEX_CLOSE", "INTERBANK_RATE_OVERNIGHT", "DXY", "FED_FUNDS_RATE"],
+      sourceAssessmentNeededIndicators: ["PMI_MANUFACTURING", "BRENT_OIL_PRICE", "PPI"],
+      guardrail: "Do not fabricate data for indicators outside dbBackedIndicators. If asked about planned or assessment_needed indicators, state that the system does not yet have an observation for them."
+    };
+    
+    runtimeInput.moduleContext = {
+      ...runtimeInput.moduleContext,
+      macroContext,
+    };
 
     const assistantResult = await runAssistant({
       ...runtimeInput,

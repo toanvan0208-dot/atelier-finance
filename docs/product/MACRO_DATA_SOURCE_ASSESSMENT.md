@@ -58,6 +58,11 @@ This document evaluates potential sources for real macroeconomic data integratio
   - Overkill for simple CPI/GDP metrics if World Bank is easier.
 
 ## Conclusion & Next Steps
-**World Bank API** is the most viable, machine-readable source for an immediate, fail-closed ingestion preview (Phase 147A). It provides clear JSON responses for Vietnam's GDP and CPI without requiring authentication or scraping.
+**World Bank API** was verified in Phase 147A/C as a viable candidate for `db_backed` integration of CPI_YOY and GDP_GROWTH.
 
-While SBV and GSO are more timely and relevant for domestic investors, they are currently classified as `not ready for automated ingestion` and require a `manual review required` strategy for Phase 147B or beyond.
+Phase 148A expanded the Macro Indicator Universe to include many other variables (e.g. `USD_VND`, `POLICY_RATE`, `VNINDEX_CLOSE`). These indicators have been categorized into:
+- `candidate_source_identified` (e.g., GSO, SBV, Market Data Providers)
+- `source_assessment_needed` (e.g., PMI, Brent Oil, DXY)
+- `planned`
+
+Until rigorous integration is implemented, UI and Assistant read-paths explicitly reject fabrication of data for non-`db_backed` metrics, treating them gracefully as "Dự kiến hỗ trợ" or "Cần đánh giá nguồn".

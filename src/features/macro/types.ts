@@ -325,4 +325,11 @@ export type MacroCompassData = {
     warning: string;
     actions: MacroCompassAction[];
   };
+  // General indicator universe runtime structure
+  indicatorUniverse?: any[];
+  indicatorsByCategory?: Record<string, any[]>;
+  dbBackedIndicators?: string[];
+  plannedIndicators?: string[];
+  sourceAssessmentNeededIndicators?: string[];
+  unsupportedIndicators?: string[];
 };

@@ -19,6 +19,7 @@ This document tracks the safety requirements and verification steps that must be
 | `readyForMacroConfirmWrite` | **TRUE** | Prisma schema successfully staged and preview data successfully written to staging under `candidate_macro_data` mode. |
 | `readyForMacroUiIntegration` | **TRUE** | Macro UI now successfully reads `CPI_YOY` and `GDP_GROWTH` from the database read path (`loadMacroRuntimeData`) instead of static mock data. |
 | `readyForAssistantMacroContextIntegration` | **TRUE** | Assistant successfully receives DB-grounded `macroContext` (with provenance/warnings) via `/api/assistant`. |
+| `macroIndicatorUniverseDefined` | **TRUE** | Phase 148A defined the indicator registry, cleared all fake data from UI/Assistant, and enforced strict db-backed validation rules. |
 | `readyForProductionApproval` | **FALSE** | Requires full execution of human review. Data remains `productionApproved=false` and `world_bank_candidate`. |
 
 ## Why Macro Data is Not Production-Ready Yet
