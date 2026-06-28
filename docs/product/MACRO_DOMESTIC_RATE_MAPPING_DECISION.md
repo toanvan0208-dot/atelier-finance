@@ -28,10 +28,11 @@ The label "Lãi suất trong nước" is a broad term that can represent various
    - **Fit**: Medium. Highly relevant to retail investors.
    - **Source**: Unsupported. No standardized free aggregation source.
 
-## Decision
-**Recommendation**: `manual_review_before_mapping_change`
+## Decision (Phase 148J)
+**Recommendation**: `replace_current_mapping` -> **`POLICY_RATE`**
 
-While `POLICY_RATE` has a stronger semantic fit for a general macroeconomic dashboard, changing the mapping requires manual product review to ensure it aligns with the intended user experience.
-The runtime mapping is currently maintained at `INTERBANK_RATE_OVERNIGHT` via the semantic mapping registry (`DOMESTIC_RATE_FRONTEND_INDICATOR_CODE`), but it is explicitly marked as requiring review.
+After product review, `POLICY_RATE` was selected as the representative indicator for the "Lãi suất trong nước" frontend card because it best reflects the central bank's monetary policy stance, fitting the broad macroeconomic scope of the dashboard.
+`INTERBANK_RATE_OVERNIGHT` was retired from the frontend mapping but remains in the universe as a candidate/historical indicator.
 
-No data was extracted, no fake data was created, and no database writes were attempted during this evaluation.
+The runtime mapping in `load-macro-runtime-data.ts` has been updated to use `POLICY_RATE` via the semantic mapping registry (`DOMESTIC_RATE_FRONTEND_INDICATOR_CODE`).
+`POLICY_RATE` remains not DB-backed (`dbBacked=false`, `productionApproved=false`) and requires source assessment/verification before observations can be ingested. No data was extracted, no fake data was created, and no database writes were attempted.

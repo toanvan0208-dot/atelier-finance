@@ -22,7 +22,7 @@ This document tracks the safety requirements and verification steps that must be
 | `macroIndicatorUniverseDefined` | **TRUE** | Phase 148A completed and committed. All necessary metrics identified. Phase 148B restricted future additions to strictly match the existing frontend. |
 | `readyForFrontendLockedProviderExpansion` | **TRUE** | Phase 148B locked the provider expansion scope solely to indicators currently in the Macro frontend. |
 | `macroSourceVerificationCompleted` | **TRUE** | Phase 148C evaluated automation levels for all frontend-locked indicators, restricting machine_readable fetch paths only. |
-| `macroParserStrategyCompleted` | **TRUE** | Phase 148D evaluated parser feasibility. Phase 148I audited semantic mapping for domestic-rate. |
+| `macroParserStrategyCompleted` | **TRUE** | Phase 148D evaluated parser feasibility. Phase 148I audited semantic mapping for domestic-rate. Phase 148J finalized POLICY_RATE as the domestic-rate representative indicator. |
 | `readyForParserPrototypePhase` | **TRUE** | Approved to build prototypes for the Phase 148D candidates. |
 | `parserDryRunCompleted` | **TRUE** | Phase 148E executed real-source parser dry runs. `USD_VND` and `INTERBANK_RATE_OVERNIGHT` safely blocked due to missing formal source URLs. Phase 148G attempted dry run with verified URLs but blocked due to complex HTML. |
 | `sourceUrlVerificationCompleted` | **TRUE** | Phase 148F verified SBV URLs for `USD_VND` and `INTERBANK_RATE_OVERNIGHT` as reachable without parsing numeric data. Phase 148H identified an alternate reachable XML API for `USD_VND`. |

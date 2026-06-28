@@ -312,8 +312,9 @@ export const MACRO_INDICATOR_UNIVERSE: MacroIndicatorRegistryItem[] = [
     productionApproved: false,
     needsReview: true,
     limitations: ["Nguồn SBV thường HTML parsing, thiếu API."],
-    inCurrentFrontend: false,
-    providerExpansionEligible: false,
+    inCurrentFrontend: true,
+    frontendSection: "vietnamMetrics",
+    providerExpansionEligible: true,
   },
   {
     indicatorCode: "INTERBANK_RATE_OVERNIGHT",
@@ -329,9 +330,8 @@ export const MACRO_INDICATOR_UNIVERSE: MacroIndicatorRegistryItem[] = [
     productionApproved: false,
     needsReview: true,
     limitations: ["Cần HTML scraping trên SBV."],
-    inCurrentFrontend: true,
-    frontendSection: "vietnamMetrics",
-    providerExpansionEligible: true,
+    inCurrentFrontend: false,
+    providerExpansionEligible: false,
   },
   {
     indicatorCode: "CREDIT_GROWTH",

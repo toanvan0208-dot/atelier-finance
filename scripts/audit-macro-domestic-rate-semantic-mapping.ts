@@ -37,8 +37,8 @@ function runAudit() {
   console.log(`candidateBackendIndicators: INTERBANK_RATE_OVERNIGHT, POLICY_RATE, GOV_BOND_YIELD_10Y, DEPOSIT_RATE, LENDING_RATE`);
   console.log(`semanticFitScores: ${JSON.stringify(semanticFitScores, null, 2)}`);
   console.log(`sourceAvailabilitySummary: ${JSON.stringify(sourceAvailabilitySummary, null, 2)}`);
-  console.log(`recommendedBackendIndicator: POLICY_RATE (requires review)`);
-  console.log(`mappingChangeRecommended: manual_review_before_mapping_change`);
+  console.log(`recommendedBackendIndicator: POLICY_RATE`);
+  console.log(`mappingChangeRecommended: replace_current_mapping`);
   console.log(`dbWriteAttempted: false`);
   console.log(`auditPassed: true`);
 }

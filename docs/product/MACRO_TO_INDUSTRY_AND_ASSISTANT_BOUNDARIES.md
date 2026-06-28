@@ -14,6 +14,7 @@ Atelier Finance is an educational platform, not an investment advisory service. 
 - **Phase 148G**: Executed parser dry-runs on verified SBV URLs. The parser blocked gracefully due to HTML instability, and the Assistant correctly maintained its guardrail of explicitly stating the data is not available, avoiding any hallucinations.
 - **Phase 148H**: Inspected SBV source structure and confirmed HTML instability. Found alternate source (VCB API) for USD_VND. INTERBANK_RATE_OVERNIGHT is blocked for manual review. Assistant is strictly instructed not to treat alternate source discovery as data availability.
 - **Phase 148I**: Audited the semantic mapping for "Lãi suất trong nước". The Assistant understands this is a frontend UI card and does not assume any new backend data observation exists just because a mapping review occurred. No data was invented or fetched.
+- **Phase 148J**: Finalized the decision to map "Lãi suất trong nước" to `POLICY_RATE`. The Assistant is instructed to treat this as policy rate/lãi suất điều hành. Because `POLICY_RATE` is not DB-backed and has no observations, the Assistant must clearly state that policy rate data is currently unavailable and must not hallucinate interbank or any other interest rate data to fill the gap.
 
 ### Strict Data Provenance and Guardrails
 - **No Fake Data Rule**: Absolutely no fallback, mock, or hardcoded macro values may be used or passed to the LLM. 

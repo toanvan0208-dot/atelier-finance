@@ -38,13 +38,25 @@ function runSmoke() {
   console.log(`guardrailNoInvestmentAdvicePresent: ${guardrailNoInvestmentAdvicePresent}`);
   console.log(`dbWriteAttempted: false`);
 
+  const policyRateSelectedForDomesticRate = (currentBackendIndicatorCode as string) === "POLICY_RATE";
+  const policyRateDbBacked = false; // By definition currently
+  const policyRateNeedsReview = true;
+  const interbankOvernightNoLongerDomesticRateRuntimeMapping = (currentBackendIndicatorCode as string) !== "INTERBANK_RATE_OVERNIGHT";
+
+  console.log(`policyRateSelectedForDomesticRate: ${policyRateSelectedForDomesticRate}`);
+  console.log(`policyRateDbBacked: ${policyRateDbBacked}`);
+  console.log(`policyRateNeedsReview: ${policyRateNeedsReview}`);
+  console.log(`interbankOvernightNoLongerDomesticRateRuntimeMapping: ${interbankOvernightNoLongerDomesticRateRuntimeMapping}`);
+
   const smokePassed = frontendMetricLabelDetected && 
     semanticMappingRegistryAvailable && 
     recommendationPresent && 
     mappingDoesNotCreateObservation && 
     mappingDoesNotMarkDbBacked && 
     mappingDoesNotWriteDb && 
-    assistantDoesNotInventDomesticRate;
+    assistantDoesNotInventDomesticRate &&
+    policyRateSelectedForDomesticRate &&
+    interbankOvernightNoLongerDomesticRateRuntimeMapping;
 
   console.log(`smokePassed: ${smokePassed}`);
 }

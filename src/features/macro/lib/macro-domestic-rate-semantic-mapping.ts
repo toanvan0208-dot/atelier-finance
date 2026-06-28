@@ -103,4 +103,4 @@ export const MACRO_DOMESTIC_RATE_SEMANTIC_MAPPINGS: DomesticRateSemanticMappingI
   }
 ];
 
-export const DOMESTIC_RATE_FRONTEND_INDICATOR_CODE = "INTERBANK_RATE_OVERNIGHT"; // Keep current until manual review
+export const DOMESTIC_RATE_FRONTEND_INDICATOR_CODE = "POLICY_RATE";

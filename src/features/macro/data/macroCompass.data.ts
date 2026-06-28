@@ -210,7 +210,7 @@ export const macroCompassData: MacroCompassData = {
       name: "Lãi suất trong nước",
       ...missingMetricData,
       tone: "neutral",
-      simpleMeaning: "Lãi suất trong nước ảnh hưởng đến chi phí vốn và nhu cầu vay.",
+      simpleMeaning: "Lãi suất điều hành, phản ánh định hướng chính sách tiền tệ trong nước.",
       marketImpact: "Ảnh hưởng chi phí vay, định giá tài sản và nhu cầu tín dụng.",
       relatedSectors: ["Ngân hàng", "Bất động sản", "Chứng khoán"],
       group: "inflation",

@@ -85,4 +85,6 @@ Phase 148H inspected the HTML structure of the SBV URLs. The inspection confirme
 
 Phase 148I audited the semantic mapping of the frontend card "Lãi suất trong nước". The current mapping is `INTERBANK_RATE_OVERNIGHT`, which is too specific for the broad frontend label. A semantic mapping registry was created, identifying `POLICY_RATE` as a stronger semantic fit, but a manual product review is required before changing the mapping. The system safely maintains the `INTERBANK_RATE_OVERNIGHT` mapping via the registry, avoiding any premature data observation creation.
 
+Phase 148J finalized the product decision to select `POLICY_RATE` as the representative indicator for the frontend card "Lãi suất trong nước". The runtime mapping was updated and `INTERBANK_RATE_OVERNIGHT` was retired from the current frontend scope. `POLICY_RATE` remains not DB-backed, with no data extracted or written, awaiting source assessment.
+
 Until rigorous integrations are completed for the remaining frontend indicators, UI and Assistant read-paths explicitly reject fabrication of data, treating them gracefully as "Dự kiến hỗ trợ" or "Chưa có dữ liệu hệ thống". All indicators also have a stale-data policy applied to ensure out-of-date metrics are clearly flagged.
