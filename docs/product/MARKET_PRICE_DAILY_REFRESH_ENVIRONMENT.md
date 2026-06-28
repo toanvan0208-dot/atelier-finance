@@ -21,7 +21,12 @@ No API keys, passwords, or secure tokens are stored in this document or any trac
 The application logic implements a strict boundary:
 - By default, executing the orchestration or job script triggers a **dry-run** resulting in NO database mutations.
 - The `--confirm-write` CLI argument acts as a manual kill-switch/authorization mechanism. Writes will only occur if this flag is passed.
-- No environment variables directly enable automatic writes at this time; it is strictly governed by the CLI arguments.
+- **Staging Scheduled Mode**: The staging scheduled entrypoint strictly enforces dry-run and rejects the `--confirm-write` flag entirely. No environment variables or arguments can override this safety layer for staging schedules.
+
+## Proposed Staging Schedule Pattern
+- **Proposed Cron**: `0 18 * * 1-5` (6:00 PM, Monday through Friday)
+- **Timezone**: Asia/Ho_Chi_Minh
+- **Status**: documentation-only / not enabled. Production cron remains entirely disabled.
 
 ## Future Provider Integrations
 Future verified providers may require specific API keys or endpoints. These will be added as required and managed externally to the repository.

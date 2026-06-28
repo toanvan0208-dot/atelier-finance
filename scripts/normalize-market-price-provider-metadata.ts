@@ -19,10 +19,7 @@ async function normalizeMetadata() {
     });
     
     const provs = await prisma.marketPriceProvenanceMetadata.findMany({
-      where: { ticker: { in: tickersChecked } },
-      include: {
-          // just to load
-      }
+      where: { ticker: { in: tickersChecked } }
     });
 
     const unitMetadataRowsChecked = await prisma.marketPriceUnitMetadata.count();

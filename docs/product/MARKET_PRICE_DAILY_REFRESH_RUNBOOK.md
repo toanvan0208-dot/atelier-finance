@@ -26,6 +26,13 @@ To safely check what data the provider returns without mutating the database:
 npx tsx scripts/orchestrate-market-price-daily-refresh.ts
 ```
 
+### Staging Scheduled Dry-Run Command
+To simulate the scheduler execution without mutating the database:
+```bash
+npx tsx scripts/staging-scheduled-market-price-daily-refresh.ts
+```
+> **NOTE**: This mode inherently runs in dry-run and will explicitly reject `--confirm-write`.
+
 ### Confirm-write Command
 > **WARNING**: Use this ONLY in local or staging environments. Production execution is disabled until all readiness gates are passed.
 

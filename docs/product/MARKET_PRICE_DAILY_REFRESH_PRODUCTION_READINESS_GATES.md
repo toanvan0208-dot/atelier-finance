@@ -3,14 +3,15 @@
 ## Current Status
 - `readyForProductionApproval`: **false**
 - `readyForScheduledJobPhase`: **false** (in production context)
+- `stagingScheduledDryRunReady`: **true** (via Phase 146F wrapper)
 
 ## Why not production-ready yet
-The system has a functional dry-run orchestration layer and the ability to fetch data. In Phase 146E, basic provider metadata (currency, exchange, price/volume units) was normalized at a **candidate** level based on logical inferences for the Vietnam market. However, the data source (`vnstock`) remains classified as `undocumented_provider` with `needsReview=true` and `productionApproved=false`. Critical adjustment evidence (split/dividend adjustment status) is still missing from the provider's payload and cannot be safely inferred. The environment relies on a workaround (`NODE_TLS_REJECT_UNAUTHORIZED=0`) that is unacceptable for production. Also, VCB/Bank data is unsupported.
+The system has a functional staging scheduled dry-run orchestration layer and the ability to fetch data. In Phase 146E, basic provider metadata (currency, exchange, price/volume units) was normalized at a **candidate** level based on logical inferences for the Vietnam market. However, the data source (`vnstock`) remains classified as `undocumented_provider` with `needsReview=true` and `productionApproved=false` (see [VNSTOCK Profile](file:///D:/Codex/atelier-finance/docs/product/VNSTOCK_MARKET_PRICE_PROVIDER_PROFILE.md)). Critical adjustment evidence (split/dividend adjustment status) is still fundamentally missing from the provider's payload and cannot be safely inferred (see [ADR Adjustment Evidence](file:///D:/Codex/atelier-finance/docs/product/decisions/ADR_MARKET_PRICE_ADJUSTMENT_EVIDENCE.md)). The environment relies on a workaround (`NODE_TLS_REJECT_UNAUTHORIZED=0`) that is unacceptable for production. Also, VCB/Bank data is unsupported.
 
 ## Required Gates Before Enabling Real Schedule
 
 ### 1. Required Provider Documentation
-- `providerProfileDocumented=false`: The data provider (`vnstock`) must have a fully documented profile detailing its source reliability, usage terms, and API stability guarantees.
+- `providerProfileDocumented=false`: The data provider (`vnstock`) must have a fully documented profile detailing its source reliability, usage terms, and API stability guarantees. An undocumented profile has been drafted.
 
 ### 2. Required Metadata Verification
 The following metadata fields have been populated at a candidate level but still need formal verification against a documented provider profile:
