@@ -2,6 +2,7 @@ import { loadLatestMacroObservations } from "./macro-observation-read-path";
 import { macroCompassData } from "../data/macroCompass.data";
 import type { MacroCompassData, MacroCompassMetric } from "../types";
 import { MACRO_INDICATOR_UNIVERSE } from "./macro-indicator-registry";
+import { evaluateMacroObservationFreshness } from "./macro-stale-policy";
 
 export async function loadMacroRuntimeData(): Promise<MacroCompassData> {
   // Extract all indicator codes from the registry
@@ -32,7 +33,11 @@ export async function loadMacroRuntimeData(): Promise<MacroCompassData> {
 
     let finalItem = {
       ...registryItem,
-      latestObservation: null as any
+      latestObservation: null as any,
+      freshness: evaluateMacroObservationFreshness({
+        observationDate: dbObs ? dbObs.observationDate : null,
+        expectedFrequency: registryItem.expectedFrequency
+      })
     };
 
     if (registryItem.supportStatus === "db_backed" && dbObs) {
@@ -58,17 +63,24 @@ export async function loadMacroRuntimeData(): Promise<MacroCompassData> {
   cloned.unsupportedIndicators = unsupportedIndicators;
 
   // Backward compatibility with legacy worldMetrics and vietnamMetrics
-  if (!dbResult.available) {
-    return cloned;
-  }
-
   const dbGdp = dbResult.observations?.find(o => o.indicatorCode === "GDP_GROWTH");
   const dbCpi = dbResult.observations?.find(o => o.indicatorCode === "CPI_YOY");
+  
+  const gdpReg = MACRO_INDICATOR_UNIVERSE.find(r => r.indicatorCode === "GDP_GROWTH");
+  const cpiReg = MACRO_INDICATOR_UNIVERSE.find(r => r.indicatorCode === "CPI_YOY");
 
-  function patchMetric(id: string, dbObs: any, registryMatch: any) {
-    const idx = cloned.vietnamMetrics.findIndex(m => m.id === id);
+  function patchMetric(id: string, dbObs: any, registryMatch: any, list: MacroCompassMetric[]) {
+    const idx = list.findIndex(m => m.id === id);
     if (idx !== -1) {
-      const metric = cloned.vietnamMetrics[idx];
+      const metric = list[idx];
+      metric.supportStatus = registryMatch?.supportStatus;
+      
+      const freshness = evaluateMacroObservationFreshness({
+        observationDate: dbObs ? dbObs.observationDate : null,
+        expectedFrequency: registryMatch?.expectedFrequency
+      });
+      metric.freshness = freshness;
+
       if (dbObs) {
         metric.value = dbObs.value;
         metric.unit = dbObs.unit || "% YoY";
@@ -79,13 +91,23 @@ export async function loadMacroRuntimeData(): Promise<MacroCompassData> {
         metric.sourceRef = dbObs.provenance?.sourceUrl || null;
         metric.dataMode = dbObs.dataMode;
         metric.productionApproved = dbObs.productionApproved;
-        metric.status = "available";
-        metric.statusLabel = "Dữ liệu hệ thống";
+        
+        if (freshness.staleStatus === "stale") {
+          metric.status = "stale";
+          metric.statusLabel = "Dữ liệu có thể đã cũ";
+        } else {
+          metric.status = "available";
+          metric.statusLabel = "Dữ liệu hệ thống";
+        }
+        
         metric.confidence = "Dữ liệu candidate, cần rà soát";
         
         const newWarnings = [];
         if (!dbObs.productionApproved) {
           newWarnings.push("Dữ liệu candidate từ hệ thống, chưa được phê duyệt production.");
+        }
+        if (freshness.staleStatus === "stale") {
+          newWarnings.push(freshness.reason);
         }
         if (dbObs.provenance?.warningCodes?.length > 0) {
           newWarnings.push(...dbObs.provenance.warningCodes);
@@ -119,30 +141,41 @@ export async function loadMacroRuntimeData(): Promise<MacroCompassData> {
     }
   }
 
-  const gdpReg = MACRO_INDICATOR_UNIVERSE.find(r => r.indicatorCode === "GDP_GROWTH");
-  const cpiReg = MACRO_INDICATOR_UNIVERSE.find(r => r.indicatorCode === "CPI_YOY");
-
-  patchMetric("gdp", dbGdp, gdpReg);
-  patchMetric("cpi", dbCpi, cpiReg);
+  patchMetric("gdp", dbGdp, gdpReg, cloned.vietnamMetrics);
+  patchMetric("cpi", dbCpi, cpiReg, cloned.vietnamMetrics);
 
   // Clear fake data from all other non-db-backed legacy metrics
   const nonDbBackedIds = ["usd-vnd", "fed-rate", "dxy", "commodities", "global-flow", "pmi", "exports", "domestic-rate", "foreign-flow", "credit-growth", "public-investment", "market-liquidity"];
   
+  // Also patch the non DB backed metrics to match registry
+  const legacyMap: Record<string, string> = {
+    "usd-vnd": "USD_VND",
+    "fed-rate": "FED_FUNDS_RATE",
+    "dxy": "DXY",
+    "commodities": "BRENT_OIL_PRICE",
+    "global-flow": "GLOBAL_FLOW",
+    "pmi": "PMI_MANUFACTURING",
+    "exports": "EXPORT_GROWTH",
+    "domestic-rate": "INTERBANK_RATE_OVERNIGHT",
+    "foreign-flow": "FOREIGN_NET_FLOW",
+    "credit-growth": "CREDIT_GROWTH",
+    "public-investment": "PUBLIC_INVESTMENT",
+    "market-liquidity": "MARKET_TRADING_VALUE"
+  };
+
   for (const vMetric of cloned.vietnamMetrics) {
     if (nonDbBackedIds.includes(vMetric.id)) {
-      vMetric.value = null;
-      vMetric.status = "missing";
-      vMetric.statusLabel = "Chưa có dữ liệu hệ thống";
-      vMetric.warnings = ["Hệ thống hiện chưa cung cấp dữ liệu thật cho chỉ số này."];
+      const code = legacyMap[vMetric.id];
+      const reg = MACRO_INDICATOR_UNIVERSE.find(r => r.indicatorCode === code);
+      patchMetric(vMetric.id, null, reg, cloned.vietnamMetrics);
     }
   }
   
   for (const wMetric of cloned.worldMetrics) {
     if (nonDbBackedIds.includes(wMetric.id)) {
-      wMetric.value = null;
-      wMetric.status = "missing";
-      wMetric.statusLabel = "Chưa có dữ liệu hệ thống";
-      wMetric.warnings = ["Hệ thống hiện chưa cung cấp dữ liệu thật cho chỉ số này."];
+      const code = legacyMap[wMetric.id];
+      const reg = MACRO_INDICATOR_UNIVERSE.find(r => r.indicatorCode === code);
+      patchMetric(wMetric.id, null, reg, cloned.worldMetrics);
     }
   }
 

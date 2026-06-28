@@ -19,7 +19,22 @@ Gồm 5 nhóm chính:
 - **Tỷ giá và quốc tế**: USD_VND, DXY, FED_FUNDS_RATE...
 - **Thị trường chứng khoán**: VNINDEX_CLOSE, VN30_CLOSE, MARKET_TRADING_VALUE, FOREIGN_NET_FLOW...
 
+## Frontend-Locked Policy (Phase 148B)
+Từ Phase 148B, việc mở rộng dữ liệu và đánh giá nguồn được khóa chặt theo scope của Macro Frontend hiện tại:
+- `inCurrentFrontend=true`: Các chỉ số đang được trình bày trên giao diện. Chỉ các chỉ số này mới được fetch, import và cập nhật dữ liệu từ nguồn thực tế.
+- `inCurrentFrontend=false`: Các chỉ số nằm ngoài scope UI (e.g. `VNINDEX_CLOSE`, `VN30_CLOSE`, `INDUSTRIAL_PRODUCTION_GROWTH`). Hệ thống tuyệt đối không fetch, import hoặc giả lập dữ liệu cho các chỉ số này.
+
+## Stale Data Policy
+Mọi indicator đều bị đánh giá độ trễ dữ liệu (`freshness`) theo tần suất kỳ vọng:
+- `daily`: stale sau 5 ngày
+- `weekly`: stale sau 14 ngày
+- `monthly`: stale sau 60 ngày
+- `quarterly`: stale sau 150 ngày
+- `annual`: stale sau 450 ngày
+
 ## Assistant Guardrails
-- Assistant được tiêm danh sách các chỉ số db_backed, planned và assessment_needed.
-- Nếu được hỏi về một chỉ số không thuộc db_backed (VD: tỷ giá, lãi suất, thanh khoản), Assistant bắt buộc trả lời: "Hệ thống hiện chưa có dữ liệu quan sát cho chỉ số này..."
-- Nghiêm cấm bịa số liệu.
+- Assistant được tiêm danh sách các chỉ số db_backed, missingObservationIndicators, staleIndicators và notInFrontendIndicators.
+- Nếu được hỏi về một chỉ số không thuộc frontend (`notInFrontendIndicators`), Assistant bắt buộc trả lời: "Hệ thống hiện chưa hỗ trợ chỉ số này trong module Macro hiện tại."
+- Nếu được hỏi về một chỉ số thuộc frontend nhưng thiếu dữ liệu, Assistant trả lời: "Hệ thống chưa có dữ liệu quan sát cho chỉ số này."
+- Nếu chỉ số `stale`, cảnh báo dữ liệu có thể đã cũ.
+- Nghiêm cấm bịa số liệu. Mọi fake data đều không được phép tồn tại (No fake data rule).

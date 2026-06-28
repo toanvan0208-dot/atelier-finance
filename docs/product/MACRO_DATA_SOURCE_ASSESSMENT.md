@@ -60,9 +60,7 @@ This document evaluates potential sources for real macroeconomic data integratio
 ## Conclusion & Next Steps
 **World Bank API** was verified in Phase 147A/C as a viable candidate for `db_backed` integration of CPI_YOY and GDP_GROWTH.
 
-Phase 148A expanded the Macro Indicator Universe to include many other variables (e.g. `USD_VND`, `POLICY_RATE`, `VNINDEX_CLOSE`). These indicators have been categorized into:
-- `candidate_source_identified` (e.g., GSO, SBV, Market Data Providers)
-- `source_assessment_needed` (e.g., PMI, Brent Oil, DXY)
-- `planned`
+Phase 148B established the **Frontend-Locked Policy**: Only indicators currently represented in the Macro UI (`inCurrentFrontend=true`) are eligible for provider expansion, automated ingestion, and source assessment.
+Indicators not present in the frontend (e.g. `VNINDEX_CLOSE`, `VN30_CLOSE`) have been blocked from fetch attempts to prevent hallucination and wasted ingestion efforts.
 
-Until rigorous integration is implemented, UI and Assistant read-paths explicitly reject fabrication of data for non-`db_backed` metrics, treating them gracefully as "Dự kiến hỗ trợ" or "Cần đánh giá nguồn".
+Until rigorous integrations are completed for the remaining frontend indicators, UI and Assistant read-paths explicitly reject fabrication of data, treating them gracefully as "Dự kiến hỗ trợ" or "Chưa có dữ liệu hệ thống". All indicators also have a stale-data policy applied to ensure out-of-date metrics are clearly flagged.

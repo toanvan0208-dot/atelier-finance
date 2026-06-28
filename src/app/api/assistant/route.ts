@@ -145,17 +145,25 @@ export const createAssistantPostHandler =
       }
     }
 
-    const dbResult = await loadLatestMacroObservations({
-      indicatorCodes: ["CPI_YOY", "GDP_GROWTH"]
-    });
+    // Import loadMacroRuntimeData
+    const { loadMacroRuntimeData } = await import("../../../features/macro/lib/load-macro-runtime-data");
+    const runtimeData = await loadMacroRuntimeData();
     
-    // Inject macro universe awareness
+    // Evaluate stale or missing based on the runtime structure
+    const staleIndicators = runtimeData.indicatorUniverse?.filter((i: any) => i.freshness?.staleStatus === "stale").map((i: any) => i.indicatorCode) || [];
+    const missingObservationIndicators = runtimeData.indicatorUniverse?.filter((i: any) => i.inCurrentFrontend && i.freshness?.staleStatus === "unknown" && !i.latestObservation).map((i: any) => i.indicatorCode) || [];
+    const frontendLockedIndicators = runtimeData.indicatorUniverse?.filter((i: any) => i.inCurrentFrontend).map((i: any) => i.indicatorCode) || [];
+    const notInFrontendIndicators = runtimeData.indicatorUniverse?.filter((i: any) => !i.inCurrentFrontend).map((i: any) => i.indicatorCode) || [];
+
     const macroContext = {
-      ...dbResult,
-      dbBackedIndicators: ["CPI_YOY", "GDP_GROWTH"],
-      plannedIndicators: ["USD_VND", "POLICY_RATE", "VNINDEX_CLOSE", "INTERBANK_RATE_OVERNIGHT", "DXY", "FED_FUNDS_RATE"],
-      sourceAssessmentNeededIndicators: ["PMI_MANUFACTURING", "BRENT_OIL_PRICE", "PPI"],
-      guardrail: "Do not fabricate data for indicators outside dbBackedIndicators. If asked about planned or assessment_needed indicators, state that the system does not yet have an observation for them."
+      observations: runtimeData.indicatorUniverse?.filter((i: any) => i.latestObservation).map((i: any) => i.latestObservation),
+      frontendLockedIndicators,
+      dbBackedIndicators: runtimeData.dbBackedIndicators,
+      missingObservationIndicators,
+      staleIndicators,
+      sourceAssessmentNeededIndicators: runtimeData.sourceAssessmentNeededIndicators,
+      notInFrontendIndicators,
+      guardrail: "Do not fabricate data for indicators outside dbBackedIndicators. If user asks about missingObservationIndicators, say the system does not yet have an observation. If asked about notInFrontendIndicators, say the system currently does not support this metric in the Macro module. If asked about staleIndicators, warn that the data might be out of date. Do not make definitive macro-to-industry conclusions or give investment advice."
     };
     
     runtimeInput.moduleContext = {

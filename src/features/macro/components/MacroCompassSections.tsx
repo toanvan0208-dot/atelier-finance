@@ -280,8 +280,13 @@ export function MacroIndicatorUniverseSection({ data }: { data: MacroCompassData
           let statusText = "Chưa hỗ trợ";
 
           if (indicator.supportStatus === "db_backed") {
-            tone = "success";
-            statusText = "Có dữ liệu hệ thống";
+            if (indicator.freshness?.staleStatus === "stale") {
+              tone = "warning";
+              statusText = "Dữ liệu có thể đã cũ";
+            } else {
+              tone = "success";
+              statusText = "Có dữ liệu hệ thống";
+            }
           } else if (indicator.supportStatus === "candidate_source_identified") {
             tone = "accent";
             statusText = "Đã xác định nguồn candidate";
@@ -291,6 +296,10 @@ export function MacroIndicatorUniverseSection({ data }: { data: MacroCompassData
           } else if (indicator.supportStatus === "planned") {
             tone = "neutral";
             statusText = "Dự kiến hỗ trợ";
+          }
+
+          if (indicator.inCurrentFrontend && !indicator.latestObservation) {
+            statusText = "Chưa có dữ liệu quan sát";
           }
 
           return (

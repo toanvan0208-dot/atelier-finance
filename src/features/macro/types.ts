@@ -248,6 +248,13 @@ export type MacroCompassMetric = {
   confidence: string;
   whatToCheckNext: string;
   warnings: readonly string[];
+  supportStatus?: string;
+  freshness?: {
+    staleStatus: "fresh" | "stale" | "unknown";
+    ageDays?: number;
+    maxAgeDays?: number;
+    reason: string;
+  };
   group: "world" | "growth" | "inflation" | "currency" | "policy";
 };
 
