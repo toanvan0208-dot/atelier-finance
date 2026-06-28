@@ -25,7 +25,8 @@ This document tracks the safety requirements and verification steps that must be
 | `macroParserStrategyCompleted` | **TRUE** | Phase 148D evaluated parser feasibility. `USD_VND`, `INTERBANK_RATE_OVERNIGHT`, `MARKET_TRADING_VALUE`, and `FOREIGN_NET_FLOW` are prioritized. |
 | `readyForParserPrototypePhase` | **TRUE** | Approved to build prototypes for the Phase 148D candidates. |
 | `parserDryRunCompleted` | **TRUE** | Phase 148E executed real-source parser dry runs. `USD_VND` and `INTERBANK_RATE_OVERNIGHT` safely blocked due to missing formal source URLs. |
-| `readyForExpandedConfirmWrite` | **FALSE** | Currently only CPI/GDP (World Bank) is verified as machine readable and implemented. Other APIs (e.g. FRED, FMP) require parser implementation in Phase 148F. |
+| `sourceUrlVerificationCompleted` | **TRUE** | Phase 148F verified SBV URLs for `USD_VND` and `INTERBANK_RATE_OVERNIGHT` as reachable without parsing numeric data. |
+| `readyForExpandedConfirmWrite` | **FALSE** | Currently only CPI/GDP (World Bank) is verified as machine readable and implemented. Other APIs (e.g. FRED, FMP) require parser implementation. |
 | `readyForProductionApproval` | **FALSE** | Requires full execution of human review. Data remains `productionApproved=false`. |
 
 ## Why Macro Data is Not Production-Ready Yet

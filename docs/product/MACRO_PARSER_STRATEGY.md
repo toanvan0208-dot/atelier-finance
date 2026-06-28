@@ -6,14 +6,14 @@ This document outlines the strategy for building parsers to fetch data for the f
 ## Parser Feasibility Classification (Phase 148D)
 All manual-review indicators from Phase 148C have been classified:
 
-### 1. High Priority Candidates (Phase 148E Targets)
-These indicators have feasible data paths and are domestic/critical. In Phase 148E, a real-source parser dry-run was attempted for `USD_VND` and `INTERBANK_RATE_OVERNIGHT`:
-- `USD_VND` (SBV HTML): `html_parser_feasible` -> **Blocked** (MISSING_SOURCE_URL)
-- `INTERBANK_RATE_OVERNIGHT` (SBV HTML): `html_parser_feasible` -> **Blocked** (MISSING_SOURCE_URL)
+### 1. High Priority Candidates (Phase 148F Targets)
+These indicators have feasible data paths and are domestic/critical. In Phase 148F, source URLs were verified for `USD_VND` and `INTERBANK_RATE_OVERNIGHT`:
+- `USD_VND` (SBV HTML): `html_parser_feasible` -> **URL Verified** (https://www.sbv.gov.vn/TyGia/faces/TyGia.jspx)
+- `INTERBANK_RATE_OVERNIGHT` (SBV HTML): `html_parser_feasible` -> **URL Verified** (https://www.sbv.gov.vn/webcenter/portal/vi/menu/trangchu/tstttlm/lstlnt/lstlnt)
 - `MARKET_TRADING_VALUE` (Market API): `api_ready`
 - `FOREIGN_NET_FLOW` (Market API): `api_ready`
 
-Since specific URLs for the SBV tables have not yet been formalized in the codebase strategy, `USD_VND` and `INTERBANK_RATE_OVERNIGHT` successfully failed-closed in the dry-run, meaning no hardcoded or fake data was used.
+Since specific URLs for the SBV tables have now been verified as reachable, `USD_VND` and `INTERBANK_RATE_OVERNIGHT` are eligible for parser dry-run in the next phase. No numeric data was extracted during URL verification.
 
 ### 2. Medium Priority Candidates
 These indicators have feasible paths but are either lower priority (global) or more difficult to parse (Excel downloads):

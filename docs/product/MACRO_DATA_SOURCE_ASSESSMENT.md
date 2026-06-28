@@ -77,4 +77,6 @@ Phase 148D formulated a **Parser Strategy** for the manual-review/unverified ind
 
 Phase 148E executed a real-source parser dry-run for `USD_VND` and `INTERBANK_RATE_OVERNIGHT`. Because the specific source URLs are not yet formalized in the parser strategy, the system correctly failed-closed (`previewBlocked=true`, reason `MISSING_SOURCE_URL`) without inventing or hardcoding data. This validates the strict provenance guardrails.
 
+Phase 148F performed real-source URL verification for `USD_VND` and `INTERBANK_RATE_OVERNIGHT`. The specific URLs from the State Bank of Vietnam were verified as reachable. No numeric values were extracted or written to the DB. `USD_VND` and `INTERBANK_RATE_OVERNIGHT` are now marked as `readyForParserDryRunWithVerifiedUrls=true`.
+
 Until rigorous integrations are completed for the remaining frontend indicators, UI and Assistant read-paths explicitly reject fabrication of data, treating them gracefully as "Dự kiến hỗ trợ" or "Chưa có dữ liệu hệ thống". All indicators also have a stale-data policy applied to ensure out-of-date metrics are clearly flagged.

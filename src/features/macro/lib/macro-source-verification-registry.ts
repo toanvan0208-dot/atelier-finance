@@ -96,12 +96,13 @@ export const MACRO_SOURCE_VERIFICATION_REGISTRY: MacroSourceVerificationItem[] =
   {
     indicatorCode: "INTERBANK_RATE_OVERNIGHT",
     inCurrentFrontend: true,
-    sourceCandidate: "SBV",
-    automationLevel: "html_table_manual_review",
-    verificationStatus: "needs_manual_review",
+    sourceCandidate: "State Bank of Vietnam",
+    sourceUrl: "https://www.sbv.gov.vn/webcenter/portal/vi/menu/trangchu/tstttlm/lstlnt/lstlnt",
+    automationLevel: "html_table_manual_review", // We don't have html_table_candidate in MacroSourceAutomationLevel
+    verificationStatus: "needs_manual_review", // Keeping it consistent
     providerFetchEligible: false,
-    limitations: ["SBV publishes as HTML tables."],
-    notes: ["Needs scraping/parsing strategy."],
+    limitations: ["Requires parser for HTML table"],
+    notes: ["Source URL is reachable, parser required."]
   },
   {
     indicatorCode: "CREDIT_GROWTH",
@@ -116,12 +117,13 @@ export const MACRO_SOURCE_VERIFICATION_REGISTRY: MacroSourceVerificationItem[] =
   {
     indicatorCode: "USD_VND",
     inCurrentFrontend: true,
-    sourceCandidate: "SBV",
+    sourceCandidate: "State Bank of Vietnam",
+    sourceUrl: "https://www.sbv.gov.vn/TyGia/faces/TyGia.jspx",
     automationLevel: "html_table_manual_review",
     verificationStatus: "needs_manual_review",
     providerFetchEligible: false,
     limitations: ["SBV central rate published via HTML table."],
-    notes: ["Needs scraping/parsing strategy."],
+    notes: ["Source URL is reachable, parser required."]
   },
   {
     indicatorCode: "DXY",
