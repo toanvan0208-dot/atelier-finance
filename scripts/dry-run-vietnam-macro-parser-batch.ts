@@ -63,7 +63,14 @@ type CandidateRow = {
   notSbvCentralRate?: true;
   derivedFrom?: string;
   derivedFormula?: string;
+  derivedCurrentPeriod?: string;
+  derivedPriorPeriod?: string;
   notOfficialMachineReadableSbvCsv?: true;
+  sourceDefinition?: string;
+  sourceScope?: string;
+  sourcePlanBasis?: string;
+  sourcePublicationDate?: string;
+  extractedQuote?: string;
 };
 
 type ParserResult = {
@@ -413,6 +420,8 @@ function parseExportGrowth(): ParserResult {
       currentTotal: number,
       priorTotal: number,
       sourceFile: string,
+      currentPeriod: string,
+      priorPeriod: string,
     ): void => {
       if (priorTotal === 0) return;
       const value = ((currentTotal - priorTotal) / priorTotal) * 100;
@@ -448,6 +457,8 @@ function parseExportGrowth(): ParserResult {
         derivedFrom: "export_value_1000_usd",
         derivedFormula:
           "(currentPeriodExportValue - priorPeriodExportValue) / priorPeriodExportValue * 100",
+        derivedCurrentPeriod: currentPeriod,
+        derivedPriorPeriod: priorPeriod,
       });
     };
 
@@ -468,6 +479,8 @@ function parseExportGrowth(): ParserResult {
         total2025,
         total2024,
         expected[1],
+        "2025 full-year export value",
+        "2024 full-year export value",
       );
     }
 
@@ -478,6 +491,8 @@ function parseExportGrowth(): ParserResult {
         total2026Ytd,
         values2025.slice(0, values2026.length).reduce((sum, value) => sum + value, 0),
         expected[2],
+        `2026 first ${values2026.length} months export value`,
+        `2025 first ${values2026.length} months export value`,
       );
     }
 
@@ -633,6 +648,10 @@ function parseCreditGrowth(): ParserResult {
       ],
       provenance,
       notOfficialMachineReadableSbvCsv: true,
+      sourceDefinition: row.definition,
+      sourceScope: row.scope,
+      sourcePublicationDate: row.publication_date,
+      extractedQuote: row.extracted_quote,
     });
   }
 
@@ -756,6 +775,11 @@ function parsePublicInvestment(): ParserResult {
         "PUBLIC_INVESTMENT rows may represent either value in billion_vnd or progress as percent_of_plan_ytd; unit must determine interpretation.",
       ],
       provenance,
+      sourceDefinition: row.definition,
+      sourceScope: row.scope,
+      sourcePlanBasis: row.plan_basis,
+      sourcePublicationDate: row.publication_date,
+      extractedQuote: row.extracted_quote,
     });
   }
 

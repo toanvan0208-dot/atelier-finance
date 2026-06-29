@@ -30,6 +30,15 @@ Due to the complex structure of the SBV site, `USD_VND` will transition to using
 - `PUBLIC_INVESTMENT`: CSV parser was attempted, but the required clean manual CSV was not present at the exact expected path. The parser failed closed with zero candidates. Future rows must keep unit-specific interpretation: `billion_vnd` or `percent_of_plan_ytd`.
 - No parser dry-run created DB observations or provenance. All candidate/manual data requires manual review before any confirm-write phase.
 
+### Phase 149E Vietnam Candidate Eligibility Audit
+- Phase 149E is audit-only. It reruns the Phase 149D parser batch in memory, builds a per-row eligibility report, and does not write candidates, observations, or provenance to the database.
+- Candidate rows that pass eligibility can only be considered for a later candidate confirm-write phase with `productionApproved=false` and `needsReview=true`.
+- `productionApproved=true` requires a separate stronger review gate and is outside Phase 149E and any immediate candidate confirm-write follow-up.
+- `USD_VND` remains a Vietcombank commercial-bank transfer quote, not SBV central rate.
+- `EXPORT_GROWTH` remains derived YoY from manual GSO export value CSV, not directly published growth.
+- `CREDIT_GROWTH` remains a manual aggregated candidate, not official machine-readable SBV CSV.
+- `PUBLIC_INVESTMENT` must keep unit-specific interpretation as `billion_vnd` or `percent_of_plan_ytd`.
+
 ### 2. Medium Priority Candidates
 These indicators have feasible paths but are either lower priority (global) or more difficult to parse (Excel downloads):
 - `EXPORT_GROWTH` (GSO candidate): blocked until a concrete official URL/download is selected.
