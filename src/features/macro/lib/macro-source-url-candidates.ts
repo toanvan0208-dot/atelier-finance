@@ -10,10 +10,11 @@ export type MacroSourceUrlVerificationStatus =
   | "url_reachable_but_parser_needed"
   | "manual_review_needed"
   | "blocked"
-  | "not_verified";
+  | "not_verified"
+  | "missing_source_url";
 
 export type MacroSourceUrlCandidate = {
-  indicatorCode: "USD_VND" | "INTERBANK_RATE_OVERNIGHT" | "POLICY_RATE";
+  indicatorCode: "USD_VND" | "INTERBANK_RATE_OVERNIGHT" | "POLICY_RATE" | "MARKET_TRADING_VALUE" | "FOREIGN_NET_FLOW";
   inCurrentFrontend: true;
   sourceName: string;
   sourceLabel: string;
@@ -77,5 +78,37 @@ export const MACRO_SOURCE_URL_CANDIDATES: MacroSourceUrlCandidate[] = [
     expectedUnit: "percent",
     limitations: ["SBV Liferay portal is highly unstable and JS-rendered. Automated scraping blocked."],
     verificationNotes: ["Verified in 148K. HTTP 200 but HTML shape is dynamic_or_unstable. Requires manual workflow."]
+  },
+  {
+    indicatorCode: "MARKET_TRADING_VALUE",
+    inCurrentFrontend: true,
+    sourceName: "Undocumented Provider",
+    sourceLabel: "Vnstock / Undocumented Provider API",
+    sourceUrl: "",
+    sourceOwner: "Unknown",
+    automationLevel: "machine_readable_api",
+    verificationStatus: "missing_source_url",
+    parserEligibleForNextPhase: false,
+    requiresManualReview: true,
+    expectedFrequency: "daily",
+    expectedUnit: "Billion VND",
+    limitations: ["No clear source URL or documented API endpoint identified yet.", "Provider type is undocumented_provider.", "Requires parser implementation if API is found."],
+    verificationNotes: ["Blocked from parser dry-run due to missing source URL."]
+  },
+  {
+    indicatorCode: "FOREIGN_NET_FLOW",
+    inCurrentFrontend: true,
+    sourceName: "Undocumented Provider",
+    sourceLabel: "Vnstock / Undocumented Provider API",
+    sourceUrl: "",
+    sourceOwner: "Unknown",
+    automationLevel: "machine_readable_api",
+    verificationStatus: "missing_source_url",
+    parserEligibleForNextPhase: false,
+    requiresManualReview: true,
+    expectedFrequency: "daily",
+    expectedUnit: "Billion VND",
+    limitations: ["No clear source URL or documented API endpoint identified yet.", "Provider type is undocumented_provider.", "Requires parser implementation if API is found."],
+    verificationNotes: ["Blocked from parser dry-run due to missing source URL."]
   }
 ];
