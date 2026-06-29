@@ -404,9 +404,9 @@ export const MACRO_INDICATOR_UNIVERSE: MacroIndicatorRegistryItem[] = [
   },
   {
     indicatorCode: "DXY",
-    displayName: "Chỉ số USD (DXY)",
+    displayName: "Sức mạnh USD",
     category: "fx",
-    description: "Sức mạnh đồng USD so với rổ tiền tệ lớn.",
+    description: "Theo dõi biến động tương đối của đồng USD qua chỉ số USD rộng; không phải ICE DXY chính thức.",
     expectedUnit: "Points",
     expectedFrequency: "daily",
     regionScope: "GLOBAL",
