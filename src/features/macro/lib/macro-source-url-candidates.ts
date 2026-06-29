@@ -14,7 +14,7 @@ export type MacroSourceUrlVerificationStatus =
   | "missing_source_url";
 
 export type MacroSourceUrlCandidate = {
-  indicatorCode: "USD_VND" | "INTERBANK_RATE_OVERNIGHT" | "POLICY_RATE" | "MARKET_TRADING_VALUE" | "FOREIGN_NET_FLOW";
+  indicatorCode: "USD_VND" | "INTERBANK_RATE_OVERNIGHT" | "POLICY_RATE" | "MARKET_TRADING_VALUE" | "FOREIGN_NET_FLOW" | "FED_FUNDS_RATE" | "DXY" | "BRENT_OIL_PRICE";
   inCurrentFrontend: true;
   sourceName: string;
   sourceLabel: string;
@@ -110,5 +110,53 @@ export const MACRO_SOURCE_URL_CANDIDATES: MacroSourceUrlCandidate[] = [
     expectedUnit: "Billion VND",
     limitations: ["No clear source URL or documented API endpoint identified yet.", "Provider type is undocumented_provider.", "Requires parser implementation if API is found."],
     verificationNotes: ["Blocked from parser dry-run due to missing source URL."]
+  },
+  {
+    indicatorCode: "FED_FUNDS_RATE",
+    inCurrentFrontend: true,
+    sourceName: "Federal Reserve Economic Data (FRED)",
+    sourceLabel: "FRED API / CSV",
+    sourceUrl: "https://api.stlouisfed.org/fred/series/observations?series_id=FEDFUNDS",
+    sourceOwner: "St. Louis Fed",
+    automationLevel: "blocked",
+    verificationStatus: "blocked",
+    parserEligibleForNextPhase: false,
+    requiresManualReview: true,
+    expectedFrequency: "event_based",
+    expectedUnit: "percent",
+    limitations: ["FRED API requires an authentication key (auth_required). Blocked from automated parser dry-run."],
+    verificationNotes: ["Source assessed in 148O. API key missing in environment."]
+  },
+  {
+    indicatorCode: "DXY",
+    inCurrentFrontend: true,
+    sourceName: "Federal Reserve Economic Data (FRED)",
+    sourceLabel: "FRED API (DTWEXBGS Proxy)",
+    sourceUrl: "https://api.stlouisfed.org/fred/series/observations?series_id=DTWEXBGS",
+    sourceOwner: "St. Louis Fed",
+    automationLevel: "blocked",
+    verificationStatus: "blocked",
+    parserEligibleForNextPhase: false,
+    requiresManualReview: true,
+    expectedFrequency: "daily",
+    expectedUnit: "Points",
+    limitations: ["FRED API requires an authentication key (auth_required). DTWEXBGS is a semantic proxy for ICE DXY.", "Blocked from automated parser dry-run."],
+    verificationNotes: ["Source assessed in 148O. Semantic proxy risk: DTWEXBGS is broad dollar index, not official ICE DXY."]
+  },
+  {
+    indicatorCode: "BRENT_OIL_PRICE",
+    inCurrentFrontend: true,
+    sourceName: "Federal Reserve Economic Data (FRED)",
+    sourceLabel: "FRED API (DCOILBRENTEU)",
+    sourceUrl: "https://api.stlouisfed.org/fred/series/observations?series_id=DCOILBRENTEU",
+    sourceOwner: "St. Louis Fed",
+    automationLevel: "blocked",
+    verificationStatus: "blocked",
+    parserEligibleForNextPhase: false,
+    requiresManualReview: true,
+    expectedFrequency: "daily",
+    expectedUnit: "USD/Barrel",
+    limitations: ["FRED API requires an authentication key (auth_required). Blocked from automated parser dry-run."],
+    verificationNotes: ["Source assessed in 148O. API key missing in environment."]
   }
 ];
