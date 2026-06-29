@@ -86,7 +86,7 @@ export async function loadMacroRuntimeData(): Promise<MacroCompassData> {
         metric.unit = dbObs.unit || "% YoY";
         metric.period = dbObs.periodLabel || dbObs.observationDate.split("-")[0];
         metric.asOf = dbObs.observationDate.split("T")[0];
-        metric.sourceName = dbObs.provenance?.providerType === "public_api_candidate" ? "World Bank (Candidate)" : "World Bank";
+        metric.sourceName = dbObs.sourceLabel === "FRED" ? "FRED" : (dbObs.provenance?.providerType === "public_api_candidate" ? "World Bank (Candidate)" : "World Bank");
         metric.sourceLabel = dbObs.sourceLabel;
         metric.sourceRef = dbObs.provenance?.sourceUrl || null;
         metric.dataMode = dbObs.dataMode;
@@ -145,10 +145,10 @@ export async function loadMacroRuntimeData(): Promise<MacroCompassData> {
   patchMetric("cpi", dbCpi, cpiReg, cloned.vietnamMetrics);
 
   // Clear fake data from all other non-db-backed legacy metrics
-  const nonDbBackedIds = ["usd-vnd", "fed-rate", "dxy", "commodities", "global-flow", "pmi", "exports", "domestic-rate", "foreign-flow", "credit-growth", "public-investment", "market-liquidity"];
-  
   // Also patch the non DB backed metrics to match registry
   const legacyMap: Record<string, string> = {
+    "gdp": "GDP_GROWTH",
+    "cpi": "CPI_YOY",
     "usd-vnd": "USD_VND",
     "fed-rate": "FED_FUNDS_RATE",
     "dxy": "DXY",
@@ -163,19 +163,23 @@ export async function loadMacroRuntimeData(): Promise<MacroCompassData> {
     "market-liquidity": "MARKET_TRADING_VALUE"
   };
 
+  const dynamicDbBackedIds = ["usd-vnd", "fed-rate", "dxy", "commodities", "global-flow", "pmi", "exports", "domestic-rate", "foreign-flow", "credit-growth", "public-investment", "market-liquidity"];
+
   for (const vMetric of cloned.vietnamMetrics) {
-    if (nonDbBackedIds.includes(vMetric.id)) {
+    if (dynamicDbBackedIds.includes(vMetric.id)) {
       const code = legacyMap[vMetric.id];
       const reg = MACRO_INDICATOR_UNIVERSE.find(r => r.indicatorCode === code);
-      patchMetric(vMetric.id, null, reg, cloned.vietnamMetrics);
+      const dbObs = dbResult.observations?.find(o => o.indicatorCode === code);
+      patchMetric(vMetric.id, dbObs || null, reg, cloned.vietnamMetrics);
     }
   }
   
   for (const wMetric of cloned.worldMetrics) {
-    if (nonDbBackedIds.includes(wMetric.id)) {
+    if (dynamicDbBackedIds.includes(wMetric.id)) {
       const code = legacyMap[wMetric.id];
       const reg = MACRO_INDICATOR_UNIVERSE.find(r => r.indicatorCode === code);
-      patchMetric(wMetric.id, null, reg, cloned.worldMetrics);
+      const dbObs = dbResult.observations?.find(o => o.indicatorCode === code);
+      patchMetric(wMetric.id, dbObs || null, reg, cloned.worldMetrics);
     }
   }
 
