@@ -87,4 +87,6 @@ Phase 148I audited the semantic mapping of the frontend card "Lãi suất trong 
 
 Phase 148J finalized the product decision to select `POLICY_RATE` as the representative indicator for the frontend card "Lãi suất trong nước". The runtime mapping was updated and `INTERBANK_RATE_OVERNIGHT` was retired from the current frontend scope. `POLICY_RATE` remains not DB-backed, with no data extracted or written, awaiting source assessment.
 
+Phase 148K verified the SBV policy rate URL (`https://www.sbv.gov.vn/webcenter/portal/vi/menu/trangchu/tstttlm/lsdh`). Although the URL is reachable (HTTP 200), the content relies heavily on Liferay and Oracle ADF JS rendering, making it highly unstable for automated scraping. `POLICY_RATE` is now marked as `blocked` for automated parser dry-run and requires a manual extraction workflow, mirroring the constraint found in `INTERBANK_RATE_OVERNIGHT`. No numeric values were extracted or written to the DB.
+
 Until rigorous integrations are completed for the remaining frontend indicators, UI and Assistant read-paths explicitly reject fabrication of data, treating them gracefully as "Dự kiến hỗ trợ" or "Chưa có dữ liệu hệ thống". All indicators also have a stale-data policy applied to ensure out-of-date metrics are clearly flagged.

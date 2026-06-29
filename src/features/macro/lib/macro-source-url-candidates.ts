@@ -13,7 +13,7 @@ export type MacroSourceUrlVerificationStatus =
   | "not_verified";
 
 export type MacroSourceUrlCandidate = {
-  indicatorCode: "USD_VND" | "INTERBANK_RATE_OVERNIGHT";
+  indicatorCode: "USD_VND" | "INTERBANK_RATE_OVERNIGHT" | "POLICY_RATE";
   inCurrentFrontend: true;
   sourceName: string;
   sourceLabel: string;
@@ -61,5 +61,21 @@ export const MACRO_SOURCE_URL_CANDIDATES: MacroSourceUrlCandidate[] = [
     expectedUnit: "percent",
     limitations: ["SBV HTML is highly unstable and JS-rendered. Blocked parser."],
     verificationNotes: ["Blocked in 148H after structure inspection. Needs manual workflow."]
+  },
+  {
+    indicatorCode: "POLICY_RATE",
+    inCurrentFrontend: true,
+    sourceName: "State Bank of Vietnam",
+    sourceLabel: "SBV Policy Rate",
+    sourceUrl: "https://www.sbv.gov.vn/webcenter/portal/vi/menu/trangchu/tstttlm/lsdh",
+    sourceOwner: "SBV",
+    automationLevel: "blocked",
+    verificationStatus: "blocked",
+    parserEligibleForNextPhase: false,
+    requiresManualReview: true,
+    expectedFrequency: "event_based",
+    expectedUnit: "percent",
+    limitations: ["SBV Liferay portal is highly unstable and JS-rendered. Automated scraping blocked."],
+    verificationNotes: ["Verified in 148K. HTTP 200 but HTML shape is dynamic_or_unstable. Requires manual workflow."]
   }
 ];
