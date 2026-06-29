@@ -28,11 +28,13 @@ The label "Lãi suất trong nước" is a broad term that can represent various
    - **Fit**: Medium. Highly relevant to retail investors.
    - **Source**: Unsupported. No standardized free aggregation source.
 
-## Decision (Phase 148J)
+## Decision (Phase 148J-148L)
 **Recommendation**: `replace_current_mapping` -> **`POLICY_RATE`**
 
-After product review, `POLICY_RATE` was selected as the representative indicator for the "Lãi suất trong nước" frontend card because it best reflects the central bank's monetary policy stance, fitting the broad macroeconomic scope of the dashboard.
-`INTERBANK_RATE_OVERNIGHT` was retired from the frontend mapping but remains in the universe as a candidate/historical indicator.
+After product review in Phase 148J, `POLICY_RATE` was selected as the representative indicator for the "Lãi suất trong nước" frontend card because it best reflects the central bank's monetary policy stance, fitting the broad macroeconomic scope of the dashboard.
 
-The runtime mapping in `load-macro-runtime-data.ts` has been updated to use `POLICY_RATE` via the semantic mapping registry (`DOMESTIC_RATE_FRONTEND_INDICATOR_CODE`).
-`POLICY_RATE` remains not DB-backed (`dbBacked=false`, `productionApproved=false`) and requires source assessment/verification before observations can be ingested. No data was extracted, no fake data was created, and no database writes were attempted.
+- **Trạng thái thực thi**:
+  - Giao diện người dùng ("Lãi suất trong nước") chính thức được map với `POLICY_RATE`.
+  - `POLICY_RATE` được xác nhận là `dbBacked=false`, `productionApproved=false`, và `needsReview=true`. Không có dữ liệu nào được fetch hoặc lưu trữ vào DB.
+  - Phase 148K verified source (SBV), kết quả là `html_dynamic_or_unstable` nên parser bị block.
+  - Phase 148L thiết lập ranh giới manual-review: Không có observation = trạng thái unavailable. AI Assistant được cung cấp fallback copy rõ ràng để tránh suy diễn.

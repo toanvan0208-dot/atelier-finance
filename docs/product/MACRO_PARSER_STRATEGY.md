@@ -10,7 +10,7 @@ All manual-review indicators from Phase 148C have been classified:
 These indicators have feasible data paths and are domestic/critical. In Phase 148G, a real-source parser dry run was attempted using verified URLs for `USD_VND` and `INTERBANK_RATE_OVERNIGHT`, which failed gracefully due to unstable SBV HTML. In Phase 148H, the source was inspected for stable endpoints:
 - `USD_VND` (SBV HTML): Inspected, HTML highly unstable. Identified alternate source: **Vietcombank Exchange Rate XML API** -> `api_ready` -> Eligible for parser dry-run.
 - `INTERBANK_RATE_OVERNIGHT` (SBV HTML): Inspected, HTML heavily JS-rendered. No stable alternate API found -> `manual_review_only` -> **Blocked** from automated parser. (Note: Phase 148I evaluated its semantic fit for the frontend "Lãi suất trong nước" card. In Phase 148J, `POLICY_RATE` was selected as the new representative indicator. `INTERBANK_RATE_OVERNIGHT` is no longer in the frontend scope).
-- `POLICY_RATE` (SBV HTML): Selected as the representative indicator for "Lãi suất trong nước" in Phase 148J. In Phase 148K, the SBV source URL was verified to be highly dynamic (Liferay/Oracle ADF). -> `manual_review_only` -> **Blocked** from automated parser.
+- `POLICY_RATE` (SBV HTML): Selected as the representative indicator for "Lãi suất trong nước" in Phase 148J. In Phase 148K, the SBV source URL was verified to be highly dynamic (Liferay/Oracle ADF). -> `manual_review_only` -> **Blocked** from automated parser. In Phase 148L, the manual review workflow was documented and the unavailable state for this indicator was hardened across UI and Assistant.
 - `MARKET_TRADING_VALUE` (Market API): `api_ready`
 - `FOREIGN_NET_FLOW` (Market API): `api_ready`
 

@@ -89,4 +89,6 @@ Phase 148J finalized the product decision to select `POLICY_RATE` as the represe
 
 Phase 148K verified the SBV policy rate URL (`https://www.sbv.gov.vn/webcenter/portal/vi/menu/trangchu/tstttlm/lsdh`). Although the URL is reachable (HTTP 200), the content relies heavily on Liferay and Oracle ADF JS rendering, making it highly unstable for automated scraping. `POLICY_RATE` is now marked as `blocked` for automated parser dry-run and requires a manual extraction workflow, mirroring the constraint found in `INTERBANK_RATE_OVERNIGHT`. No numeric values were extracted or written to the DB.
 
+Phase 148L formalized the manual review workflow for `POLICY_RATE`. Since no data could be extracted automatically, the indicator stays in a hardened `unavailable` state. UI copy explicitly states "Chưa có dữ liệu lãi suất điều hành đã kiểm duyệt" and the Assistant is explicitly instructed not to invent macro-to-industry impact for `POLICY_RATE` and not to offer investment advice.
+
 Until rigorous integrations are completed for the remaining frontend indicators, UI and Assistant read-paths explicitly reject fabrication of data, treating them gracefully as "Dự kiến hỗ trợ" or "Chưa có dữ liệu hệ thống". All indicators also have a stale-data policy applied to ensure out-of-date metrics are clearly flagged.

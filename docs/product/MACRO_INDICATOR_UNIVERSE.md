@@ -40,6 +40,7 @@ Phase 148C xác minh trạng thái tự động hóa của các chỉ số trong
 - **Phase 148I Semantic Mapping Audit**: Frontend card "Lãi suất trong nước" được đánh giá lại semantic mapping. Hiện tại đang map cứng sang `INTERBANK_RATE_OVERNIGHT` nhưng label quá rộng. Đề xuất đổi sang `POLICY_RATE` nhưng chờ product owner review. Mapping chưa đổi data observation, hệ thống vẫn an toàn không fetch/bịa số.
 - **Phase 148J Product Decision**: Quyết định chính thức chọn `POLICY_RATE` làm indicator đại diện cho card "Lãi suất trong nước". `INTERBANK_RATE_OVERNIGHT` bị loại khỏi frontend scope hiện tại. Không sinh dữ liệu giả, không extract data.
 - **Phase 148K Source Verification**: Verified source URL của `POLICY_RATE` trên cổng thông tin SBV. Phát hiện trang sử dụng nền tảng Liferay portal, cấu trúc HTML thay đổi động (dynamic_or_unstable). Do đó, `POLICY_RATE` bị block khỏi quá trình automated parser và yêu cầu quy trình manual review, đảm bảo không có parser nào extract sai dữ liệu.
+- **Phase 148L Workflow & Guardrails**: Cập nhật runtime copy và Assistant guardrail cho `POLICY_RATE` khi không có dữ liệu (do blocked): "Chưa có dữ liệu lãi suất điều hành đã kiểm duyệt". Assistant được hướng dẫn rõ không suy diễn tác động từ `POLICY_RATE` khi thiếu dữ liệu và không tự ý đưa ra lời khuyên đầu tư (mua/bán/nắm giữ).
 - **Manual Review Only**: `CREDIT_GROWTH` (do dữ liệu ẩn trong PDF press release của SBV).
 - Lưu ý: Parser feasibility không phải là dữ liệu. Hệ thống vẫn tiếp tục báo "Chưa có dữ liệu" cho đến khi parser hoàn thiện và test pass.
 

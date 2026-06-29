@@ -209,6 +209,8 @@ export const macroCompassData: MacroCompassData = {
       id: "domestic-rate",
       name: "Lãi suất trong nước",
       ...missingMetricData,
+      statusLabel: "Chưa có dữ liệu",
+      warnings: ["Chưa có dữ liệu lãi suất điều hành đã kiểm duyệt."],
       tone: "neutral",
       simpleMeaning: "Lãi suất điều hành, phản ánh định hướng chính sách tiền tệ trong nước.",
       marketImpact: "Ảnh hưởng chi phí vay, định giá tài sản và nhu cầu tín dụng.",
