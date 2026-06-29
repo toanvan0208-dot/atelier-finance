@@ -23,6 +23,13 @@ Due to the complex structure of the SBV site, `USD_VND` will transition to using
 - `CREDIT_GROWTH`: blocked until a concrete official SBV/source URL and exact definition are selected. Do not substitute M2 growth or lending rates. `readyForParserDryRun=false`.
 - `PUBLIC_INVESTMENT`: blocked until the source confirms whether the metric is realized public investment capital from the state budget or another approved definition. `readyForParserDryRun=false`.
 
+### Phase 149C Vietnam Parser Dry-Run Batch
+- `USD_VND`: parser dry-run succeeded against the VCB XML source and extracted the USD `Transfer` quote into an in-memory candidate only. The candidate is `unit=vnd_per_usd`, `rateType=commercial_bank_quote`, `sourceInstitution=Vietcombank`, `notSbvCentralRate=true`, `productionApproved=false`, and `needsReview=true`.
+- `EXPORT_GROWTH`: CSV parser was attempted, but the required files `gso-export-value-2024.csv`, `gso-export-value-2025.csv`, and `gso-export-value-2026.csv` were not present at the exact expected paths. The parser failed closed with zero candidates. When files are present, the candidate must be derived from export value in `1000 USD` using `(currentPeriodExportValue - priorPeriodExportValue) / priorPeriodExportValue * 100`; it is not directly published growth.
+- `CREDIT_GROWTH`: CSV parser was attempted, but the required manual aggregated CSV was not present at the exact expected path. The parser failed closed with zero candidates. Future rows remain `manual_aggregated_sbv_news_candidate`, not official machine-readable SBV CSV.
+- `PUBLIC_INVESTMENT`: CSV parser was attempted, but the required clean manual CSV was not present at the exact expected path. The parser failed closed with zero candidates. Future rows must keep unit-specific interpretation: `billion_vnd` or `percent_of_plan_ytd`.
+- No parser dry-run created DB observations or provenance. All candidate/manual data requires manual review before any confirm-write phase.
+
 ### 2. Medium Priority Candidates
 These indicators have feasible paths but are either lower priority (global) or more difficult to parse (Excel downloads):
 - `EXPORT_GROWTH` (GSO candidate): blocked until a concrete official URL/download is selected.

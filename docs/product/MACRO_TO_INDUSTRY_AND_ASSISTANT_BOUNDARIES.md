@@ -25,6 +25,9 @@ Atelier Finance is an educational platform, not an investment advisory service. 
 ### Phase 149B Vietnam Macro Boundary
 - `USD_VND`, `EXPORT_GROWTH`, `CREDIT_GROWTH`, and `PUBLIC_INVESTMENT` source reachability or candidate status is not observation data. If these indicators have no system observation, the Assistant must say the system does not yet have reviewed data for USD/VND exchange rate, exports, credit growth, or realized public investment capital, and must not conclude sector or stock impact from the missing indicators.
 
+### Phase 149C Parser Dry-Run Boundary
+- Parser dry-run candidates remain research/manual candidates until reviewed and written through an approved confirm-write phase. The `USD_VND` dry-run candidate uses a Vietcombank commercial bank transfer quote and must not be described as the SBV central exchange rate. `EXPORT_GROWTH` candidates must be described as derived from export value CSV, not directly published growth. `CREDIT_GROWTH` candidates must be described as manually aggregated from SBV/news/publication sources, not official machine-readable SBV CSV. `PUBLIC_INVESTMENT` candidates must be interpreted by unit (`billion_vnd` or `percent_of_plan_ytd`). None of these candidates may be used as a sector or stock conclusion while missing from system observations.
+
 ### Strict Data Provenance and Guardrails
 - **No Fake Data Rule**: Absolutely no fallback, mock, or hardcoded macro values may be used or passed to the LLM. 
 - **Missing Data Fallback**: If `observationDate` or `value` is missing, the Assistant must respond that the system does not yet have data for that indicator.
