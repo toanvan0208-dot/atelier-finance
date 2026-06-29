@@ -22,6 +22,9 @@ Atelier Finance is an educational platform, not an investment advisory service. 
 - **Phase 148O**: Assessed source readiness for global macro indicators (`FED_FUNDS_RATE`, `DXY`, `BRENT_OIL_PRICE`). Identified FRED API as the candidate source, which requires an authentication key (`auth_required`). Blocked from automated fetch to prevent hallucination. Updated Assistant guardrails to explicitly forbid inventing global macro data or deriving investment signals from them if the data is missing.
 - **Phase 148P**: The Assistant is strictly instructed: 'Hiện hệ thống chưa có dữ liệu đã kiểm duyệt cho lãi suất Fed, chỉ số USD hoặc giá dầu Brent, nên không kết luận tác động đến ngành hoặc cổ phiếu từ các chỉ số này.' The DXY indicator label in the UI was renamed to "Sức mạnh USD" to accurately reflect the use of the DTWEXBGS proxy instead of the official ICE DXY.
 
+### Phase 149B Vietnam Macro Boundary
+- `USD_VND`, `EXPORT_GROWTH`, `CREDIT_GROWTH`, and `PUBLIC_INVESTMENT` source reachability or candidate status is not observation data. If these indicators have no system observation, the Assistant must say the system does not yet have reviewed data for USD/VND exchange rate, exports, credit growth, or realized public investment capital, and must not conclude sector or stock impact from the missing indicators.
+
 ### Strict Data Provenance and Guardrails
 - **No Fake Data Rule**: Absolutely no fallback, mock, or hardcoded macro values may be used or passed to the LLM. 
 - **Missing Data Fallback**: If `observationDate` or `value` is missing, the Assistant must respond that the system does not yet have data for that indicator.

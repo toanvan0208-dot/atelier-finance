@@ -31,10 +31,10 @@ export const MACRO_ALTERNATE_SOURCE_CANDIDATES: MacroAlternateSourceCandidate[] 
     sourceUrl: "https://portal.vietcombank.com.vn/Usercontrols/TVPortal.TyGia/pXML.aspx",
     sourceOwner: "Vietcombank",
     automationLevel: "machine_readable_api", // It returns XML which is machine readable
-    verificationStatus: "not_checked",
+    verificationStatus: "reachable",
     parserEligibleForFuturePhase: true,
-    limitations: ["VCB rate might slightly differ from SBV central rate, but is widely used in market."],
-    notes: ["XML format is usually stable."]
+    limitations: ["VCB rate might slightly differ from SBV central rate, so the product label and semantics need review before any DB write."],
+    notes: ["Phase 149B reachability check: HTTP 200, content-type text/xml; charset=utf-8. No numeric values were extracted."]
   },
   {
     indicatorCode: "INTERBANK_RATE_OVERNIGHT",

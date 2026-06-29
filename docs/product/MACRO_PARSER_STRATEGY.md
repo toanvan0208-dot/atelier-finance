@@ -17,10 +17,16 @@ These indicators have feasible data paths and are domestic/critical. In Phase 14
 
 Due to the complex structure of the SBV site, `USD_VND` will transition to using an alternate XML API in the next parser dry-run phase, while `INTERBANK_RATE_OVERNIGHT` will require a manual workflow or paid provider.
 
+### Phase 149B Vietnam Batch Readiness
+- `USD_VND`: alternate VCB XML API reachable (HTTP 200, `text/xml; charset=utf-8`). No numeric values extracted. `readyForParserDryRun=true`, pending semantic/product review before any DB write because VCB rate may differ from SBV central rate.
+- `EXPORT_GROWTH`: GSO remains a plausible official candidate, but the repo has no concrete URL. `sourceUrlStatus=missing_source_url`, `readyForParserDryRun=false`.
+- `CREDIT_GROWTH`: blocked until a concrete official SBV/source URL and exact definition are selected. Do not substitute M2 growth or lending rates. `readyForParserDryRun=false`.
+- `PUBLIC_INVESTMENT`: blocked until the source confirms whether the metric is realized public investment capital from the state budget or another approved definition. `readyForParserDryRun=false`.
+
 ### 2. Medium Priority Candidates
 These indicators have feasible paths but are either lower priority (global) or more difficult to parse (Excel downloads):
-- `EXPORT_GROWTH` (GSO Excel): `csv_excel_ready`
-- `PUBLIC_INVESTMENT` (GSO Excel): `csv_excel_ready`
+- `EXPORT_GROWTH` (GSO candidate): blocked until a concrete official URL/download is selected.
+- `PUBLIC_INVESTMENT` (GSO candidate): blocked until URL and semantic scope are selected.
 - `BRENT_OIL_PRICE` (FRED/Global API): `api_ready`
 - `DXY` (Global API): `api_ready`
 - `FED_FUNDS_RATE` (FRED): `api_ready`
