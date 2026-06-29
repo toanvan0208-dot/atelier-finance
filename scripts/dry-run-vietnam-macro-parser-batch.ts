@@ -132,13 +132,13 @@ const checksum = (value: string | Buffer): string =>
   createHash("sha256").update(value).digest("hex");
 
 const parseNumeric = (value: string): number | null => {
-  const cleaned = value.trim().replace(/,/g, "");
+  const cleaned = value.trim().replace(/,/g, "").replace(/\s+/g, "");
   if (!cleaned || cleaned === "-") return null;
   const numeric = Number(cleaned);
   return Number.isFinite(numeric) ? numeric : null;
 };
 
-const parseCsv = (content: string): string[][] => {
+const parseCsv = (content: string, delimiter = ","): string[][] => {
   const rows: string[][] = [];
   let row: string[] = [];
   let cell = "";
@@ -153,7 +153,7 @@ const parseCsv = (content: string): string[][] => {
       index += 1;
     } else if (char === '"') {
       inQuotes = !inQuotes;
-    } else if (char === "," && !inQuotes) {
+    } else if (char === delimiter && !inQuotes) {
       row.push(cell);
       cell = "";
     } else if ((char === "\n" || char === "\r") && !inQuotes) {
@@ -347,10 +347,18 @@ async function parseUsdVnd(): Promise<ParserResult> {
   }
 }
 
-const parseExportFile = (path: string): { year: string; values: number[]; checksumValue: string } => {
+const isExportTotalRow = (row: string[]): boolean =>
+  row.some((cell) => {
+    const normalized = normalizeText(cell);
+    return normalized === "tong so" || /^t.ng s.$/.test(normalized);
+  });
+
+const parseExportFile = (
+  path: string,
+): { year: string; monthlyValues: number[]; reportedTotal: number | null; checksumValue: string } => {
   const content = readTextFile(path);
-  const rows = parseCsv(content);
-  const totalRow = rows.find((row) => row.some((cell) => normalizeText(cell) === "tong so"));
+  const rows = parseCsv(content, ";");
+  const totalRow = rows.find(isExportTotalRow);
   if (!totalRow) {
     throw new Error(`TOTAL_ROW_NOT_FOUND:${path}`);
   }
@@ -365,7 +373,8 @@ const parseExportFile = (path: string): { year: string; values: number[]; checks
 
   return {
     year: yearMatch[0],
-    values,
+    monthlyValues: values.length > 1 ? values.slice(0, -1) : values,
+    reportedTotal: values.length > 1 ? values[values.length - 1] : null,
     checksumValue: checksum(content),
   };
 };
@@ -442,16 +451,22 @@ function parseExportGrowth(): ParserResult {
       });
     };
 
-    const values2024 = byYear["2024"]?.values ?? [];
-    const values2025 = byYear["2025"]?.values ?? [];
-    const values2026 = byYear["2026"]?.values ?? [];
+    const values2024 = byYear["2024"]?.monthlyValues ?? [];
+    const values2025 = byYear["2025"]?.monthlyValues ?? [];
+    const values2026 = byYear["2026"]?.monthlyValues ?? [];
+    const total2024 =
+      byYear["2024"]?.reportedTotal ?? values2024.reduce((sum, value) => sum + value, 0);
+    const total2025 =
+      byYear["2025"]?.reportedTotal ?? values2025.reduce((sum, value) => sum + value, 0);
+    const total2026Ytd =
+      byYear["2026"]?.reportedTotal ?? values2026.reduce((sum, value) => sum + value, 0);
 
     if (values2024.length >= 12 && values2025.length >= 12) {
       createCandidate(
         "2025",
         "year",
-        values2025.slice(0, 12).reduce((sum, value) => sum + value, 0),
-        values2024.slice(0, 12).reduce((sum, value) => sum + value, 0),
+        total2025,
+        total2024,
         expected[1],
       );
     }
@@ -460,7 +475,7 @@ function parseExportGrowth(): ParserResult {
       createCandidate(
         `2026-YTD-${values2026.length}M`,
         "ytd",
-        values2026.reduce((sum, value) => sum + value, 0),
+        total2026Ytd,
         values2025.slice(0, values2026.length).reduce((sum, value) => sum + value, 0),
         expected[2],
       );
@@ -506,6 +521,23 @@ function validateColumns(
   return requiredColumns.filter((column) => !columns.has(column));
 }
 
+const inferPeriodType = (period: string): string =>
+  period.includes("-Q") ? "quarterly_ytd" : period.length === 7 ? "monthly_ytd" : "unknown";
+
+const normalizeCreditUnit = (unit: string): string =>
+  unit.trim() === "%" ? "percent_ytd" : unit.trim();
+
+const definitionLooksLikeCreditGrowth = (definition: string): boolean => {
+  const normalized = normalizeText(definition);
+  return (
+    normalized.includes("tang truong tin dung") ||
+    normalized.includes("tin dung") ||
+    (/t.{1,8}ng/.test(normalized) &&
+      /t.{1,8}n/.test(normalized) &&
+      /d.{1,8}ng/.test(normalized))
+  );
+};
+
 function parseCreditGrowth(): ParserResult {
   const expected = EXPECTED_CSV_FILES.CREDIT_GROWTH;
   const missing = getMissingFiles(expected);
@@ -533,7 +565,6 @@ function parseCreditGrowth(): ParserResult {
   const rows = rowsToObjects(parseCsv(content));
   const requiredColumns = [
     "period",
-    "period_type",
     "credit_growth_value",
     "unit",
     "definition",
@@ -568,8 +599,9 @@ function parseCreditGrowth(): ParserResult {
   const provenances: CandidateProvenance[] = [];
   for (const row of rows) {
     const value = parseNumeric(row.credit_growth_value);
-    const validDefinition = normalizeText(row.definition).includes("tang truong tin dung");
-    if (value === null || row.unit !== "percent_ytd" || !validDefinition) continue;
+    const validDefinition = definitionLooksLikeCreditGrowth(row.definition);
+    const periodType = row.period_type || inferPeriodType(row.period);
+    if (value === null || normalizeCreditUnit(row.unit) !== "percent_ytd" || !validDefinition) continue;
     const provenance: CandidateProvenance = {
       sourceFile,
       sourceUrl: row.source_url,
@@ -585,7 +617,7 @@ function parseCreditGrowth(): ParserResult {
     candidates.push({
       indicatorCode: "CREDIT_GROWTH",
       period: row.period,
-      periodType: row.period_type,
+      periodType,
       value,
       unit: "percent_ytd",
       sourceName: row.source_name,
