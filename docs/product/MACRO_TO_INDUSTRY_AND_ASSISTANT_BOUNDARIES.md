@@ -40,6 +40,11 @@ Atelier Finance is an educational platform, not an investment advisory service. 
 - The Assistant may discuss the system data only as candidate data requiring review. It must not describe these rows as production-approved.
 - `productionApproved=false` and `needsReview=true` must remain visible in provenance/context until a separate stronger review gate exists.
 
+### Phase 149I Coverage Boundary
+- `USD_VND`, `EXPORT_GROWTH`, `PUBLIC_INVESTMENT`, and `CREDIT_GROWTH` now pass candidate DB read-path coverage smoke.
+- The Assistant may reference the four indicators only as system candidate data requiring review, with indicator-specific caveats.
+- Candidate coverage does not create a production-approved signal and must not be converted into sector or stock conclusions.
+
 ### Strict Data Provenance and Guardrails
 - **No Fake Data Rule**: Absolutely no fallback, mock, or hardcoded macro values may be used or passed to the LLM. 
 - **Missing Data Fallback**: If `observationDate` or `value` is missing, the Assistant must respond that the system does not yet have data for that indicator.

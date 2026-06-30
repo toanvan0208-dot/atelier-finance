@@ -57,6 +57,11 @@ Due to the complex structure of the SBV site, `USD_VND` will transition to using
 - `CREDIT_GROWTH` remains manually aggregated from SBV/news/publication sources and must not be called an official machine-readable SBV CSV.
 - Macro runtime, UI, and Assistant may show the written candidate rows only with warnings and the manual-aggregation caveat.
 
+### Phase 149I Vietnam Candidate Coverage Smoke
+- Final coverage smoke passed for DB candidate read-path visibility of `USD_VND`, `EXPORT_GROWTH`, `PUBLIC_INVESTMENT`, and `CREDIT_GROWTH`.
+- Coverage/readability does not equal production approval; all Vietnam candidate rows remain `productionApproved=false` and `needsReview=true`.
+- A separate stronger review gate is still required before any `productionApproved=true` workflow.
+
 ### 2. Medium Priority Candidates
 These indicators have feasible paths but are either lower priority (global) or more difficult to parse (Excel downloads):
 - `EXPORT_GROWTH` (GSO candidate): blocked until a concrete official URL/download is selected.
