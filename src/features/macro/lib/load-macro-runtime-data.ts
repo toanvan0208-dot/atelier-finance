@@ -18,6 +18,10 @@ const VIETNAM_DB_CANDIDATE_INDICATORS = new Set([
   "EXPORT_GROWTH",
   "CREDIT_GROWTH",
   "PUBLIC_INVESTMENT",
+  "FOREIGN_NET_FLOW",
+  "PMI_MANUFACTURING",
+  "POLICY_RATE",
+  "MARKET_TRADING_VALUE",
 ]);
 
 const candidateCaveatByIndicator: Record<string, string> = {
@@ -25,6 +29,10 @@ const candidateCaveatByIndicator: Record<string, string> = {
   EXPORT_GROWTH: "Tang truong duoc tinh tu tri gia xuat khau GSO, khong phai chi tieu tang truong cong bo truc tiep.",
   CREDIT_GROWTH: "Tang truong tin dung duoc tong hop thu cong tu nguon SBV/tin cong bo, khong phai CSV chinh thuc machine-readable cua SBV.",
   PUBLIC_INVESTMENT: "Don vi quyet dinh y nghia: billion_vnd la gia tri, percent_of_plan_ytd la ty le ke hoach luy ke.",
+  FOREIGN_NET_FLOW: "Manual aggregated HOSE-only foreign investor net flow; positive and negative values describe market-flow terminology, not investment advice.",
+  PMI_MANUFACTURING: "Manual/secondary-source PMI manufacturing candidate; unit is index and source/provenance must be reviewed before production approval.",
+  POLICY_RATE: "Monthly carry-forward snapshot of the SBV refinancing rate; not a machine-readable official SBV feed.",
+  MARKET_TRADING_VALUE: "Average daily/session trading value by month for HOSE, not total monthly trading value.",
 };
 
 const isReadableCandidateObservation = (
@@ -67,7 +75,8 @@ export async function loadMacroRuntimeData(): Promise<MacroCompassData> {
   const indicatorCodes = MACRO_INDICATOR_UNIVERSE.map(item => item.indicatorCode);
 
   const dbResult = await loadLatestMacroObservations({
-    indicatorCodes
+    indicatorCodes,
+    limit: Math.max(500, indicatorCodes.length * 20),
   });
 
   const cloned = JSON.parse(JSON.stringify(macroCompassData)) as MacroCompassData;

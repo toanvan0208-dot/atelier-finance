@@ -49,7 +49,7 @@ function parseCsv(content: string): CsvRow[] {
     headers.forEach((header, index) => {
       row[header] = values[index] ? values[index].trim().replace(/^"|"$/g, '') : '';
     });
-    records.push(row as CsvRow);
+    records.push(row as unknown as CsvRow);
   }
   return records;
 }
