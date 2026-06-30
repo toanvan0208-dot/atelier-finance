@@ -7,6 +7,7 @@ import { loadChecklistRuntimeData } from "@/features/checklist/lib/load-checklis
 import { loadScreeningRuntimeData } from "@/features/screening/lib/load-screening-runtime-data";
 import { loadLearningRuntimeData } from "@/features/learning";
 import { loadMacroRuntimeData } from "@/features/macro/lib/load-macro-runtime-data";
+import { loadIndustryContextRuntimeByTicker } from "@/features/industry/lib/load-industry-context";
 
 type WorkspacePageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -41,6 +42,7 @@ export default async function WorkspacePage({ searchParams }: WorkspacePageProps
     initialScreeningData,
     initialLearningData,
     initialMacroData,
+    initialIndustryContexts,
   ] = await Promise.all([
     loadTechnicalRuntimeData({
       ticker: technicalTicker,
@@ -55,6 +57,9 @@ export default async function WorkspacePage({ searchParams }: WorkspacePageProps
     loadScreeningRuntimeData(),
     loadLearningRuntimeData(),
     loadMacroRuntimeData(),
+    Promise.all(["FPT", "MWG", "VNM", "HPG", "VCB", "MSN"].map(loadIndustryContextRuntimeByTicker)).then(
+      (contexts) => Object.fromEntries(contexts.map((context) => [context.ticker, context])),
+    ),
   ]);
 
   return (
@@ -63,6 +68,7 @@ export default async function WorkspacePage({ searchParams }: WorkspacePageProps
       initialFinancialsRuntimeData={initialFinancialsRuntimeData}
       initialLearningData={initialLearningData}
       initialMacroData={initialMacroData}
+      initialIndustryContexts={initialIndustryContexts}
       initialModule={initialModule}
       initialPortfolioReadiness={initialPortfolioReadiness}
       initialScreeningData={initialScreeningData}

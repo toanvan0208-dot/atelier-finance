@@ -5,6 +5,7 @@ import type { AssistantRuntimeInput } from "../../../lib/ai-rag/runtime";
 import type { AssistantDataQuality, AssistantModuleContext } from "../../../lib/ai-rag/prompts";
 import { parseAssistantContextPacket } from "../../../lib/ai-rag/context";
 import { loadAssistantMarketPriceContext } from "../../../features/assistant/lib/assistant-market-price-context";
+import { loadIndustryContextRuntimeByTicker } from "../../../features/industry/lib/load-industry-context";
 
 type AssistantApiRequestBody = {
   question?: unknown;
@@ -142,6 +143,14 @@ export const createAssistantPostHandler =
           marketPriceContext,
         };
       }
+
+      const industryContext = await loadIndustryContextRuntimeByTicker(runtimeInput.ticker);
+      runtimeInput.moduleContext = {
+        ...runtimeInput.moduleContext,
+        industryContext,
+        industryContextGuardrail:
+          "IndustryContext is qualitative research-only data with productionApproved=false and needsReview=true. Numeric industry metrics and valuation/risk benchmarks are not available yet. If status is missing, say the system has no eligible industry context for the ticker. Do not invent industry metrics or make deterministic macro-to-industry conclusions.",
+      };
     }
 
     // Import loadMacroRuntimeData

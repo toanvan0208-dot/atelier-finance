@@ -5,6 +5,7 @@ import { EmptyState, LoadingState } from "@/components/ui";
 import { MacroIndustryReadinessSkeleton } from "@/features/macro/components/MacroIndustryReadinessSkeleton";
 import { industryPageData } from "../data/industry.data";
 import { industryCompassData } from "../data/industryCompass.data";
+import type { IndustryContextRuntimePayload } from "../lib/load-industry-context";
 import {
   IndustryCompanyMapSection,
   IndustryConditionalConclusion,
@@ -16,10 +17,11 @@ import {
 } from "./IndustryCompassSections";
 
 type IndustryPageProps = {
+  initialIndustryContexts?: Record<string, IndustryContextRuntimePayload>;
   onNavigate?: (moduleKey: string) => void;
 };
 
-export function IndustryPage({ onNavigate }: IndustryPageProps) {
+export function IndustryPage({ initialIndustryContexts = {}, onNavigate }: IndustryPageProps) {
   const [selectedIndustryId, setSelectedIndustryId] = useState(
     industryCompassData.industries[0]?.id ?? ""
   );
@@ -28,6 +30,11 @@ export function IndustryPage({ onNavigate }: IndustryPageProps) {
       industryCompassData.industries.find((industry) => industry.id === selectedIndustryId) ??
       industryCompassData.industries[0],
     [selectedIndustryId]
+  );
+  const selectedIndustryContexts = useMemo(
+    () =>
+      selectedIndustry?.relatedTickers.map((ticker) => initialIndustryContexts[ticker]).filter(Boolean) ?? [],
+    [initialIndustryContexts, selectedIndustry]
   );
 
   if (industryPageData.isLoading) {
@@ -54,6 +61,7 @@ export function IndustryPage({ onNavigate }: IndustryPageProps) {
       <MacroIndustryReadinessSkeleton domain="industry" />
       <IndustryCurrentHeader
         industries={industryCompassData.industries}
+        industryContexts={selectedIndustryContexts}
         selectedIndustry={selectedIndustry}
         onSelectIndustry={setSelectedIndustryId}
       />

@@ -2,7 +2,7 @@ import { apiError, apiInternalError, apiSuccess } from "@/lib/api/response";
 import { getCompanyByTicker } from "@/lib/database";
 import { loadCompanyBusinessProfile } from "@/features/business/lib/load-company-business-profile";
 import { loadMacroContext } from "@/features/macro/lib/load-macro-context";
-import { loadIndustryContextByTicker } from "@/features/industry/lib/load-industry-context";
+import { loadIndustryContextRuntimeByTicker } from "@/features/industry/lib/load-industry-context";
 
 type CompanyRouteContext = {
   params: Promise<{ ticker: string }> | { ticker: string };
@@ -34,7 +34,7 @@ export const GET = async (
 
     const businessProfile = await loadCompanyBusinessProfile(ticker);
     const macroContext = await loadMacroContext();
-    const industryContext = await loadIndustryContextByTicker(ticker);
+    const industryContext = await loadIndustryContextRuntimeByTicker(ticker);
 
     return apiSuccess({
       ...company,
@@ -45,13 +45,7 @@ export const GET = async (
         productionApproved: macroContext.productionApproved,
         needsReview: macroContext.needsReview,
       } : undefined,
-      industryContext: industryContext ? {
-        industryName: industryContext.industryName,
-        sourceLabel: industryContext.sourceLabel,
-        dataMode: industryContext.dataMode,
-        productionApproved: industryContext.productionApproved,
-        needsReview: industryContext.needsReview,
-      } : undefined,
+      industryContext,
     }, {
       meta: {
         source: "database",

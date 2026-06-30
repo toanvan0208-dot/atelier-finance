@@ -8,6 +8,7 @@ import type {
   IndustryDataStatus,
   IndustrySignalMetric,
 } from "../types";
+import type { IndustryContextRuntimePayload } from "../lib/load-industry-context";
 
 type IndustryNavigate = (moduleKey: string) => void;
 
@@ -137,14 +138,22 @@ export function IndustryTermTooltip({
 
 export function IndustryCurrentHeader({
   industries,
+  industryContexts,
   onSelectIndustry,
   selectedIndustry,
 }: {
   industries: IndustryCompassOption[];
+  industryContexts?: IndustryContextRuntimePayload[];
   selectedIndustry: IndustryCompassOption;
   onSelectIndustry: (industryId: string) => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
+  const availableIndustryContexts = (industryContexts ?? []).filter(
+    (context) => context.status === "available" && context.context,
+  );
+  const missingIndustryContexts = (industryContexts ?? []).filter(
+    (context) => context.status === "missing",
+  );
 
   return (
     <Card className="parent-surface-card">
@@ -179,6 +188,17 @@ export function IndustryCurrentHeader({
                 {selectedIndustry.period ?? "Chưa đủ dữ liệu"} · As of:{" "}
                 {selectedIndustry.asOf ?? "Chưa đủ dữ liệu"} · Trạng thái: Nguồn đang hoàn thiện
               </p>
+              <p className="mt-1">
+                DB IndustryContext:{" "}
+                {availableIndustryContexts.length > 0
+                  ? `${availableIndustryContexts.length} research_only context row(s), productionApproved=false, needsReview=true. Numeric industry metrics and valuation/risk benchmarks are not available.`
+                  : "No eligible DB IndustryContext row for the selected ticker group."}
+              </p>
+              {missingIndustryContexts.length > 0 ? (
+                <p className="mt-1">
+                  Missing context tickers: {missingIndustryContexts.map((context) => context.ticker).join(", ")}.
+                </p>
+              ) : null}
             </div>
           </div>
 
