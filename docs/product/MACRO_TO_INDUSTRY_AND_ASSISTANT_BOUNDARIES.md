@@ -45,6 +45,14 @@ Atelier Finance is an educational platform, not an investment advisory service. 
 - The Assistant may reference the four indicators only as system candidate data requiring review, with indicator-specific caveats.
 - Candidate coverage does not create a production-approved signal and must not be converted into sector or stock conclusions.
 
+### Phase 149R GLOBAL_FLOW Definition Boundary
+- `GLOBAL_FLOW` is defined for future acquisition as `emerging_market_equity_fund_flow`: emerging-market equity fund net flow.
+- The proposed UI label is `Dòng vốn quỹ thị trường mới nổi`.
+- The expected future unit is `usd_billion`; positive values mean net inflow and negative values mean net outflow.
+- The Assistant must not fill `GLOBAL_FLOW` from DXY, VIX, liquidity, financial conditions, or any other existing indicator unless a future product decision explicitly changes the definition to a risk-on/risk-off proxy.
+- Until DB observations and provenance are written through a later approved candidate workflow, the Assistant must say the system does not yet have `GLOBAL_FLOW` observation data.
+- Future `GLOBAL_FLOW` rows must remain `productionApproved=false` and `needsReview=true` unless a separate stronger review gate is completed.
+
 ### Strict Data Provenance and Guardrails
 - **No Fake Data Rule**: Absolutely no fallback, mock, or hardcoded macro values may be used or passed to the LLM. 
 - **Missing Data Fallback**: If `observationDate` or `value` is missing, the Assistant must respond that the system does not yet have data for that indicator.

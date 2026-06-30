@@ -62,6 +62,16 @@ Due to the complex structure of the SBV site, `USD_VND` will transition to using
 - Coverage/readability does not equal production approval; all Vietnam candidate rows remain `productionApproved=false` and `needsReview=true`.
 - A separate stronger review gate is still required before any `productionApproved=true` workflow.
 
+### Phase 149R GLOBAL_FLOW Definition Decision
+- Phase 149R is definition-only. It does not fetch providers, import CSV files, create observations, or populate `GLOBAL_FLOW`.
+- Chosen product definition: `emerging_market_equity_fund_flow`, meaning emerging-market equity fund net flow.
+- Proposed display label: `Dòng vốn quỹ thị trường mới nổi`.
+- Expected future unit: `usd_billion`; preferred period type: `monthly`; weekly is allowed only if the selected source is stable and explicitly documented.
+- Value semantics: positive = net inflow, negative = net outflow.
+- Future source types: `manual_aggregated_global_flow_candidate` for manual CSV rows or `documented_provider_global_flow_candidate` for a stable provider path.
+- Future manual CSV schema: `period,period_type,global_flow_value,unit,definition,scope,flow_type,source_name,source_url,publication_date,extracted_quote,notes`.
+- Required caveat: this is an external capital-flow context indicator, not a trading signal. If any future source uses ETF/proxy data, UI and Assistant must clearly label it as a proxy. Do not substitute DXY/VIX or other existing indicators unless the product owner explicitly chooses a risk-on/risk-off proxy.
+
 ### 2. Medium Priority Candidates
 These indicators have feasible paths but are either lower priority (global) or more difficult to parse (Excel downloads):
 - `EXPORT_GROWTH` (GSO candidate): blocked until a concrete official URL/download is selected.
@@ -76,7 +86,7 @@ These indicators have highly unstructured data (e.g. text in PDFs) making automa
 
 ### 4. Blocked
 - `PMI_MANUFACTURING`: Proprietary/paywall blocked.
-- `GLOBAL_FLOW`: Source unidentified.
+- `GLOBAL_FLOW`: Definition selected as `emerging_market_equity_fund_flow`, but data remains unpopulated until a manual CSV or documented provider source is selected and reviewed.
 
 ## Guardrails
 - **Parser Feasibility is NOT Data**: Just because an indicator is `api_ready` does not mean the system possesses the observation data. The UI and Assistant must explicitly treat it as "Chưa có dữ liệu" until the parser successfully executes and writes to the DB.
