@@ -1,27 +1,12 @@
 import { prisma } from "../src/lib/database/client.js";
-
-const SUPPORTED_TICKERS = ["FPT", "MWG", "VNM", "HPG", "MSN", "VCB"] as const;
-
-type SupportedTicker = (typeof SUPPORTED_TICKERS)[number];
-
-type ReviewedManualSource = {
-  ticker: SupportedTicker;
-  industryName: string;
-  sourceLabel: string;
-  sourceUrl: string;
-  sourceType: "reviewed_manual_industry_context_source";
-  dataMode: "research_only";
-  publicationDate: string | null;
-  retrievedAt: string | null;
-  extractedQuote: string | null;
-  reviewNote: string | null;
-  warningCodes: string[];
-  productionApproved: false;
-  needsReview: true;
-};
+import {
+  REVIEWED_INDUSTRY_PROVENANCE_SOURCE_PACKAGES,
+  SUPPORTED_INDUSTRY_PROVENANCE_TICKERS,
+  type SupportedIndustryProvenanceTicker,
+} from "./industry-context-provenance-reviewed-sources.js";
 
 type CandidateRow = {
-  ticker: SupportedTicker;
+  ticker: SupportedIndustryProvenanceTicker;
   industryContextId: string | null;
   industryName: string | null;
   sourceLabel: string | null;
@@ -38,8 +23,6 @@ type CandidateRow = {
   eligible: boolean;
   blockedReasons: string[];
 };
-
-const REVIEWED_MANUAL_SOURCES: ReviewedManualSource[] = [];
 
 const isConfirmWrite = process.argv.includes("--confirm-write");
 
@@ -61,7 +44,10 @@ const hasValidDate = (value: string | null): boolean => {
   return Boolean(date && Number.isFinite(date.getTime()));
 };
 
-const findIndustryContextForTicker = async (ticker: SupportedTicker, industryName?: string) => {
+const findIndustryContextForTicker = async (
+  ticker: SupportedIndustryProvenanceTicker,
+  industryName?: string,
+) => {
   const candidates = await prisma.industryContext.findMany({
     where: {
       relatedTickers: { has: ticker },
@@ -110,8 +96,10 @@ const validateCandidate = (candidate: Omit<CandidateRow, "eligible" | "blockedRe
 const buildCandidates = async (): Promise<CandidateRow[]> => {
   const rows: CandidateRow[] = [];
 
-  for (const ticker of SUPPORTED_TICKERS) {
-    const reviewedSource = REVIEWED_MANUAL_SOURCES.find((source) => source.ticker === ticker);
+  for (const ticker of SUPPORTED_INDUSTRY_PROVENANCE_TICKERS) {
+    const reviewedSource = REVIEWED_INDUSTRY_PROVENANCE_SOURCE_PACKAGES.find(
+      (source) => source.ticker === ticker,
+    );
     const context = await findIndustryContextForTicker(ticker, reviewedSource?.industryName);
 
     if (!reviewedSource) {
@@ -268,7 +256,7 @@ async function main() {
   const blockedTickers = unique(blockedRows.map((row) => row.ticker)).sort();
 
   const result = {
-    phase: "150E",
+    phase: "150F",
     mode: isConfirmWrite ? "confirm-write" : "dry-run",
     dbReadAttempted: true,
     dbWriteAttempted,
@@ -278,6 +266,7 @@ async function main() {
     sidecarTableReadable,
     currentIndustryContextRowsFound,
     existingProvenanceRowsBefore,
+    sourcePackagesLoaded: REVIEWED_INDUSTRY_PROVENANCE_SOURCE_PACKAGES.length,
     candidateRowsGenerated: candidateRows.length,
     eligibleRows: eligibleRows.length,
     blockedRows: blockedRows.length,
@@ -306,9 +295,10 @@ async function main() {
     result.dbReadAttempted &&
     result.sidecarTableReadable &&
     result.currentIndustryContextRowsFound === 5 &&
-    result.candidateRowsGenerated === SUPPORTED_TICKERS.length &&
+    result.sourcePackagesLoaded === 0 &&
+    result.candidateRowsGenerated === SUPPORTED_INDUSTRY_PROVENANCE_TICKERS.length &&
     result.eligibleRows === 0 &&
-    result.blockedRows === SUPPORTED_TICKERS.length &&
+    result.blockedRows === SUPPORTED_INDUSTRY_PROVENANCE_TICKERS.length &&
     result.blockedTickers.includes("VCB") &&
     result.rowsCreated === 0 &&
     result.rowsUpdated === 0 &&

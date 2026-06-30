@@ -52,7 +52,7 @@ async function main() {
   ).sort();
 
   const result = {
-    phase: "150E",
+    phase: "150F",
     dbReadAttempted: true,
     dbWriteAttempted: false,
     sidecarTableReadable,
