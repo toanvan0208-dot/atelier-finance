@@ -1,5 +1,7 @@
 import { prisma } from "../../../lib/database/client";
 
+type IndustryContextRow = NonNullable<Awaited<ReturnType<typeof prisma.industryContext.findFirst>>>;
+
 export type IndustryContextRuntimePayload = {
   ticker: string;
   status: "available" | "missing";
@@ -34,7 +36,7 @@ const suppressLegacyMockText = (value: string | null): string | null =>
 
 const buildIndustryContextPayload = (
   ticker: string,
-  industryContext: Awaited<ReturnType<typeof loadIndustryContextByTicker>>,
+  industryContext: IndustryContextRow | null,
 ): IndustryContextRuntimePayload => {
   const normalizedTicker = ticker.trim().toUpperCase();
 
@@ -121,7 +123,9 @@ export async function loadIndustryContextByTicker(ticker: string) {
     }
   });
 
-  const validIndustries = industries.filter(i => allowedIndustryDataModes.has(i.dataMode));
+  const validIndustries = industries.filter((industry: IndustryContextRow) =>
+    allowedIndustryDataModes.has(industry.dataMode),
+  );
 
   if (validIndustries.length === 0) return null;
 
