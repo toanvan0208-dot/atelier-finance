@@ -45,7 +45,7 @@ async function runSmokeTest() {
         dbBackedFound++;
         console.log("DB backed found:", metric.id);
         if (metric.productionApproved) {
-          results.productionApprovedTrueCount++;
+          results.productionApprovedTrueCount = Number(results.productionApprovedTrueCount) + 1;
         }
         
         // Ensure warning is present
