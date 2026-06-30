@@ -588,7 +588,38 @@ model IndustryContext {
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
+  provenanceRows IndustryContextProvenance[]
+
   @@unique([industryName, asOfDate, sourceLabel, contextLanguage])
+}
+
+model IndustryContextProvenance {
+  id                 String    @id @default(cuid())
+  industryContextId  String
+  ticker             String
+  industryName       String
+  sourceLabel        String
+  sourceUrl          String
+  sourceType         String
+  dataMode           String    @default("research_only")
+  productionApproved Boolean   @default(false)
+  needsReview        Boolean   @default(true)
+  publicationDate    DateTime?
+  retrievedAt        DateTime?
+  extractedQuote     String?
+  reviewNote         String?
+  warningCodes       String    @default("[]")
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  industryContext IndustryContext @relation(fields: [industryContextId], references: [id])
+
+  @@unique([industryContextId, ticker, sourceLabel, sourceUrl])
+  @@index([industryContextId])
+  @@index([ticker])
+  @@index([sourceLabel])
+  @@index([dataMode])
+  @@index([productionApproved])
 }
 
 model MarketPriceProvenanceMetadata {

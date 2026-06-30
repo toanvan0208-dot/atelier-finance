@@ -1,6 +1,20 @@
 import { prisma } from "../../../lib/database/client";
 
 type IndustryContextRow = NonNullable<Awaited<ReturnType<typeof prisma.industryContext.findFirst>>>;
+type IndustryContextProvenanceRow = NonNullable<
+  Awaited<ReturnType<typeof prisma.industryContextProvenance.findFirst>>
+>;
+
+type IndustryContextProvenanceSummary = {
+  rowsFound: number;
+  sourceLabels: string[];
+  sourceUrls: string[];
+  sourceTypes: string[];
+  productionApprovedTrueCount: number;
+  needsReviewTrueCount: number;
+  warningCodes: string[];
+  sidecarReadStatus: "available" | "missing_or_not_applied";
+};
 
 export type IndustryContextRuntimePayload = {
   ticker: string;
@@ -22,6 +36,7 @@ export type IndustryContextRuntimePayload = {
     caveats: string[];
     warningCodes: string[];
     provenanceLimitations: string[];
+    provenanceSummary: IndustryContextProvenanceSummary;
   } | null;
   missingReason: string | null;
 };
@@ -37,6 +52,8 @@ const suppressLegacyMockText = (value: string | null): string | null =>
 const buildIndustryContextPayload = (
   ticker: string,
   industryContext: IndustryContextRow | null,
+  provenanceRows: IndustryContextProvenanceRow[] = [],
+  provenanceSidecarReadStatus: IndustryContextProvenanceSummary["sidecarReadStatus"] = "available",
 ): IndustryContextRuntimePayload => {
   const normalizedTicker = ticker.trim().toUpperCase();
 
@@ -63,8 +80,8 @@ const buildIndustryContextPayload = (
     "INDUSTRY_BENCHMARKS_MISSING",
   ];
   const provenanceLimitations = [
-    "IndustryContext currently stores sourceLabel but no sourceUrl/native provenance field.",
-    "sourceLabel must not be treated as a reviewed source URL.",
+    "IndustryContextProvenance sidecar rows are required before this context can be treated as reviewed-source data.",
+    "sourceLabel alone must not be treated as a reviewed source URL.",
   ];
 
   if (industryContext.sourceLabel.includes("staging")) {
@@ -79,6 +96,31 @@ const buildIndustryContextPayload = (
     warningCodes.push("LEGACY_MOCK_LABELED_FIELD_SUPPRESSED");
     caveats.push("Legacy mock-labeled text was suppressed from the runtime payload.");
   }
+  if (provenanceRows.length === 0) {
+    warningCodes.push("INDUSTRY_CONTEXT_PROVENANCE_MISSING");
+    provenanceLimitations.push("No IndustryContextProvenance rows are currently attached to this IndustryContext row.");
+  }
+  if (provenanceSidecarReadStatus === "missing_or_not_applied") {
+    warningCodes.push("INDUSTRY_CONTEXT_PROVENANCE_SIDECAR_NOT_READABLE");
+    provenanceLimitations.push("IndustryContextProvenance table/model was not readable in the current database snapshot.");
+  }
+
+  const provenanceSummary: IndustryContextProvenanceSummary = {
+    rowsFound: provenanceRows.length,
+    sourceLabels: [...new Set(provenanceRows.map((row) => row.sourceLabel).filter(Boolean))],
+    sourceUrls: [...new Set(provenanceRows.map((row) => row.sourceUrl).filter(Boolean))],
+    sourceTypes: [...new Set(provenanceRows.map((row) => row.sourceType).filter(Boolean))],
+    productionApprovedTrueCount: provenanceRows.filter((row) => row.productionApproved).length,
+    needsReviewTrueCount: provenanceRows.filter((row) => row.needsReview).length,
+    warningCodes: [
+      ...new Set(
+        provenanceRows
+          .flatMap((row) => parseWarningCodes(row.warningCodes))
+          .filter((code) => code.length > 0),
+      ),
+    ],
+    sidecarReadStatus: provenanceSidecarReadStatus,
+  };
 
   return {
     ticker: normalizedTicker,
@@ -100,9 +142,59 @@ const buildIndustryContextPayload = (
       caveats,
       warningCodes,
       provenanceLimitations,
+      provenanceSummary,
     },
     missingReason: null,
   };
+};
+
+const parseWarningCodes = (warningCodes: string): string[] => {
+  try {
+    const parsed = JSON.parse(warningCodes);
+    return Array.isArray(parsed) ? parsed.filter((code): code is string => typeof code === "string") : [];
+  } catch {
+    return warningCodes
+      .split(",")
+      .map((code) => code.trim())
+      .filter(Boolean);
+  }
+};
+
+const loadIndustryContextProvenanceRows = async (
+  industryContext: IndustryContextRow | null,
+  ticker: string,
+): Promise<{
+  rows: IndustryContextProvenanceRow[];
+  sidecarReadStatus: IndustryContextProvenanceSummary["sidecarReadStatus"];
+}> => {
+  if (!industryContext) {
+    return {
+      rows: [],
+      sidecarReadStatus: "available",
+    };
+  }
+
+  try {
+    const rows = await prisma.industryContextProvenance.findMany({
+      where: {
+        industryContextId: industryContext.id,
+        ticker: ticker.trim().toUpperCase(),
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    return {
+      rows,
+      sidecarReadStatus: "available",
+    };
+  } catch {
+    return {
+      rows: [],
+      sidecarReadStatus: "missing_or_not_applied",
+    };
+  }
 };
 
 export async function loadIndustryContextByTicker(ticker: string) {
@@ -136,5 +228,6 @@ export async function loadIndustryContextRuntimeByTicker(
   ticker: string,
 ): Promise<IndustryContextRuntimePayload> {
   const context = await loadIndustryContextByTicker(ticker);
-  return buildIndustryContextPayload(ticker, context);
+  const provenance = await loadIndustryContextProvenanceRows(context, ticker);
+  return buildIndustryContextPayload(ticker, context, provenance.rows, provenance.sidecarReadStatus);
 }
