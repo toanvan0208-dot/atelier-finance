@@ -106,3 +106,9 @@ Phase 149B assessed the Vietnam macro acquisition batch for `USD_VND`, `EXPORT_G
 ## Phase 149C Vietnam Macro Parser Dry-Run Batch
 
 Phase 149C executed a dry-run parser batch for `USD_VND`, `EXPORT_GROWTH`, `CREDIT_GROWTH`, and `PUBLIC_INVESTMENT`. `USD_VND` fetched the VCB XML source and produced one in-memory candidate from the USD transfer quote. This is explicitly a Vietcombank commercial bank quote, not the SBV central exchange rate. The three manual CSV parser paths were attempted but failed closed because the exact expected filenames were missing under `data/manual-review/macro/`; similarly named local CSVs were not substituted. No DB writes, `MacroObservation`, or `MacroObservationProvenance` rows were created.
+
+## Phase 149H Credit Growth Candidate Source Status
+
+Phase 149H corrected the `CREDIT_GROWTH` manual CSV contract by requiring `period_type`. The parser and audit may accept rows only when the file includes `period`, `period_type`, `credit_growth_value`, `unit`, `definition`, `scope`, `source_name`, `source_url`, `publication_date`, `extracted_quote`, and `notes`.
+
+`CREDIT_GROWTH` remains a `manual_aggregated_sbv_news_candidate`. It is manually aggregated from SBV/news/publication sources, not an official machine-readable SBV CSV. Candidate rows may be DB-written and shown in UI/Assistant context only with `productionApproved=false`, `needsReview=true`, provenance, and the manual-aggregation caveat. Production approval requires a separate stronger review gate.

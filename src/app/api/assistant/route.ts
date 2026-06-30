@@ -175,8 +175,8 @@ export const createAssistantPostHandler =
       caveats: {
         USD_VND: "Vietcombank commercial-bank transfer quote, not SBV central rate.",
         EXPORT_GROWTH: "Derived YoY from GSO export value CSV, not directly published growth.",
+        CREDIT_GROWTH: "Manually aggregated from SBV/news/publication sources, not an official machine-readable SBV CSV; productionApproved=false and needsReview=true.",
         PUBLIC_INVESTMENT: "Unit disambiguates whether the row is value in billion_vnd or progress as percent_of_plan_ytd.",
-        CREDIT_GROWTH: "No eligible/written DB rows from Phase 149F; do not infer from local files.",
       },
       frontendLockedIndicators,
       dbBackedIndicators: runtimeData.dbBackedIndicators,

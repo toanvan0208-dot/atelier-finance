@@ -16,12 +16,14 @@ type MacroIndicatorRuntimeItem = MacroIndicatorRegistryItem & {
 const VIETNAM_DB_CANDIDATE_INDICATORS = new Set([
   "USD_VND",
   "EXPORT_GROWTH",
+  "CREDIT_GROWTH",
   "PUBLIC_INVESTMENT",
 ]);
 
 const candidateCaveatByIndicator: Record<string, string> = {
   USD_VND: "Ty gia chuyen khoan Vietcombank, khong phai ty gia trung tam SBV.",
   EXPORT_GROWTH: "Tang truong duoc tinh tu tri gia xuat khau GSO, khong phai chi tieu tang truong cong bo truc tiep.",
+  CREDIT_GROWTH: "Tang truong tin dung duoc tong hop thu cong tu nguon SBV/tin cong bo, khong phai CSV chinh thuc machine-readable cua SBV.",
   PUBLIC_INVESTMENT: "Don vi quyet dinh y nghia: billion_vnd la gia tri, percent_of_plan_ytd la ty le ke hoach luy ke.",
 };
 

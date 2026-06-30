@@ -34,6 +34,12 @@ Atelier Finance is an educational platform, not an investment advisory service. 
 - The Assistant must state that `USD_VND` is a Vietcombank commercial-bank transfer quote, not SBV central rate; `EXPORT_GROWTH` is derived YoY from GSO export value CSV; and `PUBLIC_INVESTMENT` uses unit to distinguish value from percent of plan.
 - `CREDIT_GROWTH` remains blocked/not persisted from Phase 149F. The Assistant must not infer it from local files or unstaged manual data.
 
+### Phase 149H Credit Growth Read-Path Boundary
+- `CREDIT_GROWTH` candidate rows may be read from DB after the corrected CSV schema passes audit and confirm-write.
+- `CREDIT_GROWTH` is manually aggregated from SBV/news/publication sources, not an official machine-readable SBV CSV.
+- The Assistant may discuss the system data only as candidate data requiring review. It must not describe these rows as production-approved.
+- `productionApproved=false` and `needsReview=true` must remain visible in provenance/context until a separate stronger review gate exists.
+
 ### Strict Data Provenance and Guardrails
 - **No Fake Data Rule**: Absolutely no fallback, mock, or hardcoded macro values may be used or passed to the LLM. 
 - **Missing Data Fallback**: If `observationDate` or `value` is missing, the Assistant must respond that the system does not yet have data for that indicator.

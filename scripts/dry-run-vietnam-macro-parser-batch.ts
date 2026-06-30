@@ -536,9 +536,6 @@ function validateColumns(
   return requiredColumns.filter((column) => !columns.has(column));
 }
 
-const inferPeriodType = (period: string): string =>
-  period.includes("-Q") ? "quarterly_ytd" : period.length === 7 ? "monthly_ytd" : "unknown";
-
 const normalizeCreditUnit = (unit: string): string =>
   unit.trim() === "%" ? "percent_ytd" : unit.trim();
 
@@ -580,6 +577,7 @@ function parseCreditGrowth(): ParserResult {
   const rows = rowsToObjects(parseCsv(content));
   const requiredColumns = [
     "period",
+    "period_type",
     "credit_growth_value",
     "unit",
     "definition",
@@ -615,7 +613,7 @@ function parseCreditGrowth(): ParserResult {
   for (const row of rows) {
     const value = parseNumeric(row.credit_growth_value);
     const validDefinition = definitionLooksLikeCreditGrowth(row.definition);
-    const periodType = row.period_type || inferPeriodType(row.period);
+    const periodType = row.period_type;
     if (value === null || normalizeCreditUnit(row.unit) !== "percent_ytd" || !validDefinition) continue;
     const provenance: CandidateProvenance = {
       sourceFile,

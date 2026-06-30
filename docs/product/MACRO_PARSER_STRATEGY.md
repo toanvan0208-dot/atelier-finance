@@ -51,6 +51,12 @@ Due to the complex structure of the SBV site, `USD_VND` will transition to using
 - Assistant may explain `USD_VND`, `EXPORT_GROWTH`, and `PUBLIC_INVESTMENT` only with their caveats: VCB commercial-bank quote is not SBV central rate; export growth is derived YoY from GSO export value CSV; public investment meaning is determined by unit.
 - `CREDIT_GROWTH` remains absent from the DB read path because all 149E rows were blocked and 149F persisted zero rows.
 
+### Phase 149H Credit Growth Schema Correction and Confirm-Write
+- `CREDIT_GROWTH` manual CSV schema now requires `period_type`; if missing, the parser fails closed.
+- Eligible `CREDIT_GROWTH` rows may be DB-written as candidate rows only, with `productionApproved=false` and `needsReview=true`.
+- `CREDIT_GROWTH` remains manually aggregated from SBV/news/publication sources and must not be called an official machine-readable SBV CSV.
+- Macro runtime, UI, and Assistant may show the written candidate rows only with warnings and the manual-aggregation caveat.
+
 ### 2. Medium Priority Candidates
 These indicators have feasible paths but are either lower priority (global) or more difficult to parse (Excel downloads):
 - `EXPORT_GROWTH` (GSO candidate): blocked until a concrete official URL/download is selected.
