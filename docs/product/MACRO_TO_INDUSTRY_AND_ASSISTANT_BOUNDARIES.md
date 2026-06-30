@@ -53,6 +53,13 @@ Atelier Finance is an educational platform, not an investment advisory service. 
 - Until DB observations and provenance are written through a later approved candidate workflow, the Assistant must say the system does not yet have `GLOBAL_FLOW` observation data.
 - Future `GLOBAL_FLOW` rows must remain `productionApproved=false` and `needsReview=true` unless a separate stronger review gate is completed.
 
+### Phase 149S Accepted 13/14 Coverage Boundary
+- Accepted macro coverage is 13/14 frontend-locked indicators.
+- `GLOBAL_FLOW` remains unavailable by product decision because sparse public/news EM equity fund-flow points are not a continuous monthly time series.
+- The Assistant must not infer, interpolate, zero-fill, or proxy `GLOBAL_FLOW`.
+- If asked about `GLOBAL_FLOW`, the Assistant should explain that the selected definition is emerging-market equity fund net flow, but the system is waiting for a reliable continuous monthly source before showing data.
+- The unavailable `GLOBAL_FLOW` state must not be turned into a market call or action-oriented conclusion.
+
 ### Strict Data Provenance and Guardrails
 - **No Fake Data Rule**: Absolutely no fallback, mock, or hardcoded macro values may be used or passed to the LLM. 
 - **Missing Data Fallback**: If `observationDate` or `value` is missing, the Assistant must respond that the system does not yet have data for that indicator.

@@ -72,6 +72,13 @@ Due to the complex structure of the SBV site, `USD_VND` will transition to using
 - Future manual CSV schema: `period,period_type,global_flow_value,unit,definition,scope,flow_type,source_name,source_url,publication_date,extracted_quote,notes`.
 - Required caveat: this is an external capital-flow context indicator, not a trading signal. If any future source uses ETF/proxy data, UI and Assistant must clearly label it as a proxy. Do not substitute DXY/VIX or other existing indicators unless the product owner explicitly chooses a risk-on/risk-off proxy.
 
+### Phase 149S Accepted Macro Coverage
+- Product owner accepts current macro coverage at 13/14 frontend-locked indicators.
+- Do not import sparse `GLOBAL_FLOW` points from public/news search. Sparse, non-continuous EM equity fund-flow points are not reliable enough for a monthly product time series and could reduce product clarity.
+- Keep `GLOBAL_FLOW` unavailable until a continuous monthly EM equity fund-flow source is available.
+- Do not fetch a provider, import CSV, write DB rows, zero-fill, or substitute a DXY/VIX/risk proxy for `GLOBAL_FLOW`.
+- Existing 13 covered indicators remain candidate/manual/provider/proxy data where applicable and keep `productionApproved=false` unless a future production approval gate passes.
+
 ### 2. Medium Priority Candidates
 These indicators have feasible paths but are either lower priority (global) or more difficult to parse (Excel downloads):
 - `EXPORT_GROWTH` (GSO candidate): blocked until a concrete official URL/download is selected.
