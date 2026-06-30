@@ -1,4 +1,4 @@
-import { PrismaClient } from "../../../generated/prisma/client";
+import { Prisma, PrismaClient } from "../../../generated/prisma/client";
 import { prisma as getPrisma } from "@/lib/database/client";
 
 export interface MacroObservationReadOptions {
@@ -25,10 +25,14 @@ export interface MacroObservationResult {
         provenance?: {
             available: boolean;
             providerType?: string;
+            dataMode?: string;
             warningCodes?: string[];
             sourceUrl?: string | null;
             retrievedAt?: string | null;
+            publishedAt?: string | null;
             payloadChecksum?: string | null;
+            evidenceNotes?: string | null;
+            semanticCaveats?: string[];
         };
     }>;
     missingIndicators: string[];
@@ -52,7 +56,10 @@ export async function loadLatestMacroObservations(
     };
 
     try {
-        const whereClause: any = {};
+        const whereClause: Prisma.MacroObservationWhereInput = {
+            value: { not: null },
+            unit: { not: null },
+        };
         
         if (options.indicatorCodes && options.indicatorCodes.length > 0) {
             whereClause.indicatorCode = { in: options.indicatorCodes };
@@ -66,9 +73,10 @@ export async function loadLatestMacroObservations(
 
         const observations = await prisma.macroObservation.findMany({
             where: whereClause,
-            orderBy: {
-                observationDate: 'desc'
-            },
+            orderBy: [
+                { observationDate: 'desc' },
+                { updatedAt: 'desc' },
+            ],
             take: options.limit || 50,
             include: {
                 indicator: true
@@ -84,7 +92,7 @@ export async function loadLatestMacroObservations(
 
         const provenanceRecords = await prisma.macroObservationProvenance.findMany({
             where: {
-                OR: observations.map((obs: any) => ({
+                OR: observations.map((obs) => ({
                     indicatorCode: obs.indicatorCode,
                     region: obs.region,
                     observationDate: obs.observationDate,
@@ -93,20 +101,39 @@ export async function loadLatestMacroObservations(
             }
         });
 
-        result.observations = observations.map((obs: any) => {
-            const provenance = provenanceRecords.find((p: any) => 
+        result.observations = observations.map((obs) => {
+            const provenance = provenanceRecords.find((p) =>
                 p.indicatorCode === obs.indicatorCode &&
                 p.region === obs.region &&
                 p.observationDate.getTime() === obs.observationDate.getTime() &&
                 p.sourceLabel === obs.sourceLabel
             );
+            let warningCodes: string[] = [];
+            let semanticCaveats: string[] = [];
+            if (provenance?.warningCodes) {
+                try {
+                    warningCodes = JSON.parse(provenance.warningCodes);
+                } catch {
+                    warningCodes = [provenance.warningCodes];
+                }
+            }
+            if (provenance?.evidenceNotes) {
+                try {
+                    const parsedNotes = JSON.parse(provenance.evidenceNotes);
+                    if (Array.isArray(parsedNotes.semanticCaveats)) {
+                        semanticCaveats = parsedNotes.semanticCaveats;
+                    }
+                } catch {
+                    semanticCaveats = [provenance.evidenceNotes];
+                }
+            }
 
             return {
                 indicatorCode: obs.indicatorCode,
                 indicatorName: obs.indicator.indicatorName,
                 region: obs.region,
                 observationDate: obs.observationDate.toISOString(),
-                value: obs.value ? Number(obs.value) : 0,
+                value: Number(obs.value),
                 unit: obs.unit,
                 frequency: obs.frequency,
                 sourceLabel: obs.sourceLabel,
@@ -116,10 +143,14 @@ export async function loadLatestMacroObservations(
                 provenance: provenance ? {
                     available: true,
                     providerType: provenance.providerType,
-                    warningCodes: provenance.warningCodes ? JSON.parse(provenance.warningCodes) : [],
+                    dataMode: provenance.dataMode,
+                    warningCodes,
                     sourceUrl: provenance.sourceUrl,
                     retrievedAt: provenance.retrievedAt?.toISOString() || null,
-                    payloadChecksum: provenance.payloadChecksum
+                    publishedAt: provenance.publishedAt?.toISOString() || null,
+                    payloadChecksum: provenance.payloadChecksum,
+                    evidenceNotes: provenance.evidenceNotes,
+                    semanticCaveats
                 } : { available: false }
             };
         });
@@ -132,7 +163,7 @@ export async function loadLatestMacroObservations(
         }
 
         return result;
-    } catch (e) {
+    } catch {
         // Safe fail-open for empty schema or DB connection issues
         return result;
     }

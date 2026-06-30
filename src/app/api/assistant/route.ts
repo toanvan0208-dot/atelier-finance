@@ -5,7 +5,6 @@ import type { AssistantRuntimeInput } from "../../../lib/ai-rag/runtime";
 import type { AssistantDataQuality, AssistantModuleContext } from "../../../lib/ai-rag/prompts";
 import { parseAssistantContextPacket } from "../../../lib/ai-rag/context";
 import { loadAssistantMarketPriceContext } from "../../../features/assistant/lib/assistant-market-price-context";
-import { loadLatestMacroObservations } from "../../../features/macro/lib/macro-observation-read-path";
 
 type AssistantApiRequestBody = {
   question?: unknown;
@@ -149,14 +148,36 @@ export const createAssistantPostHandler =
     const { loadMacroRuntimeData } = await import("../../../features/macro/lib/load-macro-runtime-data");
     const runtimeData = await loadMacroRuntimeData();
     
+    type MacroRuntimeIndicator = {
+      indicatorCode: string;
+      inCurrentFrontend?: boolean;
+      freshness?: { staleStatus?: string };
+      latestObservation?: unknown;
+      latestObservations?: unknown[];
+    };
+    const runtimeIndicators = (runtimeData.indicatorUniverse ?? []) as MacroRuntimeIndicator[];
+
     // Evaluate stale or missing based on the runtime structure
-    const staleIndicators = runtimeData.indicatorUniverse?.filter((i: any) => i.freshness?.staleStatus === "stale").map((i: any) => i.indicatorCode) || [];
-    const missingObservationIndicators = runtimeData.indicatorUniverse?.filter((i: any) => i.inCurrentFrontend && i.freshness?.staleStatus === "unknown" && !i.latestObservation).map((i: any) => i.indicatorCode) || [];
-    const frontendLockedIndicators = runtimeData.indicatorUniverse?.filter((i: any) => i.inCurrentFrontend).map((i: any) => i.indicatorCode) || [];
-    const notInFrontendIndicators = runtimeData.indicatorUniverse?.filter((i: any) => !i.inCurrentFrontend).map((i: any) => i.indicatorCode) || [];
+    const staleIndicators = runtimeIndicators.filter((i) => i.freshness?.staleStatus === "stale").map((i) => i.indicatorCode);
+    const missingObservationIndicators = runtimeIndicators.filter((i) => i.inCurrentFrontend && i.freshness?.staleStatus === "unknown" && !i.latestObservation).map((i) => i.indicatorCode);
+    const frontendLockedIndicators = runtimeIndicators.filter((i) => i.inCurrentFrontend).map((i) => i.indicatorCode);
+    const notInFrontendIndicators = runtimeIndicators.filter((i) => !i.inCurrentFrontend).map((i) => i.indicatorCode);
+    const macroObservations = runtimeIndicators.flatMap((indicator) =>
+      indicator.latestObservations?.length
+        ? indicator.latestObservations
+        : indicator.latestObservation
+          ? [indicator.latestObservation]
+          : [],
+    );
 
     const macroContext = {
-      observations: runtimeData.indicatorUniverse?.filter((i: any) => i.latestObservation).map((i: any) => i.latestObservation),
+      observations: macroObservations,
+      caveats: {
+        USD_VND: "Vietcombank commercial-bank transfer quote, not SBV central rate.",
+        EXPORT_GROWTH: "Derived YoY from GSO export value CSV, not directly published growth.",
+        PUBLIC_INVESTMENT: "Unit disambiguates whether the row is value in billion_vnd or progress as percent_of_plan_ytd.",
+        CREDIT_GROWTH: "No eligible/written DB rows from Phase 149F; do not infer from local files.",
+      },
       frontendLockedIndicators,
       dbBackedIndicators: runtimeData.dbBackedIndicators,
       missingObservationIndicators,

@@ -263,6 +263,18 @@ export function VietnamContextSection({ metrics }: { metrics: MacroCompassMetric
   );
 }
 
+type MacroIndicatorDbObservation = {
+  sourceLabel: string;
+  observationDate?: string;
+  value: number | string;
+  unit?: string | null;
+  productionApproved: boolean;
+  needsReview: boolean;
+  provenance?: {
+    semanticCaveats?: string[];
+  };
+};
+
 export function MacroIndicatorUniverseSection({ data }: { data: MacroCompassData }) {
   if (!data.indicatorUniverse || data.indicatorUniverse.length === 0) return null;
 
@@ -276,6 +288,12 @@ export function MacroIndicatorUniverseSection({ data }: { data: MacroCompassData
       />
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {data.indicatorUniverse.map((indicator) => {
+          const latestObservations =
+            indicator.latestObservations && indicator.latestObservations.length > 0
+              ? indicator.latestObservations
+              : indicator.latestObservation
+                ? [indicator.latestObservation]
+                : [];
           let tone: "success" | "warning" | "neutral" | "danger" | "accent" = "neutral";
           let statusText = "Chưa hỗ trợ";
 
@@ -314,15 +332,30 @@ export function MacroIndicatorUniverseSection({ data }: { data: MacroCompassData
               
               <div className="mt-4 text-xs leading-5 text-muted">
                 <p>{indicator.description}</p>
-                {indicator.latestObservation && (
+                {latestObservations.length > 0 && (
                   <div className="mt-3 rounded border border-border-soft bg-canvas p-3">
-                    <p className="font-bold text-ink">Số liệu gần nhất:</p>
-                    <p className="mt-1 text-sm font-bold">{indicator.latestObservation.value} {indicator.latestObservation.unit}</p>
-                    <p className="mt-1">Kỳ: {indicator.latestObservation.observationDate?.split('T')[0]}</p>
-                    <p className="mt-1">Nguồn: {indicator.latestObservation.sourceLabel}</p>
-                    {!indicator.latestObservation.productionApproved && (
-                      <p className="mt-1 text-danger">Chưa được phê duyệt production</p>
-                    )}
+                    <p className="font-bold text-ink">Số liệu gần nhất từ DB:</p>
+                    <div className="mt-2 grid gap-2">
+                      {latestObservations.map((observation: MacroIndicatorDbObservation) => (
+                        <div key={`${observation.sourceLabel}-${observation.unit}-${observation.observationDate}`} className="rounded border border-border-soft bg-surface p-2">
+                          <p className="text-sm font-bold">{observation.value} {observation.unit}</p>
+                          <p className="mt-1">Kỳ: {observation.observationDate?.split('T')[0]}</p>
+                          <p className="mt-1">Nguồn: {observation.sourceLabel}</p>
+                          {!observation.productionApproved && (
+                            <p className="mt-1 text-danger">Dữ liệu candidate, chưa được phê duyệt production.</p>
+                          )}
+                          {observation.needsReview && (
+                            <p className="mt-1 text-warning">Cần kiểm duyệt trước khi xem là dữ liệu production.</p>
+                          )}
+                          {observation.provenance?.semanticCaveats?.map((caveat: string) => (
+                            <p key={caveat} className="mt-1 text-muted">{caveat}</p>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                    {indicator.limitations?.map((limitation: string) => (
+                      <p key={limitation} className="mt-2 text-muted">{limitation}</p>
+                    ))}
                   </div>
                 )}
               </div>

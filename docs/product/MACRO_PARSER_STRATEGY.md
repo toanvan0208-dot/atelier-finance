@@ -45,6 +45,12 @@ Due to the complex structure of the SBV site, `USD_VND` will transition to using
 - Blocked rows are not persisted. `CREDIT_GROWTH` remains blocked until the manual source CSV schema is corrected to include `period_type`.
 - Persisted provenance must retain the semantic caveats: VCB commercial-bank quote is not SBV central rate; export growth is derived from GSO export value CSV; public investment interpretation depends on unit.
 
+### Phase 149G Vietnam Candidate Read Path
+- Phase 149G reads the 149F DB candidate rows into Macro runtime, UI, and Assistant context without importing or writing any new data.
+- DB candidate rows may be displayed only with warnings that they are system data requiring review and not production-approved.
+- Assistant may explain `USD_VND`, `EXPORT_GROWTH`, and `PUBLIC_INVESTMENT` only with their caveats: VCB commercial-bank quote is not SBV central rate; export growth is derived YoY from GSO export value CSV; public investment meaning is determined by unit.
+- `CREDIT_GROWTH` remains absent from the DB read path because all 149E rows were blocked and 149F persisted zero rows.
+
 ### 2. Medium Priority Candidates
 These indicators have feasible paths but are either lower priority (global) or more difficult to parse (Excel downloads):
 - `EXPORT_GROWTH` (GSO candidate): blocked until a concrete official URL/download is selected.

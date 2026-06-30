@@ -4,6 +4,62 @@ import type { MacroCompassData, MacroCompassMetric } from "../types";
 import { MACRO_INDICATOR_UNIVERSE } from "./macro-indicator-registry";
 import { evaluateMacroObservationFreshness } from "./macro-stale-policy";
 import { DOMESTIC_RATE_FRONTEND_INDICATOR_CODE } from "./macro-domestic-rate-semantic-mapping";
+
+type MacroObservationRuntimeRow = Awaited<ReturnType<typeof loadLatestMacroObservations>>["observations"][number];
+type MacroIndicatorRegistryItem = (typeof MACRO_INDICATOR_UNIVERSE)[number];
+type MacroIndicatorRuntimeItem = MacroIndicatorRegistryItem & {
+  latestObservation: MacroObservationRuntimeRow | null;
+  latestObservations: MacroObservationRuntimeRow[];
+  freshness: ReturnType<typeof evaluateMacroObservationFreshness>;
+};
+
+const VIETNAM_DB_CANDIDATE_INDICATORS = new Set([
+  "USD_VND",
+  "EXPORT_GROWTH",
+  "PUBLIC_INVESTMENT",
+]);
+
+const candidateCaveatByIndicator: Record<string, string> = {
+  USD_VND: "Ty gia chuyen khoan Vietcombank, khong phai ty gia trung tam SBV.",
+  EXPORT_GROWTH: "Tang truong duoc tinh tu tri gia xuat khau GSO, khong phai chi tieu tang truong cong bo truc tiep.",
+  PUBLIC_INVESTMENT: "Don vi quyet dinh y nghia: billion_vnd la gia tri, percent_of_plan_ytd la ty le ke hoach luy ke.",
+};
+
+const isReadableCandidateObservation = (
+  observation: MacroObservationRuntimeRow | null | undefined,
+): boolean => {
+  if (!observation) return false;
+
+  return (
+    observation.productionApproved === false &&
+    observation.needsReview === true &&
+    typeof observation.value === "number" &&
+    Number.isFinite(observation.value) &&
+    typeof observation.unit === "string" &&
+    observation.unit.length > 0 &&
+    /candidate|manual|derived|provider/.test(
+      `${observation.dataMode ?? ""} ${observation.sourceLabel ?? ""} ${observation.provenance?.providerType ?? ""}`,
+    ) &&
+    observation.provenance?.available === true
+  );
+};
+
+const getLatestObservationsForIndicator = (
+  observations: MacroObservationRuntimeRow[],
+  indicatorCode: string,
+): MacroObservationRuntimeRow[] => {
+  const rows = observations.filter((observation) => observation.indicatorCode === indicatorCode);
+  if (indicatorCode !== "PUBLIC_INVESTMENT") return rows.slice(0, 1);
+
+  const latestByUnit = new Map<string, MacroObservationRuntimeRow>();
+  for (const row of rows) {
+    if (typeof row.unit === "string" && !latestByUnit.has(row.unit)) {
+      latestByUnit.set(row.unit, row);
+    }
+  }
+  return Array.from(latestByUnit.values());
+};
+
 export async function loadMacroRuntimeData(): Promise<MacroCompassData> {
   // Extract all indicator codes from the registry
   const indicatorCodes = MACRO_INDICATOR_UNIVERSE.map(item => item.indicatorCode);
@@ -14,12 +70,12 @@ export async function loadMacroRuntimeData(): Promise<MacroCompassData> {
 
   const cloned = JSON.parse(JSON.stringify(macroCompassData)) as MacroCompassData;
 
-  const indicatorUniverse = [];
+  const indicatorUniverse: MacroIndicatorRuntimeItem[] = [];
   const dbBackedIndicators: string[] = [];
   const plannedIndicators: string[] = [];
   const sourceAssessmentNeededIndicators: string[] = [];
   const unsupportedIndicators: string[] = [];
-  const indicatorsByCategory: Record<string, any[]> = {
+  const indicatorsByCategory: Record<string, MacroIndicatorRuntimeItem[]> = {
     growth: [],
     inflation: [],
     rates: [],
@@ -29,20 +85,35 @@ export async function loadMacroRuntimeData(): Promise<MacroCompassData> {
 
   // Build the new universe payload
   for (const registryItem of MACRO_INDICATOR_UNIVERSE) {
-    const dbObs = dbResult.observations?.find(o => o.indicatorCode === registryItem.indicatorCode);
+    const dbObservations = getLatestObservationsForIndicator(
+      dbResult.observations ?? [],
+      registryItem.indicatorCode,
+    ).filter((observation) =>
+      registryItem.supportStatus === "db_backed" || isReadableCandidateObservation(observation),
+    );
+    const dbObs = dbObservations[0] ?? null;
+    const hasReadableDbObs = Boolean(dbObs);
 
-    let finalItem = {
+    const finalItem: MacroIndicatorRuntimeItem = {
       ...registryItem,
-      latestObservation: null as any,
+      latestObservation: null as MacroObservationRuntimeRow | null,
+      latestObservations: dbObservations,
       freshness: evaluateMacroObservationFreshness({
         observationDate: dbObs ? dbObs.observationDate : null,
         expectedFrequency: registryItem.expectedFrequency
       })
     };
 
-    if (registryItem.supportStatus === "db_backed" && dbObs) {
+    if (hasReadableDbObs) {
       dbBackedIndicators.push(registryItem.indicatorCode);
       finalItem.latestObservation = dbObs;
+      if (VIETNAM_DB_CANDIDATE_INDICATORS.has(registryItem.indicatorCode)) {
+        finalItem.limitations = Array.from(new Set([
+          ...registryItem.limitations,
+          "Du lieu he thong hien co, can kiem duyet; productionApproved=false; needsReview=true.",
+          candidateCaveatByIndicator[registryItem.indicatorCode],
+        ]));
+      }
     } else if (registryItem.supportStatus === "planned" || registryItem.supportStatus === "candidate_source_identified") {
       plannedIndicators.push(registryItem.indicatorCode);
     } else if (registryItem.supportStatus === "source_assessment_needed") {
@@ -69,7 +140,12 @@ export async function loadMacroRuntimeData(): Promise<MacroCompassData> {
   const gdpReg = MACRO_INDICATOR_UNIVERSE.find(r => r.indicatorCode === "GDP_GROWTH");
   const cpiReg = MACRO_INDICATOR_UNIVERSE.find(r => r.indicatorCode === "CPI_YOY");
 
-  function patchMetric(id: string, dbObs: any, registryMatch: any, list: MacroCompassMetric[]) {
+  function patchMetric(
+    id: string,
+    dbObs: MacroObservationRuntimeRow | null | undefined,
+    registryMatch: MacroIndicatorRegistryItem | null | undefined,
+    list: MacroCompassMetric[],
+  ) {
     const idx = list.findIndex(m => m.id === id);
     if (idx !== -1) {
       const metric = list[idx];
@@ -84,12 +160,12 @@ export async function loadMacroRuntimeData(): Promise<MacroCompassData> {
       if (dbObs) {
         metric.value = dbObs.value;
         metric.unit = dbObs.unit || "% YoY";
-        metric.period = dbObs.periodLabel || dbObs.observationDate.split("-")[0];
+        metric.period = dbObs.observationDate.split("-")[0];
         metric.asOf = dbObs.observationDate.split("T")[0];
-        metric.sourceName = dbObs.sourceLabel === "FRED" ? "FRED" : (dbObs.provenance?.providerType === "public_api_candidate" ? "World Bank (Candidate)" : "World Bank");
+        metric.sourceName = dbObs.provenance?.providerType ?? dbObs.sourceLabel;
         metric.sourceLabel = dbObs.sourceLabel;
         metric.sourceRef = dbObs.provenance?.sourceUrl || null;
-        metric.dataMode = dbObs.dataMode;
+        metric.dataMode = "research_only";
         metric.productionApproved = dbObs.productionApproved;
         
         if (freshness.staleStatus === "stale") {
@@ -100,20 +176,31 @@ export async function loadMacroRuntimeData(): Promise<MacroCompassData> {
           metric.statusLabel = "Dữ liệu hệ thống";
         }
         
-        metric.confidence = "Dữ liệu candidate, cần rà soát";
+        metric.confidence = "Du lieu he thong hien co, can kiem duyet; productionApproved=false; needsReview=true.";
         
-        const newWarnings = [];
+        const newWarnings: string[] = [];
         if (!dbObs.productionApproved) {
-          newWarnings.push("Dữ liệu candidate từ hệ thống, chưa được phê duyệt production.");
+          newWarnings.push("Du lieu candidate tu he thong, chua duoc phe duyet production.");
+        }
+        if (dbObs.needsReview) {
+          newWarnings.push("needsReview=true: can kiem duyet truoc khi xem la du lieu production.");
         }
         if (freshness.staleStatus === "stale") {
           newWarnings.push(freshness.reason);
         }
-        if (dbObs.provenance?.warningCodes?.length > 0) {
-          newWarnings.push(...dbObs.provenance.warningCodes);
+        const warningCodes = dbObs.provenance?.warningCodes ?? [];
+        if (warningCodes.length > 0) {
+          newWarnings.push(...warningCodes);
+        }
+        const semanticCaveats = dbObs.provenance?.semanticCaveats ?? [];
+        if (semanticCaveats.length > 0) {
+          newWarnings.push(...semanticCaveats);
+        }
+        if (registryMatch && candidateCaveatByIndicator[registryMatch.indicatorCode]) {
+          newWarnings.push(candidateCaveatByIndicator[registryMatch.indicatorCode]);
         }
         if (newWarnings.length > 0) {
-          metric.warnings = newWarnings;
+          metric.warnings = Array.from(new Set(newWarnings));
         }
       } else {
         // Force the missing metric data structure but update the reason

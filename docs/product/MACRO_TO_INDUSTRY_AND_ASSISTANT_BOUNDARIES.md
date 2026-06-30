@@ -28,6 +28,12 @@ Atelier Finance is an educational platform, not an investment advisory service. 
 ### Phase 149C Parser Dry-Run Boundary
 - Parser dry-run candidates remain research/manual candidates until reviewed and written through an approved confirm-write phase. The `USD_VND` dry-run candidate uses a Vietcombank commercial bank transfer quote and must not be described as the SBV central exchange rate. `EXPORT_GROWTH` candidates must be described as derived from export value CSV, not directly published growth. `CREDIT_GROWTH` candidates must be described as manually aggregated from SBV/news/publication sources, not official machine-readable SBV CSV. `PUBLIC_INVESTMENT` candidates must be interpreted by unit (`billion_vnd` or `percent_of_plan_ytd`). None of these candidates may be used as a sector or stock conclusion while missing from system observations.
 
+### Phase 149G Candidate Read-Path Boundary
+- The Macro UI and Assistant may read 149F DB candidate rows for `USD_VND`, `EXPORT_GROWTH`, and `PUBLIC_INVESTMENT`, but only with explicit candidate and needs-review caveats.
+- Showing candidate rows does not mean production approval. All displayed 149F rows remain `productionApproved=false` and `needsReview=true`.
+- The Assistant must state that `USD_VND` is a Vietcombank commercial-bank transfer quote, not SBV central rate; `EXPORT_GROWTH` is derived YoY from GSO export value CSV; and `PUBLIC_INVESTMENT` uses unit to distinguish value from percent of plan.
+- `CREDIT_GROWTH` remains blocked/not persisted from Phase 149F. The Assistant must not infer it from local files or unstaged manual data.
+
 ### Strict Data Provenance and Guardrails
 - **No Fake Data Rule**: Absolutely no fallback, mock, or hardcoded macro values may be used or passed to the LLM. 
 - **Missing Data Fallback**: If `observationDate` or `value` is missing, the Assistant must respond that the system does not yet have data for that indicator.
