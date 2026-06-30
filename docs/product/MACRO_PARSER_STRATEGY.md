@@ -39,6 +39,12 @@ Due to the complex structure of the SBV site, `USD_VND` will transition to using
 - `CREDIT_GROWTH` remains a manual aggregated candidate, not official machine-readable SBV CSV.
 - `PUBLIC_INVESTMENT` must keep unit-specific interpretation as `billion_vnd` or `percent_of_plan_ytd`.
 
+### Phase 149F Vietnam Candidate Confirm-Write
+- Phase 149F confirm-writes only eligible candidate rows for `USD_VND`, `EXPORT_GROWTH`, and `PUBLIC_INVESTMENT`.
+- Confirm-write does not mean production approval: every persisted row remains `productionApproved=false` and `needsReview=true`.
+- Blocked rows are not persisted. `CREDIT_GROWTH` remains blocked until the manual source CSV schema is corrected to include `period_type`.
+- Persisted provenance must retain the semantic caveats: VCB commercial-bank quote is not SBV central rate; export growth is derived from GSO export value CSV; public investment interpretation depends on unit.
+
 ### 2. Medium Priority Candidates
 These indicators have feasible paths but are either lower priority (global) or more difficult to parse (Excel downloads):
 - `EXPORT_GROWTH` (GSO candidate): blocked until a concrete official URL/download is selected.

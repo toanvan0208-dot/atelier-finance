@@ -28,7 +28,7 @@ type AuditRow = {
   warnings: string[];
 };
 
-type EligibilityAuditSummary = {
+export type EligibilityAuditSummary = {
   phase: "149E";
   targetIndicators: IndicatorCode[];
   candidateRowsTotal: number;
