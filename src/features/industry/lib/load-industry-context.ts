@@ -139,6 +139,16 @@ export type IndustryContextRuntimePayload = {
 
 const allowedIndustryDataModes = new Set(["research_only"]);
 
+const getCompanyIndustryDelegate = ():
+  | typeof prisma.companyIndustry
+  | null =>
+  (prisma as { companyIndustry?: typeof prisma.companyIndustry }).companyIndustry ?? null;
+
+const getIndustryPeerGroupDelegate = ():
+  | typeof prisma.industryPeerGroup
+  | null =>
+  (prisma as { industryPeerGroup?: typeof prisma.industryPeerGroup }).industryPeerGroup ?? null;
+
 const isLegacyMockLabeledText = (value: string | null): boolean =>
   typeof value === "string" && /\bmock\b/i.test(value);
 
@@ -314,7 +324,15 @@ export async function loadIndustryTaxonomyRuntimeByTicker(
   const normalizedTicker = ticker.trim().toUpperCase();
   if (!normalizedTicker) return buildMissingTaxonomyPayload(ticker, "Ticker is empty.");
 
-  const rows = await prisma.companyIndustry.findMany({
+  const companyIndustryDelegate = getCompanyIndustryDelegate();
+  if (!companyIndustryDelegate) {
+    return buildMissingTaxonomyPayload(
+      normalizedTicker,
+      "CompanyIndustry taxonomy model is not available in the current Prisma client. Missing taxonomy data must remain unavailable and must not be inferred.",
+    );
+  }
+
+  const rows = await companyIndustryDelegate.findMany({
     where: {
       ticker: normalizedTicker,
       productionApproved: false,
@@ -441,7 +459,23 @@ export async function loadIndustryPeerGroupSummaryByTicker(
   const normalizedTicker = ticker.trim().toUpperCase();
   if (!normalizedTicker) return buildMissingPeerGroupPayload(ticker, "Ticker is empty.");
 
-  const primaryMapping = await prisma.companyIndustry.findFirst({
+  const companyIndustryDelegate = getCompanyIndustryDelegate();
+  if (!companyIndustryDelegate) {
+    return buildMissingPeerGroupPayload(
+      normalizedTicker,
+      "CompanyIndustry taxonomy model is not available in the current Prisma client. Missing peer group data must remain unavailable and must not be inferred.",
+    );
+  }
+
+  const industryPeerGroupDelegate = getIndustryPeerGroupDelegate();
+  if (!industryPeerGroupDelegate) {
+    return buildMissingPeerGroupPayload(
+      normalizedTicker,
+      "IndustryPeerGroup model is not available in the current Prisma client. Missing peer group data must remain unavailable and must not be inferred.",
+    );
+  }
+
+  const primaryMapping = await companyIndustryDelegate.findFirst({
     where: {
       ticker: normalizedTicker,
       roleType: "primary",
@@ -458,7 +492,7 @@ export async function loadIndustryPeerGroupSummaryByTicker(
     return buildMissingPeerGroupPayload(normalizedTicker);
   }
 
-  const peerRows = await prisma.industryPeerGroup.findMany({
+  const peerRows = await industryPeerGroupDelegate.findMany({
     where: {
       industryCode: primaryMapping.industryCode,
       productionApproved: false,

@@ -330,14 +330,137 @@ const industries: IndustryCompassOption[] = [
   },
 ];
 
+const steelMaterialsCompassOption: IndustryCompassOption = {
+  id: "steel-materials",
+  industryKey: "steel_materials",
+  name: "Thep / vat lieu xay dung",
+  industryName: "Thep / vat lieu xay dung",
+  shortName: "Thep - vat lieu",
+  description:
+    "Reviewed lane cua milestone hien tai cho HPG -> STEEL_MATERIALS. Phan mo ta ben duoi la static compass guidance de nguoi dung hieu nganh; mapping va peer group source-backed van den tu DB taxonomy.",
+  shortDescription:
+    "Boi canh thep va vat lieu xay dung, gan voi chu ky xay dung, dau tu cong, gia nguyen lieu va san luong tieu thu.",
+  industryType: "Reviewed lane STEEL_MATERIALS cho HPG; guidance tinh, khong phai du lieu dinh luong nganh",
+  statusLabel: "Du lieu nghien cuu, can ra soat",
+  statusTone: "watch",
+  relatedTickers: ["HPG"],
+  mainDrivers: [
+    "Nhu cau xay dung va ha tang",
+    "Dau tu cong va bat dong san",
+    "Gia quang sat, than luyen coc va phe lieu",
+    "San luong tieu thu thep",
+    "Chenh lech gia ban va chi phi dau vao",
+  ],
+  keyRisks: [
+    "Chu ky nhu cau yeu",
+    "Bien dong gia nguyen lieu",
+    "Ton kho va gia ban giam",
+    "Canh tranh nhap khau hoac du cung",
+    "No vay va von luu dong neu chu ky xau",
+  ],
+  macroLinks: ["Dau tu cong", "Tin dung", "Bat dong san", "Gia hang hoa", "Ty gia"],
+  dataStatus: "partial",
+  dataMode: "research_only",
+  productionApproved: false,
+  sourceName: null,
+  sourceRef: null,
+  sourceUrl: null,
+  period: null,
+  asOf: null,
+  explanationForBeginner:
+    "Hay xem nganh thep nhu mot nganh chu ky: nhu cau, gia ban, chi phi nguyen lieu va ton kho co the thay doi nhanh. Taxonomy va peer group la boi canh, khong phai chuan dinh gia hay rui ro.",
+  whatToCheckNext: [
+    "San luong ban hang",
+    "Gia ban binh quan neu co",
+    "Bien loi nhuan gop",
+    "Ton kho",
+    "Dong tien va no vay",
+  ],
+  warnings: [
+    DATA_COMPLETION_WARNING,
+    "Static compass guidance only. Reviewed DB taxonomy is limited to HPG -> STEEL_MATERIALS; peer group is research_only and needsReview.",
+  ],
+  sensitivityTags: ["Dau tu cong", "Xay dung", "Gia nguyen lieu", "Ton kho"],
+  quickPicture: {
+    summary:
+      "Boi canh thep can doc qua nhu cau xay dung/ha tang, san luong tieu thu, gia nguyen lieu, bien gop va ton kho. Day la guidance tinh; DB taxonomy/peer group van giu research_only va needsReview.",
+    supports: [
+      { title: "Nhu cau ha tang", description: "Dau tu cong hoac xay dung phuc hoi co the lien quan den nhu cau thep, nhung can kiem tra bang san luong va doanh thu." },
+      { title: "Bien gop cai thien", description: "Chi co y nghia khi gia ban, chi phi nguyen lieu va ton kho cung duoc kiem tra." },
+      { title: "Dong tien van hanh", description: "Nganh chu ky can nhin dong tien de tranh chi doc cau chuyen doanh thu." },
+    ],
+    pressures: [
+      { title: "Gia nguyen lieu", description: "Quang sat, than hoac phe lieu bien dong co the lam bien thay doi." },
+      { title: "Ton kho cao", description: "Neu gia ban giam trong luc ton kho cao, chat luong loi nhuan can ra soat ky." },
+      { title: "Du cung hoac nhap khau", description: "Canh tranh nguon cung co the tao ap luc len gia ban va cong suat." },
+    ],
+    firstData: ["San luong", "Bien gop", "Ton kho", "Dong tien", "No vay"],
+    nextStep: "Kiem tra HPG o BCTC va doc peer group HSG/NKG/TVN nhu boi canh taxonomy, khong dung lam benchmark dinh gia/rui ro.",
+  },
+  moneyMap: {
+    sells: "Thep xay dung, thep cuon, ong thep, ton ma hoac san pham vat lieu lien quan tuy doanh nghiep.",
+    customers: "Nha thau, nha phan phoi, du an ha tang, xay dung dan dung va khach hang cong nghiep.",
+    revenueSource: "San luong tieu thu, gia ban binh quan, co cau san pham va kenh phan phoi.",
+    pricingPower: "Phu thuoc chu ky cung cau, chat luong san pham, quy mo, chi phi dau vao va canh tranh nhap khau.",
+    biggestCosts: "Quang sat, than luyen coc, phe lieu, dien, logistics, khau hao va von luu dong.",
+    marginDependsOn: "Chenh lech giua gia ban va chi phi nguyen lieu, cong suat nha may, co cau san pham va quan tri ton kho.",
+    cashPoint: "Tien nam o toc do ban hang, vong quay ton kho, cong no va nhu cau von luu dong.",
+    winnersWhenGood: "Doanh nghiep co chi phi canh tranh, san luong on dinh va dong tien duoc xac nhan can duoc kiem tra tiep bang du lieu.",
+    pressureWhenBad: "Doanh nghiep ton kho cao, gia ban giam hoac no vay tang can duoc ra soat ky truoc khi chuyen module.",
+    valueChain: [
+      { title: "Nguyen lieu", role: "Quang, than, phe lieu", whoEarns: "Doanh nghiep kiem soat chi phi tot", risk: "Gia dau vao bien dong", metric: "Bien gop" },
+      { title: "San xuat", role: "Luyen va can thep", whoEarns: "Nha may van hanh hieu qua", risk: "Cong suat thap", metric: "San luong" },
+      { title: "Phan phoi", role: "Ban qua dai ly/du an", whoEarns: "Mang luoi ban hang tot", risk: "Cau yeu", metric: "Doanh thu" },
+      { title: "Thu tien", role: "Quan tri cong no/ton kho", whoEarns: "Doanh nghiep quay vong von nhanh", risk: "Ton kho va phai thu tang", metric: "Dong tien" },
+    ],
+  },
+  macroDrivers: [
+    { factor: "Dau tu cong", direction: "Cần theo dõi", strength: "Chưa rõ", mechanism: "Ha tang co the lien quan den nhu cau thep nhung can xac nhan bang san luong va don hang.", chain: ["Ke hoach von thay doi", "Nhu cau vat lieu thay doi", "San luong/doanh thu thay doi", "Kiem tra BCTC"], checkNext: "San luong va doanh thu co di cung nhau khong?", tone: "watch" },
+    { factor: "Bat dong san", direction: "Cần theo dõi", strength: "Chưa rõ", mechanism: "Xay dung dan dung anh huong den thep xay dung theo chu ky.", chain: ["Du an trien khai", "Cau thep thay doi", "Gia ban/ton kho thay doi", "Kiem tra bien"], checkNext: "Ton kho va gia ban co dang gay ap luc khong?", tone: "mixed" },
+    { factor: "Gia nguyen lieu", direction: "Trái chiều", strength: "Chưa rõ", mechanism: "Nguyen lieu tang nhanh co the ep bien neu gia ban khong dieu chinh kip.", chain: ["Gia dau vao thay doi", "Gia von thay doi", "Bien gop thay doi", "Kiem tra dong tien"], checkNext: "Bien gop co giu duoc khi chi phi dau vao bien dong khong?", tone: "mixed" },
+  ],
+  dataSignals: buildSignals(
+    ["Dau tu cong", "San luong tieu thu", "Gia nguyen lieu", "Gia ban"],
+    ["Doanh thu", "Bien gop", "Ton kho", "Dong tien"],
+    ["Ton kho tang", "Bien giam", "No vay tang", "Dong tien yeu"]
+  ),
+  companyGroups: [
+    {
+      title: "Ma lien quan trong he thong",
+      description: "Ma duoc dung de noi boi canh nganh sang buoc doanh nghiep va BCTC.",
+      tickers: ["HPG"],
+      role: "Thep / vat lieu xay dung",
+      why: "HPG la ticker co mapping reviewed trong milestone hien tai: HPG -> STEEL_MATERIALS.",
+      checks: ["San luong", "Bien gop", "Ton kho", "Dong tien"],
+      tone: "watch",
+    },
+  ],
+  conclusion: {
+    blocks: [
+      { title: "Boi canh hien tai", content: "Lane reviewed hien co DB taxonomy cho HPG -> STEEL_MATERIALS va peer group HSG/NKG/TVN o trang thai research_only." },
+      { title: "Diem can hieu", content: "Nganh thep la nganh chu ky; can doc nhu cau, gia nguyen lieu, ton kho, bien va dong tien cung nhau." },
+      { title: "Du lieu con thieu", content: "Chua co IndustryMetric dinh luong hoac benchmark dinh gia/rui ro." },
+      { title: "Ma can kiem tra", content: "HPG la ticker mapped; HSG/NKG/TVN chi la peer group taxonomy, khong phai chuan so sanh dinh gia." },
+      { title: "Dieu kien doi goc nhin", content: "Neu du lieu doanh nghiep khong xac nhan boi canh nganh, can giam do tin cay cua boi canh." },
+    ],
+    warning: DATA_COMPLETION_WARNING,
+    actions: commonActions,
+  },
+};
+
+const reviewedCompassIndustries: IndustryCompassOption[] = [
+  steelMaterialsCompassOption,
+  ...industries.filter((industry) => industry.id !== "information-technology-services"),
+];
+
 export const industryCompassData: IndustryCompassData = {
-  industries,
+  industries: reviewedCompassIndustries,
   clusters: [
     {
       title: "Nhận diện ngành",
       question: "Doanh nghiệp thuộc ngành nào và ngành này nhạy với biến nào?",
       stepRange: [1, 2],
-      output: "Biết ngành thuộc nhóm công nghệ, bán lẻ hay tiêu dùng thiết yếu để đặt câu hỏi đúng.",
+      output: "Biết ngành thuộc nhóm thép/vật liệu, bán lẻ hay tiêu dùng thiết yếu để đặt câu hỏi đúng.",
     },
     {
       title: "Hiểu cách ngành kiếm tiền",

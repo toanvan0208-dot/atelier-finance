@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { industryCompassData } from "../../data/industryCompass.data";
 
 const expectedProfiles = {
-  information_technology: "FPT",
+  steel_materials: "HPG",
   retail: "MWG",
   dairy_consumer_staples: "VNM",
 } as const;
@@ -47,7 +47,7 @@ function recommendationOccurrences(text: string, term: string) {
 }
 
 describe("industry MVP sector context", () => {
-  it("contains exactly the three focused industry profiles for FPT, MWG, and VNM", () => {
+  it("contains exactly the three reviewed milestone industry profiles for HPG, MWG, and VNM", () => {
     expect(industryCompassData.industries.map((industry) => industry.industryKey)).toEqual(
       Object.keys(expectedProfiles)
     );
