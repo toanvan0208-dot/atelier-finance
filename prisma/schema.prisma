@@ -593,6 +593,92 @@ model IndustryContext {
   @@unique([industryName, asOfDate, sourceLabel, contextLanguage])
 }
 
+model Industry {
+  id                   String   @id @default(cuid())
+  industryCode         String   @unique
+  industryName         String
+  displayNameVi        String
+  sectorCode           String?
+  sectorName           String?
+  classificationSystem String
+  description          String?
+  dataMode             String   @default("research_only")
+  productionApproved   Boolean  @default(false)
+  needsReview          Boolean  @default(true)
+  warningCodes         String   @default("[]")
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  companyMappings CompanyIndustry[]
+  peerGroups      IndustryPeerGroup[]
+
+  @@index([sectorCode])
+  @@index([classificationSystem])
+  @@index([dataMode])
+  @@index([productionApproved])
+}
+
+model CompanyIndustry {
+  id                 String    @id @default(cuid())
+  ticker             String
+  industryCode       String
+  roleType           String    @default("ambiguous")
+  segmentDescription String?
+  mappingConfidence  String    @default("missing")
+  sourceLabel        String
+  sourceUrl          String
+  sourceType         String
+  publicationDate    DateTime?
+  retrievedAt        DateTime?
+  reviewNote         String?
+  extractedQuote     String?
+  warningCodes       String    @default("[]")
+  dataMode           String    @default("research_only")
+  productionApproved Boolean   @default(false)
+  needsReview        Boolean   @default(true)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  industry Industry @relation(fields: [industryCode], references: [industryCode])
+
+  @@unique([ticker, industryCode, roleType, sourceLabel, sourceUrl])
+  @@index([ticker])
+  @@index([industryCode])
+  @@index([roleType])
+  @@index([dataMode])
+  @@index([productionApproved])
+}
+
+model IndustryPeerGroup {
+  id                 String    @id @default(cuid())
+  industryCode       String
+  peerTicker         String
+  peerRole           String    @default("ambiguous")
+  inclusionReason    String
+  sourceLabel        String
+  sourceUrl          String
+  sourceType         String
+  publicationDate    DateTime?
+  retrievedAt        DateTime?
+  reviewNote         String?
+  extractedQuote     String?
+  warningCodes       String    @default("[]")
+  dataMode           String    @default("research_only")
+  productionApproved Boolean   @default(false)
+  needsReview        Boolean   @default(true)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  industry Industry @relation(fields: [industryCode], references: [industryCode])
+
+  @@unique([industryCode, peerTicker, peerRole, sourceLabel, sourceUrl])
+  @@index([industryCode])
+  @@index([peerTicker])
+  @@index([peerRole])
+  @@index([dataMode])
+  @@index([productionApproved])
+}
+
 model IndustryContextProvenance {
   id                 String    @id @default(cuid())
   industryContextId  String
@@ -727,4 +813,3 @@ model MacroObservationProvenance {
   @@index([sourceLabel])
   @@index([dataMode])
 }
-
