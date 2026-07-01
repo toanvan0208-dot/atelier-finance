@@ -193,7 +193,7 @@ async function main() {
   const readyForConfirmWrite = eligiblePeerGroupRows > 0 && targetBlocks.length === 0;
 
   const result = {
-    phase: "150N",
+    phase: "150O",
     targetIndustry: TARGET_INDUSTRY_CODE,
     anchorTicker: ANCHOR_TICKER,
     allowedPeerCandidates: [...ALLOWED_PEER_CANDIDATES],
@@ -239,7 +239,7 @@ async function main() {
   };
 
   const smokePassed =
-    result.phase === "150N" &&
+    result.phase === "150O" &&
     result.dbReadAttempted &&
     !result.dbWriteAttempted &&
     !result.providerFetchAttempted &&
@@ -247,8 +247,10 @@ async function main() {
     !result.schemaChanged &&
     result.existingTargetIndustryFound &&
     result.anchorCompanyIndustryMappingFound &&
-    result.sourcePackagesLoaded === peerGroupSourcePackages.length &&
-    result.blockedPeerGroupRows >= ALLOWED_PEER_CANDIDATES.length - result.eligiblePeerGroupRows &&
+    result.sourcePackagesLoaded >= ALLOWED_PEER_CANDIDATES.length &&
+    result.eligiblePeerGroupRows === ALLOWED_PEER_CANDIDATES.length &&
+    result.blockedPeerGroupRows === 0 &&
+    result.readyForConfirmWrite &&
     result.productionApprovedTrueCount === 0 &&
     !result.fakePeerGroupsCreated &&
     !result.peerInferenceUsed &&

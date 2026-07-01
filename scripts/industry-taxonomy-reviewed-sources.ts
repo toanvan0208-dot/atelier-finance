@@ -131,4 +131,62 @@ export const companyIndustrySourcePackages: CompanyIndustrySourcePackage[] = [
   },
 ];
 
-export const peerGroupSourcePackages: IndustryPeerGroupSourcePackage[] = [];
+export const peerGroupSourcePackages: IndustryPeerGroupSourcePackage[] = [
+  {
+    industryCode: "STEEL_MATERIALS",
+    peerTicker: "HSG",
+    peerRole: "direct_peer",
+    inclusionReason:
+      "HSG is included as a reviewed steel/materials peer candidate for HPG based on Vietstock provider taxonomy and reviewed profile evidence.",
+    sourceLabel: "Vietstock - Ho so doanh nghiep HSG",
+    sourceUrl: "https://finance.vietstock.vn/HSG/ho-so-doanh-nghiep.htm",
+    sourceType: "provider_taxonomy",
+    publicationDate: null,
+    retrievedAt: "2026-07-01",
+    reviewNote:
+      "Vietstock profile for HSG is readable and shows VS-Sector under Nguyen vat lieu / Khai khoang va luyen kim. The profile also describes HSG's core exposure to coated steel/flat steel and steel-related construction materials. This is a reviewed taxonomy/peer grouping candidate, not a valuation or risk benchmark.",
+    extractedQuote: null,
+    warningCodes: ["RESEARCH_ONLY", "NEEDS_REVIEW", "PROVIDER_TAXONOMY", "PEER_GROUP_NEEDS_REVIEW"],
+    dataMode: "research_only",
+    productionApproved: false,
+    needsReview: true,
+  },
+  {
+    industryCode: "STEEL_MATERIALS",
+    peerTicker: "NKG",
+    peerRole: "direct_peer",
+    inclusionReason:
+      "NKG is included as a reviewed steel/materials peer candidate for HPG based on Vietstock provider taxonomy and reviewed profile evidence.",
+    sourceLabel: "Vietstock - Ho so doanh nghiep NKG",
+    sourceUrl: "https://finance.vietstock.vn/NKG/ho-so-doanh-nghiep.htm",
+    sourceType: "provider_taxonomy",
+    publicationDate: null,
+    retrievedAt: "2026-07-01",
+    reviewNote:
+      "Vietstock profile for NKG is readable and shows VS-Sector under Nguyen vat lieu / Khai khoang va luyen kim. The product/service section describes steel sheet, coated steel, steel pipes, steel boxes, steel shapes, and products from steel coil. This is a reviewed taxonomy/peer grouping candidate, not a valuation or risk benchmark.",
+    extractedQuote: null,
+    warningCodes: ["RESEARCH_ONLY", "NEEDS_REVIEW", "PROVIDER_TAXONOMY", "PEER_GROUP_NEEDS_REVIEW"],
+    dataMode: "research_only",
+    productionApproved: false,
+    needsReview: true,
+  },
+  {
+    industryCode: "STEEL_MATERIALS",
+    peerTicker: "TVN",
+    peerRole: "adjacent_peer",
+    inclusionReason:
+      "TVN is included as an adjacent steel/materials peer candidate for HPG because the reviewed Vietstock profile evidence is steel-sector relevant but not treated as a direct comparable benchmark.",
+    sourceLabel: "Vietstock - Ho so doanh nghiep TVN",
+    sourceUrl: "https://finance.vietstock.vn/TVN/ho-so-doanh-nghiep.htm",
+    sourceType: "provider_taxonomy",
+    publicationDate: null,
+    retrievedAt: "2026-07-01",
+    reviewNote:
+      "Vietstock profile for TVN is readable and shows VS-Sector under Nguyen vat lieu / Khai khoang va luyen kim. The profile describes TVN as operating mainly in the steel industry, developing long steel and flat steel products, and producing steel and steel-after-rolling products. This is an adjacent taxonomy/peer grouping candidate, not a valuation or risk benchmark.",
+    extractedQuote: null,
+    warningCodes: ["RESEARCH_ONLY", "NEEDS_REVIEW", "PROVIDER_TAXONOMY", "PEER_GROUP_NEEDS_REVIEW"],
+    dataMode: "research_only",
+    productionApproved: false,
+    needsReview: true,
+  },
+];
