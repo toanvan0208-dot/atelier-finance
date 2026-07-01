@@ -16,6 +16,13 @@ type IndustryContextProvenanceSummary = {
   sidecarReadStatus: "available" | "missing_or_not_applied";
 };
 
+const peerGroupWarnings = [
+  "PEER_GROUP_RESEARCH_ONLY",
+  "PEER_GROUP_NEEDS_REVIEW",
+  "PEER_GROUP_NOT_VALUATION_BENCHMARK",
+  "PEER_GROUP_NOT_RISK_BENCHMARK",
+];
+
 type IndustryTaxonomyMapping = {
   ticker: string;
   industryCode: string;
@@ -35,6 +42,33 @@ type IndustryTaxonomyMapping = {
   needsReview: true;
   warningCodes: string[];
   caveats: string[];
+};
+
+export type IndustryPeerGroupRuntimeSummary = {
+  ticker: string;
+  status: "available" | "missing";
+  industryCode: string | null;
+  anchorTicker: string;
+  peers: {
+    ticker: string;
+    peerRole: string;
+    dataMode: string;
+    productionApproved: false;
+    needsReview: true;
+    sourceType: string;
+    sourceLabel: string;
+    sourceUrl: string;
+    publicationDate: string | null;
+    retrievedAt: string | null;
+    reviewNote: string | null;
+    warningCodes: string[];
+    caveats: string[];
+  }[];
+  missingReason: string | null;
+  warnings: string[];
+  peerGroupUsedAsValuationBenchmark: false;
+  peerGroupUsedAsRiskBenchmark: false;
+  peerGroupInferred: false;
 };
 
 export type IndustryTaxonomyRuntimePayload = {
@@ -74,6 +108,7 @@ export type IndustryContextRuntimePayload = {
     provenanceSummary: IndustryContextProvenanceSummary;
   } | null;
   taxonomy: IndustryTaxonomyRuntimePayload;
+  peerGroupSummary: IndustryPeerGroupRuntimeSummary;
   missingReason: string | null;
 };
 
@@ -89,6 +124,7 @@ const buildIndustryContextPayload = (
   ticker: string,
   industryContext: IndustryContextRow | null,
   taxonomy: IndustryTaxonomyRuntimePayload,
+  peerGroupSummary: IndustryPeerGroupRuntimeSummary,
   provenanceRows: IndustryContextProvenanceRow[] = [],
   provenanceSidecarReadStatus: IndustryContextProvenanceSummary["sidecarReadStatus"] = "available",
 ): IndustryContextRuntimePayload => {
@@ -100,6 +136,7 @@ const buildIndustryContextPayload = (
       status: "missing",
       context: null,
       taxonomy,
+      peerGroupSummary,
       missingReason:
         "No eligible IndustryContext row found for this ticker. Missing data must remain unavailable and must not be filled from static or mock content.",
     };
@@ -183,6 +220,7 @@ const buildIndustryContextPayload = (
       provenanceSummary,
     },
     taxonomy,
+    peerGroupSummary,
     missingReason: null,
   };
 };
@@ -308,6 +346,124 @@ export async function loadIndustryTaxonomyRuntimeByTicker(
   };
 };
 
+const buildMissingPeerGroupPayload = (
+  ticker: string,
+  reason = "No eligible source-backed IndustryPeerGroup rows found for this ticker. Missing peer group data must remain unavailable and must not be filled from static guidance.",
+): IndustryPeerGroupRuntimeSummary => {
+  const normalizedTicker = ticker.trim().toUpperCase();
+
+  return {
+    ticker: normalizedTicker,
+    status: "missing",
+    industryCode: null,
+    anchorTicker: normalizedTicker,
+    peers: [],
+    missingReason: reason,
+    warnings: [
+      "PEER_GROUP_MISSING",
+      "NO_PEER_GROUP_FALLBACK",
+      ...peerGroupWarnings,
+    ],
+    peerGroupUsedAsValuationBenchmark: false,
+    peerGroupUsedAsRiskBenchmark: false,
+    peerGroupInferred: false,
+  };
+};
+
+export async function loadIndustryPeerGroupSummaryByTicker(
+  ticker: string,
+): Promise<IndustryPeerGroupRuntimeSummary> {
+  const normalizedTicker = ticker.trim().toUpperCase();
+  if (!normalizedTicker) return buildMissingPeerGroupPayload(ticker, "Ticker is empty.");
+
+  const primaryMapping = await prisma.companyIndustry.findFirst({
+    where: {
+      ticker: normalizedTicker,
+      roleType: "primary",
+      productionApproved: false,
+      needsReview: true,
+      dataMode: "research_only",
+    },
+    orderBy: {
+      updatedAt: "desc",
+    },
+  });
+
+  if (!primaryMapping) {
+    return buildMissingPeerGroupPayload(normalizedTicker);
+  }
+
+  const peerRows = await prisma.industryPeerGroup.findMany({
+    where: {
+      industryCode: primaryMapping.industryCode,
+      productionApproved: false,
+      needsReview: true,
+      dataMode: "research_only",
+    },
+    orderBy: [
+      {
+        peerRole: "asc",
+      },
+      {
+        peerTicker: "asc",
+      },
+    ],
+  });
+
+  const eligibleRows = peerRows.filter(
+    (row) =>
+      row.sourceUrl.trim().length > 0 &&
+      row.sourceType.trim().length > 0 &&
+      row.sourceLabel.trim().length > 0 &&
+      (row.reviewNote?.trim().length ?? 0) > 0,
+  );
+
+  if (eligibleRows.length === 0) {
+    return buildMissingPeerGroupPayload(
+      normalizedTicker,
+      `No eligible source-backed IndustryPeerGroup rows found for ${primaryMapping.industryCode}.`,
+    );
+  }
+
+  return {
+    ticker: normalizedTicker,
+    status: "available",
+    industryCode: primaryMapping.industryCode,
+    anchorTicker: normalizedTicker,
+    peers: eligibleRows.map((row) => ({
+      ticker: row.peerTicker,
+      peerRole: row.peerRole,
+      dataMode: row.dataMode,
+      productionApproved: false,
+      needsReview: true,
+      sourceType: row.sourceType,
+      sourceLabel: row.sourceLabel,
+      sourceUrl: row.sourceUrl,
+      publicationDate: row.publicationDate?.toISOString() ?? null,
+      retrievedAt: row.retrievedAt?.toISOString() ?? null,
+      reviewNote: row.reviewNote,
+      warningCodes: [
+        ...new Set([
+          ...parseWarningCodes(row.warningCodes),
+          ...peerGroupWarnings,
+        ]),
+      ],
+      caveats: [
+        "Peer group is source-backed taxonomy context only.",
+        "Peer group is research-only and needs review.",
+        "Peer group must not be used as a valuation benchmark.",
+        "Peer group must not be used as a risk benchmark.",
+        "Do not infer that one ticker is better or worse from peer membership.",
+      ],
+    })),
+    missingReason: null,
+    warnings: peerGroupWarnings,
+    peerGroupUsedAsValuationBenchmark: false,
+    peerGroupUsedAsRiskBenchmark: false,
+    peerGroupInferred: false,
+  };
+}
+
 const loadIndustryContextProvenanceRows = async (
   industryContext: IndustryContextRow | null,
   ticker: string,
@@ -375,10 +531,18 @@ export async function loadIndustryContextByTicker(ticker: string) {
 export async function loadIndustryContextRuntimeByTicker(
   ticker: string,
 ): Promise<IndustryContextRuntimePayload> {
-  const [context, taxonomy] = await Promise.all([
+  const [context, taxonomy, peerGroupSummary] = await Promise.all([
     loadIndustryContextByTicker(ticker),
     loadIndustryTaxonomyRuntimeByTicker(ticker),
+    loadIndustryPeerGroupSummaryByTicker(ticker),
   ]);
   const provenance = await loadIndustryContextProvenanceRows(context, ticker);
-  return buildIndustryContextPayload(ticker, context, taxonomy, provenance.rows, provenance.sidecarReadStatus);
+  return buildIndustryContextPayload(
+    ticker,
+    context,
+    taxonomy,
+    peerGroupSummary,
+    provenance.rows,
+    provenance.sidecarReadStatus,
+  );
 }

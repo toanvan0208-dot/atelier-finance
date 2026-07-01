@@ -49,6 +49,13 @@ const dataModeLabel: Record<IndustryDataMode, string> = {
   unavailable: "Chưa có dữ liệu",
 };
 
+const peerRoleLabel: Record<string, string> = {
+  direct_peer: "peer truc tiep",
+  adjacent_peer: "peer lien quan / can ra soat",
+  watch_only: "peer theo doi",
+  ambiguous: "peer can xac minh",
+};
+
 function goToModule(targetModule?: string, onNavigate?: IndustryNavigate) {
   if (!targetModule) {
     return;
@@ -157,6 +164,9 @@ export function IndustryCurrentHeader({
   const availableTaxonomyMappings = (industryContexts ?? []).flatMap(
     (context) => context.taxonomy.mappings,
   );
+  const availablePeerGroupSummaries = (industryContexts ?? [])
+    .map((context) => context.peerGroupSummary)
+    .filter((summary) => summary.status === "available" && summary.peers.length > 0);
 
   return (
     <Card className="parent-surface-card">
@@ -202,6 +212,18 @@ export function IndustryCurrentHeader({
                 {availableTaxonomyMappings.length > 0
                   ? `${availableTaxonomyMappings.length} research_only mapping(s), productionApproved=false, needsReview=true. Peer groups, numeric metrics, and valuation/risk benchmarks are not inferred.`
                   : "No eligible DB taxonomy mapping for the selected ticker group."}
+              </p>
+              <p className="mt-1">
+                DB peer group:{" "}
+                {availablePeerGroupSummaries.length > 0
+                  ? `${availablePeerGroupSummaries
+                      .flatMap((summary) =>
+                        summary.peers.map(
+                          (peer) => `${peer.ticker} (${peerRoleLabel[peer.peerRole] ?? peer.peerRole})`,
+                        ),
+                      )
+                      .join(", ")}. research_only, needsReview=true. Peer group is not a valuation or risk benchmark.`
+                  : "No eligible DB peer group for the selected ticker group; no static fallback is used."}
               </p>
               {missingIndustryContexts.length > 0 ? (
                 <p className="mt-1">
