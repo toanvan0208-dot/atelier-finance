@@ -23,6 +23,14 @@ const peerGroupWarnings = [
   "PEER_GROUP_NOT_RISK_BENCHMARK",
 ];
 
+const taxonomyWarnings = [
+  "TAXONOMY_RESEARCH_ONLY",
+  "TAXONOMY_NEEDS_REVIEW",
+  "TAXONOMY_NOT_INVESTMENT_ADVICE",
+  "TAXONOMY_NOT_VALUATION_BENCHMARK",
+  "TAXONOMY_NOT_RISK_BENCHMARK",
+];
+
 type IndustryTaxonomyMapping = {
   ticker: string;
   industryCode: string;
@@ -42,6 +50,22 @@ type IndustryTaxonomyMapping = {
   needsReview: true;
   warningCodes: string[];
   caveats: string[];
+};
+
+type IndustryTaxonomySummary = {
+  status: "available" | "missing";
+  ticker: string;
+  industryCode: string | null;
+  industryName: string | null;
+  displayNameVi: string | null;
+  roleType: string | null;
+  mappingConfidence: string | null;
+  dataMode: "research_only" | null;
+  productionApproved: false;
+  needsReview: true | null;
+  sourceType: string | null;
+  sourceUrl: string | null;
+  warnings: string[];
 };
 
 export type IndustryPeerGroupRuntimeSummary = {
@@ -74,6 +98,7 @@ export type IndustryPeerGroupRuntimeSummary = {
 export type IndustryTaxonomyRuntimePayload = {
   ticker: string;
   status: "available" | "missing";
+  taxonomySummary: IndustryTaxonomySummary;
   mappings: IndustryTaxonomyMapping[];
   missingReason: string | null;
   peerGroupsAvailable: false;
@@ -246,6 +271,25 @@ const buildMissingTaxonomyPayload = (
   return {
     ticker: normalizedTicker,
     status: "missing",
+    taxonomySummary: {
+      status: "missing",
+      ticker: normalizedTicker,
+      industryCode: null,
+      industryName: null,
+      displayNameVi: null,
+      roleType: null,
+      mappingConfidence: null,
+      dataMode: null,
+      productionApproved: false,
+      needsReview: null,
+      sourceType: null,
+      sourceUrl: null,
+      warnings: [
+        "INDUSTRY_TAXONOMY_MAPPING_MISSING",
+        "NO_PEER_GROUP_INFERENCE",
+        ...taxonomyWarnings,
+      ],
+    },
     mappings: [],
     missingReason: reason,
     peerGroupsAvailable: false,
@@ -257,6 +301,7 @@ const buildMissingTaxonomyPayload = (
     warningCodes: [
       "INDUSTRY_TAXONOMY_MAPPING_MISSING",
       "NO_PEER_GROUP_INFERENCE",
+      ...taxonomyWarnings,
       "INDUSTRY_METRICS_MISSING",
       "INDUSTRY_BENCHMARKS_MISSING",
     ],
@@ -318,6 +363,7 @@ export async function loadIndustryTaxonomyRuntimeByTicker(
         ...parseWarningCodes(row.industry.warningCodes),
         "INDUSTRY_TAXONOMY_RESEARCH_ONLY",
         "INDUSTRY_TAXONOMY_NEEDS_REVIEW",
+        ...taxonomyWarnings,
         "NO_PEER_GROUP_INFERENCE",
         "INDUSTRY_METRICS_MISSING",
         "INDUSTRY_BENCHMARKS_MISSING",
@@ -328,12 +374,30 @@ export async function loadIndustryTaxonomyRuntimeByTicker(
       "No peer group data is inferred from this mapping.",
       "Numeric industry metrics are not available yet.",
       "Valuation and risk industry benchmarks are not available yet.",
+      "Taxonomy is not investment advice and must not be used to infer valuation, risk, or ticker quality.",
     ],
   }));
+
+  const primaryMapping = mappings.find((mapping) => mapping.roleType === "primary") ?? mappings[0];
 
   return {
     ticker: normalizedTicker,
     status: "available",
+    taxonomySummary: {
+      status: "available",
+      ticker: normalizedTicker,
+      industryCode: primaryMapping.industryCode,
+      industryName: primaryMapping.industryName,
+      displayNameVi: primaryMapping.displayNameVi,
+      roleType: primaryMapping.roleType,
+      mappingConfidence: primaryMapping.mappingConfidence,
+      dataMode: "research_only",
+      productionApproved: false,
+      needsReview: true,
+      sourceType: primaryMapping.sourceType,
+      sourceUrl: primaryMapping.sourceUrl,
+      warnings: [...new Set([...primaryMapping.warningCodes, ...taxonomyWarnings])],
+    },
     mappings,
     missingReason: null,
     peerGroupsAvailable: false,
@@ -360,6 +424,7 @@ const buildMissingPeerGroupPayload = (
     peers: [],
     missingReason: reason,
     warnings: [
+      "PEER_GROUP_UNAVAILABLE",
       "PEER_GROUP_MISSING",
       "NO_PEER_GROUP_FALLBACK",
       ...peerGroupWarnings,

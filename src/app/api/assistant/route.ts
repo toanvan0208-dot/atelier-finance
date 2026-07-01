@@ -149,7 +149,7 @@ export const createAssistantPostHandler =
         ...runtimeInput.moduleContext,
         industryContext,
         industryContextGuardrail:
-          "IndustryContext, Industry taxonomy, and peer group data are qualitative research-only data with productionApproved=false and needsReview=true. Peer groups are taxonomy/context comparison only, not valuation benchmarks or risk benchmarks. If taxonomy or peer group status is missing, say the system has no eligible reviewed data for the ticker. Do not infer peers, invent industry metrics, create benchmarks, say one ticker is better/worse from peer membership, or make deterministic macro-to-industry conclusions.",
+          "IndustryContext, Industry taxonomy, and peer group data are qualitative research-only data with productionApproved=false and needsReview=true. Taxonomy is not investment advice, not a valuation benchmark, and not a risk benchmark. Peer groups are taxonomy/context comparison only, not valuation benchmarks or risk benchmarks. If taxonomy or peer group status is missing, say the system has no eligible reviewed data for the ticker. Do not infer peers, invent industry metrics, create benchmarks, say one ticker is better/worse from taxonomy or peer membership, or make deterministic macro-to-industry conclusions.",
       };
     }
 

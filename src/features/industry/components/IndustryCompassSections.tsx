@@ -164,6 +164,10 @@ export function IndustryCurrentHeader({
   const availableTaxonomyMappings = (industryContexts ?? []).flatMap(
     (context) => context.taxonomy.mappings,
   );
+  const taxonomyMappingDetails = availableTaxonomyMappings.map(
+    (mapping) =>
+      `${mapping.ticker} -> ${mapping.displayNameVi || mapping.industryName} (${mapping.dataMode}, needsReview=${String(mapping.needsReview)})`,
+  );
   const availablePeerGroupSummaries = (industryContexts ?? [])
     .map((context) => context.peerGroupSummary)
     .filter((summary) => summary.status === "available" && summary.peers.length > 0);
@@ -213,6 +217,11 @@ export function IndustryCurrentHeader({
                   ? `${availableTaxonomyMappings.length} research_only mapping(s), productionApproved=false, needsReview=true. Peer groups, numeric metrics, and valuation/risk benchmarks are not inferred.`
                   : "No eligible DB taxonomy mapping for the selected ticker group."}
               </p>
+              {taxonomyMappingDetails.length > 0 ? (
+                <p className="mt-1">
+                  DB taxonomy detail: {taxonomyMappingDetails.join(", ")}. Taxonomy is not investment advice or a valuation/risk benchmark.
+                </p>
+              ) : null}
               <p className="mt-1">
                 DB peer group:{" "}
                 {availablePeerGroupSummaries.length > 0
