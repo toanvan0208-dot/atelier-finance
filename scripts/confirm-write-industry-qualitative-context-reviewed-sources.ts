@@ -27,6 +27,7 @@ type WriteResult = {
   contextAction: "create" | "update" | "noop" | "dry_run";
   provenanceAction: "create" | "update" | "noop" | "dry_run";
   industryContextId: string | null;
+  fullQualitativeFieldsPresent: boolean;
 };
 
 const isConfirmWrite = process.argv.includes(CONFIRM_FLAG);
@@ -94,8 +95,12 @@ const buildWriteInput = (
       industryName,
       contextLanguage: "en",
       industryOverview: sourcePackage.overview,
+      howIndustryMakesMoney: sourcePackage.howIndustryMakesMoney,
       keyDrivers: jsonList(sourcePackage.keyDrivers),
       industryRisks: jsonList(sourcePackage.keyRisks),
+      macroSensitivity: jsonList(sourcePackage.macroSensitivity),
+      nextChecks: jsonList(sourcePackage.nextChecks),
+      commonMisread: sourcePackage.commonMisread,
       relatedTickers: [ticker],
       asOfDate,
       sourceLabel,
@@ -136,6 +141,12 @@ const writePackage = async (
       contextAction: "dry_run",
       provenanceAction: "dry_run",
       industryContextId: existingContext?.id ?? null,
+      fullQualitativeFieldsPresent: Boolean(
+        existingContext?.howIndustryMakesMoney &&
+          existingContext.macroSensitivity &&
+          existingContext.nextChecks &&
+          existingContext.commonMisread,
+      ),
     };
   }
 
@@ -179,6 +190,12 @@ const writePackage = async (
     contextAction: existingContext ? "update" : "create",
     provenanceAction: existingProvenance ? "update" : "create",
     industryContextId: context.id,
+    fullQualitativeFieldsPresent: Boolean(
+      context.howIndustryMakesMoney &&
+        context.macroSensitivity &&
+        context.nextChecks &&
+        context.commonMisread,
+    ),
   };
 };
 
@@ -189,7 +206,7 @@ async function main() {
     console.log(
       JSON.stringify(
         {
-          phase: "151A",
+          phase: "151B",
           confirmWrite: isConfirmWrite,
           dbReadAttempted: true,
           dbWriteAttempted: false,
@@ -236,13 +253,13 @@ async function main() {
     ]);
 
   const result = {
-    phase: "151A",
+    phase: "151B",
     confirmWrite: isConfirmWrite,
     dbReadAttempted: true,
     dbWriteAttempted: isConfirmWrite,
     providerFetchAttempted: false,
     csvImportAttempted: false,
-    schemaChanged: false,
+    schemaChanged: true,
     candidateContextPackages: industryQualitativeContextSourcePackages.length,
     eligibleContextPackages: validationSummary.validations.filter((validation) => validation.eligible).length,
     blockedContextPackages: validationSummary.blocked.length,
@@ -251,6 +268,9 @@ async function main() {
     contextRowsUpdated: writeResults.filter((result) => result.contextAction === "update").length,
     provenanceRowsCreated: writeResults.filter((result) => result.provenanceAction === "create").length,
     provenanceRowsUpdated: writeResults.filter((result) => result.provenanceAction === "update").length,
+    fullQualitativeContextRowsAfter: writeResults.filter(
+      (result) => result.fullQualitativeFieldsPresent,
+    ).length,
     contextRowsAfter,
     provenanceRowsAfter,
     productionApprovedTrueCount,
@@ -264,17 +284,18 @@ async function main() {
   };
 
   const smokePassed =
-    result.phase === "151A" &&
+    result.phase === "151B" &&
     result.dbReadAttempted &&
     result.dbWriteAttempted === isConfirmWrite &&
     !result.providerFetchAttempted &&
     !result.csvImportAttempted &&
-    !result.schemaChanged &&
+    result.schemaChanged &&
     result.candidateContextPackages === 3 &&
     result.eligibleContextPackages === 3 &&
     result.blockedContextPackages === 0 &&
     (!isConfirmWrite || result.contextRowsAfter === 3) &&
     (!isConfirmWrite || result.provenanceRowsAfter >= 3) &&
+    (!isConfirmWrite || result.fullQualitativeContextRowsAfter === 3) &&
     result.productionApprovedTrueCount === 0 &&
     !result.industryMetricCreated &&
     !result.benchmarkCreated &&

@@ -118,8 +118,12 @@ export type IndustryContextRuntimePayload = {
     industryCode: string | null;
     industryName: string;
     industryOverview: string | null;
+    howIndustryMakesMoney: string | null;
     keyDrivers: string | null;
     industryRisks: string | null;
+    macroSensitivity: string | null;
+    nextChecks: string | null;
+    commonMisread: string | null;
     relatedTickers: string[];
     asOfDate: string;
     sourceLabel: string;
@@ -133,6 +137,7 @@ export type IndustryContextRuntimePayload = {
     provenanceLimitations: string[];
     provenanceSummary: IndustryContextProvenanceSummary;
     reviewedQualitativeContextAvailable: boolean;
+    fullQualitativeContextAvailable: boolean;
     qualitativeContextSourceStatus: "source_backed" | "missing_provenance" | "legacy_or_static";
     staticGuidanceUsedAsReviewedContext: false;
   } | null;
@@ -185,6 +190,7 @@ const buildIndustryContextPayload = (
     "IndustryContext is qualitative research-only data, not production-approved data.",
     "Numeric industry metrics are not available yet.",
     "Valuation and risk industry benchmarks are not available yet.",
+    "Qualitative industry context is not a peer benchmark.",
     "Do not use this context to make deterministic macro-to-industry conclusions.",
   ];
   const warningCodes = [
@@ -239,10 +245,19 @@ const buildIndustryContextPayload = (
     provenanceSummary.rowsFound > 0 &&
     provenanceSummary.sourceUrls.length > 0 &&
     provenanceSummary.productionApprovedTrueCount === 0;
+  const fullQualitativeContextAvailable =
+    sourceBackedQualitativeContext &&
+    Boolean(
+      industryContext.howIndustryMakesMoney &&
+        industryContext.macroSensitivity &&
+        industryContext.nextChecks &&
+        industryContext.commonMisread,
+    );
 
   if (sourceBackedQualitativeContext) {
     warningCodes.push("INDUSTRY_QUALITATIVE_CONTEXT_SOURCE_BACKED");
     caveats.push("Qualitative industry context has source provenance rows, but remains research_only and needsReview.");
+    caveats.push("Qualitative industry context is not investment advice, not a valuation/risk benchmark, and not a peer benchmark.");
     caveats.push("Static compass guidance is educational only and is not treated as reviewed qualitative context.");
   }
 
@@ -253,8 +268,20 @@ const buildIndustryContextPayload = (
       industryCode: industryContext.industryCode,
       industryName: industryContext.industryName,
       industryOverview: suppressLegacyMockText(industryContext.industryOverview),
+      howIndustryMakesMoney: sourceBackedQualitativeContext
+        ? suppressLegacyMockText(industryContext.howIndustryMakesMoney)
+        : null,
       keyDrivers: suppressLegacyMockText(industryContext.keyDrivers),
       industryRisks: suppressLegacyMockText(industryContext.industryRisks),
+      macroSensitivity: sourceBackedQualitativeContext
+        ? suppressLegacyMockText(industryContext.macroSensitivity)
+        : null,
+      nextChecks: sourceBackedQualitativeContext
+        ? suppressLegacyMockText(industryContext.nextChecks)
+        : null,
+      commonMisread: sourceBackedQualitativeContext
+        ? suppressLegacyMockText(industryContext.commonMisread)
+        : null,
       relatedTickers: industryContext.relatedTickers,
       asOfDate: industryContext.asOfDate.toISOString(),
       sourceLabel: industryContext.sourceLabel,
@@ -268,6 +295,7 @@ const buildIndustryContextPayload = (
       provenanceLimitations,
       provenanceSummary,
       reviewedQualitativeContextAvailable: sourceBackedQualitativeContext,
+      fullQualitativeContextAvailable,
       qualitativeContextSourceStatus: sourceBackedQualitativeContext
         ? "source_backed"
         : provenanceRows.length === 0

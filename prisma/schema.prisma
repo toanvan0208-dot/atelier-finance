@@ -577,8 +577,12 @@ model IndustryContext {
   industryName       String
   contextLanguage    String   @default("vi")
   industryOverview   String?
+  howIndustryMakesMoney String?
   keyDrivers         String?
   industryRisks      String?
+  macroSensitivity   String?
+  nextChecks         String?
+  commonMisread      String?
   relatedTickers     String[]
   asOfDate           DateTime
   sourceLabel        String

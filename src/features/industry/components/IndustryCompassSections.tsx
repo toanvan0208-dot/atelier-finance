@@ -57,6 +57,16 @@ const peerRoleLabel: Record<string, string> = {
   ambiguous: "peer can xac minh",
 };
 
+function parseContextList(value?: string | null): string[] {
+  if (!value) return [];
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed.filter((item): item is string => typeof item === "string") : [value];
+  } catch {
+    return [value];
+  }
+}
+
 function goToModule(targetModule?: string, onNavigate?: IndustryNavigate) {
   if (!targetModule) {
     return;
@@ -169,6 +179,18 @@ export function IndustryCurrentHeader({
       sourceUrls: context.context?.provenanceSummary.sourceUrls ?? [],
     })) ?? [],
   );
+  const fullQualitativeSections = sourceBackedIndustryContexts
+    .filter((context) => context.context?.fullQualitativeContextAvailable)
+    .map((context) => ({
+      ticker: context.ticker,
+      overview: context.context?.industryOverview ?? null,
+      howIndustryMakesMoney: context.context?.howIndustryMakesMoney ?? null,
+      keyDrivers: parseContextList(context.context?.keyDrivers),
+      keyRisks: parseContextList(context.context?.industryRisks),
+      macroSensitivity: parseContextList(context.context?.macroSensitivity),
+      nextChecks: parseContextList(context.context?.nextChecks),
+      commonMisread: context.context?.commonMisread ?? null,
+    }));
   const missingIndustryContexts = (industryContexts ?? []).filter(
     (context) => context.status === "missing",
   );
@@ -235,6 +257,42 @@ export function IndustryCurrentHeader({
                     .map((detail) => `${detail.ticker}: ${detail.sourceLabel} (${detail.sourceUrls.join(", ")})`)
                     .join("; ")}
                 </p>
+              ) : null}
+              {fullQualitativeSections.length > 0 ? (
+                <div className="mt-3 space-y-3 rounded-[4px] border border-border-soft bg-surface px-3 py-3">
+                  <p className="text-xs font-bold text-ink">
+                    Reviewed qualitative context: research_only, needsReview=true, not investment advice, not valuation/risk benchmark, not peer benchmark.
+                  </p>
+                  {fullQualitativeSections.map((section) => (
+                    <div key={section.ticker} className="grid gap-2 md:grid-cols-2">
+                      <p className="md:col-span-2 text-xs font-bold text-ink">{section.ticker}</p>
+                      <div>
+                        <p className="text-[11px] font-bold text-subtle">Nganh kiem tien nhu the nao</p>
+                        <p className="text-xs leading-5 text-muted">{section.howIndustryMakesMoney ?? "N/A"}</p>
+                      </div>
+                      <div>
+                        <p className="text-[11px] font-bold text-subtle">Yeu to thuc day chinh</p>
+                        <p className="text-xs leading-5 text-muted">{section.keyDrivers.join("; ") || "N/A"}</p>
+                      </div>
+                      <div>
+                        <p className="text-[11px] font-bold text-subtle">Rui ro chinh</p>
+                        <p className="text-xs leading-5 text-muted">{section.keyRisks.join("; ") || "N/A"}</p>
+                      </div>
+                      <div>
+                        <p className="text-[11px] font-bold text-subtle">Nhay cam vi mo</p>
+                        <p className="text-xs leading-5 text-muted">{section.macroSensitivity.join("; ") || "N/A"}</p>
+                      </div>
+                      <div>
+                        <p className="text-[11px] font-bold text-subtle">Nen kiem tra tiep</p>
+                        <p className="text-xs leading-5 text-muted">{section.nextChecks.join("; ") || "N/A"}</p>
+                      </div>
+                      <div>
+                        <p className="text-[11px] font-bold text-subtle">De hieu sai dieu gi</p>
+                        <p className="text-xs leading-5 text-muted">{section.commonMisread ?? "N/A"}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               ) : null}
               <p className="mt-1">
                 DB taxonomy:{" "}
