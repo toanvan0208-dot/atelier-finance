@@ -159,6 +159,16 @@ export function IndustryCurrentHeader({
   const availableIndustryContexts = (industryContexts ?? []).filter(
     (context) => context.status === "available" && context.context,
   );
+  const sourceBackedIndustryContexts = availableIndustryContexts.filter(
+    (context) => context.context?.reviewedQualitativeContextAvailable,
+  );
+  const qualitativeSourceDetails = sourceBackedIndustryContexts.flatMap((context) =>
+    context.context?.provenanceSummary.sourceLabels.map((sourceLabel) => ({
+      ticker: context.ticker,
+      sourceLabel,
+      sourceUrls: context.context?.provenanceSummary.sourceUrls ?? [],
+    })) ?? [],
+  );
   const missingIndustryContexts = (industryContexts ?? []).filter(
     (context) => context.status === "missing",
   );
@@ -212,6 +222,20 @@ export function IndustryCurrentHeader({
                   ? `${availableIndustryContexts.length} research_only context row(s), productionApproved=false, needsReview=true. Numeric industry metrics and valuation/risk benchmarks are not available.`
                   : "No eligible DB IndustryContext row for the selected ticker group."}
               </p>
+              <p className="mt-1">
+                Source-backed qualitative context:{" "}
+                {sourceBackedIndustryContexts.length > 0
+                  ? `${sourceBackedIndustryContexts.length} reviewed-source package row(s) available. Ngu canh nganh dang o trang thai research_only/can ra soat; khong phai benchmark dinh gia/rui ro; khong phai khuyen nghi dau tu.`
+                  : "No source-backed qualitative context row is available; visible compass text remains static educational guidance only, not reviewed DB context."}
+              </p>
+              {qualitativeSourceDetails.length > 0 ? (
+                <p className="mt-1">
+                  Qualitative source detail:{" "}
+                  {qualitativeSourceDetails
+                    .map((detail) => `${detail.ticker}: ${detail.sourceLabel} (${detail.sourceUrls.join(", ")})`)
+                    .join("; ")}
+                </p>
+              ) : null}
               <p className="mt-1">
                 DB taxonomy:{" "}
                 {availableTaxonomyMappings.length > 0

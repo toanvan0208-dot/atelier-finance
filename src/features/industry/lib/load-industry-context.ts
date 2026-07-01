@@ -1,4 +1,5 @@
 import { prisma } from "../../../lib/database/client";
+import { isReviewedMappedTicker } from "./reviewed-industry-coverage";
 
 type IndustryContextRow = NonNullable<Awaited<ReturnType<typeof prisma.industryContext.findFirst>>>;
 type IndustryContextProvenanceRow = NonNullable<
@@ -131,6 +132,9 @@ export type IndustryContextRuntimePayload = {
     warningCodes: string[];
     provenanceLimitations: string[];
     provenanceSummary: IndustryContextProvenanceSummary;
+    reviewedQualitativeContextAvailable: boolean;
+    qualitativeContextSourceStatus: "source_backed" | "missing_provenance" | "legacy_or_static";
+    staticGuidanceUsedAsReviewedContext: false;
   } | null;
   taxonomy: IndustryTaxonomyRuntimePayload;
   peerGroupSummary: IndustryPeerGroupRuntimeSummary;
@@ -231,6 +235,16 @@ const buildIndustryContextPayload = (
     ],
     sidecarReadStatus: provenanceSidecarReadStatus,
   };
+  const sourceBackedQualitativeContext =
+    provenanceSummary.rowsFound > 0 &&
+    provenanceSummary.sourceUrls.length > 0 &&
+    provenanceSummary.productionApprovedTrueCount === 0;
+
+  if (sourceBackedQualitativeContext) {
+    warningCodes.push("INDUSTRY_QUALITATIVE_CONTEXT_SOURCE_BACKED");
+    caveats.push("Qualitative industry context has source provenance rows, but remains research_only and needsReview.");
+    caveats.push("Static compass guidance is educational only and is not treated as reviewed qualitative context.");
+  }
 
   return {
     ticker: normalizedTicker,
@@ -253,6 +267,13 @@ const buildIndustryContextPayload = (
       warningCodes,
       provenanceLimitations,
       provenanceSummary,
+      reviewedQualitativeContextAvailable: sourceBackedQualitativeContext,
+      qualitativeContextSourceStatus: sourceBackedQualitativeContext
+        ? "source_backed"
+        : provenanceRows.length === 0
+          ? "missing_provenance"
+          : "legacy_or_static",
+      staticGuidanceUsedAsReviewedContext: false,
     },
     taxonomy,
     peerGroupSummary,
@@ -603,19 +624,27 @@ const loadIndustryContextProvenanceRows = async (
 export async function loadIndustryContextByTicker(ticker: string) {
   const normalizedTicker = ticker.trim().toUpperCase();
   if (!normalizedTicker) return null;
+  if (!isReviewedMappedTicker(normalizedTicker)) return null;
 
   const industries = await prisma.industryContext.findMany({
     where: {
       productionApproved: false,
       needsReview: true,
-      contextLanguage: "vi",
+      contextLanguage: {
+        in: ["en", "vi"],
+      },
       relatedTickers: {
         has: normalizedTicker
       }
     },
-    orderBy: {
-      createdAt: "desc"
-    }
+    orderBy: [
+      {
+        sourceLabel: "asc",
+      },
+      {
+        createdAt: "desc",
+      },
+    ],
   });
 
   const validIndustries = industries.filter((industry: IndustryContextRow) =>
