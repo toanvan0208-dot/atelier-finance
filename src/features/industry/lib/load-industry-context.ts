@@ -16,6 +16,41 @@ type IndustryContextProvenanceSummary = {
   sidecarReadStatus: "available" | "missing_or_not_applied";
 };
 
+type IndustryTaxonomyMapping = {
+  ticker: string;
+  industryCode: string;
+  industryName: string;
+  displayNameVi: string;
+  sectorCode: string | null;
+  sectorName: string | null;
+  classificationSystem: string;
+  roleType: string;
+  segmentDescription: string | null;
+  mappingConfidence: string;
+  sourceLabel: string;
+  sourceUrl: string;
+  sourceType: string;
+  dataMode: string;
+  productionApproved: false;
+  needsReview: true;
+  warningCodes: string[];
+  caveats: string[];
+};
+
+export type IndustryTaxonomyRuntimePayload = {
+  ticker: string;
+  status: "available" | "missing";
+  mappings: IndustryTaxonomyMapping[];
+  missingReason: string | null;
+  peerGroupsAvailable: false;
+  numericIndustryMetricsAvailable: false;
+  valuationRiskBenchmarksAvailable: false;
+  peerGroupInferred: false;
+  industryMetricCreated: false;
+  valuationRiskBenchmarkInvented: false;
+  warningCodes: string[];
+};
+
 export type IndustryContextRuntimePayload = {
   ticker: string;
   status: "available" | "missing";
@@ -38,6 +73,7 @@ export type IndustryContextRuntimePayload = {
     provenanceLimitations: string[];
     provenanceSummary: IndustryContextProvenanceSummary;
   } | null;
+  taxonomy: IndustryTaxonomyRuntimePayload;
   missingReason: string | null;
 };
 
@@ -52,6 +88,7 @@ const suppressLegacyMockText = (value: string | null): string | null =>
 const buildIndustryContextPayload = (
   ticker: string,
   industryContext: IndustryContextRow | null,
+  taxonomy: IndustryTaxonomyRuntimePayload,
   provenanceRows: IndustryContextProvenanceRow[] = [],
   provenanceSidecarReadStatus: IndustryContextProvenanceSummary["sidecarReadStatus"] = "available",
 ): IndustryContextRuntimePayload => {
@@ -62,6 +99,7 @@ const buildIndustryContextPayload = (
       ticker: normalizedTicker,
       status: "missing",
       context: null,
+      taxonomy,
       missingReason:
         "No eligible IndustryContext row found for this ticker. Missing data must remain unavailable and must not be filled from static or mock content.",
     };
@@ -144,6 +182,7 @@ const buildIndustryContextPayload = (
       provenanceLimitations,
       provenanceSummary,
     },
+    taxonomy,
     missingReason: null,
   };
 };
@@ -158,6 +197,115 @@ const parseWarningCodes = (warningCodes: string): string[] => {
       .map((code) => code.trim())
       .filter(Boolean);
   }
+};
+
+const buildMissingTaxonomyPayload = (
+  ticker: string,
+  reason = "No eligible CompanyIndustry taxonomy mapping found for this ticker. Missing taxonomy data must remain unavailable and must not be filled from static guidance.",
+): IndustryTaxonomyRuntimePayload => {
+  const normalizedTicker = ticker.trim().toUpperCase();
+
+  return {
+    ticker: normalizedTicker,
+    status: "missing",
+    mappings: [],
+    missingReason: reason,
+    peerGroupsAvailable: false,
+    numericIndustryMetricsAvailable: false,
+    valuationRiskBenchmarksAvailable: false,
+    peerGroupInferred: false,
+    industryMetricCreated: false,
+    valuationRiskBenchmarkInvented: false,
+    warningCodes: [
+      "INDUSTRY_TAXONOMY_MAPPING_MISSING",
+      "NO_PEER_GROUP_INFERENCE",
+      "INDUSTRY_METRICS_MISSING",
+      "INDUSTRY_BENCHMARKS_MISSING",
+    ],
+  };
+};
+
+export async function loadIndustryTaxonomyRuntimeByTicker(
+  ticker: string,
+): Promise<IndustryTaxonomyRuntimePayload> {
+  const normalizedTicker = ticker.trim().toUpperCase();
+  if (!normalizedTicker) return buildMissingTaxonomyPayload(ticker, "Ticker is empty.");
+
+  const rows = await prisma.companyIndustry.findMany({
+    where: {
+      ticker: normalizedTicker,
+      productionApproved: false,
+      needsReview: true,
+      dataMode: "research_only",
+    },
+    include: {
+      industry: true,
+    },
+    orderBy: [
+      {
+        roleType: "asc",
+      },
+      {
+        updatedAt: "desc",
+      },
+    ],
+  });
+
+  const validRows = rows.filter((row) => row.industry && row.industry.productionApproved === false);
+
+  if (validRows.length === 0) {
+    return buildMissingTaxonomyPayload(normalizedTicker);
+  }
+
+  const mappings = validRows.map((row): IndustryTaxonomyMapping => ({
+    ticker: row.ticker,
+    industryCode: row.industryCode,
+    industryName: row.industry.industryName,
+    displayNameVi: row.industry.displayNameVi,
+    sectorCode: row.industry.sectorCode,
+    sectorName: row.industry.sectorName,
+    classificationSystem: row.industry.classificationSystem,
+    roleType: row.roleType,
+    segmentDescription: row.segmentDescription,
+    mappingConfidence: row.mappingConfidence,
+    sourceLabel: row.sourceLabel,
+    sourceUrl: row.sourceUrl,
+    sourceType: row.sourceType,
+    dataMode: row.dataMode,
+    productionApproved: false,
+    needsReview: true,
+    warningCodes: [
+      ...new Set([
+        ...parseWarningCodes(row.warningCodes),
+        ...parseWarningCodes(row.industry.warningCodes),
+        "INDUSTRY_TAXONOMY_RESEARCH_ONLY",
+        "INDUSTRY_TAXONOMY_NEEDS_REVIEW",
+        "NO_PEER_GROUP_INFERENCE",
+        "INDUSTRY_METRICS_MISSING",
+        "INDUSTRY_BENCHMARKS_MISSING",
+      ]),
+    ],
+    caveats: [
+      "Industry taxonomy mapping is research-only and needs review.",
+      "No peer group data is inferred from this mapping.",
+      "Numeric industry metrics are not available yet.",
+      "Valuation and risk industry benchmarks are not available yet.",
+    ],
+  }));
+
+  return {
+    ticker: normalizedTicker,
+    status: "available",
+    mappings,
+    missingReason: null,
+    peerGroupsAvailable: false,
+    numericIndustryMetricsAvailable: false,
+    valuationRiskBenchmarksAvailable: false,
+    peerGroupInferred: false,
+    industryMetricCreated: false,
+    valuationRiskBenchmarkInvented: false,
+    warningCodes: [...new Set(mappings.flatMap((mapping) => mapping.warningCodes))],
+  };
 };
 
 const loadIndustryContextProvenanceRows = async (
@@ -227,7 +375,10 @@ export async function loadIndustryContextByTicker(ticker: string) {
 export async function loadIndustryContextRuntimeByTicker(
   ticker: string,
 ): Promise<IndustryContextRuntimePayload> {
-  const context = await loadIndustryContextByTicker(ticker);
+  const [context, taxonomy] = await Promise.all([
+    loadIndustryContextByTicker(ticker),
+    loadIndustryTaxonomyRuntimeByTicker(ticker),
+  ]);
   const provenance = await loadIndustryContextProvenanceRows(context, ticker);
-  return buildIndustryContextPayload(ticker, context, provenance.rows, provenance.sidecarReadStatus);
+  return buildIndustryContextPayload(ticker, context, taxonomy, provenance.rows, provenance.sidecarReadStatus);
 }

@@ -154,6 +154,9 @@ export function IndustryCurrentHeader({
   const missingIndustryContexts = (industryContexts ?? []).filter(
     (context) => context.status === "missing",
   );
+  const availableTaxonomyMappings = (industryContexts ?? []).flatMap(
+    (context) => context.taxonomy.mappings,
+  );
 
   return (
     <Card className="parent-surface-card">
@@ -193,6 +196,12 @@ export function IndustryCurrentHeader({
                 {availableIndustryContexts.length > 0
                   ? `${availableIndustryContexts.length} research_only context row(s), productionApproved=false, needsReview=true. Numeric industry metrics and valuation/risk benchmarks are not available.`
                   : "No eligible DB IndustryContext row for the selected ticker group."}
+              </p>
+              <p className="mt-1">
+                DB taxonomy:{" "}
+                {availableTaxonomyMappings.length > 0
+                  ? `${availableTaxonomyMappings.length} research_only mapping(s), productionApproved=false, needsReview=true. Peer groups, numeric metrics, and valuation/risk benchmarks are not inferred.`
+                  : "No eligible DB taxonomy mapping for the selected ticker group."}
               </p>
               {missingIndustryContexts.length > 0 ? (
                 <p className="mt-1">
