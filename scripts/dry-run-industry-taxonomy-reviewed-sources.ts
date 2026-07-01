@@ -304,7 +304,7 @@ async function main() {
   const productionApprovedTrueCount = productionApprovedCounts.reduce((sum, count) => sum + count, 0);
 
   const result = {
-    phase: "150J",
+    phase: "150K",
     dbReadAttempted: true,
     dbWriteAttempted: false,
     providerFetchAttempted: false,
@@ -355,16 +355,17 @@ async function main() {
   };
 
   const smokePassed =
+    result.phase === "150K" &&
     result.dbReadAttempted &&
     !result.dbWriteAttempted &&
     !result.providerFetchAttempted &&
     !result.csvImportAttempted &&
     !result.schemaChanged &&
-    result.sourcePackagesLoaded === 0 &&
-    result.eligibleIndustryRows === 0 &&
-    result.eligibleCompanyIndustryRows === 0 &&
+    result.sourcePackagesLoaded === 2 &&
+    result.eligibleIndustryRows === 1 &&
+    result.eligibleCompanyIndustryRows === 1 &&
     result.eligiblePeerGroupRows === 0 &&
-    result.blockedRows >= SUPPORTED_INDUSTRY_TAXONOMY_TICKERS.length &&
+    result.blockedRows >= SUPPORTED_INDUSTRY_TAXONOMY_TICKERS.length - 1 &&
     result.blockedReasons.includes(REVIEWED_SOURCE_PACKAGE_MISSING) &&
     result.vcbMissingSafe &&
     !result.industryMetricCreated &&

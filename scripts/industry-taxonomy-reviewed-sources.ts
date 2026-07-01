@@ -86,8 +86,49 @@ export type IndustryPeerGroupSourcePackage = ResearchOnlyPackagePolicy & {
  * are available. Static UI guidance and company annual reports are not primary taxonomy
  * sources for this phase, and placeholder rows must remain absent.
  */
-export const industrySourcePackages: IndustrySourcePackage[] = [];
+export const industrySourcePackages: IndustrySourcePackage[] = [
+  {
+    industryCode: "STEEL_MATERIALS",
+    industryName: "Steel and Materials",
+    displayNameVi: "Thép và vật liệu",
+    sectorCode: "MATERIALS",
+    sectorName: "Nguyên vật liệu",
+    classificationSystem: "Vietstock provider taxonomy, normalized internal mapping",
+    sourceLabel: "Vietstock - Hồ sơ doanh nghiệp HPG",
+    sourceUrl: "https://finance.vietstock.vn/HPG/ho-so-doanh-nghiep.htm",
+    sourceType: "provider_taxonomy",
+    publicationDate: null,
+    retrievedAt: "2026-07-01",
+    reviewNote: "Vietstock shows HPG in Nguyên vật liệu / Khai khoáng và luyện kim.",
+    extractedQuote: null,
+    warningCodes: ["RESEARCH_ONLY"],
+    dataMode: "research_only",
+    productionApproved: false,
+    needsReview: true,
+  },
+];
 
-export const companyIndustrySourcePackages: CompanyIndustrySourcePackage[] = [];
+export const companyIndustrySourcePackages: CompanyIndustrySourcePackage[] = [
+  {
+    ticker: "HPG",
+    industryCode: "STEEL_MATERIALS",
+    roleType: "primary",
+    segmentDescription:
+      "HPG được map primary vào nhóm thép/vật liệu dựa trên phân loại Vietstock và mô tả sản phẩm/dịch vụ chính liên quan đến thép.",
+    mappingConfidence: "medium",
+    sourceLabel: "Vietstock - Hồ sơ doanh nghiệp HPG",
+    sourceUrl: "https://finance.vietstock.vn/HPG/ho-so-doanh-nghiep.htm",
+    sourceType: "provider_taxonomy",
+    publicationDate: null,
+    retrievedAt: "2026-07-01",
+    reviewNote:
+      "The same HPG profile describes key products/services including construction steel, hot rolled coil, coated steel, and steel pipes. Atelier Finance normalizes this mapping into internal industryCode STEEL_MATERIALS with research-only caveats.",
+    extractedQuote: null,
+    warningCodes: ["RESEARCH_ONLY"],
+    dataMode: "research_only",
+    productionApproved: false,
+    needsReview: true,
+  },
+];
 
 export const peerGroupSourcePackages: IndustryPeerGroupSourcePackage[] = [];
