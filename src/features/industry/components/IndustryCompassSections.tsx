@@ -9,6 +9,7 @@ import type {
   IndustrySignalMetric,
 } from "../types";
 import type { IndustryContextRuntimePayload } from "../lib/load-industry-context";
+import { REVIEWED_INDUSTRY_CODES, REVIEWED_MAPPED_TICKERS } from "../lib/reviewed-industry-coverage";
 
 type IndustryNavigate = (moduleKey: string) => void;
 
@@ -222,6 +223,10 @@ export function IndustryCurrentHeader({
                   DB taxonomy detail: {taxonomyMappingDetails.join(", ")}. Taxonomy is not investment advice or a valuation/risk benchmark.
                 </p>
               ) : null}
+              <p className="mt-1">
+                Reviewed coverage boundary: {REVIEWED_INDUSTRY_CODES.join(", ")} for mapped tickers{" "}
+                {REVIEWED_MAPPED_TICKERS.join(", ")}. Unsupported tickers stay missing-safe; no automatic taxonomy or peer inference.
+              </p>
               <p className="mt-1">
                 DB peer group:{" "}
                 {availablePeerGroupSummaries.length > 0

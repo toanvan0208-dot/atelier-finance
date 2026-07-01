@@ -6,6 +6,12 @@ import type { AssistantDataQuality, AssistantModuleContext } from "../../../lib/
 import { parseAssistantContextPacket } from "../../../lib/ai-rag/context";
 import { loadAssistantMarketPriceContext } from "../../../features/assistant/lib/assistant-market-price-context";
 import { loadIndustryContextRuntimeByTicker } from "../../../features/industry/lib/load-industry-context";
+import {
+  REVIEWED_INDUSTRY_CODES,
+  REVIEWED_MAPPED_TICKERS,
+  REVIEWED_UNSUPPORTED_TICKERS,
+  UNSUPPORTED_TICKER_POLICY,
+} from "../../../features/industry/lib/reviewed-industry-coverage";
 
 type AssistantApiRequestBody = {
   question?: unknown;
@@ -149,7 +155,7 @@ export const createAssistantPostHandler =
         ...runtimeInput.moduleContext,
         industryContext,
         industryContextGuardrail:
-          "IndustryContext, Industry taxonomy, and peer group data are qualitative research-only data with productionApproved=false and needsReview=true. Taxonomy is not investment advice, not a valuation benchmark, and not a risk benchmark. Peer groups are taxonomy/context comparison only, not valuation benchmarks or risk benchmarks. If taxonomy or peer group status is missing, say the system has no eligible reviewed data for the ticker. Do not infer peers, invent industry metrics, create benchmarks, say one ticker is better/worse from taxonomy or peer membership, or make deterministic macro-to-industry conclusions.",
+          `IndustryContext, Industry taxonomy, and peer group data are qualitative research-only data with productionApproved=false and needsReview=true. Reviewed Industry coverage is currently limited to ${REVIEWED_INDUSTRY_CODES.join(", ")} for mapped tickers ${REVIEWED_MAPPED_TICKERS.join(", ")}. Unsupported milestone tickers include ${REVIEWED_UNSUPPORTED_TICKERS.join(", ")}. ${UNSUPPORTED_TICKER_POLICY} Missing taxonomy means not yet reviewed in system data, not that the company has no industry. Taxonomy is not investment advice, not a valuation benchmark, and not a risk benchmark. Peer groups are taxonomy/context comparison only, not valuation benchmarks or risk benchmarks. If taxonomy or peer group status is missing, say the system has no eligible reviewed data for the ticker. Do not infer peers, invent industry metrics, create benchmarks, say one ticker is better/worse from taxonomy or peer membership, or make deterministic macro-to-industry conclusions.`,
       };
     }
 
