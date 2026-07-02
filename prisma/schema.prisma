@@ -746,6 +746,106 @@ model MarketPriceProvenanceMetadata {
   @@index([adjustmentStatus])
 }
 
+model ScreeningCandidate {
+  id                 String   @id @default(cuid())
+  ticker             String
+  companyName        String?
+  industryCode       String?
+  peerRole           String?
+  coverageLevel      String
+  screeningEligible  Boolean  @default(true)
+  analysisEligible   Boolean  @default(false)
+  dataMode           String   @default("research_only")
+  needsReview        Boolean  @default(true)
+  productionApproved Boolean  @default(false)
+  warningCodes       String   @default("[]")
+  caveats            String   @default("[]")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  metrics        ScreeningCandidateMetric[]
+  provenanceRows ScreeningCandidateProvenance[]
+
+  @@unique([ticker])
+  @@index([coverageLevel])
+  @@index([screeningEligible])
+  @@index([analysisEligible])
+  @@index([dataMode])
+  @@index([needsReview])
+  @@index([productionApproved])
+}
+
+model ScreeningCandidateMetric {
+  id                 String   @id @default(cuid())
+  candidateId        String
+  ticker             String
+  metricCode         String
+  value              Decimal?
+  unit               String?
+  period             String?
+  periodType         String?
+  providerPeriod     String?
+  snapshotDate       DateTime?
+  fiscalYearEnd      DateTime?
+  statementScope     String?
+  sourceType         String?
+  sourceLabel        String?
+  sourceUrl          String?
+  extractedQuote     String?
+  reviewNote         String?
+  warningCodes       String   @default("[]")
+  dataMode           String   @default("research_only")
+  needsReview        Boolean  @default(true)
+  productionApproved Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  candidate      ScreeningCandidate             @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  provenanceRows ScreeningCandidateProvenance[]
+
+  @@unique([candidateId, metricCode])
+  @@index([ticker])
+  @@index([metricCode])
+  @@index([dataMode])
+  @@index([needsReview])
+  @@index([productionApproved])
+}
+
+model ScreeningCandidateProvenance {
+  id                 String   @id @default(cuid())
+  candidateId        String
+  metricId           String?
+  ticker             String
+  metricCode         String?
+  sourceType         String
+  sourceLabel        String
+  sourceUrl          String?
+  retrievedAt        DateTime?
+  publicationDate    DateTime?
+  extractedQuote     String?
+  reviewNote         String?
+  payloadChecksum    String?
+  warningCodes       String   @default("[]")
+  dataMode           String   @default("research_only")
+  needsReview        Boolean  @default(true)
+  productionApproved Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  candidate ScreeningCandidate        @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  metric    ScreeningCandidateMetric? @relation(fields: [metricId], references: [id], onDelete: SetNull)
+
+  @@index([candidateId])
+  @@index([metricId])
+  @@index([ticker])
+  @@index([metricCode])
+  @@index([sourceLabel])
+  @@index([sourceType])
+  @@index([dataMode])
+  @@index([needsReview])
+  @@index([productionApproved])
+}
+
 model MacroIndicator {
   id               String             @id @default(cuid())
   indicatorCode    String             @unique

@@ -20,7 +20,7 @@ const nkgCfoClosed =
   nkg?.metrics.cfo.dataQuality.productionApproved === false;
 
 const result = {
-  phase: "151L",
+  phase: "151M",
   smoke: "screening-steel-direct-peer-candidates-confirm-write-read-path",
   candidateTickers: candidateTickers.join(","),
   hsgPresentInPreparedPackages: Boolean(hsg),
@@ -38,10 +38,11 @@ const result = {
   hsgPeValue: 14.72,
   hsgPeProviderPeriod: "2026-Q2",
   schemaGapDetected: missingSchemaModels.length > 0,
+  schemaReadyForConfirmWrite: missingSchemaModels.length === 0,
   missingSchemaModels: missingSchemaModels.join(","),
-  dbRowsExpected: missingSchemaModels.length === 0,
-  readPathRowsExpected: missingSchemaModels.length === 0,
-  readPathSmokePassed: missingSchemaModels.length === 0,
+  dbRowsExpected: false,
+  readPathRowsExpected: false,
+  readPathSmokePassed: false,
   productionApprovedTrueCount: 0,
   industryMetricCreated: false,
   benchmarkCreated: false,
@@ -59,7 +60,7 @@ const result = {
     nkg?.analysisEligible === false &&
     hsgCfoClosed &&
     nkgCfoClosed &&
-    missingSchemaModels.length > 0,
+    missingSchemaModels.length === 0,
 };
 
 console.log(JSON.stringify(result, null, 2));

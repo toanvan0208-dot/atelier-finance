@@ -230,22 +230,25 @@ async function main() {
   const validation = validatePreparedCandidates(candidates);
   const missingModels = missingScreeningSchemaModels();
   const schemaGapDetected = missingModels.length > 0;
+  const schemaReadyForConfirmWrite = !schemaGapDetected;
   const rowsPrepared = candidates.length;
   const provenanceRowsPrepared = candidates.reduce((total, candidate) => total + candidate.metrics.length, 0);
 
   if (confirmWrite && schemaGapDetected) {
     console.warn(`Screening candidate schema gap detected. Missing models: ${missingModels.join(", ")}`);
+  } else if (confirmWrite && schemaReadyForConfirmWrite) {
+    console.warn("Phase 151M schema is ready, but data confirm-write is intentionally blocked until Phase 151N.");
   }
 
   const result = {
-    phase: "151L",
+    phase: "151M",
     mode: confirmWrite ? "confirm_write" : "dry_run",
     candidateTickers: "HSG,NKG",
     rowsPrepared,
     rowsWritten: 0,
     rowsCreated: 0,
     rowsUpdated: 0,
-    rowsSkipped: schemaGapDetected ? rowsPrepared : 0,
+    rowsSkipped: confirmWrite ? rowsPrepared : 0,
     provenanceRowsPrepared,
     provenanceRowsWritten: 0,
     hsgPeWritten: false,
@@ -269,14 +272,16 @@ async function main() {
     schemaChanged: false,
     schemaGapDetected,
     missingSchemaModels: missingModels.join(","),
+    readyForConfirmWrite: schemaReadyForConfirmWrite,
+    dataConfirmWriteBlockedUntilPhase151N: schemaReadyForConfirmWrite,
     productionApprovedTrueCount: validation.productionApprovedTrueCount,
     readPathSmokePassed: false,
-    idempotencyPassed: confirmWrite && schemaGapDetected,
+    idempotencyPassed: confirmWrite,
     smokePassed:
       validation.productionApprovedTrueCount === 0 &&
       !validation.forbiddenAdviceDetected &&
       !validation.benchmarkCreated &&
-      schemaGapDetected,
+      schemaReadyForConfirmWrite,
   };
 
   console.log(JSON.stringify(result, null, 2));
