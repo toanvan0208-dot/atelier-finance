@@ -68,6 +68,8 @@ async function main() {
     "Phạm vi ngành",
     "Tiêu chí ngành",
     "Tiêu chí dữ liệu",
+    "Ứng viên sàng lọc",
+    "Dữ liệu nghiên cứu",
     "Ứng viên Screening từ bảng riêng",
     "Kết quả sau lọc",
     "Kết luận và bước tiếp theo",
@@ -80,6 +82,7 @@ async function main() {
     payload.flatMap((candidate) => candidate.metrics).filter((metric) => metric.productionApproved).length;
   const hsgPeCaveatText = `${hsgPe?.sourceType ?? ""} ${hsgPe?.dataMode ?? ""} ${hsgPe?.needsReview ?? ""} ${hsgPe?.warningCodes.join(" ") ?? ""}`;
   const forbiddenAdviceDetected = containsAny(uiApiFacingText, forbiddenAdviceTerms);
+  const normalizedUiText = uiText.toLowerCase();
   const hsgCfoText = `${hsgCfo?.value ?? ""} ${hsgCfo?.sourceType ?? ""} ${hsgCfo?.statementScope ?? ""}`;
   const nkgCfoText = `${nkgCfo?.value ?? ""} ${nkgCfo?.sourceType ?? ""} ${nkgCfo?.statementScope ?? ""}`;
 
@@ -98,6 +101,14 @@ async function main() {
       uiText.includes("Tiêu chí ngành") &&
       uiText.includes("Tiêu chí dữ liệu") &&
       !uiText.includes("Bộ lọc đang áp dụng"),
+    criteriaFilterControlsRendered:
+      uiText.includes("Tìm mã: HPG, HSG, NKG...") &&
+      uiText.includes("Tất cả ngành") &&
+      uiText.includes("Ứng viên sàng lọc") &&
+      uiText.includes("Phân tích đầy đủ") &&
+      uiText.includes("Có P/E") &&
+      uiText.includes("Có thanh khoản") &&
+      uiText.includes("Xóa lọc"),
     screeningFunnelRemoved:
       !renderedScreeningPageText.includes("ScreeningFunnel") &&
       !renderedScreeningPageText.includes("Quy trình lọc theo mức đủ dữ liệu"),
@@ -135,12 +146,14 @@ async function main() {
       hsgCfo?.sourceType === "user_uploaded_consolidated_financial_statement",
     nkgCfoManualConsolidatedSource:
       nkgCfo?.statementScope === "consolidated" && nkgCfo?.sourceType === "user_uploaded_annual_report",
-    screeningCandidateBadgesVisible: uiText.includes("screening_candidate") && uiText.includes("needsReview"),
+    screeningCandidateBadgesVisible: uiText.includes("Ứng viên sàng lọc") && uiText.includes("Cần rà soát"),
     analysisEligibleFalseVisible: uiText.includes("analysisEligible") && uiText.includes("false"),
     fullAnalysisDisabledVisible: uiText.includes("fullAnalysisEnabled") && uiText.includes("false"),
-    notInvestmentAdviceVisible: uiText.includes("Không phải khuyến nghị đầu tư") || uiText.includes("not investment advice"),
+    notInvestmentAdviceVisible: normalizedUiText.includes("không phải khuyến nghị đầu tư") || uiText.includes("not investment advice"),
     notBenchmarkVisible:
-      uiText.includes("Không dùng làm benchmark định giá/rủi ro") || uiText.includes("not valuation/risk benchmark"),
+      normalizedUiText.includes("không dùng làm benchmark định giá/rủi ro") ||
+      normalizedUiText.includes("không phải benchmark định giá/rủi ro") ||
+      uiText.includes("not valuation/risk benchmark"),
     forbiddenAdviceDetected,
     rankingCreated: false,
     stockAttractivenessScoreCreated: false,
@@ -155,6 +168,7 @@ async function main() {
   const smokePassed =
     result.restoredCardUiRendered &&
     result.mergedCriteriaCardRendered &&
+    result.criteriaFilterControlsRendered &&
     result.screeningFunnelRemoved &&
     !result.compactTableUiRenderedInMainFlow &&
     result.hsgAppears &&

@@ -18,6 +18,30 @@ type ScreeningPageProps = {
 };
 
 type ScreeningInputSource = typeof screeningRedesignData.defaultInputSource;
+type ScreeningCriteriaFilters = {
+  search: string;
+  industry: "all" | "steel";
+  coverageLevel: "all" | "screeningCandidate" | "fullAnalysis";
+  dataStatus: "all" | "needsReview" | "researchOnly" | "productionNotApproved";
+  analysis: "all" | "canContinue" | "notOpen";
+  metricCodes: string[];
+};
+
+const defaultCriteriaFilters: ScreeningCriteriaFilters = {
+  search: "",
+  industry: "all",
+  coverageLevel: "all",
+  dataStatus: "all",
+  analysis: "all",
+  metricCodes: [],
+};
+
+const metricFilterOptions = [
+  { code: "PE", label: "Có P/E" },
+  { code: "PB", label: "Có P/B" },
+  { code: "CFO", label: "Có CFO" },
+  { code: "LIQUIDITY", label: "Có thanh khoản" },
+];
 
 const toneVariant: Record<ScreeningGuideTone, "neutral" | "accent" | "success" | "warning" | "danger"> = {
   neutral: "neutral",
@@ -291,12 +315,27 @@ function GateList({
 }
 
 function ScreeningCriteriaCard({
+  filters,
   inputSource,
+  matchCount,
+  onFiltersChange,
   onNavigate,
+  onResetFilters,
 }: {
+  filters: ScreeningCriteriaFilters;
   inputSource: ScreeningInputSource;
+  matchCount: number;
+  onFiltersChange: (filters: ScreeningCriteriaFilters) => void;
   onNavigate?: (moduleKey: string) => void;
+  onResetFilters: () => void;
 }) {
+  function toggleMetric(metricCode: string) {
+    const metricCodes = filters.metricCodes.includes(metricCode)
+      ? filters.metricCodes.filter((code) => code !== metricCode)
+      : [...filters.metricCodes, metricCode];
+    onFiltersChange({ ...filters, metricCodes });
+  }
+
   return (
     <Card className="min-w-0 overflow-hidden">
       <CardBody className="space-y-4">
@@ -312,6 +351,80 @@ function ScreeningCriteriaCard({
           <Button size="sm" variant="secondary" onClick={() => goToModule("industry", onNavigate)}>
             Mở module Ngành
           </Button>
+        </div>
+
+        <p className="text-xs font-bold text-ink">Kết quả phù hợp bộ lọc hiện tại: {matchCount} mã</p>
+
+        <div className="grid gap-2 lg:grid-cols-[minmax(160px,1.1fr)_minmax(150px,0.85fr)_minmax(150px,0.85fr)_minmax(150px,0.85fr)_minmax(150px,0.85fr)_auto]">
+          <input
+            aria-label="Tìm mã"
+            className="h-10 min-w-0 rounded-[4px] border-[1.5px] border-border bg-surface px-3 text-sm font-semibold uppercase text-ink outline-none transition placeholder:normal-case placeholder:text-muted focus:bg-accent-soft"
+            placeholder="Tìm mã: HPG, HSG, NKG..."
+            value={filters.search}
+            onChange={(event) => onFiltersChange({ ...filters, search: event.target.value })}
+          />
+          <select
+            aria-label="Lọc theo ngành"
+            className="h-10 rounded-[4px] border-[1.5px] border-border bg-surface px-3 text-sm font-semibold text-ink"
+            value={filters.industry}
+            onChange={(event) => onFiltersChange({ ...filters, industry: event.target.value as ScreeningCriteriaFilters["industry"] })}
+          >
+            <option value="all">Tất cả ngành</option>
+            <option value="steel">Thép / vật liệu xây dựng</option>
+          </select>
+          <select
+            aria-label="Lọc theo mức dữ liệu"
+            className="h-10 rounded-[4px] border-[1.5px] border-border bg-surface px-3 text-sm font-semibold text-ink"
+            value={filters.coverageLevel}
+            onChange={(event) =>
+              onFiltersChange({ ...filters, coverageLevel: event.target.value as ScreeningCriteriaFilters["coverageLevel"] })
+            }
+          >
+            <option value="all">Tất cả mức dữ liệu</option>
+            <option value="screeningCandidate">Ứng viên sàng lọc</option>
+            <option value="fullAnalysis">Phân tích đầy đủ</option>
+          </select>
+          <select
+            aria-label="Lọc theo trạng thái dữ liệu"
+            className="h-10 rounded-[4px] border-[1.5px] border-border bg-surface px-3 text-sm font-semibold text-ink"
+            value={filters.dataStatus}
+            onChange={(event) => onFiltersChange({ ...filters, dataStatus: event.target.value as ScreeningCriteriaFilters["dataStatus"] })}
+          >
+            <option value="all">Tất cả trạng thái</option>
+            <option value="needsReview">Cần rà soát</option>
+            <option value="researchOnly">Dữ liệu nghiên cứu</option>
+            <option value="productionNotApproved">Chưa phê duyệt sản xuất</option>
+          </select>
+          <select
+            aria-label="Lọc theo khả năng đi tiếp"
+            className="h-10 rounded-[4px] border-[1.5px] border-border bg-surface px-3 text-sm font-semibold text-ink"
+            value={filters.analysis}
+            onChange={(event) => onFiltersChange({ ...filters, analysis: event.target.value as ScreeningCriteriaFilters["analysis"] })}
+          >
+            <option value="all">Tất cả</option>
+            <option value="canContinue">Có thể phân tích tiếp</option>
+            <option value="notOpen">Chưa mở phân tích sâu</option>
+          </select>
+          <Button className="h-10" size="sm" variant="secondary" onClick={onResetFilters}>
+            Xóa lọc
+          </Button>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {metricFilterOptions.map((option) => (
+            <label
+              key={option.code}
+              className="flex h-8 cursor-pointer items-center gap-2 rounded-[4px] border border-border-soft bg-surface-soft px-3 text-xs font-bold text-ink"
+            >
+              <input
+                checked={filters.metricCodes.includes(option.code)}
+                className="h-3.5 w-3.5 accent-ink"
+                type="checkbox"
+                onChange={() => toggleMetric(option.code)}
+              />
+              {option.label}
+            </label>
+          ))}
         </div>
 
         <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(260px,0.75fr)]">
@@ -349,12 +462,11 @@ function ScreeningCriteriaCard({
             <p className="text-[11px] font-bold uppercase text-subtle">Điểm dừng</p>
             <p className="mt-2 text-sm font-bold text-ink">Chỉ kiểm tra mức đủ dữ liệu</p>
             <p className="mt-1 text-xs leading-5 text-muted">
-              Mã screening_candidate chưa mở phân tích sâu nếu analysisEligible=false. Thiếu dữ liệu vẫn hiển thị
-              N/A/needs_review.
+              Mã ở trạng thái ứng viên sàng lọc chưa mở phân tích sâu. Thiếu dữ liệu vẫn hiển thị N/A hoặc cần rà soát.
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
-              <Chip size="sm" variant="neutral">research_only</Chip>
-              <Chip size="sm" variant="neutral">needsReview</Chip>
+              <Chip size="sm" variant="neutral">Dữ liệu nghiên cứu</Chip>
+              <Chip size="sm" variant="neutral">Cần rà soát</Chip>
               <Chip size="sm" variant="warning">không phải benchmark</Chip>
             </div>
           </div>
@@ -440,30 +552,67 @@ function formatMetricValue(metric: ScreeningCandidateMetricPayload): string {
 
 function metricCaveat(metric: ScreeningCandidateMetricPayload): string {
   if (metric.metricCode === "PE" && metric.sourceType === "provider_snapshot") {
-    return "Provider P/E is a market ratio snapshot, not audited financial data.";
+    return "P/E là ảnh chụp tỷ số thị trường từ nhà cung cấp, không phải dữ liệu kiểm toán.";
   }
   if (metric.metricCode === "CFO" && metric.statementScope === "consolidated") {
-    return "CFO is a manual consolidated cash-flow source.";
+    return "CFO lấy từ nguồn lưu chuyển tiền tệ hợp nhất đã nhập thủ công.";
   }
-  return metric.needsReview ? "research_only / needsReview=true" : "source caveat required";
+  return metric.needsReview ? "Dữ liệu nghiên cứu, cần rà soát." : "Cần xem ghi chú nguồn.";
+}
+
+function dataModeLabel(dataMode: string): string {
+  return dataMode === "research_only" ? "Dữ liệu nghiên cứu" : dataMode;
+}
+
+function coverageLevelLabel(coverageLevel: string): string {
+  if (coverageLevel === "screening_candidate") return "Ứng viên sàng lọc";
+  if (coverageLevel === "full_analysis") return "Phân tích đầy đủ";
+  return coverageLevel;
+}
+
+function sourceTypeLabel(sourceType: string | null): string {
+  if (sourceType === "provider_snapshot") return "Ảnh chụp từ nhà cung cấp";
+  if (sourceType === "user_uploaded_consolidated_financial_statement") return "BCTC hợp nhất nhập thủ công";
+  if (sourceType === "user_uploaded_annual_report") return "Báo cáo thường niên nhập thủ công";
+  return sourceType ?? "N/A";
+}
+
+function productionApprovedLabel(productionApproved: boolean): string {
+  return productionApproved ? "Đã phê duyệt sản xuất" : "Chưa phê duyệt sản xuất";
+}
+
+function candidateMatchesCriteria(candidate: ScreeningCandidatePayload, filters: ScreeningCriteriaFilters): boolean {
+  const search = filters.search.trim().toUpperCase();
+  if (search && !candidate.ticker.includes(search) && !(candidate.companyName ?? "").toUpperCase().includes(search)) return false;
+  if (filters.industry === "steel" && candidate.industryCode !== "STEEL_MATERIALS") return false;
+  if (filters.coverageLevel === "screeningCandidate" && candidate.coverageLevel !== "screening_candidate") return false;
+  if (filters.coverageLevel === "fullAnalysis" && candidate.coverageLevel !== "full_analysis") return false;
+  if (filters.dataStatus === "needsReview" && !candidate.needsReview) return false;
+  if (filters.dataStatus === "researchOnly" && candidate.dataMode !== "research_only") return false;
+  if (filters.dataStatus === "productionNotApproved" && candidate.productionApproved) return false;
+  if (filters.analysis === "canContinue" && !candidate.analysisEligible) return false;
+  if (filters.analysis === "notOpen" && candidate.analysisEligible) return false;
+
+  return filters.metricCodes.every((metricCode) =>
+    candidate.metrics.some((metric) => metric.metricCode === metricCode && metric.value !== null)
+  );
 }
 
 function ScreeningCandidateUniverse({ candidates }: { candidates: ScreeningCandidatePayload[] }) {
-  if (candidates.length === 0) return null;
-
   return (
     <section className="space-y-4">
       <div>
-        <Chip variant="warning">screening_candidate</Chip>
-        <h2 className="mt-2 text-2xl font-bold text-ink">Ung vien Screening tu bang rieng</h2>
+        <Chip variant="warning">Ứng viên sàng lọc</Chip>
+        <h2 className="mt-2 text-2xl font-bold text-ink">Ứng viên Screening từ bảng riêng</h2>
         <p className="mt-1 max-w-3xl text-sm leading-6 text-muted">
-          HSG va NKG chi xuat hien trong Screening de kiem tra du lieu ung vien. Hai ma nay khong duoc mo khoa Business,
-          Financials, Valuation hoac Risk deep-analysis.
+          Các mã này chỉ xuất hiện trong Screening để kiểm tra dữ liệu ứng viên. Chúng chưa mở phân tích sâu và không
+          dùng làm benchmark định giá/rủi ro.
         </p>
       </div>
 
       <div className="grid gap-3 lg:grid-cols-2">
-        {candidates.map((candidate) => (
+        {candidates.length > 0 ? (
+          candidates.map((candidate) => (
           <article key={candidate.ticker} className="rounded-[4px] border-[1.5px] border-border bg-surface px-4 py-4 shadow-soft">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
@@ -473,25 +622,27 @@ function ScreeningCandidateUniverse({ candidates }: { candidates: ScreeningCandi
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
-                <Chip size="sm" variant="warning">{candidate.coverageLevel}</Chip>
-                <Chip size="sm" variant="neutral">analysisEligible=false</Chip>
+                <Chip size="sm" variant="warning">{coverageLevelLabel(candidate.coverageLevel)}</Chip>
+                <Chip size="sm" variant="neutral">
+                  {candidate.analysisEligible ? "Có thể phân tích tiếp" : "Chưa mở phân tích sâu"}
+                </Chip>
               </div>
             </div>
 
             <div className="mt-3 grid gap-2 sm:grid-cols-2">
-              <InfoBlock label="Data mode" value={candidate.dataMode} />
-              <InfoBlock label="Full analysis" value={candidate.fullAnalysisEnabled ? "enabled" : "disabled"} />
-              <InfoBlock label="Benchmark" value={candidate.isValuationRiskBenchmarkEligible ? "eligible" : "not eligible"} />
-              <InfoBlock label="Needs review" value={candidate.needsReview ? "true" : "false"} />
+              <InfoBlock label="Chế độ dữ liệu" value={dataModeLabel(candidate.dataMode)} />
+              <InfoBlock label="Phân tích sâu" value={candidate.fullAnalysisEnabled ? "Đã mở" : "Chưa mở"} />
+              <InfoBlock label="Benchmark" value={candidate.isValuationRiskBenchmarkEligible ? "Được dùng" : "Không dùng"} />
+              <InfoBlock label="Rà soát" value={candidate.needsReview ? "Cần rà soát" : "Đã đủ"} />
             </div>
 
             <div className="mt-3 rounded-[4px] border border-warning bg-warning/10 px-3 py-2">
-              <p className="text-xs font-bold text-ink">Caveat bat buoc</p>
+              <p className="text-xs font-bold text-ink">Ghi chú bắt buộc</p>
               <p className="mt-1 text-xs leading-5 text-muted">
-                screening_candidate · research_only · needsReview=true · not investment advice · not full analysis · not valuation/risk benchmark
+                Ứng viên sàng lọc · dữ liệu nghiên cứu · cần rà soát · không phải khuyến nghị đầu tư · chưa mở phân tích sâu · không phải benchmark định giá/rủi ro.
               </p>
               <p className="mt-1 text-xs leading-5 text-muted">
-                HSG/NKG cannot be used in Business/Financials/Valuation/Risk deep-analysis path.
+                HSG/NKG chưa được dùng trong luồng phân tích sâu Business/Financials/Valuation/Risk.
               </p>
             </div>
 
@@ -504,12 +655,12 @@ function ScreeningCandidateUniverse({ candidates }: { candidates: ScreeningCandi
                       <p className="mt-1 text-sm font-bold text-ink">{formatMetricValue(metric)}</p>
                     </div>
                     <Chip size="sm" variant={metric.productionApproved ? "danger" : "neutral"}>
-                      productionApproved={String(metric.productionApproved)}
+                      {productionApprovedLabel(metric.productionApproved)}
                     </Chip>
                   </div>
                   <p className="mt-2 text-xs leading-5 text-muted">{metricCaveat(metric)}</p>
                   <p className="mt-1 text-[11px] leading-4 text-subtle">
-                    Source: {metric.sourceLabel ?? "N/A"} · {metric.sourceType ?? "N/A"} · providerPeriod:{" "}
+                    Nguồn: {metric.sourceLabel ?? "N/A"} · {sourceTypeLabel(metric.sourceType)} · kỳ nhà cung cấp:{" "}
                     {metric.providerPeriod ?? "N/A"}
                   </p>
                 </div>
@@ -519,12 +670,17 @@ function ScreeningCandidateUniverse({ candidates }: { candidates: ScreeningCandi
             <div className="mt-3 flex flex-wrap gap-2">
               {candidate.caveats.map((caveat) => (
                 <Chip key={caveat} size="sm" variant="neutral">
-                  {caveat}
+                  {coverageLevelLabel(caveat)}
                 </Chip>
               ))}
             </div>
           </article>
-        ))}
+          ))
+        ) : (
+          <p className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-4 text-sm font-semibold text-muted">
+            Không có mã phù hợp với bộ lọc hiện tại.
+          </p>
+        )}
       </div>
     </section>
   );
@@ -682,10 +838,14 @@ function NextStepPanel() {
 export function ScreeningPage({ onNavigate, initialData }: ScreeningPageProps) {
   const [guideOpen, setGuideOpen] = useState(false);
   const [activeCandidate, setActiveCandidate] = useState<RedesignedScreeningCandidate | null>(null);
+  const [criteriaFilters, setCriteriaFilters] = useState<ScreeningCriteriaFilters>(defaultCriteriaFilters);
   const [inputSource] = useState(readScreeningInputSource);
 
   const candidates = initialData?.candidates ?? screeningRedesignData.candidates;
   const dedicatedScreeningCandidates = initialData?.screeningCandidates ?? [];
+  const filteredScreeningCandidates = dedicatedScreeningCandidates.filter((candidate) =>
+    candidateMatchesCriteria(candidate, criteriaFilters)
+  );
   const activeCandidatesByTicker = useMemo(
     () => Object.fromEntries(candidates.map((c) => [c.ticker, c])),
     [candidates]
@@ -700,8 +860,15 @@ export function ScreeningPage({ onNavigate, initialData }: ScreeningPageProps) {
     <div className="mx-auto w-[calc(100vw-40px)] max-w-[1180px] min-w-0 space-y-8 overflow-x-hidden md:w-full">
       <ScreeningHeader onGuideOpen={() => setGuideOpen(true)} />
       <TickerQuickCheck onAnalyze={setActiveCandidate} candidatesByTicker={activeCandidatesByTicker} />
-      <ScreeningCriteriaCard inputSource={inputSource} onNavigate={onNavigate} />
-      <ScreeningCandidateUniverse candidates={dedicatedScreeningCandidates} />
+      <ScreeningCriteriaCard
+        filters={criteriaFilters}
+        inputSource={inputSource}
+        matchCount={filteredScreeningCandidates.length}
+        onFiltersChange={setCriteriaFilters}
+        onNavigate={onNavigate}
+        onResetFilters={() => setCriteriaFilters(defaultCriteriaFilters)}
+      />
+      <ScreeningCandidateUniverse candidates={filteredScreeningCandidates} />
       <div className="rounded-[4px] border-[1.5px] border-border bg-accent-soft px-4 py-3">
         <p className="text-sm font-bold text-ink">
           Sau kiểm tra dữ liệu có {priorityCount} mã đủ dữ liệu để phân tích tiếp. Đây không phải xếp hạng đầu tư.

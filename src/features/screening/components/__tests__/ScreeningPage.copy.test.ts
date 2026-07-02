@@ -114,6 +114,16 @@ describe("ScreeningPage restored card layout", () => {
     expect(html).toContain("Tiêu chí ngành");
     expect(html).toContain("Tiêu chí dữ liệu");
     expect(html).toContain("Điểm dừng");
+    expect(html).toContain("Tìm mã: HPG, HSG, NKG...");
+    expect(html).toContain("Tất cả ngành");
+    expect(html).toContain("Ứng viên sàng lọc");
+    expect(html).toContain("Phân tích đầy đủ");
+    expect(html).toContain("Dữ liệu nghiên cứu");
+    expect(html).toContain("Có P/E");
+    expect(html).toContain("Có P/B");
+    expect(html).toContain("Có CFO");
+    expect(html).toContain("Có thanh khoản");
+    expect(html).toContain("Xóa lọc");
     expect(html).toContain("Kết quả sau lọc");
     expect(html).toContain("Kết luận và bước tiếp theo");
     expect(html).not.toContain("Nguồn từ module Ngành");
@@ -121,27 +131,29 @@ describe("ScreeningPage restored card layout", () => {
     expect(html).not.toContain("Phễu kiểm tra dữ liệu");
     expect(html).not.toContain("Quy trình lọc theo mức đủ dữ liệu");
     expect(html).not.toContain("Bảng screening compact");
-    expect(html).not.toContain("Tìm mã: HPG, HSG, NKG...");
   });
 
-  it("keeps HSG/NKG visible as screening_candidate cards and TVN absent", () => {
-    expect(html).toContain("Ung vien Screening tu bang rieng");
+  it("keeps HSG/NKG visible as screening candidate cards and TVN absent", () => {
+    expect(html).toContain("Ứng viên Screening từ bảng riêng");
     expect(html).toContain("HSG");
     expect(html).toContain("Hoa Sen Group");
     expect(html).toContain("NKG");
     expect(html).toContain("Nam Kim Steel");
-    expect(html).toContain("screening_candidate");
-    expect(html).toContain("analysisEligible=false");
-    expect(html).toContain("research_only");
-    expect(html).toContain("needsReview=true");
+    expect(html).toContain("Chưa mở phân tích sâu");
+    expect(html).toContain("Cần rà soát");
     expect(html).not.toContain("TVN");
+    expect(html).not.toContain("screening_candidate");
+    expect(html).not.toContain("analysisEligible=false");
+    expect(html).not.toContain("research_only");
+    expect(html).not.toContain("needsReview=true");
+    expect(html).not.toContain("full_analysis");
   });
 
   it("keeps provider and manual-source caveats visible in the restored card layout", () => {
     expect(html).toContain("14.72");
     expect(html).toContain("2026-Q2");
-    expect(html).toContain("Provider P/E is a market ratio snapshot, not audited financial data.");
-    expect(html).toContain("CFO is a manual consolidated cash-flow source.");
+    expect(html).toContain("P/E là ảnh chụp tỷ số thị trường từ nhà cung cấp");
+    expect(html).toContain("CFO lấy từ nguồn lưu chuyển tiền tệ hợp nhất");
   });
 
   it("does not introduce recommendation, ranking, or scoring copy", () => {
