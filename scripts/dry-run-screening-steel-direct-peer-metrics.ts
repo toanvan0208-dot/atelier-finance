@@ -209,6 +209,19 @@ async function main() {
   const candidateValidation = validateCandidatePackages();
   const providerValidation = validateProviderSnapshots(packages);
 
+  const cfoHasWriteEligibleMetadata = (ticker: string) => {
+    const pkg = steelDirectPeerScreeningPackages.find((p) => p.ticker === ticker);
+    if (!pkg) return false;
+    const cfo = pkg.metrics.cfo;
+    if (cfo.value === null) return false;
+    if (cfo.dataQuality.dataMode !== "research_only") return false;
+    if (cfo.dataQuality.needsReview !== true) return false;
+    if (cfo.dataQuality.productionApproved !== false) return false;
+    if (cfo.dataQuality.sourceType !== "user_uploaded_consolidated_financial_statement" && cfo.dataQuality.sourceType !== "user_uploaded_annual_report") return false;
+    if (!cfo.dataQuality.warningCodes.includes("CONSOLIDATED_CASH_FLOW")) return false;
+    return true;
+  };
+
   const providerFetchAttempted = fetchResults.some((result) => result.attempted);
   const providerFetchSucceeded = fetchResults.some((result) => result.succeeded);
   const hsgPeClosed = providerMetricClosesMarketSnapshotGap(providerMetricFor(packages, "HSG", "pe"));
@@ -218,16 +231,20 @@ async function main() {
   const nkgPbStatus = metricStatus({ ticker: "NKG", metricCode: "pb", packages });
   const hsgLiquidityStatus = metricStatus({ ticker: "HSG", metricCode: "liquidity", packages });
   const nkgLiquidityStatus = metricStatus({ ticker: "NKG", metricCode: "liquidity", packages });
-  const closedSourceGaps = hsgPeClosed ? ["HSG_PE"] : [];
+  
+  const hsgCfoClosed = cfoHasWriteEligibleMetadata("HSG");
+  const nkgCfoClosed = cfoHasWriteEligibleMetadata("NKG");
+  const hsgCfoGapStatus = hsgCfoClosed ? "closed_by_manual_consolidated_source" : "open_manual_source_required";
+  const nkgCfoGapStatus = nkgCfoClosed ? "closed_by_manual_consolidated_source" : "open_manual_source_required";
+
+  const closedSourceGaps = [
+    ...(hsgPeClosed ? ["HSG_PE"] : []),
+    ...(hsgCfoClosed ? ["HSG_CFO"] : []),
+    ...(nkgCfoClosed ? ["NKG_CFO"] : [])
+  ];
   const remainingSourceGaps = MISSING_SOURCE_GAPS_BEFORE.filter((gap) => !closedSourceGaps.includes(gap));
   const readyForConfirmWrite = false;
-  const readyForPartialScreeningConfirmWrite =
-    hsgPeClosed &&
-    (nkgPeStatus === "available" || nkgPeStatus === "closed_by_provider_snapshot") &&
-    hsgPbStatus !== "missing" &&
-    nkgPbStatus !== "missing" &&
-    hsgLiquidityStatus !== "missing" &&
-    nkgLiquidityStatus !== "missing";
+  const readyForPartialScreeningConfirmWrite = false; // Remains false unless product contract allows missing HSG_PE
 
   const productionApprovedTrueCount =
     candidateValidation.productionApprovedTrueCount + providerValidation.productionApprovedTrueCount;
@@ -239,8 +256,9 @@ async function main() {
   if (benchmarkCreated) throw new Error("Benchmark wording detected");
 
   const result = {
-    phase: "151I",
+    phase: "151J",
     candidateTickers: asCsv(candidateValidation.candidateTickers),
+    manualCfoPackagesLoaded: [hsgCfoClosed, nkgCfoClosed].filter(Boolean).length,
     providerFetchAttempted,
     providerFetchSucceeded,
     providerFetchErrorSummaries: fetchResults
@@ -270,8 +288,8 @@ async function main() {
     hsgLiquidityStatus,
     nkgLiquidityStatus,
     cfoSourceBoundaryEnforced: true,
-    hsgCfoGapStatus: "open_manual_source_required",
-    nkgCfoGapStatus: "open_manual_source_required",
+    hsgCfoGapStatus,
+    nkgCfoGapStatus,
     missingSourceGapsBefore: asCsv(MISSING_SOURCE_GAPS_BEFORE),
     closedSourceGaps: asCsv(closedSourceGaps),
     remainingSourceGaps: asCsv(remainingSourceGaps),
