@@ -41,12 +41,12 @@ export type ScreeningCandidatePayload = {
   warningCodes: string[];
   caveats: string[];
   metrics: ScreeningCandidateMetricPayload[];
-  isValuationRiskBenchmarkEligible: false;
-  isFullAnalysisEligible: false;
-  fullAnalysisEnabled: false;
+  isValuationRiskBenchmarkEligible: boolean;
+  isFullAnalysisEligible: boolean;
+  fullAnalysisEnabled: boolean;
 };
 
-const allowedTickers = ["HSG", "NKG"] as const;
+const allowedTickers = ["HSG", "NKG", "FPT", "HPG", "VNM", "MSN", "MWG", "VCB"] as const;
 const blockedTickers = ["TVN"] as const;
 
 const parseJsonList = (value: string | null | undefined): string[] => {
@@ -75,9 +75,7 @@ export async function loadScreeningCandidatePayload(): Promise<ScreeningCandidat
   const candidates = await prisma.screeningCandidate.findMany({
     where: {
       ticker: { in: [...allowedTickers] },
-      coverageLevel: "screening_candidate",
       screeningEligible: true,
-      analysisEligible: false,
       productionApproved: false,
     },
     include: {
@@ -133,7 +131,7 @@ export async function loadScreeningCandidatePayload(): Promise<ScreeningCandidat
         })),
       })),
       isValuationRiskBenchmarkEligible: false,
-      isFullAnalysisEligible: false,
-      fullAnalysisEnabled: false,
+      isFullAnalysisEligible: candidate.analysisEligible,
+      fullAnalysisEnabled: candidate.analysisEligible,
     }));
 }
