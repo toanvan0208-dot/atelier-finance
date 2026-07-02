@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useState } from "react";
 import { Button, Card, CardBody, Chip } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import {
@@ -102,15 +102,16 @@ function readScreeningInputSource(): ScreeningInputSource {
 }
 
 function ScreeningHeader({ onGuideOpen }: { onGuideOpen: () => void }) {
-  const { header } = screeningRedesignData;
-
   return (
     <header className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
       <div>
         <h1 className="font-brand text-3xl font-bold leading-tight text-ink md:text-4xl">
-          {header.title}
+          Bước 3 — Lọc theo mức độ đủ dữ liệu
         </h1>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">{header.description}</p>
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">
+          Kiểm tra mã nào đang có đủ dữ liệu để đọc tiếp. Đây không phải bảng xếp hạng cổ phiếu và không phải khuyến
+          nghị đầu tư.
+        </p>
       </div>
       <Button size="sm" variant="secondary" onClick={onGuideOpen}>
         Hướng dẫn đọc kết quả
@@ -842,44 +843,364 @@ function NextStepPanel() {
   );
 }
 
-export function ScreeningPage({ onNavigate, initialData }: ScreeningPageProps) {
-  const [guideOpen, setGuideOpen] = useState(false);
-  const [activeCandidate, setActiveCandidate] = useState<RedesignedScreeningCandidate | null>(null);
-  const [inputSource] = useState(readScreeningInputSource);
+type ScreeningCompactFilters = {
+  search: string;
+  industry: "all" | "steel";
+  coverageLevel: "all" | "screening_candidate" | "full_analysis";
+  dataStatus: "all" | "needs_review" | "research_only" | "production_false";
+  analysisEligibility: "all" | "eligible" | "not_open";
+  metricFilters: string[];
+};
 
-  const candidates = initialData?.candidates ?? screeningRedesignData.candidates;
-  const dedicatedScreeningCandidates = initialData?.screeningCandidates ?? [];
-  const activeCandidatesByTicker = useMemo(
-    () => Object.fromEntries(candidates.map((c) => [c.ticker, c])),
-    [candidates]
-  );
+const compactMetricFilters = [
+  { key: "PE", label: "Có P/E" },
+  { key: "PB", label: "Có P/B" },
+  { key: "CFO", label: "Có CFO" },
+  { key: "LIQUIDITY", label: "Có thanh khoản" },
+];
 
-  const priorityCount = useMemo(
-    () => candidates.filter((candidate) => candidate.group === "priority").length,
-    [candidates]
-  );
+const defaultCompactFilters: ScreeningCompactFilters = {
+  search: "",
+  industry: "all",
+  coverageLevel: "all",
+  dataStatus: "all",
+  analysisEligibility: "all",
+  metricFilters: [],
+};
+
+function getMetric(candidate: ScreeningCandidatePayload, metricCode: string) {
+  return candidate.metrics.find((metric) => metric.metricCode === metricCode);
+}
+
+function hasMetricValue(candidate: ScreeningCandidatePayload, metricCode: string) {
+  const metric = getMetric(candidate, metricCode);
+  return metric?.value !== null && metric?.value !== undefined;
+}
+
+function formatCompactMetric(metric: ScreeningCandidateMetricPayload | undefined) {
+  if (!metric || metric.value === null) return "N/A / needs_review";
+  if (metric.metricCode === "CFO") {
+    return `${(metric.value / 1_000_000_000).toLocaleString("vi-VN", { maximumFractionDigits: 2 })} tỷ VND`;
+  }
+  if (metric.metricCode === "LIQUIDITY") {
+    return `${Math.round(metric.value).toLocaleString("vi-VN")} ${metric.unit ?? ""}`.trim();
+  }
+  return `${metric.value.toLocaleString("vi-VN", { maximumFractionDigits: 2 })}${
+    metric.unit && metric.unit !== "ratio" ? ` ${metric.unit}` : ""
+  }`;
+}
+
+function filterScreeningCandidates(candidates: ScreeningCandidatePayload[], filters: ScreeningCompactFilters) {
+  const search = filters.search.trim().toUpperCase();
+
+  return candidates.filter((candidate) => {
+    if (search && !candidate.ticker.includes(search) && !(candidate.companyName ?? "").toUpperCase().includes(search)) {
+      return false;
+    }
+    if (filters.industry === "steel" && candidate.industryCode !== "STEEL_MATERIALS") return false;
+    if (filters.coverageLevel !== "all" && candidate.coverageLevel !== filters.coverageLevel) return false;
+    if (filters.dataStatus === "needs_review" && !candidate.needsReview) return false;
+    if (filters.dataStatus === "research_only" && candidate.dataMode !== "research_only") return false;
+    if (filters.dataStatus === "production_false" && candidate.productionApproved) return false;
+    if (filters.analysisEligibility === "eligible" && !candidate.analysisEligible) return false;
+    if (filters.analysisEligibility === "not_open" && candidate.analysisEligible) return false;
+
+    return filters.metricFilters.every((metricCode) => hasMetricValue(candidate, metricCode));
+  });
+}
+
+function CompactFilterBar({
+  filters,
+  onChange,
+  onReset,
+}: {
+  filters: ScreeningCompactFilters;
+  onChange: (filters: ScreeningCompactFilters) => void;
+  onReset: () => void;
+}) {
+  function toggleMetric(metricCode: string) {
+    const metricFilters = filters.metricFilters.includes(metricCode)
+      ? filters.metricFilters.filter((item) => item !== metricCode)
+      : [...filters.metricFilters, metricCode];
+    onChange({ ...filters, metricFilters });
+  }
 
   return (
-    <div className="mx-auto w-[calc(100vw-40px)] max-w-[1180px] min-w-0 space-y-8 overflow-x-hidden md:w-full">
-      <ScreeningHeader onGuideOpen={() => setGuideOpen(true)} />
-      <TickerQuickCheck onAnalyze={setActiveCandidate} candidatesByTicker={activeCandidatesByTicker} />
-      <ScreeningInputSourceBanner inputSource={inputSource} onNavigate={onNavigate} />
-      <ActiveScreeningQuery />
-      <ScreeningFunnel />
-      <ScreeningCandidateUniverse candidates={dedicatedScreeningCandidates} />
-      <div className="rounded-[4px] border-[1.5px] border-border bg-accent-soft px-4 py-3">
-        <p className="text-sm font-bold text-ink">
-          Sau kiểm tra dữ liệu có {priorityCount} mã đủ dữ liệu để phân tích tiếp. Đây không phải xếp hạng đầu tư.
+    <Card className="min-w-0 overflow-hidden">
+      <CardBody className="space-y-3">
+        <div className="grid gap-2 lg:grid-cols-[minmax(180px,1.2fr)_minmax(150px,0.8fr)_minmax(150px,0.8fr)_minmax(150px,0.8fr)_minmax(150px,0.8fr)_auto]">
+          <input
+            aria-label="Tìm mã"
+            className="h-10 min-w-0 rounded-[4px] border-[1.5px] border-border bg-surface px-3 text-sm font-semibold uppercase text-ink outline-none transition placeholder:normal-case placeholder:text-muted focus:bg-accent-soft"
+            placeholder="Tìm mã: HPG, HSG, NKG..."
+            value={filters.search}
+            onChange={(event) => onChange({ ...filters, search: event.target.value })}
+          />
+          <select
+            aria-label="Ngành"
+            className="h-10 rounded-[4px] border-[1.5px] border-border bg-surface px-3 text-sm font-semibold text-ink"
+            value={filters.industry}
+            onChange={(event) => onChange({ ...filters, industry: event.target.value as ScreeningCompactFilters["industry"] })}
+          >
+            <option value="all">Tất cả ngành</option>
+            <option value="steel">Thép / vật liệu xây dựng</option>
+          </select>
+          <select
+            aria-label="Mức dữ liệu"
+            className="h-10 rounded-[4px] border-[1.5px] border-border bg-surface px-3 text-sm font-semibold text-ink"
+            value={filters.coverageLevel}
+            onChange={(event) =>
+              onChange({ ...filters, coverageLevel: event.target.value as ScreeningCompactFilters["coverageLevel"] })
+            }
+          >
+            <option value="all">Tất cả mức dữ liệu</option>
+            <option value="screening_candidate">screening_candidate</option>
+            <option value="full_analysis">full_analysis nếu có dữ liệu hiện hữu</option>
+          </select>
+          <select
+            aria-label="Trạng thái"
+            className="h-10 rounded-[4px] border-[1.5px] border-border bg-surface px-3 text-sm font-semibold text-ink"
+            value={filters.dataStatus}
+            onChange={(event) => onChange({ ...filters, dataStatus: event.target.value as ScreeningCompactFilters["dataStatus"] })}
+          >
+            <option value="all">Tất cả trạng thái</option>
+            <option value="needs_review">Cần rà soát</option>
+            <option value="research_only">research_only</option>
+            <option value="production_false">production approved false</option>
+          </select>
+          <select
+            aria-label="Đi tiếp?"
+            className="h-10 rounded-[4px] border-[1.5px] border-border bg-surface px-3 text-sm font-semibold text-ink"
+            value={filters.analysisEligibility}
+            onChange={(event) =>
+              onChange({ ...filters, analysisEligibility: event.target.value as ScreeningCompactFilters["analysisEligibility"] })
+            }
+          >
+            <option value="all">Tất cả</option>
+            <option value="eligible">Có thể phân tích tiếp</option>
+            <option value="not_open">Chưa mở phân tích sâu</option>
+          </select>
+          <Button className="h-10" size="sm" variant="secondary" onClick={onReset}>
+            Xóa lọc
+          </Button>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {compactMetricFilters.map((metric) => (
+            <label
+              key={metric.key}
+              className="flex h-8 cursor-pointer items-center gap-2 rounded-[4px] border border-border-soft bg-surface-soft px-3 text-xs font-bold text-ink"
+            >
+              <input
+                checked={filters.metricFilters.includes(metric.key)}
+                className="h-3.5 w-3.5 accent-ink"
+                type="checkbox"
+                onChange={() => toggleMetric(metric.key)}
+              />
+              {metric.label}
+            </label>
+          ))}
+        </div>
+      </CardBody>
+    </Card>
+  );
+}
+
+function CompactSummaryCards({ candidates }: { candidates: ScreeningCandidatePayload[] }) {
+  const summaryItems = [
+    { label: "Tổng mã trong phạm vi", value: candidates.length },
+    { label: "Ứng viên screening", value: candidates.filter((candidate) => candidate.coverageLevel === "screening_candidate").length },
+    { label: "Có thể phân tích tiếp", value: candidates.filter((candidate) => candidate.analysisEligible).length },
+    { label: "Cần rà soát", value: candidates.filter((candidate) => candidate.needsReview).length },
+    { label: "Chưa mở phân tích sâu", value: candidates.filter((candidate) => !candidate.analysisEligible).length },
+  ];
+
+  return (
+    <section className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+      {summaryItems.map((item) => (
+        <div key={item.label} className="rounded-[4px] border border-border-soft bg-surface px-3 py-3">
+          <p className="text-[11px] font-bold uppercase text-subtle">{item.label}</p>
+          <p className="mt-1 text-2xl font-bold leading-none text-ink">{item.value}</p>
+        </div>
+      ))}
+    </section>
+  );
+}
+
+function CompactCandidateTable({
+  candidates,
+  expandedTicker,
+  onToggleDetails,
+}: {
+  candidates: ScreeningCandidatePayload[];
+  expandedTicker: string | null;
+  onToggleDetails: (ticker: string) => void;
+}) {
+  return (
+    <section className="space-y-3">
+      <div>
+        <Chip variant="accent">Danh sách mã theo mức độ đủ dữ liệu</Chip>
+        <h2 className="mt-2 text-xl font-bold text-ink">Bảng screening compact</h2>
+        <p className="mt-1 text-sm leading-6 text-muted">
+          Dữ liệu bên dưới phản ánh các mã hiện có trong bảng ScreeningCandidate. Không phải bảng xếp hạng đầu tư.
         </p>
       </div>
-      <ScreeningResults onAnalyze={setActiveCandidate} candidates={candidates} />
-      <NextStepPanel />
-      <ScreeningGuideDrawer open={guideOpen} onClose={() => setGuideOpen(false)} />
-      <AnalysisPathDrawer
-        candidate={activeCandidate}
-        onClose={() => setActiveCandidate(null)}
-        onNavigate={onNavigate}
+
+      <div className="overflow-x-auto rounded-[4px] border-[1.5px] border-border bg-surface shadow-soft">
+        <table className="w-full min-w-[1120px] border-collapse text-left text-sm">
+          <thead className="bg-surface-soft text-[11px] uppercase text-subtle">
+            <tr>
+              {["Mã", "Công ty", "Ngành", "Loại dữ liệu", "P/E", "P/B", "CFO", "Thanh khoản", "Trạng thái", "Đi tiếp?", "Hành động"].map((header) => (
+                <th key={header} className="border-b border-border-soft px-3 py-3 font-bold">
+                  {header}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {candidates.length > 0 ? (
+              candidates.map((candidate) => {
+                const pe = getMetric(candidate, "PE");
+                const pb = getMetric(candidate, "PB");
+                const cfo = getMetric(candidate, "CFO");
+                const liquidity = getMetric(candidate, "LIQUIDITY");
+
+                return (
+                  <tr key={candidate.ticker} className="border-b border-border-soft last:border-b-0">
+                    <td className="px-3 py-3 align-top font-mono text-base font-bold text-ink">{candidate.ticker}</td>
+                    <td className="px-3 py-3 align-top font-semibold text-ink">{candidate.companyName ?? "N/A"}</td>
+                    <td className="px-3 py-3 align-top text-muted">{candidate.industryCode ?? "N/A"}</td>
+                    <td className="px-3 py-3 align-top">
+                      <Chip size="sm" variant="warning">
+                        {candidate.coverageLevel}
+                      </Chip>
+                    </td>
+                    <td className="px-3 py-3 align-top">
+                      <p className="font-bold text-ink">{formatCompactMetric(pe)}</p>
+                      {pe?.providerPeriod ? <p className="mt-1 text-[11px] text-subtle">{pe.providerPeriod} · provider snapshot</p> : null}
+                    </td>
+                    <td className="px-3 py-3 align-top font-bold text-ink">{formatCompactMetric(pb)}</td>
+                    <td className="px-3 py-3 align-top font-bold text-ink">{formatCompactMetric(cfo)}</td>
+                    <td className="px-3 py-3 align-top font-bold text-ink">{formatCompactMetric(liquidity)}</td>
+                    <td className="px-3 py-3 align-top">
+                      <div className="flex flex-wrap gap-1.5">
+                        <Chip size="sm" variant="neutral">
+                          {candidate.dataMode}
+                        </Chip>
+                        <Chip size="sm" variant="neutral">needsReview</Chip>
+                        <Chip size="sm" variant="warning">not full analysis</Chip>
+                      </div>
+                    </td>
+                    <td className="px-3 py-3 align-top text-sm font-bold text-muted">Chưa mở phân tích sâu</td>
+                    <td className="px-3 py-3 align-top">
+                      <Button size="sm" variant={expandedTicker === candidate.ticker ? "secondary" : "ghost"} onClick={() => onToggleDetails(candidate.ticker)}>
+                        Xem nguồn / caveat
+                      </Button>
+                    </td>
+                  </tr>
+                );
+              })
+            ) : (
+              <tr>
+                <td className="px-3 py-6 text-center text-sm font-semibold text-muted" colSpan={11}>
+                  Không có mã phù hợp bộ lọc hiện tại.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
+function ScreeningCandidateDetailPanel({ candidate }: { candidate: ScreeningCandidatePayload | null }) {
+  if (!candidate) return null;
+
+  const pe = getMetric(candidate, "PE");
+  const cfo = getMetric(candidate, "CFO");
+  const cfoPeriodText = candidate.ticker === "HSG" ? "fiscal year ended 2025-09-30" : "annual 2025";
+
+  return (
+    <Card className="min-w-0 overflow-hidden">
+      <CardBody className="space-y-4">
+        <div>
+          <Chip variant="warning">{candidate.coverageLevel}</Chip>
+          <h2 className="mt-2 text-xl font-bold text-ink">{candidate.ticker} — Chi tiết nguồn và giới hạn sử dụng</h2>
+        </div>
+        <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
+          <InfoBlock label="Coverage level" value={candidate.coverageLevel} />
+          <InfoBlock label="Data mode" value={candidate.dataMode} />
+          <InfoBlock label="needsReview" value={String(candidate.needsReview)} />
+          <InfoBlock label="analysisEligible" value={String(candidate.analysisEligible)} />
+          <InfoBlock label="fullAnalysisEnabled" value={String(candidate.fullAnalysisEnabled)} />
+          <InfoBlock label="productionApproved" value={String(candidate.productionApproved)} />
+        </div>
+        <div className="rounded-[4px] border border-warning bg-warning/10 px-3 py-3 text-sm leading-6 text-muted">
+          <p className="font-bold text-ink">Không phải khuyến nghị đầu tư.</p>
+          <p>Không phải phân tích đầy đủ. Không dùng làm benchmark định giá/rủi ro.</p>
+        </div>
+        <div className="grid gap-3 lg:grid-cols-2">
+          <DetailBlock
+            label="P/E source"
+            value={`${pe?.sourceLabel ?? "N/A"} · provider market-ratio snapshot · providerPeriod=${pe?.providerPeriod ?? "N/A"} · not audited financial data`}
+          />
+          <DetailBlock
+            label="CFO source"
+            value={`${cfo?.sourceLabel ?? "N/A"} · manual consolidated cash-flow source · ${cfoPeriodText}`}
+          />
+        </div>
+        <div className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3">
+          <p className="text-[11px] font-bold uppercase text-subtle">Provenance summary</p>
+          <div className="mt-2 grid gap-2">
+            {candidate.metrics.map((metric) => (
+              <p key={`${candidate.ticker}-${metric.metricCode}-provenance`} className="text-xs leading-5 text-muted">
+                <span className="font-bold text-ink">{metric.metricCode}</span>: {metric.sourceLabel ?? "N/A"} · {metric.sourceType ?? "N/A"} ·{" "}
+                {metric.dataMode} · needsReview={String(metric.needsReview)}
+              </p>
+            ))}
+          </div>
+        </div>
+      </CardBody>
+    </Card>
+  );
+}
+
+function ScreeningFlowSupport() {
+  return (
+    <details className="rounded-[4px] border border-border-soft bg-surface px-4 py-3">
+      <summary className="cursor-pointer text-sm font-bold text-ink">Quy trình lọc theo mức độ đủ dữ liệu</summary>
+      <div className="mt-3 grid gap-3 text-sm leading-6 text-muted md:grid-cols-3">
+        <p>1. Kiểm tra dữ liệu định danh, ngành và phạm vi được phép dùng trong Screening.</p>
+        <p>2. Kiểm tra các chỉ tiêu có nguồn, trạng thái research_only và cờ cần rà soát.</p>
+        <p>3. Chỉ khi đủ điều kiện riêng, mã mới được mở luồng phân tích sâu trong phase khác.</p>
+      </div>
+    </details>
+  );
+}
+
+export function ScreeningPage({ initialData }: ScreeningPageProps) {
+  const [guideOpen, setGuideOpen] = useState(false);
+  const [filters, setFilters] = useState<ScreeningCompactFilters>(defaultCompactFilters);
+  const [expandedTicker, setExpandedTicker] = useState<string | null>(null);
+  const dedicatedScreeningCandidates = initialData?.screeningCandidates ?? [];
+  const filteredCandidates = filterScreeningCandidates(dedicatedScreeningCandidates, filters);
+  const expandedCandidate =
+    dedicatedScreeningCandidates.find((candidate) => candidate.ticker === expandedTicker) ?? null;
+
+  return (
+    <div className="mx-auto w-[calc(100vw-40px)] max-w-[1180px] min-w-0 space-y-5 overflow-x-hidden md:w-full">
+      <ScreeningHeader onGuideOpen={() => setGuideOpen(true)} />
+      <CompactFilterBar filters={filters} onChange={setFilters} onReset={() => setFilters(defaultCompactFilters)} />
+      <CompactSummaryCards candidates={dedicatedScreeningCandidates} />
+      <CompactCandidateTable
+        candidates={filteredCandidates}
+        expandedTicker={expandedTicker}
+        onToggleDetails={(ticker) => setExpandedTicker(expandedTicker === ticker ? null : ticker)}
       />
+      <ScreeningCandidateDetailPanel candidate={expandedCandidate} />
+      <ScreeningFlowSupport />
+      <ScreeningGuideDrawer open={guideOpen} onClose={() => setGuideOpen(false)} />
     </div>
   );
 }
