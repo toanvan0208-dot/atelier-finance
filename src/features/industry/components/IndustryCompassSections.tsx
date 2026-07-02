@@ -35,6 +35,13 @@ const industryCompanyRoleTitles = [
   "Nhóm dữ liệu chưa đủ",
 ];
 
+type IndustryCompanyDisplayCard = IndustryCompassOption["companyGroups"][number] & {
+  badges?: string[];
+  boundaryCopy?: string;
+  companyName?: string;
+  roleTitle?: string;
+};
+
 const dataStatusLabel: Record<IndustryDataStatus, string> = {
   available: "Đã có dữ liệu",
   missing: "Chưa đủ dữ liệu",
@@ -109,6 +116,48 @@ function saveIndustryScreeningSource({
       ],
     })
   );
+}
+
+function buildIndustryCompanyDisplayCards(selectedIndustry: IndustryCompassOption): IndustryCompanyDisplayCard[] {
+  const baseCards = selectedIndustry.companyGroups.map((group, index) => ({
+    ...group,
+    roleTitle: industryCompanyRoleTitles[index] ?? group.role,
+  }));
+
+  if (selectedIndustry.industryKey !== "steel_materials") {
+    return baseCards;
+  }
+
+  const screeningCandidateCards: IndustryCompanyDisplayCard[] = [
+    {
+      title: "HSG",
+      description: "Ung vien sang loc cung nganh thep.",
+      tickers: ["HSG"],
+      role: "screening_candidate",
+      why: "Chi dung de kiem tra du lieu o module Screening; chua mo phan tich sau.",
+      checks: ["screening_candidate", "research_only", "needsReview"],
+      tone: "watch",
+      badges: ["screening_candidate", "research_only", "needsReview"],
+      boundaryCopy: "Khong phai khuyen nghi dau tu, khong phai full analysis, khong phai benchmark dinh gia/rui ro.",
+      companyName: "Hoa Sen Group",
+      roleTitle: "Ung vien sang loc cung nganh",
+    },
+    {
+      title: "NKG",
+      description: "Ung vien sang loc cung nganh thep.",
+      tickers: ["NKG"],
+      role: "screening_candidate",
+      why: "Chi dung de kiem tra du lieu o module Screening; chua mo phan tich sau.",
+      checks: ["screening_candidate", "research_only", "needsReview"],
+      tone: "watch",
+      badges: ["screening_candidate", "research_only", "needsReview"],
+      boundaryCopy: "Khong phai khuyen nghi dau tu, khong phai full analysis, khong phai benchmark dinh gia/rui ro.",
+      companyName: "Nam Kim Steel",
+      roleTitle: "Ung vien sang loc cung nganh",
+    },
+  ];
+
+  return [...baseCards, ...screeningCandidateCards];
 }
 
 function IndustryActionButton({
@@ -674,6 +723,8 @@ export function IndustryCompanyMapSection({
   selectedIndustry: IndustryCompassOption;
   onNavigate?: IndustryNavigate;
 }) {
+  const displayCards = buildIndustryCompanyDisplayCards(selectedIndustry);
+
   return (
     <section>
       <SectionHeader
@@ -683,14 +734,26 @@ export function IndustryCompanyMapSection({
       <Card>
         <CardBody>
           <div className="grid gap-4 lg:grid-cols-3">
-            {selectedIndustry.companyGroups.map((group, index) => (
+            {displayCards.map((group) => (
               <article key={`${group.role}-${group.tickers.join("-")}`} className={`rounded-[4px] border px-4 py-4 ${toneBorder[group.tone]}`}>
                 <p className="text-sm font-bold text-ink">
-                  {industryCompanyRoleTitles[index] ?? group.role}
+                  {group.roleTitle ?? group.role}
                 </p>
                 <p className="mt-2 text-xl font-bold leading-none text-ink">
                   {group.tickers.join(", ")}
                 </p>
+                {group.companyName ? (
+                  <p className="mt-1 text-xs font-semibold leading-5 text-muted">{group.companyName}</p>
+                ) : null}
+                {group.badges ? (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {group.badges.map((badge) => (
+                      <Chip key={badge} size="sm" variant="neutral">
+                        {badge}
+                      </Chip>
+                    ))}
+                  </div>
+                ) : null}
                 <p className="mt-3 text-xs leading-5 text-muted">{group.description}</p>
                 <p className="mt-3 text-[11px] font-semibold leading-4 text-ink">
                   Vai trò trong chuỗi giá trị: {group.role}
@@ -698,6 +761,11 @@ export function IndustryCompanyMapSection({
                 <p className="mt-2 text-xs leading-5 text-muted">
                   Vì sao cần kiểm tra tiếp: {group.why}
                 </p>
+                {group.boundaryCopy ? (
+                  <p className="mt-2 rounded-[4px] border border-border-soft bg-surface px-3 py-2 text-xs leading-5 text-muted">
+                    {group.boundaryCopy}
+                  </p>
+                ) : null}
                 <p className="mt-3 text-[11px] font-bold uppercase text-subtle">
                   Dữ liệu nên kiểm tra tiếp
                 </p>
@@ -714,7 +782,7 @@ export function IndustryCompanyMapSection({
                     onClick={() => {
                       saveIndustryScreeningSource({
                         group,
-                        roleTitle: industryCompanyRoleTitles[index] ?? group.role,
+                        roleTitle: group.roleTitle ?? group.role,
                         selectedIndustry,
                       });
                       goToModule("screening", onNavigate);
