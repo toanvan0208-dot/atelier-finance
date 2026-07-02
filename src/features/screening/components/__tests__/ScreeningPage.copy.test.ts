@@ -108,10 +108,16 @@ describe("ScreeningPage restored card layout", () => {
   it("restores the pre-compact card-based Screening interface", () => {
     expect(html).toContain("Bước 3");
     expect(html).toContain("Kiểm tra nhanh mã trong phạm vi MVP");
-    expect(html).toContain("Nguồn từ module Ngành");
-    expect(html).toContain("Rổ mã đầu vào");
+    expect(html).toContain("Lọc theo tiêu chí");
+    expect(html).toContain("Phạm vi ngành");
+    expect(html).toContain("Mã trong phạm vi");
+    expect(html).toContain("Tiêu chí ngành");
+    expect(html).toContain("Tiêu chí dữ liệu");
+    expect(html).toContain("Điểm dừng");
     expect(html).toContain("Kết quả sau lọc");
     expect(html).toContain("Kết luận và bước tiếp theo");
+    expect(html).not.toContain("Nguồn từ module Ngành");
+    expect(html).not.toContain("Bộ lọc đang áp dụng");
     expect(html).not.toContain("Phễu kiểm tra dữ liệu");
     expect(html).not.toContain("Quy trình lọc theo mức đủ dữ liệu");
     expect(html).not.toContain("Bảng screening compact");

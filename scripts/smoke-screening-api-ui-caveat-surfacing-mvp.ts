@@ -64,7 +64,10 @@ async function main() {
   const restoredCardUiFacingText = [
     "Bước 3 — Lọc theo mức độ đủ dữ liệu",
     "Kiểm tra nhanh mức đủ dữ liệu",
-    "Nguồn đầu vào",
+    "Lọc theo tiêu chí",
+    "Phạm vi ngành",
+    "Tiêu chí ngành",
+    "Tiêu chí dữ liệu",
     "Ứng viên Screening từ bảng riêng",
     "Kết quả sau lọc",
     "Kết luận và bước tiếp theo",
@@ -86,9 +89,15 @@ async function main() {
     candidateCount: payload.length,
     restoredCardUiRendered:
       renderedScreeningPageText.includes("TickerQuickCheck") &&
-      renderedScreeningPageText.includes("ScreeningInputSourceBanner") &&
+      renderedScreeningPageText.includes("ScreeningCriteriaCard") &&
       renderedScreeningPageText.includes("ScreeningCandidateUniverse") &&
       renderedScreeningPageText.includes("ScreeningResults"),
+    mergedCriteriaCardRendered:
+      uiText.includes("Lọc theo tiêu chí") &&
+      uiText.includes("Phạm vi ngành") &&
+      uiText.includes("Tiêu chí ngành") &&
+      uiText.includes("Tiêu chí dữ liệu") &&
+      !uiText.includes("Bộ lọc đang áp dụng"),
     screeningFunnelRemoved:
       !renderedScreeningPageText.includes("ScreeningFunnel") &&
       !renderedScreeningPageText.includes("Quy trình lọc theo mức đủ dữ liệu"),
@@ -145,6 +154,7 @@ async function main() {
 
   const smokePassed =
     result.restoredCardUiRendered &&
+    result.mergedCriteriaCardRendered &&
     result.screeningFunnelRemoved &&
     !result.compactTableUiRenderedInMainFlow &&
     result.hsgAppears &&

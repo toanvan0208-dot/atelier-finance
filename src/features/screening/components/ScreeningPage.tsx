@@ -290,32 +290,23 @@ function GateList({
   );
 }
 
-function ScreeningInputSourceBanner({
+function ScreeningCriteriaCard({
   inputSource,
   onNavigate,
 }: {
   inputSource: ScreeningInputSource;
   onNavigate?: (moduleKey: string) => void;
 }) {
-  const fromIndustry = inputSource.sourceModule === "industry";
-
   return (
     <Card className="min-w-0 overflow-hidden">
       <CardBody className="space-y-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <Chip variant={fromIndustry ? "accent" : "neutral"}>
-              {fromIndustry ? "Nguồn từ module Ngành" : "Nguồn đầu vào"}
-            </Chip>
-            <h2 className="mt-2 text-lg font-bold text-ink">
-              {fromIndustry
-                ? `Đang lọc tiếp: ${inputSource.industryName}`
-                : `Nguồn đầu vào: ${inputSource.label}`}
-            </h2>
+            <Chip variant="accent">Lọc theo tiêu chí</Chip>
+            <h2 className="mt-2 text-lg font-bold text-ink">Đang kiểm tra các mã trong phạm vi hiện tại</h2>
             <p className="mt-1 max-w-3xl text-sm leading-6 text-muted">
-              {fromIndustry
-                ? "Module Ngành chỉ chuyển rổ mã theo vai trò. Module Screening kiểm tra mức đủ dữ liệu để đi tiếp."
-                : "Bạn có thể kiểm tra mức đủ dữ liệu của ba mã FPT, MWG và VNM trong phạm vi MVP."}
+              Screening kiểm tra ngành và mức đủ dữ liệu tối thiểu. Đây không phải khuyến nghị đầu tư, không phải bảng
+              xếp hạng và không dùng làm benchmark định giá/rủi ro.
             </p>
           </div>
           <Button size="sm" variant="secondary" onClick={() => goToModule("industry", onNavigate)}>
@@ -323,9 +314,12 @@ function ScreeningInputSourceBanner({
           </Button>
         </div>
 
-        <div className="grid gap-3 lg:grid-cols-[minmax(0,1.1fr)_minmax(280px,0.9fr)]">
+        <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(260px,0.75fr)]">
           <div className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-4">
-            <p className="text-[11px] font-bold uppercase text-subtle">Rổ mã đầu vào</p>
+            <p className="text-[11px] font-bold uppercase text-subtle">Phạm vi ngành</p>
+            <p className="mt-2 text-sm font-bold text-ink">{inputSource.industryName}</p>
+            <p className="mt-1 text-xs leading-5 text-muted">{inputSource.selectedIndustryGroup}</p>
+            <p className="mt-3 text-[11px] font-bold uppercase text-subtle">Mã trong phạm vi</p>
             <div className="mt-2 flex flex-wrap gap-2">
               {inputSource.inputTickers.map((ticker) => (
                 <Chip key={ticker} size="sm" variant="neutral">
@@ -333,50 +327,37 @@ function ScreeningInputSourceBanner({
                 </Chip>
               ))}
             </div>
-            <p className="mt-3 text-xs font-semibold leading-5 text-muted">
-              Nhóm: {inputSource.selectedIndustryGroup}
-            </p>
             <p className="mt-1 text-xs leading-5 text-muted">{inputSource.industryRole}</p>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+          <div className="grid gap-3">
             <GateList
-              label="Yếu tố ngành cần kiểm tra"
+              label="Tiêu chí ngành"
               items={inputSource.riskFactorsToCheck}
               tone="warning"
-              fallback="Chưa có yếu tố ngành"
+              fallback="Chưa có tiêu chí ngành"
             />
             <GateList
-              label="Tiêu chí lọc gợi ý"
+              label="Tiêu chí dữ liệu"
               items={inputSource.suggestedScreeningCriteria}
               tone="success"
-              fallback="Chưa có tiêu chí"
+              fallback="Chưa có tiêu chí dữ liệu"
             />
           </div>
-        </div>
-      </CardBody>
-    </Card>
-  );
-}
 
-function ActiveScreeningQuery() {
-  const { activeQuery } = screeningRedesignData;
-
-  return (
-    <Card className="parent-surface-card min-w-0 overflow-hidden">
-      <CardBody className="space-y-4">
-        <div>
-          <Chip variant="accent">Bộ lọc đang áp dụng</Chip>
-          <p className="mt-3 max-w-[30ch] break-words text-base font-bold leading-7 text-ink sm:max-w-full sm:text-lg">{activeQuery.sentence}</p>
-        </div>
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          {activeQuery.criteria.map((item) => (
-            <div key={item.label} className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3">
-              <p className="text-[11px] font-bold uppercase text-subtle">{item.label}</p>
-              <p className="mt-1 text-sm font-bold text-ink">{item.value}</p>
-              <p className="mt-1 text-xs leading-5 text-muted">{item.description}</p>
+          <div className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-4">
+            <p className="text-[11px] font-bold uppercase text-subtle">Điểm dừng</p>
+            <p className="mt-2 text-sm font-bold text-ink">Chỉ kiểm tra mức đủ dữ liệu</p>
+            <p className="mt-1 text-xs leading-5 text-muted">
+              Mã screening_candidate chưa mở phân tích sâu nếu analysisEligible=false. Thiếu dữ liệu vẫn hiển thị
+              N/A/needs_review.
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Chip size="sm" variant="neutral">research_only</Chip>
+              <Chip size="sm" variant="neutral">needsReview</Chip>
+              <Chip size="sm" variant="warning">không phải benchmark</Chip>
             </div>
-          ))}
+          </div>
         </div>
       </CardBody>
     </Card>
@@ -719,8 +700,7 @@ export function ScreeningPage({ onNavigate, initialData }: ScreeningPageProps) {
     <div className="mx-auto w-[calc(100vw-40px)] max-w-[1180px] min-w-0 space-y-8 overflow-x-hidden md:w-full">
       <ScreeningHeader onGuideOpen={() => setGuideOpen(true)} />
       <TickerQuickCheck onAnalyze={setActiveCandidate} candidatesByTicker={activeCandidatesByTicker} />
-      <ScreeningInputSourceBanner inputSource={inputSource} onNavigate={onNavigate} />
-      <ActiveScreeningQuery />
+      <ScreeningCriteriaCard inputSource={inputSource} onNavigate={onNavigate} />
       <ScreeningCandidateUniverse candidates={dedicatedScreeningCandidates} />
       <div className="rounded-[4px] border-[1.5px] border-border bg-accent-soft px-4 py-3">
         <p className="text-sm font-bold text-ink">
