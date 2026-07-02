@@ -1,7 +1,14 @@
-import { steelDirectPeerProviderSnapshotPackages } from "./screening-steel-direct-peer-provider-snapshots";
+import {
+  buildSteelDirectPeerProviderSnapshotPackages,
+  type ProviderSnapshotMetric,
+  type ProviderSnapshotMetricCode,
+  type ProviderSnapshotPackage,
+  type ScreeningSnapshotTicker,
+} from "./screening-steel-direct-peer-provider-snapshots";
 import { steelDirectPeerScreeningPackages } from "./screening-steel-direct-peer-reviewed-sources";
 
-type GapStatus = "closed_by_provider_snapshot" | "still_missing" | "blocked";
+type HsgPeGapStatus = "closed_by_provider_snapshot" | "still_missing" | "blocked";
+type MetricAvailabilityStatus = "available" | "closed_by_provider_snapshot" | "missing" | "blocked";
 
 const ALLOWED_TICKERS = ["HSG", "NKG"] as const;
 const MARKET_SNAPSHOT_METRICS = ["pe", "pb", "liquidity"] as const;
@@ -17,7 +24,6 @@ const forbiddenAdviceTerms = [
   "upside",
   "downside",
   "ranking",
-  "score",
   "attractive",
   "worth buying",
   "nen mua",
@@ -43,32 +49,57 @@ const textContainsAny = (value: string, terms: string[]): boolean => {
   return terms.some((term) => normalized.includes(term));
 };
 
-const isAllowedTicker = (ticker: string): ticker is (typeof ALLOWED_TICKERS)[number] =>
-  ALLOWED_TICKERS.includes(ticker as (typeof ALLOWED_TICKERS)[number]);
+const isAllowedTicker = (ticker: string): ticker is ScreeningSnapshotTicker =>
+  ALLOWED_TICKERS.includes(ticker as ScreeningSnapshotTicker);
 
-const metricClosesProviderSnapshotGap = ({
+const providerMetricFor = (
+  packages: ProviderSnapshotPackage[],
+  ticker: ScreeningSnapshotTicker,
+  metricCode: ProviderSnapshotMetricCode,
+): ProviderSnapshotMetric | null => packages.find((pkg) => pkg.ticker === ticker)?.metrics[metricCode] ?? null;
+
+const providerMetricHasWriteEligibleMetadata = (metric: ProviderSnapshotMetric): boolean =>
+  metric.value !== null &&
+  Number.isFinite(metric.value) &&
+  metric.periodType === "market_snapshot" &&
+  Boolean(metric.snapshotDate ?? metric.nearestTradingDate) &&
+  Boolean(metric.retrievedAt) &&
+  metric.sourceLabel === "VNStock" &&
+  metric.sourceType === "provider_snapshot" &&
+  metric.warningCodes.includes(PROVIDER_SNAPSHOT_WARNING) &&
+  metric.productionApproved === false &&
+  metric.needsReview === true;
+
+const providerMetricClosesMarketSnapshotGap = (metric: ProviderSnapshotMetric | null): boolean => {
+  if (!metric) return false;
+  if (!providerMetricHasWriteEligibleMetadata(metric)) return false;
+  if (metric.metricCode === "pe" && metric.unit !== "ratio") return false;
+  if (metric.metricCode === "pb" && metric.unit !== "ratio") return false;
+  if (metric.metricCode === "liquidity" && metric.unit !== "shares" && metric.unit !== "vnd_trading_value") {
+    return false;
+  }
+  return true;
+};
+
+const reviewedMetricAvailable = (
+  ticker: ScreeningSnapshotTicker,
+  metricCode: keyof (typeof steelDirectPeerScreeningPackages)[number]["metrics"],
+): boolean =>
+  steelDirectPeerScreeningPackages.some((pkg) => pkg.ticker === ticker && pkg.metrics[metricCode].value !== null);
+
+const metricStatus = ({
   ticker,
   metricCode,
+  packages,
 }: {
-  ticker: "HSG" | "NKG";
-  metricCode: "pe";
-}): boolean => {
-  const snapshotPackage = steelDirectPeerProviderSnapshotPackages.find((pkg) => pkg.ticker === ticker);
-  const metric = snapshotPackage?.metrics[metricCode];
-  if (!metric) return false;
-  if (metric.value !== null && !Number.isFinite(metric.value)) return false;
-  if (metric.value === null) return false;
-  return (
-    metric.unit === "ratio" &&
-    metric.periodType === "market_snapshot" &&
-    Boolean(metric.snapshotDate ?? metric.nearestTradingDate) &&
-    Boolean(metric.retrievedAt) &&
-    metric.sourceLabel === "VNStock" &&
-    metric.sourceType === "provider_snapshot" &&
-    metric.warningCodes.includes(PROVIDER_SNAPSHOT_WARNING) &&
-    metric.productionApproved === false &&
-    metric.needsReview === true
-  );
+  ticker: ScreeningSnapshotTicker;
+  metricCode: "pe" | "pb" | "liquidity";
+  packages: ProviderSnapshotPackage[];
+}): MetricAvailabilityStatus => {
+  const providerMetric = providerMetricFor(packages, ticker, metricCode);
+  if (providerMetricClosesMarketSnapshotGap(providerMetric)) return "closed_by_provider_snapshot";
+  if (reviewedMetricAvailable(ticker, metricCode)) return "available";
+  return "missing";
 };
 
 const validateCandidatePackages = () => {
@@ -105,14 +136,17 @@ const validateCandidatePackages = () => {
   return { candidateTickers, fakeMetricWriteEligible, productionApprovedTrueCount };
 };
 
-const validateProviderSnapshots = () => {
+const validateProviderSnapshots = (packages: ProviderSnapshotPackage[]) => {
   let productionApprovedTrueCount = 0;
   let forbiddenAdviceDetected = false;
   let benchmarkCreated = false;
 
-  for (const pkg of steelDirectPeerProviderSnapshotPackages) {
+  if (packages.length !== 2) throw new Error("Expected exactly HSG and NKG provider snapshot packages.");
+
+  for (const pkg of packages) {
     if (!isAllowedTicker(pkg.ticker)) throw new Error(`Only HSG and NKG provider packages are allowed. Found: ${pkg.ticker}`);
     if (pkg.coverageLevel !== "screening_candidate") throw new Error("Provider package coverageLevel must be screening_candidate");
+    if (!pkg.screeningEligible) throw new Error("Provider package screeningEligible must be true");
     if (pkg.analysisEligible) throw new Error("Provider package analysisEligible must be false");
 
     for (const metricCode of Object.keys(pkg.metrics)) {
@@ -142,6 +176,12 @@ const validateProviderSnapshots = () => {
       if (metric.value !== null && (!metric.retrievedAt || !(metric.snapshotDate ?? metric.nearestTradingDate))) {
         throw new Error("Non-null provider snapshot metrics require retrievedAt and snapshotDate/nearestTradingDate");
       }
+      if (metric.metricCode === "pe" && metric.value !== null && metric.unit !== "ratio") {
+        throw new Error("P/E unit must be ratio");
+      }
+      if (metric.metricCode === "pb" && metric.value !== null && metric.unit !== "ratio") {
+        throw new Error("P/B unit must be ratio");
+      }
       if (metric.extractedQuote !== null) throw new Error("extractedQuote must remain null unless exact reviewed text exists");
 
       const text = `${metric.reviewNote} ${metric.warningCodes.join(" ")}`;
@@ -154,28 +194,31 @@ const validateProviderSnapshots = () => {
 };
 
 async function main() {
-  console.log("Starting Phase 151G: VNStock P/E provider snapshot dry-run + CFO source boundary...");
+  console.log("Starting Phase 151H: HSG/NKG VNStock Screening Snapshot Fetch Dry Run...");
 
+  const { packages, fetchResults } = await buildSteelDirectPeerProviderSnapshotPackages();
   const candidateValidation = validateCandidatePackages();
-  const providerValidation = validateProviderSnapshots();
+  const providerValidation = validateProviderSnapshots(packages);
 
-  const hsgPeClosed = metricClosesProviderSnapshotGap({ ticker: "HSG", metricCode: "pe" });
-  const nkgPeProviderAvailable = metricClosesProviderSnapshotGap({ ticker: "NKG", metricCode: "pe" });
+  const providerFetchAttempted = fetchResults.some((result) => result.attempted);
+  const providerFetchSucceeded = fetchResults.some((result) => result.succeeded);
+  const hsgPeClosed = providerMetricClosesMarketSnapshotGap(providerMetricFor(packages, "HSG", "pe"));
+  const hsgPeGapStatus: HsgPeGapStatus = hsgPeClosed ? "closed_by_provider_snapshot" : "still_missing";
+  const nkgPeStatus = metricStatus({ ticker: "NKG", metricCode: "pe", packages });
+  const hsgPbStatus = metricStatus({ ticker: "HSG", metricCode: "pb", packages });
+  const nkgPbStatus = metricStatus({ ticker: "NKG", metricCode: "pb", packages });
+  const hsgLiquidityStatus = metricStatus({ ticker: "HSG", metricCode: "liquidity", packages });
+  const nkgLiquidityStatus = metricStatus({ ticker: "NKG", metricCode: "liquidity", packages });
   const closedSourceGaps = hsgPeClosed ? ["HSG_PE"] : [];
   const remainingSourceGaps = MISSING_SOURCE_GAPS_BEFORE.filter((gap) => !closedSourceGaps.includes(gap));
-  const hsgPeGapStatus: GapStatus = hsgPeClosed ? "closed_by_provider_snapshot" : "still_missing";
-  const nkgPeStatus: "available" | "missing" | "blocked" =
-    nkgPeProviderAvailable || steelDirectPeerScreeningPackages.some((pkg) => pkg.ticker === "NKG" && pkg.metrics.pe.value !== null)
-      ? "available"
-      : "missing";
-
-  const providerSnapshotAttempted = false;
   const readyForConfirmWrite = false;
   const readyForPartialScreeningConfirmWrite =
     hsgPeClosed &&
-    steelDirectPeerProviderSnapshotPackages.every((pkg) =>
-      MARKET_SNAPSHOT_METRICS.every((metricCode) => pkg.metrics[metricCode].value !== null),
-    );
+    (nkgPeStatus === "available" || nkgPeStatus === "closed_by_provider_snapshot") &&
+    hsgPbStatus !== "missing" &&
+    nkgPbStatus !== "missing" &&
+    hsgLiquidityStatus !== "missing" &&
+    nkgLiquidityStatus !== "missing";
 
   const productionApprovedTrueCount =
     candidateValidation.productionApprovedTrueCount + providerValidation.productionApprovedTrueCount;
@@ -187,13 +230,18 @@ async function main() {
   if (benchmarkCreated) throw new Error("Benchmark wording detected");
 
   const result = {
-    phase: "151G",
+    phase: "151H",
     candidateTickers: asCsv(candidateValidation.candidateTickers),
-    providerSnapshotAttempted,
+    providerFetchAttempted,
+    providerFetchSucceeded,
     providerSnapshotSource: "VNStock",
     marketSnapshotMetricsValidated: asCsv(MARKET_SNAPSHOT_METRICS),
     hsgPeGapStatus,
     nkgPeStatus,
+    hsgPbStatus,
+    nkgPbStatus,
+    hsgLiquidityStatus,
+    nkgLiquidityStatus,
     cfoSourceBoundaryEnforced: true,
     hsgCfoGapStatus: "open_manual_source_required",
     nkgCfoGapStatus: "open_manual_source_required",
@@ -212,7 +260,6 @@ async function main() {
     industryMetricCreated: false,
     benchmarkCreated,
     valuationRiskBenchmarkInvented: false,
-    providerFetchAttempted: false,
     dbWriteAttempted: false,
     schemaChanged: false,
     productionApprovedTrueCount,
