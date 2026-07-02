@@ -5,9 +5,7 @@ import { Button, Card, CardBody, Chip } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import {
   screeningRedesignData,
-  type RedesignedGateStatus,
   type RedesignedScreeningCandidate,
-  type RedesignedScreeningGate,
   type ScreeningMetricKey,
 } from "../data/screeningRedesign.data";
 import type { ScreeningRuntimeData } from "../lib/load-screening-runtime-data";
@@ -32,12 +30,6 @@ const groupTone: Record<ScreeningCandidateGroupKey, ScreeningGuideTone> = {
   "not-fit": "neutral",
   priority: "pass",
   watch: "watch",
-};
-
-const gateTone: Record<RedesignedGateStatus, "neutral" | "accent" | "success" | "warning" | "danger"> = {
-  "Có thể tính": "success",
-  "Cần bổ sung dữ liệu": "warning",
-  "Chưa thể tính": "neutral",
 };
 
 function updateModuleUrl(moduleKey: string, ticker?: string) {
@@ -391,143 +383,6 @@ function ActiveScreeningQuery() {
   );
 }
 
-function ScreeningFunnel() {
-  const gates = screeningRedesignData.gates;
-  const [activeGateId, setActiveGateId] = useState(gates[0]?.id ?? "");
-  const activeGate = gates.find((gate) => gate.id === activeGateId) ?? gates[0];
-  const activeIndex = Math.max(
-    0,
-    gates.findIndex((gate) => gate.id === activeGate.id)
-  );
-  const countFlow = [gates[0]?.beforeCount, ...gates.map((gate) => gate.afterCount)].filter(
-    (count): count is number => typeof count === "number"
-  );
-
-  return (
-    <section className="space-y-4">
-      <div>
-        <Chip variant="neutral">Phễu kiểm tra dữ liệu</Chip>
-        <h2 className="mt-2 text-xl font-bold text-ink">Quy trình lọc theo mức đủ dữ liệu</h2>
-        <p className="mt-1 max-w-3xl text-sm leading-6 text-muted">
-          Chọn từng cửa để xem chi tiết. Thứ tự này chỉ phản ánh mức độ đủ dữ liệu, không phải xếp hạng đầu tư.
-        </p>
-      </div>
-
-      <Card className="min-w-0 overflow-hidden">
-        <CardBody className="space-y-4">
-          <div className="flex min-w-0 flex-wrap items-center gap-2 rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3">
-            {countFlow.map((count, index) => (
-              <div key={`${count}-${index}`} className="flex items-center gap-2">
-                <span className="rounded-[4px] border border-border bg-surface px-2 py-1 font-mono text-sm font-bold text-ink">
-                  {count}
-                </span>
-                {index < countFlow.length - 1 ? (
-                  <span className="text-xs font-bold text-subtle">-&gt;</span>
-                ) : null}
-              </div>
-            ))}
-          </div>
-
-          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
-            {gates.map((gate, index) => {
-              const isActive = gate.id === activeGate.id;
-
-              return (
-                <button
-                  key={gate.id}
-                  aria-pressed={isActive}
-                  className={cn(
-                    "rounded-[4px] border px-3 py-3 text-left transition",
-                    isActive
-                      ? "border-border bg-ink text-white shadow-soft"
-                      : "border-border-soft bg-surface-soft text-ink hover:border-border hover:bg-surface-hover"
-                  )}
-                  type="button"
-                  onClick={() => setActiveGateId(gate.id)}
-                >
-                  <span className={cn("font-mono text-[11px] font-bold", isActive ? "text-white/70" : "text-subtle")}>
-                    Cửa {index + 1}
-                  </span>
-                  <span className={cn("mt-1 block text-sm font-bold", isActive ? "text-white" : "text-ink")}>
-                    {gate.shortLabel}
-                  </span>
-                  <span className={cn("mt-1 block text-xs", isActive ? "text-white/70" : "text-muted")}>
-                    {gate.beforeCount} -&gt; {gate.afterCount} mã
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-
-          <FunnelStep gate={activeGate} index={activeIndex} />
-        </CardBody>
-      </Card>
-    </section>
-  );
-}
-
-function FunnelStep({ gate, index }: { gate: RedesignedScreeningGate; index: number }) {
-  return (
-    <article className="rounded-[4px] border border-border-soft bg-surface-soft">
-      <div className="grid gap-4 px-4 py-4 lg:grid-cols-[150px_minmax(0,1fr)_190px] lg:items-center">
-        <div>
-          <p className="font-mono text-[11px] font-bold text-subtle">Cửa {index + 1}</p>
-          <h3 className="mt-1 text-sm font-bold text-ink">{gate.title}</h3>
-          <Chip className="mt-2" size="sm" variant={gateTone[gate.status]}>
-            {gate.status}
-          </Chip>
-        </div>
-        <div>
-          <p className="text-sm font-bold leading-6 text-ink">{gate.question}</p>
-          <p className="mt-1 text-xs leading-5 text-muted">{gate.shortReason}</p>
-        </div>
-        <div className="rounded-[4px] border-[1.5px] border-border bg-surface px-3 py-3">
-          <div className="flex items-center justify-between gap-3">
-            <span className="text-xl font-bold text-ink">{gate.beforeCount}</span>
-            <span className="text-xs font-bold text-subtle">-&gt;</span>
-            <span className="text-xl font-bold text-ink">{gate.afterCount}</span>
-          </div>
-          <p className="mt-1 text-center text-[11px] font-semibold text-subtle">mã trước / sau lọc</p>
-        </div>
-      </div>
-      <div className="grid gap-3 border-t border-border-soft px-4 py-4 md:grid-cols-3">
-        <GateList label="Có dữ liệu" items={gate.passedTickers} tone="success" />
-        <GateList label="Cần kiểm tra thêm" items={gate.watchTickers} tone="warning" />
-        <GateList label="Chưa đủ dữ liệu nếu có" items={gate.rejectedTickers} tone="neutral" fallback="Không có mã thiếu dữ liệu ở bước này" />
-      </div>
-      <details className="border-t border-border-soft px-4 py-3">
-        <summary className="cursor-pointer text-xs font-bold text-accent">
-          Vì sao cửa lọc này quan trọng?
-        </summary>
-        <div className="mt-3 grid gap-3 lg:grid-cols-4">
-          <DetailBlock label="Vì sao quan trọng" value={gate.whyItMatters} />
-          <div className="rounded-[4px] border border-border-soft bg-surface px-3 py-2">
-            <p className="text-[11px] font-bold uppercase text-subtle">Dữ liệu cần dùng</p>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {gate.dataUsed.map((item) => (
-                <Chip key={item} size="sm" variant="neutral">
-                  {item}
-                </Chip>
-              ))}
-            </div>
-          </div>
-          <DetailBlock label="Lỗi người mới hay mắc" value={gate.beginnerMistake} />
-          <DetailBlock label="Ví dụ minh họa" value={gate.example} />
-        </div>
-      </details>
-    </article>
-  );
-}
-
-function DetailBlock({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-[4px] border border-border-soft bg-surface px-3 py-2">
-      <p className="text-[11px] font-bold uppercase text-subtle">{label}</p>
-      <p className="mt-1 text-xs leading-5 text-muted">{value}</p>
-    </div>
-  );
-}
-
 function ScreeningResults({
   onAnalyze,
   candidates,
@@ -866,7 +721,6 @@ export function ScreeningPage({ onNavigate, initialData }: ScreeningPageProps) {
       <TickerQuickCheck onAnalyze={setActiveCandidate} candidatesByTicker={activeCandidatesByTicker} />
       <ScreeningInputSourceBanner inputSource={inputSource} onNavigate={onNavigate} />
       <ActiveScreeningQuery />
-      <ScreeningFunnel />
       <ScreeningCandidateUniverse candidates={dedicatedScreeningCandidates} />
       <div className="rounded-[4px] border-[1.5px] border-border bg-accent-soft px-4 py-3">
         <p className="text-sm font-bold text-ink">

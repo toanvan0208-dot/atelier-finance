@@ -65,7 +65,6 @@ async function main() {
     "Bước 3 — Lọc theo mức độ đủ dữ liệu",
     "Kiểm tra nhanh mức đủ dữ liệu",
     "Nguồn đầu vào",
-    "Phễu kiểm tra dữ liệu",
     "Ứng viên Screening từ bảng riêng",
     "Kết quả sau lọc",
     "Kết luận và bước tiếp theo",
@@ -88,9 +87,11 @@ async function main() {
     restoredCardUiRendered:
       renderedScreeningPageText.includes("TickerQuickCheck") &&
       renderedScreeningPageText.includes("ScreeningInputSourceBanner") &&
-      renderedScreeningPageText.includes("ScreeningFunnel") &&
       renderedScreeningPageText.includes("ScreeningCandidateUniverse") &&
       renderedScreeningPageText.includes("ScreeningResults"),
+    screeningFunnelRemoved:
+      !renderedScreeningPageText.includes("ScreeningFunnel") &&
+      !renderedScreeningPageText.includes("Quy trình lọc theo mức đủ dữ liệu"),
     compactTableUiRenderedInMainFlow:
       renderedScreeningPageText.includes("CompactCandidateTable") ||
       renderedScreeningPageText.includes("CompactFilterBar") ||
@@ -144,6 +145,7 @@ async function main() {
 
   const smokePassed =
     result.restoredCardUiRendered &&
+    result.screeningFunnelRemoved &&
     !result.compactTableUiRenderedInMainFlow &&
     result.hsgAppears &&
     result.nkgAppears &&

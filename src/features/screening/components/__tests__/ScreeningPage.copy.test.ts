@@ -110,9 +110,10 @@ describe("ScreeningPage restored card layout", () => {
     expect(html).toContain("Kiểm tra nhanh mã trong phạm vi MVP");
     expect(html).toContain("Nguồn từ module Ngành");
     expect(html).toContain("Rổ mã đầu vào");
-    expect(html).toContain("Phễu kiểm tra dữ liệu");
     expect(html).toContain("Kết quả sau lọc");
     expect(html).toContain("Kết luận và bước tiếp theo");
+    expect(html).not.toContain("Phễu kiểm tra dữ liệu");
+    expect(html).not.toContain("Quy trình lọc theo mức đủ dữ liệu");
     expect(html).not.toContain("Bảng screening compact");
     expect(html).not.toContain("Tìm mã: HPG, HSG, NKG...");
   });
