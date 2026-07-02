@@ -7,13 +7,14 @@ import {
 } from "./screening-steel-direct-peer-provider-snapshots";
 import { steelDirectPeerScreeningPackages } from "./screening-steel-direct-peer-reviewed-sources";
 
-type HsgPeGapStatus = "closed_by_provider_snapshot" | "still_missing" | "blocked";
+type HsgPeGapStatus = "closed_by_vnstock_fundamental_ratio_snapshot" | "still_missing" | "blocked";
 type MetricAvailabilityStatus = "available" | "closed_by_provider_snapshot" | "missing" | "blocked";
 
 const ALLOWED_TICKERS = ["HSG", "NKG"] as const;
 const MARKET_SNAPSHOT_METRICS = ["pe", "pb", "liquidity"] as const;
-const MISSING_SOURCE_GAPS_BEFORE = ["HSG_PE", "HSG_CFO", "NKG_CFO"] as const;
+const MISSING_SOURCE_GAPS_BEFORE = ["HSG_PE"] as const;
 const PROVIDER_SNAPSHOT_WARNING = "VNSTOCK_PROVIDER_SNAPSHOT_RESEARCH_ONLY";
+const FUNDAMENTAL_RATIO_PROVIDER_WARNING = "PROVIDER_SNAPSHOT";
 
 const forbiddenAdviceTerms = [
   "buy",
@@ -61,12 +62,13 @@ const providerMetricFor = (
 const providerMetricHasWriteEligibleMetadata = (metric: ProviderSnapshotMetric): boolean =>
   metric.value !== null &&
   Number.isFinite(metric.value) &&
-  metric.periodType === "market_snapshot" &&
-  Boolean(metric.snapshotDate ?? metric.nearestTradingDate) &&
+  (metric.periodType === "market_snapshot" || metric.periodType === "provider_ratio_snapshot") &&
+  Boolean(metric.snapshotDate ?? metric.nearestTradingDate ?? metric.providerPeriod) &&
   Boolean(metric.retrievedAt) &&
-  metric.sourceLabel === "VNStock" &&
+  (metric.sourceLabel === "VNStock" || metric.sourceLabel === "VNStock Fundamental equity ratio") &&
   metric.sourceType === "provider_snapshot" &&
-  metric.warningCodes.includes(PROVIDER_SNAPSHOT_WARNING) &&
+  (metric.warningCodes.includes(PROVIDER_SNAPSHOT_WARNING) ||
+    metric.warningCodes.includes(FUNDAMENTAL_RATIO_PROVIDER_WARNING)) &&
   metric.productionApproved === false &&
   metric.needsReview === true;
 
@@ -109,6 +111,9 @@ const metricPresenceSummary = (metric: ProviderSnapshotMetric | null) => ({
   nearestTradingDate: metric?.nearestTradingDate ?? null,
   providerDefinitionKnown: metric?.providerDefinitionKnown ?? false,
   warningCodes: metric?.warningCodes ?? [],
+  providerPeriod: metric?.providerPeriod ?? null,
+  sourceLabel: metric?.sourceLabel ?? null,
+  value: metric?.value ?? null,
 });
 
 const validateCandidatePackages = () => {
@@ -166,14 +171,21 @@ const validateProviderSnapshots = (packages: ProviderSnapshotPackage[]) => {
 
     for (const metric of Object.values(pkg.metrics)) {
       if (metric.ticker !== pkg.ticker) throw new Error("Metric ticker must match package ticker");
-      if (metric.sourceLabel !== "VNStock") throw new Error("Provider snapshot sourceLabel must be VNStock");
+      if (metric.sourceLabel !== "VNStock" && metric.sourceLabel !== "VNStock Fundamental equity ratio") {
+        throw new Error("Provider snapshot sourceLabel must be VNStock or VNStock Fundamental equity ratio");
+      }
       if (metric.sourceType !== "provider_snapshot") throw new Error("sourceType must be provider_snapshot");
-      if (metric.periodType !== "market_snapshot") throw new Error("periodType must be market_snapshot");
+      if (metric.periodType !== "market_snapshot" && metric.periodType !== "provider_ratio_snapshot") {
+        throw new Error("periodType must be market_snapshot or provider_ratio_snapshot");
+      }
       if (metric.dataMode !== "research_only") throw new Error("dataMode must be research_only");
       if (metric.needsReview !== true) throw new Error("needsReview must be true");
       if (metric.productionApproved !== false) productionApprovedTrueCount += 1;
       if (metric.warningCodes.length === 0) throw new Error("warningCodes must be non-empty");
-      if (!metric.warningCodes.includes(PROVIDER_SNAPSHOT_WARNING)) {
+      if (
+        !metric.warningCodes.includes(PROVIDER_SNAPSHOT_WARNING) &&
+        !metric.warningCodes.includes(FUNDAMENTAL_RATIO_PROVIDER_WARNING)
+      ) {
         throw new Error("Provider snapshot warning caveat is required");
       }
       if (metric.value !== null && !Number.isFinite(metric.value)) {
@@ -182,8 +194,8 @@ const validateProviderSnapshots = (packages: ProviderSnapshotPackage[]) => {
       if (metric.metricCode === "pe" && metric.value !== null && metric.value <= 0) {
         throw new Error("P/E must be null/N/A when EPS is non-positive or P/E is non-positive");
       }
-      if (metric.value !== null && (!metric.retrievedAt || !(metric.snapshotDate ?? metric.nearestTradingDate))) {
-        throw new Error("Non-null provider snapshot metrics require retrievedAt and snapshotDate/nearestTradingDate");
+      if (metric.value !== null && (!metric.retrievedAt || !(metric.snapshotDate ?? metric.nearestTradingDate ?? metric.providerPeriod))) {
+        throw new Error("Non-null provider snapshot metrics require retrievedAt and snapshotDate/nearestTradingDate/providerPeriod");
       }
       if (metric.metricCode === "pe" && metric.value !== null && metric.unit !== "ratio") {
         throw new Error("P/E unit must be ratio");
@@ -191,7 +203,9 @@ const validateProviderSnapshots = (packages: ProviderSnapshotPackage[]) => {
       if (metric.metricCode === "pb" && metric.value !== null && metric.unit !== "ratio") {
         throw new Error("P/B unit must be ratio");
       }
-      if (metric.extractedQuote !== null) throw new Error("extractedQuote must remain null unless exact reviewed text exists");
+      if (metric.metricCode !== "pe" && metric.extractedQuote !== null) {
+        throw new Error("extractedQuote must remain null unless exact reviewed text exists");
+      }
 
       const text = `${metric.reviewNote} ${metric.warningCodes.join(" ")}`;
       forbiddenAdviceDetected ||= textContainsAny(text, forbiddenAdviceTerms);
@@ -203,9 +217,9 @@ const validateProviderSnapshots = (packages: ProviderSnapshotPackage[]) => {
 };
 
 async function main() {
-  console.log("Starting Phase 151I: HSG/NKG VNStock Opt-In Provider Fetch Execution Dry Run...");
+  console.log("Starting Phase 151K: HSG_PE VNStock Fundamental Ratio Snapshot Closure Dry Run...");
 
-  const { packages, fetchResults } = await buildSteelDirectPeerProviderSnapshotPackages();
+  const { packages, fetchResults, ratioFetchResults } = await buildSteelDirectPeerProviderSnapshotPackages();
   const candidateValidation = validateCandidatePackages();
   const providerValidation = validateProviderSnapshots(packages);
 
@@ -224,8 +238,11 @@ async function main() {
 
   const providerFetchAttempted = fetchResults.some((result) => result.attempted);
   const providerFetchSucceeded = fetchResults.some((result) => result.succeeded);
+  const fundamentalRatioFetchAttempted = ratioFetchResults.some((result) => result.attempted);
+  const fundamentalRatioFetchSucceeded = ratioFetchResults.some((result) => result.succeeded);
   const hsgPeClosed = providerMetricClosesMarketSnapshotGap(providerMetricFor(packages, "HSG", "pe"));
-  const hsgPeGapStatus: HsgPeGapStatus = hsgPeClosed ? "closed_by_provider_snapshot" : "still_missing";
+  const hsgPeMetric = providerMetricFor(packages, "HSG", "pe");
+  const hsgPeGapStatus: HsgPeGapStatus = hsgPeClosed ? "closed_by_vnstock_fundamental_ratio_snapshot" : "still_missing";
   const nkgPeStatus = metricStatus({ ticker: "NKG", metricCode: "pe", packages });
   const hsgPbStatus = metricStatus({ ticker: "HSG", metricCode: "pb", packages });
   const nkgPbStatus = metricStatus({ ticker: "NKG", metricCode: "pb", packages });
@@ -237,14 +254,18 @@ async function main() {
   const hsgCfoGapStatus = hsgCfoClosed ? "closed_by_manual_consolidated_source" : "open_manual_source_required";
   const nkgCfoGapStatus = nkgCfoClosed ? "closed_by_manual_consolidated_source" : "open_manual_source_required";
 
-  const closedSourceGaps = [
-    ...(hsgPeClosed ? ["HSG_PE"] : []),
-    ...(hsgCfoClosed ? ["HSG_CFO"] : []),
-    ...(nkgCfoClosed ? ["NKG_CFO"] : [])
-  ];
+  const closedSourceGaps = hsgPeClosed ? ["HSG_PE"] : [];
   const remainingSourceGaps = MISSING_SOURCE_GAPS_BEFORE.filter((gap) => !closedSourceGaps.includes(gap));
   const readyForConfirmWrite = false;
-  const readyForPartialScreeningConfirmWrite = false; // Remains false unless product contract allows missing HSG_PE
+  const readyForPartialScreeningConfirmWrite =
+    hsgPeClosed &&
+    hsgCfoClosed &&
+    nkgCfoClosed &&
+    (nkgPeStatus === "available" || nkgPeStatus === "closed_by_provider_snapshot") &&
+    hsgPbStatus !== "missing" &&
+    nkgPbStatus !== "missing" &&
+    hsgLiquidityStatus !== "missing" &&
+    nkgLiquidityStatus !== "missing";
 
   const productionApprovedTrueCount =
     candidateValidation.productionApprovedTrueCount + providerValidation.productionApprovedTrueCount;
@@ -256,16 +277,24 @@ async function main() {
   if (benchmarkCreated) throw new Error("Benchmark wording detected");
 
   const result = {
-    phase: "151J",
+    phase: "151K",
     candidateTickers: asCsv(candidateValidation.candidateTickers),
-    manualCfoPackagesLoaded: [hsgCfoClosed, nkgCfoClosed].filter(Boolean).length,
+    fundamentalRatioFetchAttempted,
+    fundamentalRatioFetchSucceeded,
+    fundamentalRatioFetchErrorSummaries: ratioFetchResults
+      .filter((result) => result.errorSummary)
+      .map((result) => `${result.ticker}:${result.errorSummary}`)
+      .join(";"),
     providerFetchAttempted,
     providerFetchSucceeded,
     providerFetchErrorSummaries: fetchResults
       .filter((result) => result.errorSummary)
       .map((result) => `${result.ticker}:${result.errorSummary}`)
       .join(";"),
-    providerSnapshotSource: "VNStock",
+    providerSnapshotSource: "VNStock Fundamental equity ratio",
+    hsgPeSourceLoaded: hsgPeClosed,
+    hsgPeValue: hsgPeMetric?.value ?? null,
+    hsgPeProviderPeriod: hsgPeMetric?.providerPeriod ?? null,
     marketSnapshotMetricsValidated: asCsv(MARKET_SNAPSHOT_METRICS),
     providerSnapshotMetricSummary: {
       HSG: {
