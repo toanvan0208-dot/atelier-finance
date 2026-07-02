@@ -102,6 +102,15 @@ const metricStatus = ({
   return "missing";
 };
 
+const metricPresenceSummary = (metric: ProviderSnapshotMetric | null) => ({
+  valuePresent: metric?.value !== null && metric?.value !== undefined,
+  unit: metric?.unit ?? null,
+  snapshotDate: metric?.snapshotDate ?? null,
+  nearestTradingDate: metric?.nearestTradingDate ?? null,
+  providerDefinitionKnown: metric?.providerDefinitionKnown ?? false,
+  warningCodes: metric?.warningCodes ?? [],
+});
+
 const validateCandidatePackages = () => {
   const candidateTickers = steelDirectPeerScreeningPackages.map((pkg) => pkg.ticker);
   if (candidateTickers.includes("TVN")) {
@@ -194,7 +203,7 @@ const validateProviderSnapshots = (packages: ProviderSnapshotPackage[]) => {
 };
 
 async function main() {
-  console.log("Starting Phase 151H: HSG/NKG VNStock Screening Snapshot Fetch Dry Run...");
+  console.log("Starting Phase 151I: HSG/NKG VNStock Opt-In Provider Fetch Execution Dry Run...");
 
   const { packages, fetchResults } = await buildSteelDirectPeerProviderSnapshotPackages();
   const candidateValidation = validateCandidatePackages();
@@ -230,12 +239,30 @@ async function main() {
   if (benchmarkCreated) throw new Error("Benchmark wording detected");
 
   const result = {
-    phase: "151H",
+    phase: "151I",
     candidateTickers: asCsv(candidateValidation.candidateTickers),
     providerFetchAttempted,
     providerFetchSucceeded,
+    providerFetchErrorSummaries: fetchResults
+      .filter((result) => result.errorSummary)
+      .map((result) => `${result.ticker}:${result.errorSummary}`)
+      .join(";"),
     providerSnapshotSource: "VNStock",
     marketSnapshotMetricsValidated: asCsv(MARKET_SNAPSHOT_METRICS),
+    providerSnapshotMetricSummary: {
+      HSG: {
+        pe: metricPresenceSummary(providerMetricFor(packages, "HSG", "pe")),
+        pb: metricPresenceSummary(providerMetricFor(packages, "HSG", "pb")),
+        liquidity: metricPresenceSummary(providerMetricFor(packages, "HSG", "liquidity")),
+        closePrice: metricPresenceSummary(providerMetricFor(packages, "HSG", "closePrice")),
+      },
+      NKG: {
+        pe: metricPresenceSummary(providerMetricFor(packages, "NKG", "pe")),
+        pb: metricPresenceSummary(providerMetricFor(packages, "NKG", "pb")),
+        liquidity: metricPresenceSummary(providerMetricFor(packages, "NKG", "liquidity")),
+        closePrice: metricPresenceSummary(providerMetricFor(packages, "NKG", "closePrice")),
+      },
+    },
     hsgPeGapStatus,
     nkgPeStatus,
     hsgPbStatus,
