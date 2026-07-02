@@ -42,9 +42,9 @@ Then determine whether these three tickers are now ready for a later bounded Com
 
 `data/manual-review/company-identity/fpt-hpg-vnm-company-identity-reviewed.csv`
 
-Result: `csvFound=false`.
+Result: `csvFound=true`.
 
-The raw CSV was not present in the workspace path during this dry-run. The script therefore failed closed and did not prepare eligible Company identity candidates.
+The raw CSV was found at the expected local manual-review path. The dry-run validated it without mutating the CSV and without copying raw CSV content into this evidence file.
 
 ## CSV Validation Result
 
@@ -53,20 +53,20 @@ The raw CSV was not present in the workspace path during this dry-run. The scrip
   "phase": "151X",
   "mode": "dry_run",
   "targetTickers": ["FPT", "HPG", "VNM"],
-  "csvFound": false,
-  "requiredColumnsPresent": false,
+  "csvFound": true,
+  "requiredColumnsPresent": true,
   "identityCandidatesPrepared": 3,
-  "eligibleIdentityCandidates": 0,
-  "blockedIdentityCandidates": 3,
+  "eligibleIdentityCandidates": 3,
+  "blockedIdentityCandidates": 0,
   "readyForCompanyConfirmWriteByTicker": {
-    "FPT": false,
-    "HPG": false,
-    "VNM": false
+    "FPT": true,
+    "HPG": true,
+    "VNM": true
   },
-  "tickersReadyForCompanyConfirmWrite": [],
-  "tickersBlocked": ["FPT", "HPG", "VNM"],
-  "manualCsvAccepted": false,
-  "wouldAllowAllCoreCompanyConfirmWrite": false,
+  "tickersReadyForCompanyConfirmWrite": ["FPT", "HPG", "VNM"],
+  "tickersBlocked": [],
+  "manualCsvAccepted": true,
+  "wouldAllowAllCoreCompanyConfirmWrite": true,
   "dbWriteAttempted": false,
   "schemaChanged": false,
   "providerFetchAttempted": false,
@@ -92,39 +92,39 @@ The raw CSV was not present in the workspace path during this dry-run. The scrip
 
 ## Identity Candidate Table
 
-| Ticker | CSV row available | Eligible | Blocker |
-| --- | --- | --- | --- |
-| FPT | No | No | `csv_missing` |
-| HPG | No | No | `csv_missing` |
-| VNM | No | No | `csv_missing` |
+| Ticker | CSV row available | Company name | Exchange | Eligible | Blocker |
+| --- | --- | --- | --- | --- | --- |
+| FPT | Yes | Công ty Cổ phần FPT | HOSE | Yes | null |
+| HPG | Yes | Công ty Cổ phần Tập đoàn Hòa Phát | HOSE | Yes | null |
+| VNM | Yes | Công ty Cổ phần Sữa Việt Nam | HOSE | Yes | null |
 
 ## Missing Identity Fields
 
 | Ticker | Missing fields |
 | --- | --- |
-| FPT | companyName, sourceType, sourceLabel, extractedQuote, reviewNote, exchange, industryLabel |
-| HPG | companyName, sourceType, sourceLabel, extractedQuote, reviewNote, exchange, industryLabel |
-| VNM | companyName, sourceType, sourceLabel, extractedQuote, reviewNote, exchange, industryLabel |
+| FPT | industryLabel |
+| HPG | industryLabel |
+| VNM | industryLabel |
 
-Missing fields remain null/N/A/needs_review. Nothing was inferred from issuer local seed, runtime copy, static UI copy, or test fixtures.
+`industryLabel` remains intentionally absent because the CSV validates Company identity only. Nothing was inferred from issuer local seed, runtime copy, static UI copy, or test fixtures.
 
 ## Source Decision By Ticker
 
 | Ticker | Source decision |
 | --- | --- |
-| FPT | Blocked: manual reviewed Company identity CSV was not found at the required path. |
-| HPG | Blocked: manual reviewed Company identity CSV was not found at the required path. |
-| VNM | Blocked: manual reviewed Company identity CSV was not found at the required path. |
+| FPT | Accepted: manual reviewed Company identity CSV row passed dry-run validation. |
+| HPG | Accepted: manual reviewed Company identity CSV row passed dry-run validation. |
+| VNM | Accepted: manual reviewed Company identity CSV row passed dry-run validation. |
 
 ## Whether FPT/HPG/VNM Are Ready
 
-No. All three remain blocked because the CSV file was not available at the required path during validation.
+Yes. All three target tickers are ready for a later bounded Company metadata confirm-write.
 
 ## Whether All Six Core Tickers Can Be Written Together Next
 
-No.
+Yes.
 
-Phase 151V left `MSN`, `MWG`, and `VCB` ready for Company metadata confirm-write. Phase 151X did not make `FPT`, `HPG`, or `VNM` ready because the manual CSV was not found. A single all-six Company metadata confirm-write is therefore not ready.
+Phase 151V left `MSN`, `MWG`, and `VCB` ready for Company metadata confirm-write. This rerun of Phase 151X validates `FPT`, `HPG`, and `VNM` as ready. A single all-six Company metadata confirm-write is now ready as a later explicit confirm-write phase, subject to keeping the same research-only caveats and write guards.
 
 ## Guardrail Confirmation
 
@@ -150,16 +150,15 @@ Phase 151V left `MSN`, `MWG`, and `VCB` ready for Company metadata confirm-write
 ## Validation
 
 - `npx eslint scripts/dry-run-fpt-hpg-vnm-manual-company-identity-csv.ts` - passed.
-- `npx tsx scripts/dry-run-fpt-hpg-vnm-manual-company-identity-csv.ts` - passed, fail-closed with `csvFound=false`.
+- `npx tsx scripts/dry-run-fpt-hpg-vnm-manual-company-identity-csv.ts` - passed with `csvFound=true`, `manualCsvAccepted=true`, and `rawCsvCommitted=false`.
 - `npx prisma validate` - passed.
 - `npx prisma generate` - passed.
 - `npm run typecheck` - passed.
 
 ## Next Recommended Phase
 
-Some tickers remain blocked.
+All three target tickers are ready.
 
 Recommended next step:
 
-- Put the manual reviewed CSV at `data/manual-review/company-identity/fpt-hpg-vnm-company-identity-reviewed.csv` and rerun Phase 151X validation; or
-- proceed later only with already-ready Company metadata tickers from Phase 151V (`MSN`, `MWG`, `VCB`) while leaving `FPT`, `HPG`, and `VNM` blocked.
+- Phase 151Y - Core ticker Company metadata confirm-write for all six ready tickers (`FPT`, `HPG`, `VNM`, `MSN`, `MWG`, `VCB`), with no `ScreeningCandidate`, `MarketPrice`, `FinancialStatement`, or `CompanyIndustry` writes unless separately approved.
