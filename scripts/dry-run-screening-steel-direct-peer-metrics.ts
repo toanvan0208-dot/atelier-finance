@@ -1,7 +1,7 @@
 import { steelDirectPeerScreeningPackages } from "./screening-steel-direct-peer-reviewed-sources";
 
 async function main() {
-  console.log("Starting Phase 151E: HSG/NKG Authentic Screening Source Package Dry Run...");
+  console.log("Starting Phase 151F: HSG/NKG Missing Screening Metric Source Gap Closure Dry Run...");
 
   const candidateTickers = steelDirectPeerScreeningPackages.map(p => p.ticker);
   
@@ -64,14 +64,23 @@ async function main() {
     throw new Error("Fake or placeholder metric detected! They cannot be write-eligible.");
   }
 
+  // We are evaluating if gaps were closed. Since we don't have new source CSVs or API fetches, they remain open.
+  const missingSourceGapsBefore = "HSG_PE, HSG_CFO, NKG_CFO";
+  const closedSourceGaps = "";
+  const remainingSourceGaps = "HSG_PE, HSG_CFO, NKG_CFO";
+  const missingSourceGapsAfter = remainingSourceGaps;
+
   // Evaluate if ready for confirm-write based on authentic sources
   const readyForConfirmWrite = !hasIncompleteMetric && !hasFakeMetric;
 
   const result = {
-    phase: "151E",
+    phase: "151F",
     candidateTickers: candidateTickers.join(","),
     authenticSourcePackagesLoaded: 2,
-    placeholderMetricEligible: false,
+    missingSourceGapsBefore,
+    missingSourceGapsAfter,
+    closedSourceGaps,
+    remainingSourceGaps,
     eligibleCandidatePackages: readyForConfirmWrite ? 2 : 0,
     blockedCandidatePackages: readyForConfirmWrite ? 0 : 2,
     acceptedTickers: readyForConfirmWrite ? "HSG,NKG" : "",
