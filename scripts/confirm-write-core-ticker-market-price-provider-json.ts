@@ -40,7 +40,7 @@ type PreparedCandidate = MarketPriceCandidate & {
   period: string | null;
 };
 
-const phase = "152B";
+const phase = "152B-retry";
 const mode = process.argv.includes("--confirm-write") ? "confirm_write" : "dry_run";
 const jsonPath =
   "data/manual-review/market-price/core-ticker-vnstock-market-price-snapshot-2026-07-02.json";
@@ -429,8 +429,8 @@ async function run() {
     blockersByTicker: Object.fromEntries(
       preparedCandidates.map((candidate) => [candidate.ticker, candidate.blockers]),
     ),
-    sourceDependencyAvailable,
-    sourceDependencyName: source?.name ?? null,
+    dataSourceDependencyAvailable: sourceDependencyAvailable,
+    dataSourceIdAvailable: source?.id ?? null,
     storageLimitations: {
       sourceTypeProviderSnapshotStoredInMarketPrice: false,
       storedMarketPriceSourceType: "unknown",
@@ -446,6 +446,8 @@ async function run() {
     mwgWritten: writtenTickers.has("MWG"),
     vcbWritten: writtenTickers.has("VCB"),
     dbWriteAttempted: confirmWrite,
+    marketPriceWriteAttempted: confirmWrite,
+    dataSourceWriteAttempted: false,
     nonMarketPriceWritesDetected,
     schemaChanged: false,
     providerFetchAttempted: false,

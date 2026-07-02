@@ -8,7 +8,7 @@ import { prisma } from "../src/lib/database/client";
 
 type RawMarketPriceRow = Record<string, unknown>;
 
-const phase = "152B";
+const phase = "152B-retry";
 const jsonPath =
   "data/manual-review/market-price/core-ticker-vnstock-market-price-snapshot-2026-07-02.json";
 const targetTickers = ["FPT", "HPG", "VNM", "MSN", "MWG", "VCB"] as const;
@@ -115,6 +115,9 @@ async function run() {
     where: { ticker: { in: ["HSG", "NKG"] } },
   });
   const tvnRows = await prisma.marketPrice.count({ where: { ticker: "TVN" } });
+  const dataSourceCount = await prisma.dataSource.count({
+    where: { name: "VNStock market price snapshot" },
+  });
   const productionApprovedTrueCount = 0;
   const companyRows = await prisma.company.count();
   const screeningCandidateRows = await prisma.screeningCandidate.count();
@@ -159,6 +162,7 @@ async function run() {
     screeningCandidateWriteAttempted: false,
     financialStatementWriteAttempted: false,
     companyIndustryWriteAttempted: false,
+    dataSourceWriteAttempted: false,
     rawJsonCommitted: rawJsonIsCommitted,
     rankingCreated,
     stockAttractivenessScoreCreated,
@@ -169,6 +173,7 @@ async function run() {
       allExpectedRowsPresent &&
       hsgNkgRows === 0 &&
       tvnRows === 0 &&
+      dataSourceCount === 1 &&
       productionApprovedTrueCount === 0 &&
       !rawJsonIsCommitted &&
       !industryMetricCreated &&
