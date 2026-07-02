@@ -5,9 +5,11 @@ import { prisma } from "@/lib/database/client";
 import { loadLatestMacroObservations, type MacroObservationResult } from "@/features/macro/lib/macro-observation-read-path";
 import type { RedesignedScreeningCandidate } from "../data/screeningRedesign.data";
 import type { ScreeningReadinessCheck, ScreeningDataMode } from "../types";
+import { loadScreeningCandidatePayload, type ScreeningCandidatePayload } from "./screening-candidate-read-path";
 
 export type ScreeningRuntimeData = {
   candidates: RedesignedScreeningCandidate[];
+  screeningCandidates: ScreeningCandidatePayload[];
   macroContext?: MacroObservationResult;
 };
 
@@ -88,7 +90,7 @@ export const loadScreeningRuntimeData = async (
     let financialsData;
     try {
       financialsData = await loadFinancialsRuntimeData({ ticker, preferDb: options.preferDb });
-    } catch (err) {
+    } catch {
       financialsData = null;
     }
 
@@ -209,16 +211,25 @@ export const loadScreeningRuntimeData = async (
   }
 
   let macroContext;
+  let screeningCandidates: ScreeningCandidatePayload[] = [];
+
+  try {
+    screeningCandidates = await loadScreeningCandidatePayload();
+  } catch {
+    screeningCandidates = [];
+  }
+
   try {
     macroContext = await loadLatestMacroObservations({
       indicatorCodes: ["CPI_YOY", "GDP_GROWTH"]
     });
-  } catch (err) {
+  } catch {
     macroContext = undefined;
   }
 
   return {
     candidates,
+    screeningCandidates,
     macroContext
   };
 };

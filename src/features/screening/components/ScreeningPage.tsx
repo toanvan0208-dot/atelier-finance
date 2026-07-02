@@ -4,7 +4,6 @@ import { FormEvent, useMemo, useState } from "react";
 import { Button, Card, CardBody, Chip } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import {
-  candidatesByTicker,
   screeningRedesignData,
   type RedesignedGateStatus,
   type RedesignedScreeningCandidate,
@@ -12,6 +11,7 @@ import {
   type ScreeningMetricKey,
 } from "../data/screeningRedesign.data";
 import type { ScreeningRuntimeData } from "../lib/load-screening-runtime-data";
+import type { ScreeningCandidateMetricPayload, ScreeningCandidatePayload } from "../lib/screening-candidate-read-path";
 import type { ScreeningCandidateGroupKey, ScreeningGuideTone } from "../types";
 
 type ScreeningPageProps = {
@@ -594,6 +594,105 @@ function ScreeningResults({
   );
 }
 
+function formatMetricValue(metric: ScreeningCandidateMetricPayload): string {
+  if (metric.value === null) return "N/A / needs_review";
+  if (metric.metricCode === "CFO") return `${Math.round(metric.value).toLocaleString("vi-VN")} ${metric.unit ?? ""}`.trim();
+  if (metric.metricCode === "LIQUIDITY") return `${Math.round(metric.value).toLocaleString("vi-VN")} ${metric.unit ?? ""}`.trim();
+  return `${metric.value} ${metric.unit ?? ""}`.trim();
+}
+
+function metricCaveat(metric: ScreeningCandidateMetricPayload): string {
+  if (metric.metricCode === "PE" && metric.sourceType === "provider_snapshot") {
+    return "Provider P/E is a market ratio snapshot, not audited financial data.";
+  }
+  if (metric.metricCode === "CFO" && metric.statementScope === "consolidated") {
+    return "CFO is a manual consolidated cash-flow source.";
+  }
+  return metric.needsReview ? "research_only / needsReview=true" : "source caveat required";
+}
+
+function ScreeningCandidateUniverse({ candidates }: { candidates: ScreeningCandidatePayload[] }) {
+  if (candidates.length === 0) return null;
+
+  return (
+    <section className="space-y-4">
+      <div>
+        <Chip variant="warning">screening_candidate</Chip>
+        <h2 className="mt-2 text-2xl font-bold text-ink">Ung vien Screening tu bang rieng</h2>
+        <p className="mt-1 max-w-3xl text-sm leading-6 text-muted">
+          HSG va NKG chi xuat hien trong Screening de kiem tra du lieu ung vien. Hai ma nay khong duoc mo khoa Business,
+          Financials, Valuation hoac Risk deep-analysis.
+        </p>
+      </div>
+
+      <div className="grid gap-3 lg:grid-cols-2">
+        {candidates.map((candidate) => (
+          <article key={candidate.ticker} className="rounded-[4px] border-[1.5px] border-border bg-surface px-4 py-4 shadow-soft">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-2xl font-bold leading-none text-ink">{candidate.ticker}</p>
+                <p className="mt-2 text-xs font-semibold leading-5 text-muted">
+                  {candidate.companyName ?? "N/A"} · {candidate.industryCode ?? "N/A"}
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Chip size="sm" variant="warning">{candidate.coverageLevel}</Chip>
+                <Chip size="sm" variant="neutral">analysisEligible=false</Chip>
+              </div>
+            </div>
+
+            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+              <InfoBlock label="Data mode" value={candidate.dataMode} />
+              <InfoBlock label="Full analysis" value={candidate.fullAnalysisEnabled ? "enabled" : "disabled"} />
+              <InfoBlock label="Benchmark" value={candidate.isValuationRiskBenchmarkEligible ? "eligible" : "not eligible"} />
+              <InfoBlock label="Needs review" value={candidate.needsReview ? "true" : "false"} />
+            </div>
+
+            <div className="mt-3 rounded-[4px] border border-warning bg-warning/10 px-3 py-2">
+              <p className="text-xs font-bold text-ink">Caveat bat buoc</p>
+              <p className="mt-1 text-xs leading-5 text-muted">
+                screening_candidate · research_only · needsReview=true · not investment advice · not full analysis · not valuation/risk benchmark
+              </p>
+              <p className="mt-1 text-xs leading-5 text-muted">
+                HSG/NKG cannot be used in Business/Financials/Valuation/Risk deep-analysis path.
+              </p>
+            </div>
+
+            <div className="mt-3 grid gap-2">
+              {candidate.metrics.map((metric) => (
+                <div key={`${candidate.ticker}-${metric.metricCode}`} className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-2">
+                  <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <p className="text-[11px] font-bold uppercase text-subtle">{metric.metricCode}</p>
+                      <p className="mt-1 text-sm font-bold text-ink">{formatMetricValue(metric)}</p>
+                    </div>
+                    <Chip size="sm" variant={metric.productionApproved ? "danger" : "neutral"}>
+                      productionApproved={String(metric.productionApproved)}
+                    </Chip>
+                  </div>
+                  <p className="mt-2 text-xs leading-5 text-muted">{metricCaveat(metric)}</p>
+                  <p className="mt-1 text-[11px] leading-4 text-subtle">
+                    Source: {metric.sourceLabel ?? "N/A"} · {metric.sourceType ?? "N/A"} · providerPeriod:{" "}
+                    {metric.providerPeriod ?? "N/A"}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-3 flex flex-wrap gap-2">
+              {candidate.caveats.map((caveat) => (
+                <Chip key={caveat} size="sm" variant="neutral">
+                  {caveat}
+                </Chip>
+              ))}
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function MetricWithTip({ label, value }: { label: ScreeningMetricKey; value: string }) {
   return (
     <div
@@ -749,6 +848,7 @@ export function ScreeningPage({ onNavigate, initialData }: ScreeningPageProps) {
   const [inputSource] = useState(readScreeningInputSource);
 
   const candidates = initialData?.candidates ?? screeningRedesignData.candidates;
+  const dedicatedScreeningCandidates = initialData?.screeningCandidates ?? [];
   const activeCandidatesByTicker = useMemo(
     () => Object.fromEntries(candidates.map((c) => [c.ticker, c])),
     [candidates]
@@ -766,6 +866,7 @@ export function ScreeningPage({ onNavigate, initialData }: ScreeningPageProps) {
       <ScreeningInputSourceBanner inputSource={inputSource} onNavigate={onNavigate} />
       <ActiveScreeningQuery />
       <ScreeningFunnel />
+      <ScreeningCandidateUniverse candidates={dedicatedScreeningCandidates} />
       <div className="rounded-[4px] border-[1.5px] border-border bg-accent-soft px-4 py-3">
         <p className="text-sm font-bold text-ink">
           Sau kiểm tra dữ liệu có {priorityCount} mã đủ dữ liệu để phân tích tiếp. Đây không phải xếp hạng đầu tư.
