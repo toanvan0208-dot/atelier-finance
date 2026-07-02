@@ -60,20 +60,18 @@ async function main() {
   const uiText = readFileSync(join(process.cwd(), "src", "features", "screening", "components", "ScreeningPage.tsx"), "utf8");
   const apiText = readFileSync(join(process.cwd(), "src", "app", "api", "screening", "candidates", "route.ts"), "utf8");
   const readPathText = readFileSync(join(process.cwd(), "src", "features", "screening", "lib", "screening-candidate-read-path.ts"), "utf8");
-  const compactUiFacingText = [
+  const renderedScreeningPageText = uiText.slice(uiText.indexOf("export function ScreeningPage"));
+  const restoredCardUiFacingText = [
     "Bước 3 — Lọc theo mức độ đủ dữ liệu",
-    "Kiểm tra mã nào đang có đủ dữ liệu để đọc tiếp.",
-    "Đây không phải bảng xếp hạng cổ phiếu và không phải khuyến nghị đầu tư.",
-    "Tìm mã: HPG, HSG, NKG...",
-    "Có P/E",
-    "Có P/B",
-    "Có CFO",
-    "Có thanh khoản",
-    "Danh sách mã theo mức độ đủ dữ liệu",
-    "Không phải bảng xếp hạng đầu tư.",
-    "Không dùng làm benchmark định giá/rủi ro.",
+    "Kiểm tra nhanh mức đủ dữ liệu",
+    "Nguồn đầu vào",
+    "Phễu kiểm tra dữ liệu",
+    "Ứng viên Screening từ bảng riêng",
+    "Kết quả sau lọc",
+    "Kết luận và bước tiếp theo",
+    "Không phải khuyến nghị đầu tư.",
   ].join("\n");
-  const uiApiFacingText = `${JSON.stringify(payload)}\n${compactUiFacingText}\n${apiText}\n${readPathText}`;
+  const uiApiFacingText = `${JSON.stringify(payload)}\n${restoredCardUiFacingText}\n${apiText}\n${readPathText}`;
 
   const productionApprovedTrueCount =
     payload.filter((candidate) => candidate.productionApproved).length +
@@ -84,19 +82,19 @@ async function main() {
   const nkgCfoText = `${nkgCfo?.value ?? ""} ${nkgCfo?.sourceType ?? ""} ${nkgCfo?.statementScope ?? ""}`;
 
   const result = {
-    phase: "151Q",
-    smoke: "screening-compact-filter-table-ux",
+    phase: "151Q-restore-card-ui",
+    smoke: "screening-restored-card-ui-boundary",
     candidateCount: payload.length,
-    screeningCompactFilterUiRendered:
-      uiText.includes("Bảng screening compact") &&
-      uiText.includes("Tìm mã: HPG, HSG, NKG...") &&
-      uiText.includes("Có thanh khoản"),
-    candidateTableRendered:
-      uiText.includes("<table") &&
-      uiText.includes("Danh sách mã theo mức độ đủ dữ liệu") &&
-      uiText.includes("Hành động"),
-    filterBarRendered: uiText.includes("CompactFilterBar") && uiText.includes("Xóa lọc"),
-    summaryCardsRendered: uiText.includes("CompactSummaryCards") && uiText.includes("Tổng mã trong phạm vi"),
+    restoredCardUiRendered:
+      renderedScreeningPageText.includes("TickerQuickCheck") &&
+      renderedScreeningPageText.includes("ScreeningInputSourceBanner") &&
+      renderedScreeningPageText.includes("ScreeningFunnel") &&
+      renderedScreeningPageText.includes("ScreeningCandidateUniverse") &&
+      renderedScreeningPageText.includes("ScreeningResults"),
+    compactTableUiRenderedInMainFlow:
+      renderedScreeningPageText.includes("CompactCandidateTable") ||
+      renderedScreeningPageText.includes("CompactFilterBar") ||
+      renderedScreeningPageText.includes("CompactSummaryCards"),
     hsgAppears: Boolean(hsg),
     nkgAppears: Boolean(nkg),
     hsgRowPresent: Boolean(hsg),
@@ -114,7 +112,9 @@ async function main() {
     hsgPeVisible: hsgPe?.value === 14.72,
     hsgPeValue: hsgPe?.value ?? null,
     hsgPeProviderPeriod: hsgPe?.providerPeriod ?? null,
-    hsgPeProviderPeriodVisible: hsgPe?.providerPeriod === "2026-Q2" && uiText.includes("provider snapshot"),
+    hsgPeProviderPeriodVisible:
+      hsgPe?.providerPeriod === "2026-Q2" &&
+      (uiText.includes("provider snapshot") || uiText.includes("provider_snapshot")),
     hsgPeCaveatIncludesProviderSnapshot: containsAny(hsgPeCaveatText, ["provider_snapshot", "PROVIDER_SNAPSHOT"]),
     hsgPeCaveatIncludesResearchOnly: containsAny(hsgPeCaveatText, ["research_only", "RESEARCH_ONLY"]),
     hsgPeCaveatIncludesNeedsReview: containsAny(hsgPeCaveatText, ["true", "NEEDS_REVIEW"]),
@@ -128,8 +128,9 @@ async function main() {
     screeningCandidateBadgesVisible: uiText.includes("screening_candidate") && uiText.includes("needsReview"),
     analysisEligibleFalseVisible: uiText.includes("analysisEligible") && uiText.includes("false"),
     fullAnalysisDisabledVisible: uiText.includes("fullAnalysisEnabled") && uiText.includes("false"),
-    notInvestmentAdviceVisible: uiText.includes("Không phải khuyến nghị đầu tư"),
-    notBenchmarkVisible: uiText.includes("Không dùng làm benchmark định giá/rủi ro"),
+    notInvestmentAdviceVisible: uiText.includes("Không phải khuyến nghị đầu tư") || uiText.includes("not investment advice"),
+    notBenchmarkVisible:
+      uiText.includes("Không dùng làm benchmark định giá/rủi ro") || uiText.includes("not valuation/risk benchmark"),
     forbiddenAdviceDetected,
     rankingCreated: false,
     stockAttractivenessScoreCreated: false,
@@ -142,10 +143,8 @@ async function main() {
   };
 
   const smokePassed =
-    result.screeningCompactFilterUiRendered &&
-    result.candidateTableRendered &&
-    result.filterBarRendered &&
-    result.summaryCardsRendered &&
+    result.restoredCardUiRendered &&
+    !result.compactTableUiRenderedInMainFlow &&
     result.hsgAppears &&
     result.nkgAppears &&
     result.tvnAbsent &&
