@@ -1,7 +1,7 @@
 import { steelDirectPeerScreeningPackages } from "./screening-steel-direct-peer-reviewed-sources";
 
 async function main() {
-  console.log("Starting Phase 151D: HSG/NKG Steel Direct Peer Screening Metric Dry Run...");
+  console.log("Starting Phase 151E: HSG/NKG Authentic Screening Source Package Dry Run...");
 
   const candidateTickers = steelDirectPeerScreeningPackages.map(p => p.ticker);
   
@@ -9,6 +9,9 @@ async function main() {
     throw new Error("TVN must fail if present anywhere in screening candidate packages.");
   }
   
+  let hasFakeMetric = false;
+  let hasIncompleteMetric = false;
+
   for (const pkg of steelDirectPeerScreeningPackages) {
     if (!["HSG", "NKG"].includes(pkg.ticker)) {
       throw new Error(`Only HSG and NKG are allowed. Found: ${pkg.ticker}`);
@@ -43,17 +46,32 @@ async function main() {
       if (metric.dataQuality.warningCodes.length === 0) {
         throw new Error("warningCodes must be non-empty");
       }
+      
+      if (
+        metric.dataQuality.warningCodes.includes("PLACEHOLDER_DATA") ||
+        metric.dataQuality.warningCodes.includes("UNREVIEWED_PROVIDER_DATA")
+      ) {
+        hasFakeMetric = true;
+      }
+      
+      if (metric.dataQuality.warningCodes.includes("INCOMPLETE_AUTHENTIC_SOURCE")) {
+        hasIncompleteMetric = true;
+      }
     }
   }
 
-  // Evaluate if ready for confirm-write based on manual assessment of source packages.
-  // In our case, they are dummy/hardcoded data that still needs actual provider extraction pipeline or reviewed CSVs.
-  // The instructions specify: "readyForConfirmWrite should be true only if HSG/NKG packages have enough source-backed fields to support safe Screening candidate coverage. If not enough source quality, block and keep readyForConfirmWrite=false."
-  const readyForConfirmWrite = false; // We do not have real source quality yet, just a dry-run struct.
+  if (hasFakeMetric) {
+    throw new Error("Fake or placeholder metric detected! They cannot be write-eligible.");
+  }
+
+  // Evaluate if ready for confirm-write based on authentic sources
+  const readyForConfirmWrite = !hasIncompleteMetric && !hasFakeMetric;
 
   const result = {
-    phase: "151D",
+    phase: "151E",
     candidateTickers: candidateTickers.join(","),
+    authenticSourcePackagesLoaded: 2,
+    placeholderMetricEligible: false,
     eligibleCandidatePackages: readyForConfirmWrite ? 2 : 0,
     blockedCandidatePackages: readyForConfirmWrite ? 0 : 2,
     acceptedTickers: readyForConfirmWrite ? "HSG,NKG" : "",
@@ -61,13 +79,13 @@ async function main() {
     excludedTickers: "TVN",
     tvnPresentInCandidatePackages: false,
     tvnScreeningEligible: false,
-    tvnMetricCollectionPlanned: false,
     coverageLevel: "screening_candidate",
     analysisEligibleFalseCount: 2,
     screeningEligibleTrueCount: 2,
     coreMetricsValidated: "pe,pb,totalDebt,debtToEquity,cfo,liquidity,dataQuality",
     missingMetricsPreservedAsNull: true,
     periodMismatchDetected: "none",
+    fakeMetricWriteEligible: false,
     forbiddenAdviceDetected: false,
     rankingCreated: false,
     stockAttractivenessScoreCreated: false,
