@@ -12,7 +12,6 @@ import {
   WorldContextSection,
   MacroIndicatorUniverseSection
 } from "./MacroCompassSections";
-import { MacroIndustryReadinessSkeleton } from "./MacroIndustryReadinessSkeleton";
 
 type MacroPageProps = {
   onNavigate?: (moduleKey: string) => void;
@@ -37,7 +36,6 @@ export function MacroPage({ onNavigate, initialData }: MacroPageProps) {
       </header>
 
       <main className="space-y-8">
-        <MacroIndustryReadinessSkeleton domain="macro" />
         <MacroCurrentPicture data={data.currentPicture} onNavigate={onNavigate} />
         
         {/* NEW: Macro Indicator Universe */}

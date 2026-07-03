@@ -21,10 +21,15 @@ export type LoadTechnicalRuntimeDataDependencies = {
 };
 
 const DEFAULT_TICKER = "FPT";
-const DEFAULT_FROM = "2025-06-02";
-const DEFAULT_TO = "2025-06-30";
 const DEFAULT_SOURCE_LABEL = "vnstock_research_candidate";
 const ENABLED_FLAG = "enabled";
+
+const defaultToDate = () => new Date().toISOString().slice(0, 10);
+const defaultFromDate = () => {
+  const d = new Date();
+  d.setFullYear(d.getFullYear() - 1);
+  return d.toISOString().slice(0, 10);
+};
 
 const isDbSourceEnabled = (
   env: LoadTechnicalRuntimeDataDependencies["env"] = process.env,
@@ -39,9 +44,9 @@ const buildInput = (
 
   return {
     ticker: hasExplicitTicker ? requestedTicker.trim().toUpperCase() : DEFAULT_TICKER,
-    from: input.from ?? DEFAULT_FROM,
-    to: input.to ?? DEFAULT_TO,
-    sourceLabel: input.sourceLabel ?? DEFAULT_SOURCE_LABEL,
+    from: input.from ?? defaultFromDate(),
+    to: input.to ?? defaultToDate(),
+    sourceLabel: input.sourceLabel ?? (hasExplicitTicker ? "VNStock market price snapshot" : DEFAULT_SOURCE_LABEL),
     preferDb: input.preferDb ?? (hasExplicitTicker || isDbSourceEnabled(env)),
     allowFallback: input.allowFallback ?? !hasExplicitTicker,
   };

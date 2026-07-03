@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import { EmptyState, LoadingState } from "@/components/ui";
-import { MacroIndustryReadinessSkeleton } from "@/features/macro/components/MacroIndustryReadinessSkeleton";
 import { industryPageData } from "../data/industry.data";
 import { industryCompassData } from "../data/industryCompass.data";
 import type { IndustryContextRuntimePayload } from "../lib/load-industry-context";
@@ -21,7 +20,7 @@ type IndustryPageProps = {
   onNavigate?: (moduleKey: string) => void;
 };
 
-export function IndustryPage({ initialIndustryContexts = {}, onNavigate }: IndustryPageProps) {
+export function IndustryPage({ onNavigate }: IndustryPageProps) {
   const [selectedIndustryId, setSelectedIndustryId] = useState(
     industryCompassData.industries[0]?.id ?? ""
   );
@@ -30,11 +29,6 @@ export function IndustryPage({ initialIndustryContexts = {}, onNavigate }: Indus
       industryCompassData.industries.find((industry) => industry.id === selectedIndustryId) ??
       industryCompassData.industries[0],
     [selectedIndustryId]
-  );
-  const selectedIndustryContexts = useMemo(
-    () =>
-      selectedIndustry?.relatedTickers.map((ticker) => initialIndustryContexts[ticker]).filter(Boolean) ?? [],
-    [initialIndustryContexts, selectedIndustry]
   );
 
   if (industryPageData.isLoading) {
@@ -58,10 +52,8 @@ export function IndustryPage({ initialIndustryContexts = {}, onNavigate }: Indus
 
   return (
     <div className="mx-auto w-full max-w-[1180px] space-y-8">
-      <MacroIndustryReadinessSkeleton domain="industry" />
       <IndustryCurrentHeader
         industries={industryCompassData.industries}
-        industryContexts={selectedIndustryContexts}
         selectedIndustry={selectedIndustry}
         onSelectIndustry={setSelectedIndustryId}
       />

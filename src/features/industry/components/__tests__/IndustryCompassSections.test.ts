@@ -16,7 +16,10 @@ describe("IndustryCurrentHeader product copy", () => {
     );
 
     expect(html).toContain("Dữ liệu nghiên cứu");
-    expect(html).toContain("Nguồn đang hoàn thiện");
+    expect(html).toContain("Dữ liệu ngành đang được rà soát");
+    expect(html).not.toContain("Nguồn đang hoàn thiện");
+    expect(html).not.toContain("DB taxonomy");
+    expect(html).not.toContain("DB peer group");
     expect(html).not.toContain("productionApproved:false");
     expect(html).not.toContain("research_only");
     expect(html).not.toContain("nên mua");
@@ -42,8 +45,8 @@ describe("IndustryCompanyMapSection steel screening candidate cards", () => {
     expect(html).not.toContain("TVN");
     expect(html).toContain("Hoa Sen Group");
     expect(html).toContain("Nam Kim Steel");
-    expect(html.match(/screening_candidate/g)?.length ?? 0).toBeGreaterThanOrEqual(2);
-    expect(html).toContain("chua mo phan tich sau");
+    expect(html.match(/Ứng viên sàng lọc/g)?.length ?? 0).toBeGreaterThanOrEqual(2);
+    expect(html).toContain("chưa mở phân tích sâu");
     expect(html.match(/Screening/g)?.length ?? 0).toBeGreaterThanOrEqual(3);
 
     const forbiddenCopy = [

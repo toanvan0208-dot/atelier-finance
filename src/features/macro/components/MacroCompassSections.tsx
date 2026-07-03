@@ -334,19 +334,12 @@ export function MacroIndicatorUniverseSection({ data }: { data: MacroCompassData
                 <p>{indicator.description}</p>
                 {latestObservations.length > 0 && (
                   <div className="mt-3 rounded border border-border-soft bg-canvas p-3">
-                    <p className="font-bold text-ink">Số liệu gần nhất từ DB:</p>
+                    <p className="font-bold text-ink">Số liệu gần nhất:</p>
                     <div className="mt-2 grid gap-2">
                       {latestObservations.map((observation: MacroIndicatorDbObservation) => (
                         <div key={`${observation.sourceLabel}-${observation.unit}-${observation.observationDate}`} className="rounded border border-border-soft bg-surface p-2">
                           <p className="text-sm font-bold">{observation.value} {observation.unit}</p>
-                          <p className="mt-1">Kỳ: {observation.observationDate?.split('T')[0]}</p>
-                          <p className="mt-1">Nguồn: {observation.sourceLabel}</p>
-                          {!observation.productionApproved && (
-                            <p className="mt-1 text-danger">Dữ liệu candidate, chưa được phê duyệt production.</p>
-                          )}
-                          {observation.needsReview && (
-                            <p className="mt-1 text-warning">Cần kiểm duyệt trước khi xem là dữ liệu production.</p>
-                          )}
+                          <p className="mt-1">Dữ liệu đang được rà soát.</p>
                           {observation.provenance?.semanticCaveats?.map((caveat: string) => (
                             <p key={caveat} className="mt-1 text-muted">{caveat}</p>
                           ))}
@@ -412,31 +405,13 @@ function MetricGrid({ metrics }: { metrics: MacroCompassMetric[] }) {
           </div>
           <details className="mt-4">
             <summary className="cursor-pointer list-none text-xs font-bold text-ink underline-offset-4 hover:underline">
-              Xem ngành liên quan và độ tin cậy
+              Xem ngành liên quan
             </summary>
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
               <MiniBlock title="Ngành cần chú ý" items={metric.relatedSectors} />
               <div className="rounded-[4px] border border-border-soft bg-canvas p-3 text-xs leading-5 text-muted">
                 <strong className="text-ink">Trạng thái dữ liệu: </strong>
                 {metric.confidence}
-                {metric.sourceName ? (
-                  <p className="mt-2">
-                    <strong className="text-ink">Nguồn: </strong>
-                    {metric.sourceRef ? (
-                      <a className="underline underline-offset-2" href={metric.sourceRef} rel="noreferrer" target="_blank">
-                        {metric.sourceLabel ?? metric.sourceName}
-                      </a>
-                    ) : (
-                      metric.sourceLabel ?? metric.sourceName
-                    )}
-                  </p>
-                ) : null}
-                {metric.period && metric.asOf ? (
-                  <p>
-                    <strong className="text-ink">Kỳ / as of: </strong>
-                    {metric.period} / {metric.asOf}
-                  </p>
-                ) : null}
                 {metric.warnings[0] ? <p className="mt-2">{metric.warnings[0]}</p> : null}
               </div>
             </div>

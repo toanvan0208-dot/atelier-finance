@@ -30,9 +30,9 @@ describe("macro industry readiness UI model", () => {
 
     expect(model.moduleKey).toBe("macro");
     expect(model.statusCards.map((card) => card.value)).toEqual(
-      expect.arrayContaining(["Thieu bang chung", "Can khai bao ro", "Chua phe duyet", "Chua san sang"]),
+      expect.arrayContaining(["Thiếu bằng chứng", "Cần khai báo rõ", "Chưa đủ điều kiện", "Chưa sẵn sàng"]),
     );
-    expect(model.badgeLabel).toBe("Dang chuan bi");
+    expect(model.badgeLabel).toBe("Đang chuẩn bị");
     expect(model.requiredFields).toEqual(expect.arrayContaining(["GDP growth", "Inflation", "PMI"]));
   });
 
@@ -41,9 +41,9 @@ describe("macro industry readiness UI model", () => {
 
     expect(model.moduleKey).toBe("industry");
     expect(model.statusCards.map((card) => card.value)).toEqual(
-      expect.arrayContaining(["Thieu bang chung", "Can khai bao ro", "Chua phe duyet", "Chua san sang"]),
+      expect.arrayContaining(["Thiếu bằng chứng", "Cần khai báo rõ", "Chưa đủ điều kiện", "Chưa sẵn sàng"]),
     );
-    expect(model.summary).toContain("chua phai du lieu san xuat");
+    expect(model.summary).toContain("chưa phải dữ liệu chính thức");
     expect(model.requiredFields).toEqual(
       expect.arrayContaining(["Industry code", "Industry name", "Revenue growth", "Sector index change"]),
     );
@@ -55,23 +55,23 @@ describe("macro industry readiness UI model", () => {
       buildMacroIndustryReadinessUiModel("industry"),
     ]);
 
-    expect(serialized).toContain("Chua phe duyet");
-    expect(serialized).toContain("Nguon chua duyet");
+    expect(serialized).toContain("Chưa đủ điều kiện");
+    expect(serialized).toContain("Nguồn chưa đủ điều kiện");
     expect(serialized).not.toContain("productionApproved:false");
-    expect(serialized).toContain("Thieu bang chung nguon");
-    expect(serialized).toContain("Can don vi ro");
-    expect(serialized).toContain("Khong doan don vi tu do lon so");
-    expect(serialized).toContain("du lieu thieu khong duoc thay bang 0");
+    expect(serialized).toContain("Thiếu bằng chứng nguồn");
+    expect(serialized).toContain("Cần đơn vị rõ");
+    expect(serialized).toContain("Không đoán đơn vị từ độ lớn số");
+    expect(serialized).toContain("dữ liệu thiếu không được thay bằng 0");
   });
 
   it("shows future gates without enabling production readiness", () => {
     const model = buildMacroIndustryReadinessUiModel("macro");
 
     expect(model.futureGates.map((gate) => gate.label)).toEqual(
-      expect.arrayContaining(["Mo ket noi du lieu that", "Kiem tra va duyet nguon"]),
+      expect.arrayContaining(["Mở kết nối dữ liệu thật", "Kiểm tra và duyệt nguồn"]),
     );
-    expect(model.futureGates.map((gate) => gate.detail).join(" ")).toContain("Mac dinh van dong");
-    expect(model.statusCards.find((card) => card.label === "San sang su dung")?.value).toBe("Chua san sang");
+    expect(model.futureGates.map((gate) => gate.detail).join(" ")).toContain("Mặc định vẫn đóng");
+    expect(model.statusCards.find((card) => card.label === "Sẵn sàng sử dụng")?.value).toBe("Chưa sẵn sàng");
   });
 
   it("renders user-facing readiness copy without raw boundary labels or forbidden wording", () => {
@@ -80,11 +80,11 @@ describe("macro industry readiness UI model", () => {
       renderToStaticMarkup(createElement(MacroIndustryReadinessSkeleton, { domain: "industry" })),
     ].join("\n").toLowerCase();
 
-    expect(html).toContain("chua phe duyet");
+    expect(html).toContain("chưa đủ điều kiện");
     expect(html).not.toContain("productionapproved:false");
-    expect(html).toContain("thieu bang chung");
-    expect(html).toContain("can khai bao ro");
-    expect(html).toContain("chua san sang");
+    expect(html).toContain("thiếu bằng chứng");
+    expect(html).toContain("cần khai báo rõ");
+    expect(html).toContain("chưa sẵn sàng");
     expect(html).not.toContain("boundary skeleton");
     expect(html).not.toContain("unknown_unit");
     expect(html).not.toContain("missingsourceevidence");

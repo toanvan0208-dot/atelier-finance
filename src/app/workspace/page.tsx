@@ -9,6 +9,8 @@ import { loadLearningRuntimeData } from "@/features/learning";
 import { loadMacroRuntimeData } from "@/features/macro/lib/load-macro-runtime-data";
 import { loadIndustryContextRuntimeByTicker } from "@/features/industry/lib/load-industry-context";
 
+export const dynamic = "force-dynamic";
+
 type WorkspacePageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };

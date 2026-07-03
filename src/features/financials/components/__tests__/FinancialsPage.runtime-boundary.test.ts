@@ -97,9 +97,10 @@ describe("Financials runtime UI boundary", () => {
       createElement(FinancialsPage, { initialRuntimeData: sampleRuntimeData }),
     );
 
-    expect(html).toContain("Dữ liệu minh họa");
-    expect(html).toContain("Minh họa/đang chờ dữ liệu");
-    expect(html).toContain("chưa phê duyệt sản xuất");
+    expect(html).toContain("Tổng quan sức khỏe tài chính");
+    expect(html).not.toContain("Phần BCTC chỉ hiển thị những dữ liệu đang có");
+    expect(html).not.toContain("Không thay dữ liệu thiếu bằng 0");
+    expect(html).not.toContain("Dữ liệu minh họa");
     expect(html).not.toContain("sample_fallback");
     expect(html).not.toContain("static_sample_financials");
     expect(html).not.toContain("sample_static");
@@ -116,16 +117,14 @@ describe("Financials runtime UI boundary", () => {
       }),
     );
 
-    expect(html).toContain("Đã có dữ liệu tài chính trong hệ thống");
-    expect(html).toContain("phạm vi nghiên cứu");
-    expect(html).toContain("Đã có trong hệ thống");
-    expect(html).toContain("chưa phê duyệt sản xuất");
-    expect(html).toContain("Financials cung cấp đầu vào");
-    expect(html).toContain("Phân loại dữ liệu");
-    expect(html).toContain("Nguồn/evidence");
-    expect(html).toContain("Đơn vị dữ liệu");
-    expect(html).toContain("Chuyển sang định giá");
-    expect(html).toContain("Định giá vẫn kiểm tra ranh giới riêng");
+    expect(html).toContain("Dữ liệu đang rà soát");
+    expect(html).toContain("Không thay dữ liệu thiếu bằng 0");
+    expect(html).toContain("Phần BCTC chỉ hiển thị những dữ liệu đang có");
+    expect(html).toContain("EPS");
+    expect(html).toContain("Số cổ phiếu");
+    expect(html).toContain("Vốn chủ sở hữu");
+    expect(html).toContain("Nợ vay");
+    expect(html).toContain("Cần kiểm tra thêm: Doanh thu, Dòng tiền hoạt động");
     expect(html).not.toContain(
       "phase45_synthetic_financial_statement_local_write",
     );
@@ -136,7 +135,7 @@ describe("Financials runtime UI boundary", () => {
     expect(html).not.toContain("canClaimValuationDbBacked");
   });
 
-  it("shows reviewed debt, EPS, and shares status without exposing raw flags", () => {
+  it("keeps reviewed input status cards hidden from the page", () => {
     const html = renderToStaticMarkup(
       createElement(FinancialsPage, {
         initialRuntimeData: dbBackedRuntimeData,
@@ -166,12 +165,10 @@ describe("Financials runtime UI boundary", () => {
       } as never),
     );
 
-    expect(html).toContain("Bản ghi đã rà soát");
-    expect(html).toContain("Nợ vay");
-    expect(html).toContain("EPS");
-    expect(html).toContain("Số cổ phiếu");
-    expect(html).toContain("Dùng cho nghiên cứu");
-    expect(html).toContain("chưa phê duyệt sản xuất");
+    expect(html).toContain("Tổng quan sức khỏe tài chính");
+    expect(html).not.toContain("Bản ghi đã rà soát");
+    expect(html).not.toContain("Dùng cho nghiên cứu");
+    expect(html).not.toContain("Nếu thiếu đầu vào");
     expect(html).not.toContain("sharesOutstanding");
     expect(html).not.toContain("totalDebt");
     expect(html).not.toContain("sourceLabel");
@@ -189,10 +186,13 @@ describe("Financials runtime UI boundary", () => {
       }),
     );
 
-    expect(html).toContain("Dữ liệu nghiên cứu (productionApproved: false)");
-    expect(html).toContain("chưa phê duyệt sản xuất");
-    expect(html).toContain("revenue");
+    expect(html).toContain("Dữ liệu nghiên cứu, cần rà soát");
+    expect(html).toContain("Nguồn đang được kiểm tra");
+    expect(html).toContain("Chưa đủ dữ liệu hoặc N/A");
+    expect(html).not.toContain("revenue");
+    expect(html).not.toContain("phase45_synthetic_financial_statement_local_write");
     expect(html).not.toContain("Dữ liệu có metadata nguồn");
+    expect(html).not.toContain("productionApproved");
   });
 
   it("keeps partial missing fields visible instead of rendering them as zero", () => {
@@ -204,10 +204,8 @@ describe("Financials runtime UI boundary", () => {
 
     expect(html).toContain("Doanh thu");
     expect(html).toContain("Dòng tiền hoạt động");
-    expect(html).toContain("null/unavailable");
-    expect(html).toContain("Lý do đang chặn");
-    expect(html).toContain("Thiếu trường dữ liệu cần thiết");
-    expect(html).toContain("Các trường hiện có chưa có đơn vị rõ");
+    expect(html).toContain("Chưa đủ dữ liệu");
+    expect(html).toContain("Không thay dữ liệu thiếu bằng 0");
     expect(html).not.toContain("0 ty");
     expect(html).not.toContain("0 tỷ");
   });

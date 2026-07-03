@@ -4,6 +4,7 @@ import type { MacroCompassData, MacroCompassMetric } from "../types";
 import { MACRO_INDICATOR_UNIVERSE } from "./macro-indicator-registry";
 import { evaluateMacroObservationFreshness } from "./macro-stale-policy";
 import { DOMESTIC_RATE_FRONTEND_INDICATOR_CODE } from "./macro-domestic-rate-semantic-mapping";
+import { formatMacroCompassMetricValue } from "./macro-compass-data-contract";
 
 type MacroObservationRuntimeRow = Awaited<ReturnType<typeof loadLatestMacroObservations>>["observations"][number];
 type MacroIndicatorRegistryItem = (typeof MACRO_INDICATOR_UNIVERSE)[number];
@@ -68,6 +69,128 @@ const getLatestObservationsForIndicator = (
     }
   }
   return Array.from(latestByUnit.values());
+};
+
+const isReviewedStaticMetric = (metric: MacroCompassMetric): boolean =>
+  metric.value !== null && (metric.dataMode === "reviewed" || metric.dataMode === "manual_reviewed");
+
+const isReadableMetric = (metric: MacroCompassMetric | undefined): metric is MacroCompassMetric =>
+  Boolean(metric && metric.value !== null && metric.status !== "missing");
+
+const hydrateCurrentPictureFromMetrics = (data: MacroCompassData): void => {
+  const metricById = new Map(data.vietnamMetrics.map((metric) => [metric.id, metric]));
+  const gdp = metricById.get("gdp");
+  const cpi = metricById.get("cpi");
+  const usdVnd = metricById.get("usd-vnd");
+  const creditGrowth = metricById.get("credit-growth");
+  const publicInvestment = metricById.get("public-investment");
+  const pmi = metricById.get("pmi");
+  const domesticRate = metricById.get("domestic-rate");
+  const foreignFlow = metricById.get("foreign-flow");
+
+  const readableReferenceCount = [gdp, cpi, usdVnd].filter(isReadableMetric).length;
+  if (readableReferenceCount === 0) return;
+
+  data.currentPicture = {
+    ...data.currentPicture,
+    state: "Có dữ liệu tham chiếu, chưa đủ để kết luận hiện tại",
+    tone: "watch",
+    summary:
+      "Đã có dữ liệu tham chiếu cho một số biến vĩ mô chính. Các biến ngắn hạn như lãi suất, PMI, dòng vốn và dữ liệu cập nhật hơn vẫn cần được bổ sung trước khi kết luận bối cảnh hiện tại.",
+    supports: [
+      isReadableMetric(gdp)
+        ? {
+            label: "Tăng trưởng GDP",
+            value: `${formatMacroCompassMetricValue(gdp)}. Dùng như nền tham chiếu cho sức khỏe kinh tế chung, không phải kết luận riêng cho một cổ phiếu.`,
+            tone: "support",
+          }
+        : {
+            label: "Tăng trưởng GDP",
+            value: "Chưa đủ dữ liệu để đánh giá sức khỏe kinh tế chung.",
+            tone: "neutral",
+          },
+      isReadableMetric(creditGrowth)
+        ? {
+            label: "Tín dụng",
+            value: `${formatMacroCompassMetricValue(creditGrowth)}. Cần đọc cùng chất lượng tín dụng và nhu cầu vay thật.`,
+            tone: "watch",
+          }
+        : {
+            label: "Tín dụng",
+            value: "Chưa đủ dữ liệu để đánh giá lực hỗ trợ từ tín dụng.",
+            tone: "neutral",
+          },
+      isReadableMetric(publicInvestment)
+        ? {
+            label: "Đầu tư công",
+            value: `${formatMacroCompassMetricValue(publicInvestment)}. Cần đối chiếu tiến độ giải ngân với doanh thu ngành liên quan.`,
+            tone: "watch",
+          }
+        : {
+            label: "Đầu tư công",
+            value: "Chưa đủ dữ liệu để đánh giá lực hỗ trợ từ đầu tư công.",
+            tone: "neutral",
+          },
+    ],
+    pressures: [
+      isReadableMetric(usdVnd)
+        ? {
+            label: "USD/VND",
+            value: `${formatMacroCompassMetricValue(usdVnd)}. Đây là biến cần theo dõi với doanh nghiệp nhập khẩu, vay ngoại tệ hoặc chịu tác động dòng vốn.`,
+            tone: "watch",
+          }
+        : {
+            label: "USD/VND",
+            value: "Chưa đủ dữ liệu để đánh giá áp lực tỷ giá.",
+            tone: "neutral",
+          },
+      isReadableMetric(cpi)
+        ? {
+            label: "CPI",
+            value: `${formatMacroCompassMetricValue(cpi)}. Cần đọc cùng sức mua, giá đầu vào và biên lợi nhuận từng ngành.`,
+            tone: "watch",
+          }
+        : {
+            label: "CPI",
+            value: "Chưa đủ dữ liệu để đánh giá áp lực lạm phát.",
+            tone: "neutral",
+          },
+      isReadableMetric(foreignFlow)
+        ? {
+            label: "Dòng vốn ngoại",
+            value: `${formatMacroCompassMetricValue(foreignFlow)}. Cần đọc cùng thanh khoản và nhóm vốn hóa lớn.`,
+            tone: "watch",
+          }
+        : {
+            label: "Dòng vốn ngoại",
+            value: "Chưa đủ dữ liệu để đánh giá áp lực từ dòng vốn ngoại.",
+            tone: "neutral",
+          },
+    ],
+    unconfirmed: [
+      {
+        label: "Lãi suất",
+        value: isReadableMetric(domesticRate)
+          ? `${formatMacroCompassMetricValue(domesticRate)}. Cần đọc cùng chi phí vay và chính sách tiền tệ.`
+          : "Chưa đủ dữ liệu để mô tả bối cảnh lãi suất hiện tại.",
+        tone: isReadableMetric(domesticRate) ? "watch" : "neutral",
+      },
+      {
+        label: "PMI",
+        value: isReadableMetric(pmi)
+          ? `${formatMacroCompassMetricValue(pmi)}. Cần đọc cùng đơn hàng mới và sản xuất thực tế.`
+          : "Chưa đủ dữ liệu để biết trạng thái sản xuất gần nhất.",
+        tone: isReadableMetric(pmi) ? "watch" : "neutral",
+      },
+      {
+        label: "Dòng vốn ngoại",
+        value: isReadableMetric(foreignFlow)
+          ? `${formatMacroCompassMetricValue(foreignFlow)}. Cần theo dõi thêm để tránh đọc một kỳ dữ liệu như xu hướng chắc chắn.`
+          : "Chưa đủ dữ liệu để xác nhận xu hướng dòng vốn ngoại.",
+        tone: isReadableMetric(foreignFlow) ? "watch" : "neutral",
+      },
+    ],
+  };
 };
 
 export async function loadMacroRuntimeData(): Promise<MacroCompassData> {
@@ -213,6 +336,9 @@ export async function loadMacroRuntimeData(): Promise<MacroCompassData> {
         if (newWarnings.length > 0) {
           metric.warnings = Array.from(new Set(newWarnings));
         }
+      } else if (isReviewedStaticMetric(metric)) {
+        metric.supportStatus = registryMatch?.supportStatus;
+        metric.freshness = freshness;
       } else {
         // Force the missing metric data structure but update the reason
         metric.value = null;
@@ -280,6 +406,8 @@ export async function loadMacroRuntimeData(): Promise<MacroCompassData> {
       patchMetric(wMetric.id, dbObs || null, reg, cloned.worldMetrics);
     }
   }
+
+  hydrateCurrentPictureFromMetrics(cloned);
 
   return cloned;
 }

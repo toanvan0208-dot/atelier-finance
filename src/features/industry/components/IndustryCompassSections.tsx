@@ -8,8 +8,6 @@ import type {
   IndustryDataStatus,
   IndustrySignalMetric,
 } from "../types";
-import type { IndustryContextRuntimePayload } from "../lib/load-industry-context";
-import { REVIEWED_INDUSTRY_CODES, REVIEWED_MAPPED_TICKERS } from "../lib/reviewed-industry-coverage";
 
 type IndustryNavigate = (moduleKey: string) => void;
 
@@ -57,22 +55,15 @@ const dataModeLabel: Record<IndustryDataMode, string> = {
   unavailable: "Chưa có dữ liệu",
 };
 
-const peerRoleLabel: Record<string, string> = {
-  direct_peer: "peer truc tiep",
-  adjacent_peer: "peer lien quan / can ra soat",
-  watch_only: "peer theo doi",
-  ambiguous: "peer can xac minh",
+const industryBadgeLabel = (badge: string): string => {
+  const normalized = badge.toLowerCase();
+  if (normalized === "screening_candidate") return "Ứng viên sàng lọc";
+  if (normalized === "research_only") return "Dữ liệu nghiên cứu";
+  if (normalized === "needsreview" || normalized === "needs_review") return "Cần rà soát";
+  return badge;
 };
 
-function parseContextList(value?: string | null): string[] {
-  if (!value) return [];
-  try {
-    const parsed = JSON.parse(value);
-    return Array.isArray(parsed) ? parsed.filter((item): item is string => typeof item === "string") : [value];
-  } catch {
-    return [value];
-  }
-}
+const industryCheckLabel = (check: string): string => industryBadgeLabel(check);
 
 function goToModule(targetModule?: string, onNavigate?: IndustryNavigate) {
   if (!targetModule) {
@@ -131,29 +122,29 @@ function buildIndustryCompanyDisplayCards(selectedIndustry: IndustryCompassOptio
   const screeningCandidateCards: IndustryCompanyDisplayCard[] = [
     {
       title: "HSG",
-      description: "Ung vien sang loc cung nganh thep.",
+      description: "Ứng viên sàng lọc cùng ngành thép.",
       tickers: ["HSG"],
       role: "screening_candidate",
-      why: "Chi dung de kiem tra du lieu o module Screening; chua mo phan tich sau.",
+      why: "Chỉ dùng để kiểm tra dữ liệu ở module Screening; chưa mở phân tích sâu.",
       checks: ["screening_candidate", "research_only", "needsReview"],
       tone: "watch",
       badges: ["screening_candidate", "research_only", "needsReview"],
-      boundaryCopy: "Khong phai khuyen nghi dau tu, khong phai full analysis, khong phai benchmark dinh gia/rui ro.",
+      boundaryCopy: "Không phải khuyến nghị đầu tư, chưa phải phân tích đầy đủ và không dùng làm chuẩn so sánh định giá/rủi ro.",
       companyName: "Hoa Sen Group",
-      roleTitle: "Ung vien sang loc cung nganh",
+      roleTitle: "Ứng viên sàng lọc cùng ngành",
     },
     {
       title: "NKG",
-      description: "Ung vien sang loc cung nganh thep.",
+      description: "Ứng viên sàng lọc cùng ngành thép.",
       tickers: ["NKG"],
       role: "screening_candidate",
-      why: "Chi dung de kiem tra du lieu o module Screening; chua mo phan tich sau.",
+      why: "Chỉ dùng để kiểm tra dữ liệu ở module Screening; chưa mở phân tích sâu.",
       checks: ["screening_candidate", "research_only", "needsReview"],
       tone: "watch",
       badges: ["screening_candidate", "research_only", "needsReview"],
-      boundaryCopy: "Khong phai khuyen nghi dau tu, khong phai full analysis, khong phai benchmark dinh gia/rui ro.",
+      boundaryCopy: "Không phải khuyến nghị đầu tư, chưa phải phân tích đầy đủ và không dùng làm chuẩn so sánh định giá/rủi ro.",
       companyName: "Nam Kim Steel",
-      roleTitle: "Ung vien sang loc cung nganh",
+      roleTitle: "Ứng viên sàng lọc cùng ngành",
     },
   ];
 
@@ -205,54 +196,14 @@ export function IndustryTermTooltip({
 
 export function IndustryCurrentHeader({
   industries,
-  industryContexts,
   onSelectIndustry,
   selectedIndustry,
 }: {
   industries: IndustryCompassOption[];
-  industryContexts?: IndustryContextRuntimePayload[];
   selectedIndustry: IndustryCompassOption;
   onSelectIndustry: (industryId: string) => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
-  const availableIndustryContexts = (industryContexts ?? []).filter(
-    (context) => context.status === "available" && context.context,
-  );
-  const sourceBackedIndustryContexts = availableIndustryContexts.filter(
-    (context) => context.context?.reviewedQualitativeContextAvailable,
-  );
-  const qualitativeSourceDetails = sourceBackedIndustryContexts.flatMap((context) =>
-    context.context?.provenanceSummary.sourceLabels.map((sourceLabel) => ({
-      ticker: context.ticker,
-      sourceLabel,
-      sourceUrls: context.context?.provenanceSummary.sourceUrls ?? [],
-    })) ?? [],
-  );
-  const fullQualitativeSections = sourceBackedIndustryContexts
-    .filter((context) => context.context?.fullQualitativeContextAvailable)
-    .map((context) => ({
-      ticker: context.ticker,
-      overview: context.context?.industryOverview ?? null,
-      howIndustryMakesMoney: context.context?.howIndustryMakesMoney ?? null,
-      keyDrivers: parseContextList(context.context?.keyDrivers),
-      keyRisks: parseContextList(context.context?.industryRisks),
-      macroSensitivity: parseContextList(context.context?.macroSensitivity),
-      nextChecks: parseContextList(context.context?.nextChecks),
-      commonMisread: context.context?.commonMisread ?? null,
-    }));
-  const missingIndustryContexts = (industryContexts ?? []).filter(
-    (context) => context.status === "missing",
-  );
-  const availableTaxonomyMappings = (industryContexts ?? []).flatMap(
-    (context) => context.taxonomy.mappings,
-  );
-  const taxonomyMappingDetails = availableTaxonomyMappings.map(
-    (mapping) =>
-      `${mapping.ticker} -> ${mapping.displayNameVi || mapping.industryName} (${mapping.dataMode}, needsReview=${String(mapping.needsReview)})`,
-  );
-  const availablePeerGroupSummaries = (industryContexts ?? [])
-    .map((context) => context.peerGroupSummary)
-    .filter((summary) => summary.status === "available" && summary.peers.length > 0);
 
   return (
     <Card className="parent-surface-card">
@@ -280,101 +231,8 @@ export function IndustryCurrentHeader({
             <div className="mt-3 rounded-[4px] border border-warning bg-warning/10 px-3 py-3 text-xs leading-5 text-muted">
               <p className="font-bold text-ink">{dataModeLabel[selectedIndustry.dataMode]}</p>
               <p className="mt-1">
-                {selectedIndustry.warnings[0] ?? "Dữ liệu ngành đang được hoàn thiện."}
+                Dữ liệu ngành đang được rà soát. Phần này chỉ giúp đặt câu hỏi trước khi đọc sâu hơn, không phải khuyến nghị đầu tư.
               </p>
-              <p className="mt-1">
-                Nguồn: {selectedIndustry.sourceName ?? "Chưa có nguồn rà soát"} · Kỳ:{" "}
-                {selectedIndustry.period ?? "Chưa đủ dữ liệu"} · As of:{" "}
-                {selectedIndustry.asOf ?? "Chưa đủ dữ liệu"} · Trạng thái: Nguồn đang hoàn thiện
-              </p>
-              <p className="mt-1">
-                DB IndustryContext:{" "}
-                {availableIndustryContexts.length > 0
-                  ? `${availableIndustryContexts.length} research_only context row(s), productionApproved=false, needsReview=true. Numeric industry metrics and valuation/risk benchmarks are not available.`
-                  : "No eligible DB IndustryContext row for the selected ticker group."}
-              </p>
-              <p className="mt-1">
-                Source-backed qualitative context:{" "}
-                {sourceBackedIndustryContexts.length > 0
-                  ? `${sourceBackedIndustryContexts.length} reviewed-source package row(s) available. Ngu canh nganh dang o trang thai research_only/can ra soat; khong phai benchmark dinh gia/rui ro; khong phai khuyen nghi dau tu.`
-                  : "No source-backed qualitative context row is available; visible compass text remains static educational guidance only, not reviewed DB context."}
-              </p>
-              {qualitativeSourceDetails.length > 0 ? (
-                <p className="mt-1">
-                  Qualitative source detail:{" "}
-                  {qualitativeSourceDetails
-                    .map((detail) => `${detail.ticker}: ${detail.sourceLabel} (${detail.sourceUrls.join(", ")})`)
-                    .join("; ")}
-                </p>
-              ) : null}
-              {fullQualitativeSections.length > 0 ? (
-                <div className="mt-3 space-y-3 rounded-[4px] border border-border-soft bg-surface px-3 py-3">
-                  <p className="text-xs font-bold text-ink">
-                    Reviewed qualitative context: research_only, needsReview=true, not investment advice, not valuation/risk benchmark, not peer benchmark.
-                  </p>
-                  {fullQualitativeSections.map((section) => (
-                    <div key={section.ticker} className="grid gap-2 md:grid-cols-2">
-                      <p className="md:col-span-2 text-xs font-bold text-ink">{section.ticker}</p>
-                      <div>
-                        <p className="text-[11px] font-bold text-subtle">Nganh kiem tien nhu the nao</p>
-                        <p className="text-xs leading-5 text-muted">{section.howIndustryMakesMoney ?? "N/A"}</p>
-                      </div>
-                      <div>
-                        <p className="text-[11px] font-bold text-subtle">Yeu to thuc day chinh</p>
-                        <p className="text-xs leading-5 text-muted">{section.keyDrivers.join("; ") || "N/A"}</p>
-                      </div>
-                      <div>
-                        <p className="text-[11px] font-bold text-subtle">Rui ro chinh</p>
-                        <p className="text-xs leading-5 text-muted">{section.keyRisks.join("; ") || "N/A"}</p>
-                      </div>
-                      <div>
-                        <p className="text-[11px] font-bold text-subtle">Nhay cam vi mo</p>
-                        <p className="text-xs leading-5 text-muted">{section.macroSensitivity.join("; ") || "N/A"}</p>
-                      </div>
-                      <div>
-                        <p className="text-[11px] font-bold text-subtle">Nen kiem tra tiep</p>
-                        <p className="text-xs leading-5 text-muted">{section.nextChecks.join("; ") || "N/A"}</p>
-                      </div>
-                      <div>
-                        <p className="text-[11px] font-bold text-subtle">De hieu sai dieu gi</p>
-                        <p className="text-xs leading-5 text-muted">{section.commonMisread ?? "N/A"}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : null}
-              <p className="mt-1">
-                DB taxonomy:{" "}
-                {availableTaxonomyMappings.length > 0
-                  ? `${availableTaxonomyMappings.length} research_only mapping(s), productionApproved=false, needsReview=true. Peer groups, numeric metrics, and valuation/risk benchmarks are not inferred.`
-                  : "No eligible DB taxonomy mapping for the selected ticker group."}
-              </p>
-              {taxonomyMappingDetails.length > 0 ? (
-                <p className="mt-1">
-                  DB taxonomy detail: {taxonomyMappingDetails.join(", ")}. Taxonomy is not investment advice or a valuation/risk benchmark.
-                </p>
-              ) : null}
-              <p className="mt-1">
-                Reviewed coverage boundary: {REVIEWED_INDUSTRY_CODES.join(", ")} for mapped tickers{" "}
-                {REVIEWED_MAPPED_TICKERS.join(", ")}. Unsupported tickers stay missing-safe; no automatic taxonomy or peer inference.
-              </p>
-              <p className="mt-1">
-                DB peer group:{" "}
-                {availablePeerGroupSummaries.length > 0
-                  ? `${availablePeerGroupSummaries
-                      .flatMap((summary) =>
-                        summary.peers.map(
-                          (peer) => `${peer.ticker} (${peerRoleLabel[peer.peerRole] ?? peer.peerRole})`,
-                        ),
-                      )
-                      .join(", ")}. research_only, needsReview=true. Peer group is not a valuation or risk benchmark.`
-                  : "No eligible DB peer group for the selected ticker group; no static fallback is used."}
-              </p>
-              {missingIndustryContexts.length > 0 ? (
-                <p className="mt-1">
-                  Missing context tickers: {missingIndustryContexts.map((context) => context.ticker).join(", ")}.
-                </p>
-              ) : null}
             </div>
           </div>
 
@@ -749,14 +607,14 @@ export function IndustryCompanyMapSection({
                   <div className="mt-3 flex flex-wrap gap-2">
                     {group.badges.map((badge) => (
                       <Chip key={badge} size="sm" variant="neutral">
-                        {badge}
+                        {industryBadgeLabel(badge)}
                       </Chip>
                     ))}
                   </div>
                 ) : null}
                 <p className="mt-3 text-xs leading-5 text-muted">{group.description}</p>
                 <p className="mt-3 text-[11px] font-semibold leading-4 text-ink">
-                  Vai trò trong chuỗi giá trị: {group.role}
+                  Vai trò trong chuỗi giá trị: {industryBadgeLabel(group.role)}
                 </p>
                 <p className="mt-2 text-xs leading-5 text-muted">
                   Vì sao cần kiểm tra tiếp: {group.why}
@@ -772,7 +630,7 @@ export function IndustryCompanyMapSection({
                 <div className="mt-2 flex flex-wrap gap-2">
                   {group.checks.map((check) => (
                     <Chip key={check} size="sm" variant="neutral">
-                      {check}
+                      {industryCheckLabel(check)}
                     </Chip>
                   ))}
                 </div>

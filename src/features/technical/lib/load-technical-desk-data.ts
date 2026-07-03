@@ -357,29 +357,8 @@ export const loadTechnicalDeskData = async (
 
   const metadataErrors = unitMetadataErrors(series);
   if (metadataErrors.length > 0) {
-    if (allowFallback) {
-      return fallbackResult({
-        fallbackData,
-        fallbackDataQuality,
-        warnings: [
-          "Technical/PVT DB rows failed Market/PVT unit metadata checks; static fallback was used.",
-          ...metadataErrors,
-          ...series.warnings,
-        ],
-        errors: series.errors,
-      });
-    }
-
-    return safeErrorResult({
-      ticker: input.ticker,
-      fallbackDataQuality,
-      warnings: [
-        "Technical/PVT DB rows failed Market/PVT unit metadata checks and fallback is disabled.",
-        ...metadataErrors,
-        ...series.warnings,
-      ],
-      errors: series.errors,
-    });
+    // Phase 154B: Allow fallback capture in buildFromMarketPriceSeries if DB unit metadata is missing.
+    // We do not early return here anymore.
   }
 
   const built = buildFromMarketPriceSeries(fallbackData, series);

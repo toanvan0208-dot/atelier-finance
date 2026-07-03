@@ -166,6 +166,8 @@ export function TechnicalPage({ initialRuntimeData, onNavigate }: TechnicalPageP
     data.issuerMetadata ??
     fallbackIssuerMetadata(data, source.sourceType);
 
+  const isSnapshotOnly = (data.pvtChartSeries?.points?.count ?? 0) <= 1;
+
   return (
     <div className="mx-auto w-full max-w-[1180px] space-y-5">
       <DataQualityBanner {...dataQuality} />
@@ -177,22 +179,35 @@ export function TechnicalPage({ initialRuntimeData, onNavigate }: TechnicalPageP
         provenance={initialRuntimeData?.provenance}
       />
       <PVTHeroStatus data={data} />
-      <PVTMainChart
-        data={data.chart}
-        chartSeries={data.pvtChartSeries}
-        supportLabel={data.keyLevels.support}
-        resistanceLabel={data.keyLevels.resistance}
-      />
-      <PVTSignalLayers layers={data.signalLayers} />
-      <PVTConfirmationScenarios
-        confirmation={data.confirmation}
-        invalidation={data.invalidation}
-        scenarios={data.scenarios}
-      />
-      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_390px]">
-        <PVTRiskRewardZone data={data.riskReward} />
-        <PVTFomoThermometer data={data.fomo} />
-      </div>
+      
+      {isSnapshotOnly ? (
+        <section className="rounded-lg border border-warning/20 bg-warning/5 p-6 text-center">
+          <h2 className="mb-2 text-base font-bold text-ink">Chưa đủ dữ liệu chuỗi thời gian (Time-Series)</h2>
+          <p className="text-sm text-subtle">
+            Hệ thống chỉ có một bản ghi giá gần nhất của {data.ticker}. Các phân tích kỹ thuật xu hướng, biểu đồ giá, và các lớp tín hiệu chỉ hiển thị khi có chuỗi thời gian liên tục.
+          </p>
+        </section>
+      ) : (
+        <>
+          <PVTMainChart
+            data={data.chart}
+            chartSeries={data.pvtChartSeries}
+            supportLabel={data.keyLevels.support}
+            resistanceLabel={data.keyLevels.resistance}
+          />
+          <PVTSignalLayers layers={data.signalLayers} />
+          <PVTConfirmationScenarios
+            confirmation={data.confirmation}
+            invalidation={data.invalidation}
+            scenarios={data.scenarios}
+          />
+          <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_390px]">
+            <PVTRiskRewardZone data={data.riskReward} />
+            <PVTFomoThermometer data={data.fomo} />
+          </div>
+        </>
+      )}
+
       <PVTFinalConclusion
         conclusion={data.finalConclusion}
         actions={data.nextActions}

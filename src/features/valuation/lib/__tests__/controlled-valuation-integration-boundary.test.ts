@@ -550,6 +550,49 @@ describe("controlled valuation integration boundary", () => {
     expect(unknownShares.calculation.metrics.marketCap.status).toBe("insufficient_data");
   });
 
+  it("falls back to persisted bridge inputs when verified runtime values have unknown units", () => {
+    const result = buildControlledValuationIntegrationBoundary({
+      financialsRuntimeSnapshot: verifiedRuntime({
+        equity: 10_000_000_000,
+        eps: 2_500,
+        revenue: 50_000_000_000,
+        sharesOutstanding: 1_000_000,
+      }),
+      persistedValuationInputs: {
+        equity: 10_000_000_000,
+        eps: 2_500,
+        marketPrice: 50_000,
+        revenue: 50_000_000_000,
+        sharesOutstanding: 1_000_000,
+        units: {
+          equity: "vnd",
+          eps: "vnd_per_share",
+          marketPrice: "vnd_per_share",
+          revenue: "vnd",
+          sharesOutstanding: "shares",
+        },
+      },
+    });
+
+    expect(result.selectedInputs.eps).toMatchObject({
+      normalizationStatus: "ready",
+      source: "persisted_bridge",
+      value: 2_500,
+    });
+    expect(result.selectedInputs.sharesOutstanding).toMatchObject({
+      normalizationStatus: "ready",
+      source: "persisted_bridge",
+      value: 1_000_000,
+    });
+    expect(result.sourceBoundary.warnings).toContain("runtime_eps_not_normalized_used_persisted_bridge");
+    expect(result.calculation.metrics.pe).toMatchObject({
+      status: "ready",
+      value: 20,
+    });
+    expect(result.calculation.metrics.pb.status).toBe("ready");
+    expect(result.calculation.metrics.ps.status).toBe("ready");
+  });
+
   it("does not accept market price or market cap from Financials runtime ownership", () => {
     const result = buildControlledValuationIntegrationBoundary({
       financialsRuntimeSnapshot: {

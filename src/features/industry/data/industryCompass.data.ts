@@ -337,11 +337,11 @@ const steelMaterialsCompassOption: IndustryCompassOption = {
   industryName: "Thep / vat lieu xay dung",
   shortName: "Thep - vat lieu",
   description:
-    "Reviewed lane cua milestone hien tai cho HPG -> STEEL_MATERIALS. Phan mo ta ben duoi la static compass guidance de nguoi dung hieu nganh; mapping va peer group source-backed van den tu DB taxonomy.",
+    "Ngành thép và vật liệu xây dựng cần đọc cùng nhu cầu hạ tầng, sản lượng tiêu thụ, giá nguyên liệu, biên lợi nhuận và tồn kho.",
   shortDescription:
     "Boi canh thep va vat lieu xay dung, gan voi chu ky xay dung, dau tu cong, gia nguyen lieu va san luong tieu thu.",
-  industryType: "Reviewed lane STEEL_MATERIALS cho HPG; guidance tinh, khong phai du lieu dinh luong nganh",
-  statusLabel: "Du lieu nghien cuu, can ra soat",
+  industryType: "Thép và vật liệu xây dựng",
+  statusLabel: "Dữ liệu nghiên cứu, cần rà soát",
   statusTone: "watch",
   relatedTickers: ["HPG"],
   mainDrivers: [
@@ -378,12 +378,12 @@ const steelMaterialsCompassOption: IndustryCompassOption = {
   ],
   warnings: [
     DATA_COMPLETION_WARNING,
-    "Static compass guidance only. Reviewed DB taxonomy is limited to HPG -> STEEL_MATERIALS; peer group is research_only and needsReview.",
+    "Hướng dẫn ngành hiện là nội dung tĩnh. Phân loại ngành đã rà soát chỉ giới hạn ở HPG -> STEEL_MATERIALS; nhóm cùng ngành chỉ dùng cho nghiên cứu và cần rà soát.",
   ],
   sensitivityTags: ["Dau tu cong", "Xay dung", "Gia nguyen lieu", "Ton kho"],
   quickPicture: {
     summary:
-      "Boi canh thep can doc qua nhu cau xay dung/ha tang, san luong tieu thu, gia nguyen lieu, bien gop va ton kho. Day la guidance tinh; DB taxonomy/peer group van giu research_only va needsReview.",
+      "Bối cảnh thép cần đọc qua nhu cầu xây dựng/hạ tầng, sản lượng tiêu thụ, giá nguyên liệu, biên gộp và tồn kho. Đây là hướng dẫn tĩnh; phân loại ngành và nhóm cùng ngành vẫn chỉ dùng cho nghiên cứu, cần rà soát.",
     supports: [
       { title: "Nhu cau ha tang", description: "Dau tu cong hoac xay dung phuc hoi co the lien quan den nhu cau thep, nhung can kiem tra bang san luong va doanh thu." },
       { title: "Bien gop cai thien", description: "Chi co y nghia khi gia ban, chi phi nguyen lieu va ton kho cung duoc kiem tra." },
@@ -395,7 +395,7 @@ const steelMaterialsCompassOption: IndustryCompassOption = {
       { title: "Du cung hoac nhap khau", description: "Canh tranh nguon cung co the tao ap luc len gia ban va cong suat." },
     ],
     firstData: ["San luong", "Bien gop", "Ton kho", "Dong tien", "No vay"],
-    nextStep: "Kiem tra HPG o BCTC va doc peer group HSG/NKG/TVN nhu boi canh taxonomy, khong dung lam benchmark dinh gia/rui ro.",
+    nextStep: "Kiểm tra HPG ở BCTC và đọc nhóm HSG/NKG/TVN như bối cảnh phân loại ngành, không dùng làm chuẩn định giá/rủi ro.",
   },
   moneyMap: {
     sells: "Thep xay dung, thep cuon, ong thep, ton ma hoac san pham vat lieu lien quan tuy doanh nghiep.",
@@ -430,16 +430,16 @@ const steelMaterialsCompassOption: IndustryCompassOption = {
       description: "Ma duoc dung de noi boi canh nganh sang buoc doanh nghiep va BCTC.",
       tickers: ["HPG"],
       role: "Thep / vat lieu xay dung",
-      why: "HPG la ticker co mapping reviewed trong milestone hien tai: HPG -> STEEL_MATERIALS.",
+      why: "HPG là mã đại diện để bắt đầu đọc bối cảnh ngành thép và vật liệu xây dựng.",
       checks: ["San luong", "Bien gop", "Ton kho", "Dong tien"],
       tone: "watch",
     },
   ],
   conclusion: {
     blocks: [
-      { title: "Boi canh hien tai", content: "Lane reviewed hien co DB taxonomy cho HPG -> STEEL_MATERIALS va peer group HSG/NKG/TVN o trang thai research_only." },
+      { title: "Bối cảnh hiện tại", content: "Phần đã rà soát hiện có phân loại HPG -> STEEL_MATERIALS và nhóm cùng ngành HSG/NKG/TVN ở phạm vi nghiên cứu." },
       { title: "Diem can hieu", content: "Nganh thep la nganh chu ky; can doc nhu cau, gia nguyen lieu, ton kho, bien va dong tien cung nhau." },
-      { title: "Du lieu con thieu", content: "Chua co IndustryMetric dinh luong hoac benchmark dinh gia/rui ro." },
+      { title: "Dữ liệu còn thiếu", content: "Chưa có chỉ số ngành định lượng hoặc chuẩn so sánh định giá/rủi ro." },
       { title: "Ma can kiem tra", content: "HPG la ticker mapped; HSG/NKG/TVN chi la peer group taxonomy, khong phai chuan so sanh dinh gia." },
       { title: "Dieu kien doi goc nhin", content: "Neu du lieu doanh nghiep khong xac nhan boi canh nganh, can giam do tin cay cua boi canh." },
     ],

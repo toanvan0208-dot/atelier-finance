@@ -5,7 +5,7 @@ const LOCAL_RESEARCH_LABEL = "Metadata nghiên cứu nội bộ, đang rà soát
 const LOCAL_RESEARCH_REF =
   "Screening MVP candidate metadata và Industry MVP context trong repo";
 const SOURCE_WARNING =
-  "Nguồn ngoài, kỳ dữ liệu và ngày asOf chưa được xác nhận. Dữ liệu doanh nghiệp đang được rà soát.";
+  "Nguồn ngoài và thời điểm dữ liệu chưa được xác nhận. Dữ liệu doanh nghiệp đang được rà soát.";
 const DECISION_WARNING =
   "Dữ liệu nghiên cứu, chưa phải dữ liệu chính thức để ra quyết định. Đây không phải khuyến nghị đầu tư.";
 
@@ -44,7 +44,7 @@ function buildProfile({
     missingFields: [
       "Nguồn ngoài có thể kiểm tra lại",
       "Kỳ dữ liệu",
-      "Ngày asOf",
+      "Thời điểm dữ liệu",
       ...(businessDescription ? [] : ["Mô tả hoạt động doanh nghiệp đã xác minh"]),
     ],
     warnings: [SOURCE_WARNING, DECISION_WARNING],

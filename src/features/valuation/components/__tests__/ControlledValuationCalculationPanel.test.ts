@@ -43,12 +43,10 @@ describe("ControlledValuationCalculationPanel", () => {
       }),
     );
 
-    expect(html).toContain("Trạng thái chỉ số định giá");
-    expect(html).toContain("Bản ghi đã rà soát");
-    expect(html).toContain("Dùng cho nghiên cứu");
-    expect(html).toContain("Chưa phê duyệt sản xuất");
-    expect(html).toContain("Định giá vẫn giữ ranh giới riêng");
-    expect(html).toContain("Trạng thái");
+    expect(html).toContain("Các tỷ số nào đang đọc được?");
+    expect(html).toContain("Điều kiện để tin các tỷ số này");
+    expect(html).toContain("Tỷ số chỉ là điểm bắt đầu để đặt câu hỏi");
+    expect(html).toContain("không phải lời khuyên đầu tư");
     expect(html).not.toContain("sourceMode:mixed_source");
     expect(html).not.toContain("productionApproved:false");
     expect(html).not.toContain("canClaimValuationDbBacked:false");
@@ -101,17 +99,14 @@ describe("ControlledValuationCalculationPanel", () => {
       }),
     );
 
-    expect(html).toContain("Bản ghi đã rà soát");
-    expect(html).toContain("Dùng cho nghiên cứu");
-    expect(html).toContain("Chưa phê duyệt sản xuất");
-    expect(html).toContain("Nguồn dữ liệu được kiểm tra theo nhiều lớp");
+    expect(html).toContain("Các tỷ số nào đang đọc được?");
+    expect(html).toContain("Điều kiện để tin các tỷ số này");
     expect(html).toContain("Có thể tính");
     expect(html).toContain("5.000.000.000");
     expect(html).toContain(">10<");
     expect(html).toContain("5.000");
     expect(html).toContain(">5<");
-    expect(html).toContain("Đang chặn");
-    expect(html).toContain("Bị chặn");
+    expect(html).toContain("Chưa mở");
     expect(html).not.toContain("sourceMode:mixed_source");
     expect(html).not.toContain("financialsSource:financials_input_db_backed_local_imported");
     expect(html).not.toContain("marketSource:market_pvt");
@@ -127,11 +122,11 @@ describe("ControlledValuationCalculationPanel", () => {
     );
 
     expect(html).toContain("Chưa đủ dữ liệu");
-    expect(html).toContain("thiếu EPS");
-    expect(html).toContain("thiếu giá thị trường hoặc số cổ phiếu hợp lệ");
+    expect(html).toContain("Thiếu EPS");
+    expect(html).toContain("Thiếu giá thị trường hoặc số cổ phiếu hợp lệ");
     expect(html).not.toContain(">0 đ");
     expect(html).not.toContain(">0,0");
-    expect(html).toContain("Cần dữ liệu");
+    expect(html).toContain("cần xem lại");
   });
 
   it("does not round small positive ready values down to zero", () => {
@@ -148,7 +143,7 @@ describe("ControlledValuationCalculationPanel", () => {
     );
 
     expect(html).toContain(">0,0001<");
-    expect(html).toContain("Có thể tính với đầu vào hiện tại.");
+    expect(html).toContain("Các đầu vào bắt buộc đã hợp lệ.");
   });
 
   it("renders N/A states for non-positive EPS and equity", () => {
@@ -166,7 +161,7 @@ describe("ControlledValuationCalculationPanel", () => {
 
     expect(html).toContain("N/A");
     expect(html).toContain("EPS không dương");
-    expect(html).toContain("vốn chủ sở hữu không dương");
+    expect(html).toContain("Vốn chủ sở hữu không dương");
   });
 
   it("renders EV, EV/EBITDA, and DCF as blocked without displaying fair-value wording", () => {
@@ -175,9 +170,9 @@ describe("ControlledValuationCalculationPanel", () => {
     expect(html).toContain("EV");
     expect(html).toContain("EV/EBITDA");
     expect(html).toContain("DCF");
-    expect(html).toContain("Đang chặn: dữ liệu EV chưa đủ nguồn rõ.");
-    expect(html).toContain("Đang chặn: EBITDA chưa có nguồn rõ.");
-    expect(html).toContain("Đang chặn: dữ liệu dòng tiền và WACC chưa đủ trong phạm vi hiện tại.");
+    expect(html).toContain("Cần vốn hóa, nợ và tiền mặt rõ trước khi đọc EV.");
+    expect(html).toContain("Cần nguồn EBITDA rõ trước khi đọc EV/EBITDA.");
+    expect(html).toContain("Cần chuỗi dòng tiền, chi phí vốn và tăng trưởng dài hạn rõ hơn.");
     expect(html.toLowerCase()).not.toContain("fair value");
     expect(html.toLowerCase()).not.toContain("intrinsic value");
   });

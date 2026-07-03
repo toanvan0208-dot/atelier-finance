@@ -1,12 +1,10 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState, useSyncExternalStore } from "react";
-import { DataQualityBanner } from "@/components/shared/DataQualityBanner";
+import { FormEvent, useEffect, useState, useSyncExternalStore } from "react";
 import {
   Button,
   Card,
   CardBody,
-  Chip,
   EmptyState,
   LoadingState,
 } from "@/components/ui";
@@ -28,7 +26,6 @@ import { FinancialReadingJourney } from "./FinancialReadingJourney";
 import { FinancialsDisclaimer } from "./FinancialsDisclaimer";
 import { FinancialsHeader } from "./FinancialsHeader";
 import { FinancialsOverviewPanel } from "./FinancialsOverviewPanel";
-import { FinancialsSourceTransparency } from "./FinancialsSourceTransparency";
 import type { PortfolioReadinessItem } from "@/features/watchlist/lib/load-portfolio-readiness";
 
 type FinancialsPageProps = {
@@ -95,71 +92,6 @@ const logicMetricIds = new Set([
   "fcf",
   "data-quality",
 ]);
-
-const metadataLabel = (value: string): string => value.replace(/_/g, " ");
-
-const userFacingSource = (source: string | null | undefined): string => {
-  if (!source) return "Chưa có nguồn dữ liệu";
-  if (source.includes("manual_reviewed_financial_statement"))
-    return "Bản ghi đã rà soát, dùng cho nghiên cứu";
-  if (source.includes("phase109") || source.includes("controlled"))
-    return "Dữ liệu local/research đã kiểm soát";
-  if (source.includes("sample")) return "Dữ liệu minh họa";
-  return "Dữ liệu có metadata nguồn";
-};
-
-const metadataChipLabel = (key: string, value: string | boolean): string => {
-  if (key === "dataMode")
-    return value === "research_only"
-      ? "Dữ liệu nghiên cứu"
-      : `Phân loại: ${metadataLabel(String(value))}`;
-  if (key === "sourceType")
-    return String(value).includes("company_disclosure")
-      ? "Nguồn: bản ghi đã rà soát"
-      : "Nguồn có metadata";
-  if (key === "quality") return `Chất lượng: ${metadataLabel(String(value))}`;
-  if (key === "readiness") return `Trạng thái: ${metadataLabel(String(value))}`;
-  if (key === "fallback")
-    return value ? "Đang dùng minh họa" : "Không dùng minh họa";
-  return String(value);
-};
-
-const reviewedInputLabel = (
-  field: "totalDebt" | "eps" | "sharesOutstanding",
-): string => {
-  if (field === "totalDebt") return "Nợ vay";
-  if (field === "eps") return "EPS";
-  return "Số cổ phiếu";
-};
-
-const renderReviewedInputStatus = (
-  field: "totalDebt" | "eps" | "sharesOutstanding",
-  readiness?: PortfolioReadinessItem | null,
-) => {
-  const decision = readiness?.sourceDecisions[field];
-  const isAvailable = decision?.status === "available";
-
-  return (
-    <div
-      className="rounded-[3px] border border-border bg-surface p-3"
-      key={field}
-    >
-      <p className="text-xs font-bold uppercase text-muted">
-        {reviewedInputLabel(field)}
-      </p>
-      <p className="mt-1 text-sm font-extrabold text-ink">
-        {isAvailable
-          ? "Đã có dữ liệu đã rà soát"
-          : "Chưa đủ dữ liệu đã rà soát"}
-      </p>
-      <p className="mt-1 text-xs font-semibold leading-5 text-muted">
-        {isAvailable
-          ? `${decision?.unit ?? "đơn vị đã khai báo"} · kỳ ${decision?.period ?? "đã khai báo"}`
-          : "Giữ là unavailable, không thay bằng 0."}
-      </p>
-    </div>
-  );
-};
 
 const reviewedAvailableFields = (
   readiness?: PortfolioReadinessItem | null,
@@ -503,27 +435,6 @@ export function FinancialsPage({
     };
   }, [request, urlRequestTicker]);
 
-  const metadataChips = useMemo(() => {
-    if (bridgeState.status !== "ready") return [];
-    const { metadata } = bridgeState.statement;
-    return [
-      metadataChipLabel("dataMode", metadata.dataMode),
-      metadataChipLabel("sourceType", metadata.sourceType),
-      metadataChipLabel("quality", metadata.qualityStatus),
-      metadataChipLabel("readiness", metadata.readiness),
-      metadataChipLabel("fallback", metadata.fallback),
-    ];
-  }, [bridgeState]);
-
-  const runtimeReviewedReadiness =
-    bridgeState.status === "runtime" &&
-    financialsTickerMatches(
-      bridgeState.runtimeData.source.ticker,
-      reviewedReadiness?.ticker,
-    )
-      ? reviewedReadiness
-      : null;
-
   const focusStep = (stepId: string) => {
     setActiveStepId(stepId);
     window.setTimeout(() => {
@@ -668,61 +579,6 @@ export function FinancialsPage({
 
       {bridgeState.status === "runtime" ? (
         <>
-          <FinancialsSourceTransparency
-            runtimeData={bridgeState.runtimeData}
-            supplementalAvailableFields={reviewedAvailableFields(
-              runtimeReviewedReadiness,
-            )}
-          />
-          {runtimeReviewedReadiness ? (
-            <Card>
-              <CardBody>
-                <div className="flex flex-col gap-4">
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                    <div>
-                      <p className="text-xs font-bold uppercase text-muted">
-                        Bản ghi đã rà soát
-                      </p>
-                      <h3 className="mt-1 text-lg font-extrabold text-ink">
-                        Nợ vay, EPS và số cổ phiếu đã có trạng thái rõ ràng cho{" "}
-                        {runtimeReviewedReadiness.ticker}
-                      </h3>
-                      <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-muted">
-                        Dữ liệu này dùng cho nghiên cứu và chưa phê duyệt sản
-                        xuất. Financials hiển thị cùng trạng thái với Watchlist,
-                        Risk và Valuation để tránh hiểu nhầm giữa các module.
-                      </p>
-                    </div>
-                    <Chip variant="neutral">Dùng cho nghiên cứu</Chip>
-                  </div>
-                  <div className="grid gap-3 md:grid-cols-3">
-                    {renderReviewedInputStatus("totalDebt", runtimeReviewedReadiness)}
-                    {renderReviewedInputStatus("eps", runtimeReviewedReadiness)}
-                    {renderReviewedInputStatus(
-                      "sharesOutstanding",
-                      runtimeReviewedReadiness,
-                    )}
-                  </div>
-                </div>
-              </CardBody>
-            </Card>
-          ) : null}
-          <DataQualityBanner
-            asOf={bridgeState.runtimeData.source.asOf}
-            isDemoData={bridgeState.runtimeData.runtimeStatus !== "db_backed"}
-            isResearchOnly={
-              bridgeState.runtimeData.source.readPath === "local_db" ||
-              bridgeState.runtimeData.source.dataMode === "research_only"
-            }
-            isStale={false}
-            missingFields={bridgeState.runtimeData.dataQuality.missingFields.filter(
-              (field) =>
-                !reviewedAvailableFields(runtimeReviewedReadiness).includes(field),
-            )}
-            source={userFacingSource(
-              bridgeState.runtimeData.source.sourceLabel,
-            )}
-          />
           {bridgeState.deskData && bridgeState.pageData ? (
             renderFinancialsExperience(
               bridgeState.deskData,
@@ -740,17 +596,6 @@ export function FinancialsPage({
 
       {bridgeState.status === "ready" ? (
         <>
-          <DataQualityBanner
-            {...bridgeState.statement.dataQuality}
-            source={userFacingSource(bridgeState.statement.dataQuality.source)}
-          />
-          <div className="flex flex-wrap gap-2">
-            {metadataChips.map((chip) => (
-              <Chip key={chip} variant="neutral">
-                {chip}
-              </Chip>
-            ))}
-          </div>
           {renderFinancialsExperience(
             bridgeState.deskData,
             bridgeState.pageData,

@@ -48,13 +48,13 @@ const sourceWarnings = (snapshot: RiskStatementSnapshot): string[] =>
   unique([
     "Dữ liệu nghiên cứu, chưa phải dữ liệu chính thức để ra quyết định.",
     ...(!snapshot.sourceName ? ["Thiếu tên nguồn dữ liệu."] : []),
-    ...(!snapshot.collectedAt ? ["Thiếu asOf/thời điểm rà soát dữ liệu."] : []),
+    ...(!snapshot.collectedAt ? ["Thiếu thời điểm rà soát dữ liệu."] : []),
     ...(!snapshot.period ? ["Thiếu kỳ dữ liệu."] : []),
   ]);
 
 const incompleteContextAreas = [
   "Macro: bối cảnh vĩ mô còn cần dữ liệu đã rà soát.",
-  "Industry: bối cảnh ngành còn cần nguồn/asOf rõ.",
+  "Industry: bối cảnh ngành còn cần thời điểm dữ liệu rõ.",
   "Business profile: hồ sơ doanh nghiệp còn cần kiểm tra nguồn và trạng thái.",
 ];
 
@@ -65,7 +65,7 @@ const conclusionWarnings = [
 ];
 
 const whatToCheckNext = [
-  "Đối chiếu source/asOf/period của dữ liệu tài chính.",
+  "Đối chiếu nguồn và thời điểm của dữ liệu tài chính.",
   "Kiểm tra EPS, totalDebt, equity, sharesOutstanding và market price.",
   "Quay lại Valuation để xem chỉ số nào còn N/A hoặc Chưa đủ dữ liệu.",
   "Kiểm tra bối cảnh ngành và vĩ mô trước khi viết nhận định.",
@@ -272,7 +272,7 @@ export const buildRiskDeskData = (
         tone: "check",
         whyItMatters:
           "Nguồn chưa production-approved nên chỉ dùng để đọc hiểu và kiểm tra tiếp.",
-        dataToCheck: ["sourceName", "asOf", "period", "dataMode"],
+        dataToCheck: ["Nguồn dữ liệu", "Thời điểm dữ liệu", "Kỳ dữ liệu", "Trạng thái dữ liệu"],
       },
       {
         id: "context-review",
@@ -287,7 +287,7 @@ export const buildRiskDeskData = (
     stopConditions: [
       "Dừng kết luận nếu EPS, totalDebt, equity, sharesOutstanding hoặc market price còn thiếu.",
       "Dừng kết luận nếu P/E, P/B, BVPS, marketCap hoặc P/S còn N/A.",
-      "Dừng kết luận nếu nguồn/asOf/period chưa rõ.",
+      "Dừng kết luận nếu nguồn hoặc thời điểm dữ liệu chưa rõ.",
       "Dừng kết luận nếu bối cảnh ngành/vĩ mô chưa được rà soát.",
     ],
     riskTimeline: {

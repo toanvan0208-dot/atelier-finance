@@ -544,7 +544,7 @@ function ScreeningResults({
 }
 
 function formatMetricValue(metric: ScreeningCandidateMetricPayload): string {
-  if (metric.value === null) return "N/A / needs_review";
+  if (metric.value === null) return "N/A - cần rà soát";
   if (metric.metricCode === "CFO") return `${Math.round(metric.value).toLocaleString("vi-VN")} ${metric.unit ?? ""}`.trim();
   if (metric.metricCode === "LIQUIDITY") return `${Math.round(metric.value).toLocaleString("vi-VN")} ${metric.unit ?? ""}`.trim();
   return `${metric.value} ${metric.unit ?? ""}`.trim();
@@ -570,15 +570,20 @@ function coverageLevelLabel(coverageLevel: string): string {
   return coverageLevel;
 }
 
-function sourceTypeLabel(sourceType: string | null): string {
-  if (sourceType === "provider_snapshot") return "Ảnh chụp từ nhà cung cấp";
-  if (sourceType === "user_uploaded_consolidated_financial_statement") return "BCTC hợp nhất nhập thủ công";
-  if (sourceType === "user_uploaded_annual_report") return "Báo cáo thường niên nhập thủ công";
-  return sourceType ?? "N/A";
+function productionApprovedLabel(productionApproved: boolean): string {
+  return productionApproved ? "Đã rà soát đầy đủ" : "Dữ liệu nghiên cứu";
 }
 
-function productionApprovedLabel(productionApproved: boolean): string {
-  return productionApproved ? "Đã phê duyệt sản xuất" : "Chưa phê duyệt sản xuất";
+function candidateCaveatLabel(caveat: string): string {
+  const normalized = caveat.toLowerCase();
+  if (normalized === "research_only") return "Dữ liệu nghiên cứu";
+  if (normalized === "needsreview" || normalized === "needs_review") return "Cần rà soát";
+  if (normalized.includes("not investment advice")) return "Không phải khuyến nghị";
+  if (normalized.includes("not full analysis")) return "Chưa phải phân tích đầy đủ";
+  if (normalized.includes("not valuation/risk benchmark")) return "Không dùng làm chuẩn so sánh";
+  if (normalized.includes("provider p/e")) return "P/E là ảnh chụp tỷ số thị trường";
+  if (normalized.includes("cfo")) return "CFO từ nguồn BCTC hợp nhất đã nhập";
+  return coverageLevelLabel(caveat);
 }
 
 function candidateMatchesCriteria(candidate: ScreeningCandidatePayload, filters: ScreeningCriteriaFilters): boolean {
@@ -632,7 +637,7 @@ function ScreeningCandidateUniverse({ candidates }: { candidates: ScreeningCandi
             <div className="mt-3 grid gap-2 sm:grid-cols-2">
               <InfoBlock label="Chế độ dữ liệu" value={dataModeLabel(candidate.dataMode)} />
               <InfoBlock label="Phân tích sâu" value={candidate.fullAnalysisEnabled ? "Đã mở" : "Chưa mở"} />
-              <InfoBlock label="Benchmark" value={candidate.isValuationRiskBenchmarkEligible ? "Được dùng" : "Không dùng"} />
+              <InfoBlock label="So sánh định giá/rủi ro" value={candidate.isValuationRiskBenchmarkEligible ? "Có thể dùng" : "Không dùng để so sánh"} />
               <InfoBlock label="Rà soát" value={candidate.needsReview ? "Cần rà soát" : "Đã đủ"} />
             </div>
 
@@ -659,10 +664,6 @@ function ScreeningCandidateUniverse({ candidates }: { candidates: ScreeningCandi
                     </Chip>
                   </div>
                   <p className="mt-2 text-xs leading-5 text-muted">{metricCaveat(metric)}</p>
-                  <p className="mt-1 text-[11px] leading-4 text-subtle">
-                    Nguồn: {metric.sourceLabel ?? "N/A"} · {sourceTypeLabel(metric.sourceType)} · kỳ nhà cung cấp:{" "}
-                    {metric.providerPeriod ?? "N/A"}
-                  </p>
                 </div>
               ))}
             </div>
@@ -670,7 +671,7 @@ function ScreeningCandidateUniverse({ candidates }: { candidates: ScreeningCandi
             <div className="mt-3 flex flex-wrap gap-2">
               {candidate.caveats.map((caveat) => (
                 <Chip key={caveat} size="sm" variant="neutral">
-                  {coverageLevelLabel(caveat)}
+                  {candidateCaveatLabel(caveat)}
                 </Chip>
               ))}
             </div>
@@ -733,11 +734,6 @@ function ScreeningStockCard({
       <p className="mt-2 rounded-[4px] border border-warning bg-warning/10 px-3 py-2 text-xs leading-5 text-muted">
         {candidate.warnings[1] ?? "Chưa đủ dữ liệu để kết luận."}
       </p>
-      <p className="mt-2 text-[11px] leading-4 text-subtle">
-        Nguồn/trạng thái: {candidate.sourceStatus} · As of:{" "}
-        {candidate.sourceAsOf ?? "Chưa đủ dữ liệu"}
-      </p>
-
       <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
         {(Object.entries(candidate.metrics) as Array<[ScreeningMetricKey, string]>).map(([label, value]) => (
           <MetricWithTip key={label} label={label} value={value} />

@@ -135,13 +135,43 @@ enum PaperTradeStatus {
 model User {
   id                    String                 @id @default(cuid())
   email                 String?                @unique
+  passwordHash          String?
   displayName           String?
   createdAt             DateTime               @default(now())
   updatedAt             DateTime               @updatedAt
+  authSessions          AuthSession[]
+  passwordResetTokens   PasswordResetToken[]
   manualImportSessions  ManualImportSession[]
   watchlists            Watchlist[]
   paperTrades           PaperTrade[]
   assistantInteractions AssistantInteraction[]
+}
+
+model AuthSession {
+  id           String   @id @default(cuid())
+  userId       String
+  tokenHash    String   @unique
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+  lastSeenAt   DateTime @default(now())
+  userAgent    String?
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
 }
 
 model Company {

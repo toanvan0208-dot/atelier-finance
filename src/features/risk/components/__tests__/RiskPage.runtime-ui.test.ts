@@ -69,7 +69,7 @@ const reviewedRuntimeData = {
 } satisfies FinancialsRuntimeData;
 
 describe("RiskPage missing-data UI", () => {
-  it("renders data-readiness copy without raw runtime flags", () => {
+  it("keeps data-readiness cards hidden without raw runtime flags", () => {
     const html = renderToStaticMarkup(
       createElement(RiskPage, {
         initialFinancialsRuntimeData: reviewedRuntimeData,
@@ -77,12 +77,11 @@ describe("RiskPage missing-data UI", () => {
       }),
     );
 
-    expect(html).toContain("Rủi ro dữ liệu còn thiếu");
-    expect(html).toContain("Nợ vay");
-    expect(html).toContain("Có thể kiểm tra");
-    expect(html).toContain("Dữ liệu nghiên cứu");
+    expect(html).toContain("Còn thiếu dữ liệu nào trước khi hình thành nhận định?");
     expect(html).toContain("Chưa đủ dữ liệu");
     expect(html).toContain("Chỉ số chưa thể tính");
+    expect(html).not.toContain("Rủi ro dữ liệu còn thiếu");
+    expect(html).not.toContain("Risk tổng hợp trạng thái dữ liệu hiện có");
     expect(html).not.toContain("runtimeStatus");
     expect(html).not.toContain("fallbackUsed");
     expect(html).not.toContain("readPath");

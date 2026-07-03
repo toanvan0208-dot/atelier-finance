@@ -220,7 +220,10 @@ const selectFinancialInput = ({
       value: runtimeValue,
     });
     warnings.push(...input.warnings);
-    return input;
+    if (input.normalizationStatus === "ready" || !isPresentNumber(persistedValue)) {
+      return input;
+    }
+    warnings.push(`runtime_${field}_not_normalized_used_persisted_bridge`);
   }
 
   if (isPresentNumber(runtimeValue) && !runtimeVerified) {

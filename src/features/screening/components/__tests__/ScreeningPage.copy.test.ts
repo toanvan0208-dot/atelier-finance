@@ -149,11 +149,13 @@ describe("ScreeningPage restored card layout", () => {
     expect(html).not.toContain("full_analysis");
   });
 
-  it("keeps provider and manual-source caveats visible in the restored card layout", () => {
+  it("keeps user-facing metric caveats visible without source-period details", () => {
     expect(html).toContain("14.72");
-    expect(html).toContain("2026-Q2");
     expect(html).toContain("P/E là ảnh chụp tỷ số thị trường từ nhà cung cấp");
     expect(html).toContain("CFO lấy từ nguồn lưu chuyển tiền tệ hợp nhất");
+    expect(html).not.toContain("2026-Q2");
+    expect(html).not.toContain("VNStock Fundamental equity ratio");
+    expect(html).not.toContain("Manual consolidated cash-flow source");
   });
 
   it("does not introduce recommendation, ranking, or scoring copy", () => {
