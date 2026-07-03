@@ -137,7 +137,7 @@ const runSmoke = async () => {
           console.log("HPG data.data keys:", Object.keys((data as any).data));
         }
       }
-      const payload = data.data || {};
+      const payload = data.data || {} as any;
       const generatedTimeSeriesData = payload.pvtChartSeries || {};
       checkForbiddenWording(generatedTimeSeriesData, summary);
       
@@ -165,10 +165,10 @@ const runSmoke = async () => {
         summary.mwgTechnicalReadPathPassed = hasTimeSeries;
       }
 
-      if (payload.chart?.points?.length > 0) {
-         summary.priceSeriesAvailable = payload.chart.points.some((p: any) => p.price !== undefined && p.price !== null);
-         summary.volumeSeriesAvailable = payload.chart.points.some((p: any) => p.volume !== undefined && p.volume !== null);
-         summary.liquiditySeriesAvailable = payload.chart.points.some((p: any) => p.tradingValue !== undefined || p.liquidity !== undefined);
+      if ((payload as any).chart?.points?.length > 0) {
+         summary.priceSeriesAvailable = (payload as any).chart.points.some((p: any) => p.price !== undefined && p.price !== null);
+         summary.volumeSeriesAvailable = (payload as any).chart.points.some((p: any) => p.volume !== undefined && p.volume !== null);
+         summary.liquiditySeriesAvailable = (payload as any).chart.points.some((p: any) => p.tradingValue !== undefined || p.liquidity !== undefined);
       }
 
       if (JSON.stringify(data).includes("mock") || JSON.stringify(data).includes("fake")) {
