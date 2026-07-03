@@ -44,6 +44,16 @@ const toneClass: Record<MacroCompassTone, string> = {
   mixed: "border-border bg-accent-soft/45",
 };
 
+const coreMetricIds = ["gdp", "cpi", "domestic-rate", "usd-vnd", "exports", "credit-growth"];
+
+const metricGroupLabel: Record<MacroCompassMetric["group"], string> = {
+  world: "Thế giới",
+  growth: "Tăng trưởng",
+  inflation: "Lạm phát / lãi suất",
+  currency: "Tỷ giá / dòng vốn",
+  policy: "Chính sách",
+};
+
 function MacroActionButton({
   action,
   onNavigate,
@@ -223,6 +233,79 @@ export function WorldContextSection({ metrics }: { metrics: MacroCompassMetric[]
   );
 }
 
+export function CoreMacroIndicatorsSection({ metrics }: { metrics: MacroCompassMetric[] }) {
+  const metricMap = useMemo(() => new Map(metrics.map((metric) => [metric.id, metric])), [metrics]);
+  const visibleMetrics = coreMetricIds
+    .map((id) => metricMap.get(id))
+    .filter((metric): metric is MacroCompassMetric => Boolean(metric));
+
+  if (!visibleMetrics.length) return null;
+
+  return (
+    <section className="space-y-4">
+      <SectionIntro
+        id="core-indicators"
+        question="Nên nhìn chỉ số nào trước?"
+        title="Các chỉ số cần đọc trước"
+        description="Chỉ giữ nhóm tín hiệu nền tảng để người mới hiểu bối cảnh trước khi mở danh mục dữ liệu đầy đủ."
+      />
+      <div className="grid gap-4 lg:grid-cols-2">
+        {visibleMetrics.map((metric) => {
+          const sourceText = metric.sourceName
+            ? `${metric.sourceName}${metric.period ? ` · ${metric.period}` : ""}`
+            : "Chưa có nguồn đã rà soát";
+          const dataStatus = macroCompassMetricStatusLabel(metric);
+          const firstWarning = metric.warnings[0];
+
+          return (
+            <article
+              key={metric.id}
+              className={cn(
+                "rounded-[8px] border-[1.5px] bg-surface p-4 shadow-soft",
+                toneClass[metric.tone]
+              )}
+            >
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0">
+                  <p className="text-xs font-bold uppercase text-subtle">{metricGroupLabel[metric.group]}</p>
+                  <h3 className="mt-1 text-base font-extrabold text-ink">{metric.name}</h3>
+                  <p className="mt-1 text-lg font-extrabold text-ink">
+                    {formatMacroCompassMetricValue(metric)}
+                  </p>
+                </div>
+                <Chip variant={toneChip[metric.tone]}>{dataStatus}</Chip>
+              </div>
+
+              <div className="mt-4 grid gap-3 text-sm leading-6 text-muted">
+                <p>
+                  <span className="font-bold text-ink">Đọc nhanh: </span>
+                  {metric.simpleMeaning}
+                </p>
+                <p>
+                  <span className="font-bold text-ink">Tác động: </span>
+                  {metric.marketImpact}
+                </p>
+                <p>
+                  <span className="font-bold text-ink">Cần kiểm tra tiếp: </span>
+                  {metric.whatToCheckNext}
+                </p>
+              </div>
+
+              <div className="mt-4 grid gap-2 rounded-[5px] border border-border-soft bg-canvas p-3 text-xs leading-5 text-muted">
+                <p>
+                  <span className="font-bold text-ink">Nguồn/kỳ dữ liệu: </span>
+                  {sourceText}
+                </p>
+                {firstWarning ? <p>{firstWarning}</p> : null}
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 export function VietnamContextSection({ metrics }: { metrics: MacroCompassMetric[] }) {
   const groups = [
     { id: "growth", label: "Tăng trưởng và sản xuất" },
@@ -282,9 +365,9 @@ export function MacroIndicatorUniverseSection({ data }: { data: MacroCompassData
     <section className="space-y-4">
       <SectionIntro
         id="indicator-universe"
-        question="Hệ thống hỗ trợ những dữ liệu vĩ mô nào?"
-        title="Danh mục chỉ số vĩ mô"
-        description="Tổng hợp các chỉ số vĩ mô Atelier Finance dự kiến cung cấp và trạng thái dữ liệu hiện tại."
+        question="Muốn kiểm tra toàn bộ nguồn dữ liệu thì xem ở đâu?"
+        title="Dữ liệu vĩ mô hệ thống đang theo dõi"
+        description="Phần tra cứu trạng thái nguồn: dữ liệu nào đã có, dữ liệu nào đang chờ rà soát và dữ liệu nào chưa nên dùng để diễn giải."
       />
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {data.indicatorUniverse.map((indicator) => {

@@ -7,6 +7,7 @@ import {
   EarlyWarningSection,
   MacroConclusionPanel,
   MacroCurrentPicture,
+  CoreMacroIndicatorsSection,
   MacroTransmissionSection,
   VietnamContextSection,
   WorldContextSection,
@@ -37,16 +38,14 @@ export function MacroPage({ onNavigate, initialData }: MacroPageProps) {
 
       <main className="space-y-8">
         <MacroCurrentPicture data={data.currentPicture} onNavigate={onNavigate} />
-        
-        {/* NEW: Macro Indicator Universe */}
-        <MacroIndicatorUniverseSection data={data} />
-        
+        <CoreMacroIndicatorsSection metrics={data.vietnamMetrics} />
         <MacroTransmissionSection paths={data.transmissionPaths} terms={data.terms} />
-        <WorldContextSection metrics={data.worldMetrics} />
-        <VietnamContextSection metrics={data.vietnamMetrics} />
         <AffectedSectorsSection sectors={data.affectedSectors} onNavigate={onNavigate} />
         <EarlyWarningSection warnings={data.warnings} />
+        <WorldContextSection metrics={data.worldMetrics} />
+        <VietnamContextSection metrics={data.vietnamMetrics} />
         <MacroConclusionPanel data={data.conclusion} onNavigate={onNavigate} />
+        <MacroIndicatorUniverseSection data={data} />
       </main>
     </div>
   );
