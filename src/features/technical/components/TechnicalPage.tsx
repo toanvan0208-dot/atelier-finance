@@ -4,7 +4,6 @@ import type { PVTObservationData, TechnicalIssuerMetadata, TechnicalMarketDataSo
 import type { MarketPvtUnitMetadataMap } from "../lib/market-pvt-unit-metadata-contract";
 import { PVTConfirmationScenarios } from "./PVTConfirmationScenarios";
 import { PVTFinalConclusion } from "./PVTFinalConclusion";
-import { PVTFomoThermometer } from "./PVTFomoThermometer";
 import { PVTHeroStatus } from "./PVTHeroStatus";
 import { PVTMainChart } from "./PVTMainChart";
 import { PVTRiskRewardZone } from "./PVTRiskRewardZone";
@@ -56,8 +55,8 @@ const fallbackIssuerMetadata = (
   issuerName: sourceType === "sample_static_fallback" ? data.companyName : null,
   industry: sourceType === "sample_static_fallback" ? data.industry : null,
   sector: null,
-  sourceLabel: sourceType === "sample_static_fallback" ? "sample_static_fallback" : "unavailable",
-  dataMode: sourceType === "sample_static_fallback" ? "sample" : "unknown",
+  sourceLabel: sourceType === "sample_static_fallback" ? "research" : "unavailable",
+  dataMode: sourceType === "sample_static_fallback" ? "research" : "unknown",
   productionApproved: false,
   verificationStatus: sourceType === "sample_static_fallback" ? "static_sample" : "unavailable",
   sharesOutstanding: null,
@@ -65,8 +64,8 @@ const fallbackIssuerMetadata = (
   sharesStatus: "unavailable",
   limitations: [
     sourceType === "sample_static_fallback"
-      ? "Static sample issuer metadata is not approved production metadata."
-      : "Company/issuer metadata is unavailable for this DB-backed ticker.",
+      ? "Thông tin doanh nghiệp dùng dữ liệu minh họa, chưa phê duyệt sản xuất."
+      : "Thông tin doanh nghiệp chưa khả dụng cho mã này.",
   ],
   warnings: [],
 });
@@ -142,8 +141,8 @@ export function TechnicalPage({ initialRuntimeData, onNavigate }: TechnicalPageP
   const source = initialRuntimeData?.source ?? {
     sourceType: "sample_static_fallback",
     provider: "sample_static",
-    sourceLabel: "sample_static_fallback",
-    dataMode: "sample",
+    sourceLabel: "research",
+    dataMode: "research",
     productionApproved: false,
   };
   const fallbackUsed = initialRuntimeData?.fallbackUsed ?? true;
@@ -202,9 +201,8 @@ export function TechnicalPage({ initialRuntimeData, onNavigate }: TechnicalPageP
             invalidation={data.invalidation}
             scenarios={data.scenarios}
           />
-          <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_390px]">
+          <div className="grid gap-5">
             <PVTRiskRewardZone data={data.riskReward} />
-            <PVTFomoThermometer data={data.fomo} />
           </div>
           <PVTRelativeMarketSectorCards data={data.relativeMetrics} ticker={data.ticker} />
         </>

@@ -1,7 +1,9 @@
 export const parseJsonObject = async (request: Request): Promise<Record<string, unknown> | null> => {
   try {
     const body = (await request.json()) as unknown;
-    return typeof body === "object" && body !== null && !Array.isArray(body) ? body : null;
+    return typeof body === "object" && body !== null && !Array.isArray(body)
+      ? (body as Record<string, unknown>)
+      : null;
   } catch {
     return null;
   }

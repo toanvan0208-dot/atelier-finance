@@ -15,11 +15,13 @@ const moduleKeys = new Set([
   "financials",
   "valuation",
   "risk",
+  "simulation",
+  "watchlist",
 ]);
 
 describe("AppShell module routing helpers", () => {
   it("keeps a valid module from URL", () => {
-    for (const moduleKey of ["risk", "valuation", "financials", "business"]) {
+    for (const moduleKey of ["risk", "valuation", "financials", "business", "simulation", "watchlist"]) {
       expect(resolveActiveModule(moduleKey, moduleKeys, "overview")).toBe(moduleKey);
       expect(shouldNormalizeInvalidModule(moduleKey, moduleKeys)).toBe(false);
     }

@@ -11,8 +11,8 @@ import { baseOverviewCaseData } from "../../data/overviewCase.data";
 import type { OverviewCrossModuleReadinessSummary } from "../../lib/overview-cross-module-readiness";
 import type { OverviewBottleneck, OverviewCaseData } from "../../types";
 
-describe("OverviewPage MVP", () => {
-  it("renders 4 MVP blocks and enforces language guardrails", () => {
+describe("OverviewPage dashboard", () => {
+  it("renders user-facing overview blocks and enforces language guardrails", () => {
     const activeCase: OverviewCaseData = {
       ...baseOverviewCaseData.activeCase,
       ticker: "FPT",
@@ -57,16 +57,18 @@ describe("OverviewPage MVP", () => {
 
     const html = tickerHtml + dataHtml + missingHtml + nextStepsHtml;
 
-    expect(html).toContain("Bạn đang xem mã nào");
-    expect(html).toContain("Dữ liệu hiện có");
-    expect(html).toContain("Dữ liệu còn thiếu");
-    expect(html).toContain("Nên xem gì tiếp theo trong hệ thống");
+    expect(html).toContain("Tổng quan hôm nay");
+    expect(html).toContain("Tình trạng dữ liệu");
+    expect(html).toContain("Những điểm cần bổ sung");
+    expect(html).toContain("Hôm nay nên nhìn gì?");
 
-    expect(html).toContain("Bạn đang xem: FPT");
+    expect(html).toContain("khách mới, nên nhìn vào FPT");
     expect(html).toContain("CTCP FPT");
 
-    expect(html).toContain("Có dữ liệu");
-    expect(html).toContain("Cần kiểm tra thêm");
+    expect(html).toContain("Có thể đọc sơ bộ");
+    expect(html).toContain("Xem BCTC của FPT");
+    expect(html).toContain("Mở Watchlist");
+    expect(html).toContain("Mở Mô phỏng");
 
     const forbiddenWords = [
       "buy",

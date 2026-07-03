@@ -8,6 +8,7 @@ import { loadScreeningRuntimeData } from "@/features/screening/lib/load-screenin
 import { loadLearningRuntimeData } from "@/features/learning";
 import { loadMacroRuntimeData } from "@/features/macro/lib/load-macro-runtime-data";
 import { loadIndustryContextRuntimeByTicker } from "@/features/industry/lib/load-industry-context";
+import { getCurrentUser } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
 
@@ -37,6 +38,7 @@ export default async function WorkspacePage({ searchParams }: WorkspacePageProps
   const valuationScenario = resolveValuationUnitAwareReadyMetricsScenarioId(params.valuationScenario);
   
   const [
+    currentUser,
     initialTechnicalData,
     initialFinancialsRuntimeData,
     initialPortfolioReadiness,
@@ -46,6 +48,7 @@ export default async function WorkspacePage({ searchParams }: WorkspacePageProps
     initialMacroData,
     initialIndustryContexts,
   ] = await Promise.all([
+    getCurrentUser(),
     loadTechnicalRuntimeData({
       ticker: technicalTicker,
       from: technicalFrom,
@@ -66,6 +69,7 @@ export default async function WorkspacePage({ searchParams }: WorkspacePageProps
 
   return (
     <AppShell
+      currentUser={currentUser}
       initialChecklistData={initialChecklistData}
       initialFinancialsRuntimeData={initialFinancialsRuntimeData}
       initialLearningData={initialLearningData}

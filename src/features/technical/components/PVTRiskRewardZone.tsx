@@ -22,7 +22,7 @@ export function PVTRiskRewardZone({ data }: PVTRiskRewardZoneProps) {
   return (
     <Card>
       <CardHeader
-        title="Tỷ lệ rủi ro/lợi nhuận theo vùng quan sát"
+        title="Tóm tắt vùng giá tham khảo"
         description="Chỉ là vùng cần quan sát, không phải vùng hành động chắc chắn."
       />
       <CardBody className="space-y-4">

@@ -11,7 +11,7 @@ const basePvtObservationData: PVTObservationData = {
     label: "Có dấu hiệu cải thiện nhưng chưa xác nhận đủ mạnh",
     tone: "caution",
     conclusion:
-      "Giá đang tiến gần vùng kháng cự trong khi biên an toàn định giá chưa rõ. Không nên hành động chỉ vì giá đang tăng.",
+      "Giá đang tiến gần vùng giá cao trong khi biên an toàn định giá chưa rõ. Không nên hành động chỉ vì giá đang tăng.",
   },
   keyLevels: {
     support: "38.000 - 40.000",
@@ -55,7 +55,7 @@ const basePvtObservationData: PVTObservationData = {
     quickRead: [
       {
         question: "Giá đang ở đâu?",
-        answer: "Giá đang tiến gần vùng kháng cự 44.000 - 46.000.",
+        answer: "Giá đang tiến gần vùng giá cao 44.000 - 46.000.",
       },
       {
         question: "Volume có xác nhận không?",
@@ -74,11 +74,11 @@ const basePvtObservationData: PVTObservationData = {
       shortTitle: "Giá",
       question: "Giá đang ở đoạn nào của hành trình?",
       conclusion:
-        "Giá đang tiến gần vùng kháng cự, chưa phải vùng quan sát có biên an toàn kỹ thuật tốt.",
+        "Giá đang tiến gần vùng giá cao, chưa phải vùng quan sát có biên an toàn kỹ thuật tốt.",
       evidence: [
         "Giá đã tăng từ vùng nền gần nhất.",
-        "Vùng 44.000 - 46.000 là kháng cự gần.",
-        "Khoảng cách tới hỗ trợ và kháng cự tương đối cân bằng.",
+        "Vùng 44.000 - 46.000 là vùng giá trên gần.",
+        "Khoảng cách tới vùng giá trên và vùng giá dưới tương đối cân bằng.",
       ],
       commonMistake:
         "Thấy giá xanh nhiều phiên không có nghĩa vùng quan sát hiện tại còn phù hợp.",
@@ -135,7 +135,7 @@ const basePvtObservationData: PVTObservationData = {
       evidence: [
         "Có kỳ vọng phục hồi sức mua.",
         "Cần kiểm tra kết quả kinh doanh.",
-        "FOMO ở mức trung bình.",
+        "Tâm lý thị trường ở mức trung bình.",
       ],
       commonMistake:
         "Tin tốt ra nhưng giá không tăng cần được quan sát như phản ứng giá sau sự kiện/tin tức.",
@@ -144,21 +144,21 @@ const basePvtObservationData: PVTObservationData = {
   confirmation: [
     "Giá vượt vùng 44.000 - 46.000 với volume cao hơn trung bình 20 phiên.",
     "Sau khi vượt, giá không rơi lại ngay dưới vùng vừa vượt.",
-    "VN-Index không gãy hỗ trợ quan trọng.",
+    "VN-Index không gãy vùng giá thấp quan trọng.",
     "Nhóm bán lẻ không suy yếu đồng loạt.",
-    "Tin hỗ trợ đến từ dữ liệu thật, không chỉ là kỳ vọng ngắn hạn.",
+    "Tin tức củng cố đến từ dữ liệu thật, không chỉ là kỳ vọng ngắn hạn.",
   ],
   invalidation: [
-    "Giá không vượt được kháng cự và quay đầu với volume lớn.",
+    "Giá không vượt được vùng giá trên và quay đầu với volume lớn.",
     "Phiên tăng có volume thấp, phiên giảm có volume cao.",
-    "Giá thủng hỗ trợ gần nhất.",
+    "Giá thủng vùng giá thấp gần nhất.",
     "Cổ phiếu yếu hơn VN-Index và ngành liên tục.",
     "Tin tốt xuất hiện nhưng giá không phản ứng tích cực.",
   ],
   scenarios: [
     {
       name: "Kịch bản tích cực",
-      condition: "Giá vượt kháng cự với volume tốt, sau đó giữ được vùng vừa vượt.",
+      condition: "Giá vượt vùng giá cao với volume tốt, sau đó giữ được vùng vừa vượt.",
       meaning: "Dòng tiền có thể đang xác nhận luận điểm.",
     },
     {
@@ -168,7 +168,7 @@ const basePvtObservationData: PVTObservationData = {
     },
     {
       name: "Kịch bản tiêu cực",
-      condition: "Giá thủng hỗ trợ 38.000 với volume lớn.",
+      condition: "Giá thủng vùng giá 38.000 với volume lớn.",
       meaning: "Cấu trúc PVT xấu đi, nên quay lại kiểm tra rủi ro.",
     },
   ],
@@ -186,7 +186,7 @@ const basePvtObservationData: PVTObservationData = {
     score: 3,
     maxScore: 6,
     signs: [
-      "Giá đang gần kháng cự.",
+      "Giá đang gần vùng giá cao.",
       "Volume tăng sau nhịp giá mạnh.",
       "Biên an toàn định giá chưa rõ.",
     ],
@@ -195,9 +195,9 @@ const basePvtObservationData: PVTObservationData = {
   },
   finalConclusion: {
     status: "MWG có dấu hiệu cải thiện ngắn hạn nhưng chưa xác nhận đủ mạnh.",
-    positive: "Giá giữ được vùng hỗ trợ gần và volume bắt đầu cải thiện.",
+    positive: "Giá giữ được vùng giá dưới gần và volume bắt đầu cải thiện.",
     caution:
-      "Giá đang gần kháng cự, biên an toàn định giá chưa rõ và FOMO ở mức trung bình.",
+      "Giá đang gần vùng giá cao, biên an toàn định giá chưa rõ và thị trường ở mức trung bình.",
     nextStep:
       "Có thể đưa vào Watchlist để theo dõi điều kiện xác nhận, đồng thời chuyển sang Rủi ro để kiểm tra điều gì có thể làm luận điểm sai.",
   },
@@ -205,7 +205,7 @@ const basePvtObservationData: PVTObservationData = {
     { label: "Đưa vào Watchlist", moduleKey: "watchlist", primary: true },
     { label: "Chuyển sang Rủi ro", moduleKey: "risk", primary: true },
     { label: "Quay lại Định giá", moduleKey: "valuation" },
-    { label: "Kiểm tra FOMO sâu hơn", moduleKey: "checklist" },
+    { label: "Kiểm tra rủi ro sâu hơn", moduleKey: "checklist" },
   ],
 };
 

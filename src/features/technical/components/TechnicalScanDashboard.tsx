@@ -331,8 +331,8 @@ export function TechnicalScanDashboard({
     })
   );
   const latest = getLatestReading(priceVolume);
-  const support = getMetric(pricePosition.metrics, "hỗ trợ")?.value ?? "--";
-  const resistance = getMetric(pricePosition.metrics, "kháng cự")?.value ?? "--";
+  const support = getMetric(pricePosition.metrics, "vùng giá thấp gần đây")?.value ?? getMetric(pricePosition.metrics, "hỗ trợ")?.value ?? "--";
+  const resistance = getMetric(pricePosition.metrics, "vùng giá cao gần đây")?.value ?? getMetric(pricePosition.metrics, "kháng cự")?.value ?? "--";
   const volatilityLevel = volatility.output.value;
   const primaryNews =
     newsEvents.rows.find((event) => event.relevance === "Cao") ?? newsEvents.rows[0];

@@ -162,8 +162,8 @@ const buildIssuerMetadata = (
       productionApproved: false,
       verificationStatus: "unavailable",
       limitations: [
-        "Company/issuer metadata is unavailable for this DB-backed ticker.",
-        "Sample company, industry, and sector metadata were not reused.",
+        "Thông tin doanh nghiệp chưa khả dụng cho mã này.",
+        "Không dùng dữ liệu minh họa cho ngành và lĩnh vực.",
       ],
       warnings: ["Issuer metadata has not been verified for this market price ticker."],
     };
@@ -227,7 +227,7 @@ const buildDerivedMetrics = ({
         "Static sample PVT derived metrics are for local product behavior checks only.",
         "They are not production-approved technical analysis.",
       ],
-      warnings: ["Sample/static derived metrics are not reused in DB-backed mode."],
+      warnings: ["Không dùng dữ liệu minh họa cho các chỉ số dẫn xuất."],
     };
   }
 
@@ -267,7 +267,7 @@ const buildDerivedMetrics = ({
       "FOMO is unavailable unless computed from the active market price series.",
     ],
     warnings: [
-      "Sample support/resistance, volume ratio, and FOMO metrics were not reused for DB-backed market price data.",
+      "Không dùng dữ liệu minh họa cho vùng giá, khối lượng và tâm lý thị trường.",
     ],
   };
 };
@@ -387,7 +387,7 @@ const buildChartSeries = ({
           "Static sample chart series is for local product behavior checks only.",
           "It is not production-approved market chart data.",
         ],
-        warnings: ["Sample/static chart series must not be reused in DB-backed mode."],
+        warnings: ["Không dùng dữ liệu minh họa cho biểu đồ."],
       }),
     };
   }
@@ -410,8 +410,8 @@ const buildChartSeries = ({
         events: [],
         quickRead: [
           {
-            question: "Chart co du du lieu DB-backed khong?",
-            answer: "Chart chua kha dung cho du lieu DB-backed vi chua du close price de ve tu chuoi hien tai.",
+            question: "Biểu đồ có đủ dữ liệu không?",
+            answer: "Chưa đủ dữ liệu để vẽ biểu đồ từ chuỗi hiện tại.",
           },
         ],
       },
@@ -431,9 +431,9 @@ const buildChartSeries = ({
         annotationsCount: 0,
         limitations: [
           "Chart needs at least two close-price observations from the active market price series.",
-          "Sample chart points, moving averages, volume bars, and annotations were not reused.",
+          "Không dùng dữ liệu minh họa cho các điểm biểu đồ, đường trung bình, khối lượng và sự kiện.",
         ],
-        warnings: ["DB-backed chart series is unavailable because active close-price observations are insufficient."],
+        warnings: ["Chưa đủ dữ liệu giá để vẽ biểu đồ."],
       }),
     };
   }
@@ -469,8 +469,8 @@ const buildChartSeries = ({
       events: [],
       quickRead: [
         {
-          question: "Chart dung nguon nao?",
-          answer: "Chart uses active local DB market price series; sample chart points and sample annotations are not reused.",
+          question: "Nguồn dữ liệu biểu đồ?",
+          answer: "Biểu đồ dùng dữ liệu giá và khối lượng đã lưu trong hệ thống.",
         },
         {
           question: "MA20/MA50 co hien thi khong?",
@@ -478,7 +478,7 @@ const buildChartSeries = ({
         },
         {
           question: "Co su kien tren chart khong?",
-          answer: "Annotations are unavailable because no event source is connected to this DB-backed chart series.",
+          answer: "Dữ liệu sự kiện chưa khả dụng.",
         },
       ],
     },
@@ -606,17 +606,17 @@ export const buildTechnicalDeskData = (
       liquidityStatus,
     }),
     confirmation: isMarketPriceSeries
-      ? ["Chưa đủ dữ liệu để xác định điều kiện xác nhận từ chuỗi DB-backed."]
+      ? ["Chưa đủ dữ liệu để xác định điều kiện xác nhận."]
       : baseData.confirmation,
     invalidation: isMarketPriceSeries
-      ? ["Chưa đủ dữ liệu để xác định điều kiện phủ nhận từ chuỗi DB-backed."]
+      ? ["Chưa đủ dữ liệu để xác định điều kiện phủ nhận."]
       : baseData.invalidation,
     scenarios: isMarketPriceSeries
       ? [
           {
             name: "Derived metrics unavailable",
-            condition: "Chuỗi DB-backed chưa đủ cơ sở để tính vùng kỹ thuật.",
-            meaning: "Không sử dụng kịch bản sample cho dữ liệu DB-backed.",
+            condition: "Chưa đủ dữ liệu để tính vùng kỹ thuật.",
+            meaning: "Không dùng dữ liệu minh họa.",
           },
         ]
       : baseData.scenarios,
@@ -627,7 +627,7 @@ export const buildTechnicalDeskData = (
           resistancePrice: null,
           upside: DERIVED_NOT_AVAILABLE_LABEL,
           downside: DERIVED_NOT_AVAILABLE_LABEL,
-          conclusion: "Chưa đủ dữ liệu để tính vùng hỗ trợ/kháng cự từ chuỗi DB-backed.",
+          conclusion: "Chưa đủ dữ liệu để tính vùng giá.",
         }
       : baseData.riskReward,
     fomo: isMarketPriceSeries
@@ -635,8 +635,8 @@ export const buildTechnicalDeskData = (
           level: baseData.fomo.level,
           score: null,
           maxScore: baseData.fomo.maxScore,
-          signs: ["FOMO chưa khả dụng cho dữ liệu DB-backed."],
-          conclusion: "FOMO chưa khả dụng vì chưa được tính từ cùng chuỗi DB-backed.",
+          signs: ["Tâm lý thị trường chưa khả dụng."],
+          conclusion: "Chưa đủ dữ liệu để đánh giá tâm lý thị trường.",
         }
       : baseData.fomo,
     finalConclusion: {
@@ -647,7 +647,7 @@ export const buildTechnicalDeskData = (
         "PVT chỉ phản ánh dữ liệu thị trường tại thời điểm quan sát, không phải kết luận hành động.",
       nextStep:
         missingFields.length > 0
-          ? "Bổ sung dữ liệu còn thiếu trước khi dùng PVT để hỗ trợ kiểm tra rủi ro thực thi."
+          ? "Bổ sung dữ liệu còn thiếu trước khi dùng PVT để củng cố kiểm tra rủi ro thực thi."
           : baseData.finalConclusion.nextStep,
     },
     logicSummary: {

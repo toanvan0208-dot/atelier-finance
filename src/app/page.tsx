@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { AuthPanel } from "@/features/auth/AuthPanel";
 
 const analysisPath = [
   "Vĩ mô",
@@ -86,62 +86,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        <aside className="rounded-[2rem] border border-slate-900 bg-white p-6 shadow-[8px_8px_0_#0f172a] sm:p-8">
-          <div className="mb-8">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
-              Đăng nhập
-            </p>
-            <h2 className="mt-3 text-3xl font-black tracking-[-0.05em] text-slate-950">
-              Đăng nhập vào không gian phân tích
-            </h2>
-            <p className="mt-3 text-sm leading-6 text-slate-600">
-              Tiếp tục lộ trình của bạn hoặc dùng bản demo để khám phá hệ thống.
-            </p>
-          </div>
-
-          <div className="space-y-4">
-            <label className="block">
-              <span className="mb-2 block text-sm font-bold text-slate-700">Email</span>
-              <input
-                type="email"
-                placeholder="you@example.com"
-                className="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm font-semibold outline-none transition focus:border-slate-950 focus:bg-white"
-              />
-            </label>
-
-            <label className="block">
-              <span className="mb-2 block text-sm font-bold text-slate-700">Mật khẩu</span>
-              <input
-                type="password"
-                placeholder="••••••••"
-                className="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm font-semibold outline-none transition focus:border-slate-950 focus:bg-white"
-              />
-            </label>
-          </div>
-
-          <div className="mt-6 grid gap-3">
-            <Link
-              href="/workspace"
-              className="rounded-2xl border border-slate-950 bg-slate-950 px-5 py-3 text-center text-sm font-black text-white transition hover:-translate-y-0.5"
-            >
-              Đăng nhập
-            </Link>
-            <Link
-              href="/workspace"
-              className="rounded-2xl border border-slate-950 bg-amber-300 px-5 py-3 text-center text-sm font-black text-slate-950 shadow-[4px_4px_0_#0f172a] transition hover:-translate-y-0.5"
-            >
-              Dùng bản demo
-            </Link>
-          </div>
-
-          <p className="mt-5 text-center text-sm text-slate-500">
-            Chưa có tài khoản? <span className="font-black text-slate-950">Tạo hồ sơ học đầu tư</span>
-          </p>
-
-          <div className="mt-8 rounded-3xl border border-amber-300 bg-amber-50 p-4 text-sm leading-6 text-amber-950">
-            <strong>Lưu ý:</strong> Hệ thống không đưa ra khuyến nghị mua, bán hoặc nắm giữ cổ phiếu. Nội dung chỉ phục vụ học tập, phân tích và tham khảo.
-          </div>
-        </aside>
+        <AuthPanel />
       </section>
     </main>
   );

@@ -149,7 +149,7 @@ function PricePositionVisual({ items }: { items: TechnicalFieldItem[] }) {
       <p className="mb-3 text-sm font-bold text-ink">Vị trí giá trong vùng phản ứng</p>
       <div className="grid gap-2">
         <div className="rounded-[4px] border border-border bg-surface-soft px-3 py-2">
-          <p className="text-[11px] font-bold text-subtle">Vùng kháng cự</p>
+          <p className="text-[11px] font-bold text-subtle">Vùng giá trên</p>
           <p className="text-sm font-bold text-ink">{resistance}</p>
         </div>
         <div className="rounded-[4px] border-[1.5px] border-border bg-accent-soft px-3 py-2 shadow-hard-sm">
@@ -157,7 +157,7 @@ function PricePositionVisual({ items }: { items: TechnicalFieldItem[] }) {
           <p className="text-sm font-bold text-ink">{current}</p>
         </div>
         <div className="rounded-[4px] border border-border bg-surface-soft px-3 py-2">
-          <p className="text-[11px] font-bold text-subtle">Vùng hỗ trợ</p>
+          <p className="text-[11px] font-bold text-subtle">Vùng giá dưới</p>
           <p className="text-sm font-bold text-ink">{support}</p>
         </div>
       </div>

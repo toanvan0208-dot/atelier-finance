@@ -58,10 +58,10 @@ export function PVTMainChart({ data, chartSeries, resistanceLabel, supportLabel 
     chartSeries?.annotations.status === "static_sample" || chartSeries?.annotations.status === "presentation_only";
   const sourceNote =
     chartSeries?.status === "computed_from_market_price_series"
-      ? "Chart uses active local DB market price series."
+      ? "Biểu đồ dùng dữ liệu giá và khối lượng đã lưu trong hệ thống."
       : chartSeries?.status === "static_sample" || chartSeries?.status === "presentation_only"
         ? "Biểu đồ dùng dữ liệu minh họa và chưa phê duyệt sản xuất."
-        : "Chart chua kha dung cho du lieu DB-backed.";
+        : "Dữ liệu nghiên cứu, chưa phê duyệt sản xuất.";
 
   if (!hasChartPoints) {
     return (
@@ -73,9 +73,9 @@ export function PVTMainChart({ data, chartSeries, resistanceLabel, supportLabel 
         />
         <CardBody className="space-y-4">
           <div className="rounded-[4px] border border-border-soft bg-surface-soft p-5">
-            <p className="text-sm font-bold text-ink">Chart chua kha dung cho du lieu DB-backed</p>
+            <p className="text-sm font-bold text-ink">Dữ liệu nghiên cứu, chưa phê duyệt sản xuất.</p>
             <p className="mt-2 text-xs leading-5 text-muted">
-              Chua du du lieu de ve chart tu chuoi hien tai. Sample chart series is not reused.
+              Không dùng dữ liệu minh họa.
             </p>
           </div>
           <p className="text-xs leading-5 text-muted">{sourceNote}</p>
@@ -108,7 +108,7 @@ export function PVTMainChart({ data, chartSeries, resistanceLabel, supportLabel 
       <CardBody className="space-y-4">
         {isDbChart ? (
           <p className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-2 text-xs leading-5 text-muted">
-            Chart uses active local DB market price series. MA20/MA50 and annotations are hidden unless computed from the same series/source.
+            Biểu đồ dùng dữ liệu giá và khối lượng đã lưu trong hệ thống. MA20/MA50 chỉ hiển thị khi có đủ dữ liệu tính toán. Không dùng dữ liệu minh họa.
           </p>
         ) : null}
         <div className="overflow-x-auto rounded-[4px] border border-border-soft bg-surface-soft p-4">

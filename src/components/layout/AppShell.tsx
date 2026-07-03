@@ -45,6 +45,7 @@ import type { ScreeningRuntimeData } from "@/features/screening";
 import type { MacroCompassData } from "@/features/macro/types";
 import type { IndustryContextRuntimePayload } from "@/features/industry/lib/load-industry-context";
 import { PRODUCT_MODULE_GATES } from "@/lib/product/module-readiness";
+import type { AuthUser } from "@/lib/auth/session";
 
 const modulesWithInternalProgress = new Set([
   "macro",
@@ -62,6 +63,7 @@ const modulesWithInternalProgress = new Set([
 const navigationChangeEvent = "app:navigation";
 
 type AppShellProps = {
+  currentUser?: AuthUser | null;
   initialFinancialsRuntimeData?: FinancialsRuntimeData;
   initialModule?: string | null;
   initialPortfolioReadiness?: PortfolioReadinessResult;
@@ -75,6 +77,7 @@ type AppShellProps = {
 };
 
 export function AppShell({
+  currentUser,
   initialFinancialsRuntimeData,
   initialModule,
   initialPortfolioReadiness,
@@ -89,6 +92,7 @@ export function AppShell({
   return (
     <PersonalAnalysisProfileProvider>
       <AppShellContent
+        currentUser={currentUser}
         initialChecklistData={initialChecklistData}
         initialFinancialsRuntimeData={initialFinancialsRuntimeData}
         initialModule={initialModule}
@@ -105,6 +109,7 @@ export function AppShell({
 }
 
 function AppShellContent({
+  currentUser,
   initialFinancialsRuntimeData,
   initialModule,
   initialPortfolioReadiness,
@@ -219,7 +224,9 @@ function AppShellContent({
       >
         {isGated ? null : activeModule === "overview" ? (
           <OverviewPage
+            currentUser={currentUser}
             initialFinancialsRuntimeData={initialFinancialsRuntimeData}
+            portfolioReadiness={initialPortfolioReadiness}
             onNavigate={handleNavigate}
           />
         ) : null}

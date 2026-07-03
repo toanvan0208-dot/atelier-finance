@@ -23,7 +23,6 @@ type DetailState =
   | { type: "guide" }
   | { type: "metric"; metric: PVTMetric }
   | { type: "event"; event: PVTEvent }
-  | { type: "fomo" }
   | null;
 
 const layers: Array<{ id: PVTLayer; label: string }> = [
@@ -361,28 +360,6 @@ export function PVTCommandCenter({ data, priceVolume }: PVTCommandCenterProps) {
             <Button size="sm" variant="ghost">Xem tất cả sự kiện</Button>
           </CardBody>
         </Card>
-
-        <Card className="border-border-soft">
-          <CardHeader
-            action={<Button size="sm" variant="secondary" onClick={() => setDetail({ type: "fomo" })}>Kiểm tra kỹ hơn</Button>}
-            icon="F"
-            title="Cảnh báo tâm lý thị trường"
-          />
-          <CardBody>
-            <div className="flex items-end justify-between gap-3">
-              <div>
-                <p className="font-brand text-3xl font-bold text-ink">{data.fomoMini.checked}/{data.fomoMini.total}</p>
-                <p className="mt-1 text-xs leading-5 text-muted">dấu hiệu cần chú ý</p>
-              </div>
-              <Chip variant="warning">{data.fomoMini.temperature}</Chip>
-            </div>
-            <div className="mt-3 space-y-2">
-              {data.fomoMini.highlights.map((item) => (
-                <p key={item} className="rounded-[4px] bg-surface-soft px-3 py-2 text-xs leading-5 text-muted">{item}</p>
-              ))}
-            </div>
-          </CardBody>
-        </Card>
       </div>
 
       <Card className="border-border">
@@ -421,7 +398,7 @@ export function PVTCommandCenter({ data, priceVolume }: PVTCommandCenterProps) {
           <div className="max-h-[92dvh] w-full max-w-[680px] overflow-hidden rounded-[6px] border-[1.5px] border-border bg-surface shadow-hard" onClick={(event) => event.stopPropagation()}>
             <div className="flex items-start justify-between gap-4 border-b border-border-soft bg-surface-soft px-4 py-4">
               <h3 className="text-lg font-bold text-ink">
-                {detail.type === "guide" ? "Cách đọc chart PVT" : detail.type === "metric" ? `Chi tiết: ${detail.metric.label}` : detail.type === "event" ? "Chi tiết event" : "Kiểm tra tâm lý chi tiết"}
+                {detail.type === "guide" ? "Cách đọc chart PVT" : detail.type === "metric" ? `Chi tiết: ${detail.metric.label}` : "Chi tiết event"}
               </h3>
               <Button size="sm" variant="ghost" onClick={() => setDetail(null)}>Đóng</Button>
             </div>
@@ -440,19 +417,13 @@ export function PVTCommandCenter({ data, priceVolume }: PVTCommandCenterProps) {
                   <p className="text-sm leading-6 text-muted"><strong className="text-ink">Vì sao quan trọng?</strong> {detail.metric.detail?.whyItMatters}</p>
                   <p className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-2 text-xs leading-5 text-muted">Sai lầm thường gặp: {detail.metric.detail?.commonMistake}</p>
                 </>
-              ) : detail.type === "event" ? (
+              ) : (
                 <>
                   <p className="text-sm font-bold text-ink">{detail.event.date} · {detail.event.title}</p>
                   <p className="text-sm leading-6 text-muted">Giá phản ứng: {detail.event.priceReaction}</p>
                   <p className="text-sm leading-6 text-muted">Volume phản ứng: {detail.event.volumeReaction}</p>
                   <p className="text-sm leading-6 text-muted">Trạng thái: {eventLabel[detail.event.status]}</p>
                   <p className="rounded-[4px] border border-warning bg-warning/15 px-3 py-2 text-xs leading-5 text-ink">Tương quan thời điểm không đồng nghĩa nguyên nhân chắc chắn.</p>
-                </>
-              ) : (
-                <>
-                  <p className="text-sm leading-6 text-muted">Kiểm tra cảm xúc giúp tránh đọc chart một chiều khi giá biến động nhanh.</p>
-                  {data.fomoMini.highlights.map((item) => <p key={item} className="rounded-[4px] bg-surface-soft px-3 py-2 text-xs leading-5 text-muted">{item}</p>)}
-                  <p className="rounded-[4px] border border-warning bg-warning/15 px-3 py-2 text-xs leading-5 text-ink">Trước khi hành động, cần quay lại định giá, BCTC và rủi ro nếu còn điểm chưa rõ.</p>
                 </>
               )}
             </div>
