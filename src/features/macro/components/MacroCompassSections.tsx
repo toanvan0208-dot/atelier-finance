@@ -46,6 +46,52 @@ const toneClass: Record<MacroCompassTone, string> = {
 
 const coreMetricIds = ["gdp", "cpi", "domestic-rate", "usd-vnd", "exports", "credit-growth"];
 
+type CoreMetricReadingRole = {
+  step: string;
+  role: string;
+  question: string;
+  whyFirst: string;
+};
+
+const coreMetricReadingRoles: Record<string, CoreMetricReadingRole> = {
+  gdp: {
+    step: "Bước 1",
+    role: "Nền tăng trưởng",
+    question: "Kinh tế đang mở rộng hay chậm lại?",
+    whyFirst: "GDP cho biết bức tranh nhu cầu chung trước khi nhìn sang từng ngành hoặc từng cổ phiếu.",
+  },
+  cpi: {
+    step: "Bước 2",
+    role: "Áp lực giá cả",
+    question: "Tăng trưởng có bị lạm phát bóp lại không?",
+    whyFirst: "CPI cho biết sức mua, chi phí đầu vào và rủi ro lãi suất có đang căng hay không.",
+  },
+  "domestic-rate": {
+    step: "Bước 3",
+    role: "Chi phí vốn",
+    question: "Tiền trong nền kinh tế đang rẻ hay đắt?",
+    whyFirst: "Lãi suất ảnh hưởng trực tiếp tới chi phí vay, định giá tài sản và sức chịu đựng của doanh nghiệp.",
+  },
+  "usd-vnd": {
+    step: "Bước 4",
+    role: "Áp lực tỷ giá",
+    question: "Tỷ giá có tạo thêm áp lực lên chi phí hoặc dòng vốn không?",
+    whyFirst: "USD/VND giúp kiểm tra áp lực nhập khẩu, nợ ngoại tệ, tâm lý vốn ngoại và chính sách tiền tệ.",
+  },
+  exports: {
+    step: "Bước 5",
+    role: "Cầu bên ngoài",
+    question: "Đơn hàng thế giới có đang hỗ trợ Việt Nam không?",
+    whyFirst: "Xuất khẩu xác nhận phần cầu bên ngoài, nhất là với sản xuất, logistics và khu công nghiệp.",
+  },
+  "credit-growth": {
+    step: "Bước 6",
+    role: "Dòng vốn trong nước",
+    question: "Tín dụng có thật sự đi vào nền kinh tế không?",
+    whyFirst: "Tín dụng giúp kiểm tra nội cầu và điều kiện vốn sau khi đã nhìn tăng trưởng, giá cả và tỷ giá.",
+  },
+};
+
 const metricGroupLabel: Record<MacroCompassMetric["group"], string> = {
   world: "Thế giới",
   growth: "Tăng trưởng",
@@ -292,13 +338,44 @@ export function CoreMacroIndicatorsSection({ metrics }: { metrics: MacroCompassM
         title="Các chỉ số cần đọc trước"
         description="Chỉ giữ nhóm tín hiệu nền tảng để người mới hiểu bối cảnh trước khi mở danh mục dữ liệu đầy đủ."
       />
+      <div className="rounded-[8px] border-[1.5px] border-border bg-canvas p-4 shadow-hard-sm">
+        <div className="max-w-[860px]">
+          <h3 className="text-base font-extrabold text-ink">Vì sao đọc theo 6 chỉ số này?</h3>
+          <p className="mt-2 text-sm leading-6 text-muted">
+            Đây không phải danh sách chỉ số quan trọng nhất để học thuộc. Đây là luồng câu hỏi nền tảng:
+            kinh tế có tăng không, tăng có bị lạm phát hoặc lãi suất bóp lại không, tỷ giá có tạo áp lực không,
+            rồi xuất khẩu và tín dụng có xác nhận bức tranh đó không.
+          </p>
+        </div>
+        <div className="mt-4 grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+          {visibleMetrics.map((metric) => {
+            const readingRole = coreMetricReadingRoles[metric.id];
+
+            if (!readingRole) return null;
+
+            return (
+              <div key={`reading-${metric.id}`} className="rounded-[5px] border border-border-soft bg-surface p-3">
+                <p className="text-[11px] font-bold uppercase text-subtle">
+                  {readingRole.step} · {readingRole.role}
+                </p>
+                <p className="mt-2 text-sm font-semibold leading-5 text-ink">{readingRole.question}</p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
       <div className="grid gap-4 lg:grid-cols-2">
         {visibleMetrics.map((metric) => {
+          const readingRole = coreMetricReadingRoles[metric.id];
           const sourceText = metric.sourceName
             ? `${metric.sourceName}${metric.period ? ` · ${metric.period}` : ""}`
             : "Chưa có nguồn đã rà soát";
           const dataStatus = macroCompassMetricStatusLabel(metric);
           const firstWarning = metric.warnings[0];
+          const missingValueNote =
+            metric.value === null
+              ? "Chỉ số này vẫn nằm trong luồng đọc vì nó là mắt xích cần kiểm tra, nhưng hiện chưa có dữ liệu đã kiểm duyệt nên chưa dùng để kết luận."
+              : null;
 
           return (
             <article
@@ -310,7 +387,11 @@ export function CoreMacroIndicatorsSection({ metrics }: { metrics: MacroCompassM
             >
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
-                  <p className="text-xs font-bold uppercase text-subtle">{metricGroupLabel[metric.group]}</p>
+                  <p className="text-xs font-bold uppercase text-subtle">
+                    {readingRole
+                      ? `${readingRole.step} · ${readingRole.role}`
+                      : metricGroupLabel[metric.group]}
+                  </p>
                   <h3 className="mt-1 text-base font-extrabold text-ink">{metric.name}</h3>
                   <p className="mt-1 text-lg font-extrabold text-ink">
                     {formatMacroCompassMetricValue(metric)}
@@ -320,6 +401,19 @@ export function CoreMacroIndicatorsSection({ metrics }: { metrics: MacroCompassM
               </div>
 
               <div className="mt-4 grid gap-3 text-sm leading-6 text-muted">
+                {readingRole ? (
+                  <div className="rounded-[5px] border border-border-soft bg-canvas p-3">
+                    <p>
+                      <span className="font-bold text-ink">Câu hỏi cần trả lời: </span>
+                      {readingRole.question}
+                    </p>
+                    <p className="mt-1">
+                      <span className="font-bold text-ink">Vì sao đọc ở đây: </span>
+                      {readingRole.whyFirst}
+                    </p>
+                    {missingValueNote ? <p className="mt-1 font-semibold text-ink">{missingValueNote}</p> : null}
+                  </div>
+                ) : null}
                 <p>
                   <span className="font-bold text-ink">Đọc nhanh: </span>
                   {metric.simpleMeaning}
