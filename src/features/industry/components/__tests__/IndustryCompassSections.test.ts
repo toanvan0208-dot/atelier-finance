@@ -163,4 +163,128 @@ describe("IndustryPage runtime read path", () => {
     expect(html).toContain("Chua co metric nganh");
     expect(html).not.toContain("IndustryContext is available");
   });
+
+  it("renders source-backed Layer 4 qualitative context details from runtime payload", () => {
+    const hpgRuntimePayload: IndustryContextRuntimePayload = {
+      ticker: "HPG",
+      status: "available",
+      missingReason: null,
+      peerGroupSummary: {
+        ticker: "HPG",
+        status: "missing",
+        industryCode: null,
+        anchorTicker: "HPG",
+        peers: [],
+        missingReason: "No peer group rows.",
+        warnings: [],
+        peerGroupUsedAsValuationBenchmark: false,
+        peerGroupUsedAsRiskBenchmark: false,
+        peerGroupInferred: false,
+      },
+      taxonomy: {
+        ticker: "HPG",
+        status: "available",
+        missingReason: null,
+        peerGroupsAvailable: false,
+        numericIndustryMetricsAvailable: false,
+        valuationRiskBenchmarksAvailable: false,
+        peerGroupInferred: false,
+        industryMetricCreated: false,
+        valuationRiskBenchmarkInvented: false,
+        warningCodes: ["INDUSTRY_TAXONOMY_RESEARCH_ONLY"],
+        taxonomySummary: {
+          status: "available",
+          ticker: "HPG",
+          industryCode: "STEEL_MATERIALS",
+          industryName: "Steel and Materials",
+          displayNameVi: "Thep va vat lieu",
+          roleType: "reviewed_lane_ticker",
+          mappingConfidence: "reviewed",
+          dataMode: "research_only",
+          productionApproved: false,
+          needsReview: true,
+          sourceType: "manual_review",
+          sourceUrl: "external-review-workspace",
+          warnings: [],
+        },
+        mappings: [
+          {
+            ticker: "HPG",
+            industryCode: "STEEL_MATERIALS",
+            industryName: "Steel and Materials",
+            displayNameVi: "Thep va vat lieu",
+            sectorCode: null,
+            sectorName: null,
+            classificationSystem: "atelier_reviewed",
+            roleType: "reviewed_lane_ticker",
+            segmentDescription: null,
+            mappingConfidence: "reviewed",
+            sourceLabel: "External financials review workspace - industry code 2025",
+            sourceUrl: "external-review-workspace",
+            sourceType: "manual_review",
+            dataMode: "research_only",
+            productionApproved: false,
+            needsReview: true,
+            warningCodes: [],
+            caveats: [],
+          },
+        ],
+      },
+      context: {
+        industryCode: "STEEL_MATERIALS",
+        industryName: "Steel and Materials",
+        industryOverview: "Steel businesses transform raw materials into products used across construction and infrastructure.",
+        howIndustryMakesMoney: "Revenue depends on shipped volume, output price, product mix, plant utilization, and input-cost spread.",
+        keyDrivers: JSON.stringify(["Construction and infrastructure demand", "Plant utilization and product mix"]),
+        industryRisks: JSON.stringify(["Weak demand cycles", "Input cost volatility"]),
+        macroSensitivity: JSON.stringify(["Infrastructure and construction activity", "Iron ore and energy costs"]),
+        nextChecks: JSON.stringify(["Check revenue, gross margin, inventory, operating cash flow, and debt trend."]),
+        commonMisread: "A steel label frames business-cycle exposure; it does not decide ticker quality.",
+        relatedTickers: ["HPG"],
+        asOfDate: "2026-07-01T00:00:00.000Z",
+        sourceLabel: "Phase 157E reviewed qualitative context - World Steel Association - Steel and raw materials fact sheet",
+        dataMode: "research_only",
+        productionApproved: false,
+        needsReview: true,
+        numericIndustryMetricsAvailable: false,
+        valuationRiskBenchmarksAvailable: false,
+        caveats: [],
+        warningCodes: ["INDUSTRY_QUALITATIVE_CONTEXT_SOURCE_BACKED"],
+        provenanceLimitations: [],
+        reviewedQualitativeContextAvailable: true,
+        fullQualitativeContextAvailable: true,
+        qualitativeContextSourceStatus: "source_backed",
+        staticGuidanceUsedAsReviewedContext: false,
+        provenanceSummary: {
+          rowsFound: 1,
+          sourceLabels: ["World Steel Association - Steel and raw materials fact sheet"],
+          sourceUrls: ["https://worldsteel.org/wp-content/uploads/Fact-sheet-raw-materials-2023-1.pdf"],
+          sourceTypes: ["industry_association"],
+          productionApprovedTrueCount: 0,
+          needsReviewTrueCount: 1,
+          warningCodes: ["SOURCE_BACKED_DRY_RUN_ONLY"],
+          sidecarReadStatus: "available",
+        },
+      },
+    };
+
+    const html = renderToStaticMarkup(
+      createElement(IndustryPage, {
+        initialIndustryContexts: {
+          HPG: hpgRuntimePayload,
+        },
+      }),
+    );
+
+    expect(html).toContain("Ho so nganh co nguon");
+    expect(html).toContain("Co provenance");
+    expect(html).toContain("Steel businesses transform raw materials");
+    expect(html).toContain("Revenue depends on shipped volume");
+    expect(html).toContain("Construction and infrastructure demand");
+    expect(html).toContain("Weak demand cycles");
+    expect(html).toContain("World Steel Association");
+    expect(html).toContain("https://worldsteel.org/wp-content/uploads/Fact-sheet-raw-materials-2023-1.pdf");
+    expect(html).toContain("Chua co metric nganh");
+    expect(html).not.toContain("Layer 4 dang thieu");
+  });
 });

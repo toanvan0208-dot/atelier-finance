@@ -32,6 +32,38 @@ const runtimeDataModeLabel = (value: string | null | undefined): string => {
   return value;
 };
 
+const parseRuntimeList = (value: string | null | undefined): string[] => {
+  if (!value) return [];
+
+  try {
+    const parsed = JSON.parse(value) as unknown;
+    if (Array.isArray(parsed)) {
+      return parsed.filter((item): item is string => typeof item === "string" && item.trim().length > 0);
+    }
+  } catch {
+    return value
+      .split(/\n|;/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  return [];
+};
+
+const contextSourceStatusLabel = (payload: IndustryContextRuntimePayload): string => {
+  if (payload.context?.reviewedQualitativeContextAvailable) return "Co context co provenance";
+  if (payload.context) return "Co context nhung chua du provenance";
+  return "Chua co qualitative context co nguon";
+};
+
+const runtimeContextsForIndustry = (
+  runtimeContexts: IndustryContextRuntimePayload[],
+  industryCode: string | null,
+) =>
+  runtimeContexts.filter((payload) =>
+    payload.taxonomy.mappings.some((mapping) => mapping.industryCode === industryCode),
+  );
+
 function IndustryRuntimeReadPathPanel({
   runtimeContexts,
   selectedIndustry,
@@ -40,9 +72,7 @@ function IndustryRuntimeReadPathPanel({
   selectedIndustry: (typeof industryCompassData.industries)[number];
 }) {
   const expectedIndustryCode = industryCodeByCompassKey[selectedIndustry.industryKey] ?? null;
-  const matchingContexts = runtimeContexts.filter((payload) =>
-    payload.taxonomy.mappings.some((mapping) => mapping.industryCode === expectedIndustryCode),
-  );
+  const matchingContexts = runtimeContextsForIndustry(runtimeContexts, expectedIndustryCode);
   const hasMappings = matchingContexts.length > 0;
 
   return (
@@ -69,10 +99,7 @@ function IndustryRuntimeReadPathPanel({
                 const primaryMapping =
                   payload.taxonomy.mappings.find((mapping) => mapping.industryCode === expectedIndustryCode) ??
                   payload.taxonomy.mappings[0];
-                const qualitativeStatus =
-                  payload.context?.reviewedQualitativeContextAvailable === true
-                    ? "Co context co provenance"
-                    : "Chua co qualitative context co nguon";
+                const qualitativeStatus = contextSourceStatusLabel(payload);
 
                 return (
                   <article
@@ -125,6 +152,136 @@ function IndustryRuntimeReadPathPanel({
   );
 }
 
+function IndustryLayer4ContextPanel({
+  runtimeContexts,
+  selectedIndustry,
+}: {
+  runtimeContexts: IndustryContextRuntimePayload[];
+  selectedIndustry: (typeof industryCompassData.industries)[number];
+}) {
+  const expectedIndustryCode = industryCodeByCompassKey[selectedIndustry.industryKey] ?? null;
+  const contexts = runtimeContextsForIndustry(runtimeContexts, expectedIndustryCode).filter(
+    (payload) => payload.context?.reviewedQualitativeContextAvailable,
+  );
+
+  if (contexts.length === 0) {
+    return (
+      <section>
+        <SectionHeader
+          eyebrow="Layer 4"
+          title="Ho so nganh co nguon"
+          description="Chua co context co provenance cho nganh dang chon. UI khong tu lay noi dung tinh thay the."
+        />
+        <Card>
+          <CardBody>
+            <p className="rounded-[4px] border border-warning bg-warning/10 px-4 py-3 text-sm leading-6 text-muted">
+              Layer 4 dang thieu cho nganh nay. Du lieu thieu giu nguyen la N/A, khong lay static guidance lam reviewed context.
+            </p>
+          </CardBody>
+        </Card>
+      </section>
+    );
+  }
+
+  return (
+    <section>
+      <SectionHeader
+        eyebrow="Layer 4"
+        title="Ho so nganh co nguon"
+        description="Noi dung ben duoi doc tu IndustryContext trong DB, kem provenance. Day la du lieu nghien cuu, chua production-approved."
+      />
+      <div className="space-y-4">
+        {contexts.map((payload) => {
+          const context = payload.context;
+          if (!context) return null;
+
+          const keyDrivers = parseRuntimeList(context.keyDrivers);
+          const industryRisks = parseRuntimeList(context.industryRisks);
+          const macroSensitivity = parseRuntimeList(context.macroSensitivity);
+          const nextChecks = parseRuntimeList(context.nextChecks);
+          const sourceUrl = context.provenanceSummary.sourceUrls[0] ?? null;
+
+          return (
+            <Card key={`${payload.ticker}-${context.industryCode ?? context.industryName}`}>
+              <CardBody className="space-y-5">
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="max-w-[820px]">
+                    <div className="mb-2 flex flex-wrap gap-2">
+                      <Chip variant="success">Co provenance</Chip>
+                      <Chip variant="warning">{runtimeDataModeLabel(context.dataMode)}</Chip>
+                      <Chip variant="warning">needsReview</Chip>
+                      <Chip variant="neutral">productionApproved=false</Chip>
+                    </div>
+                    <h2 className="text-xl font-bold leading-tight text-ink">{context.industryName}</h2>
+                    <p className="mt-2 text-sm leading-6 text-muted">{context.industryOverview ?? "N/A"}</p>
+                  </div>
+                  <div className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-3 text-xs leading-5 text-muted lg:w-[320px]">
+                    <p className="font-bold text-ink">Nguon</p>
+                    <p className="mt-1">{context.sourceLabel}</p>
+                    {sourceUrl ? (
+                      <a
+                        className="mt-2 block break-words font-semibold text-ink underline-offset-2 hover:underline"
+                        href={sourceUrl}
+                        rel="noreferrer"
+                        target="_blank"
+                      >
+                        Mo source URL
+                      </a>
+                    ) : (
+                      <p className="mt-2 font-semibold text-ink">Source URL: N/A</p>
+                    )}
+                    <p className="mt-2">Rows provenance: {context.provenanceSummary.rowsFound}</p>
+                    <p>As of: {context.asOfDate.slice(0, 10)}</p>
+                  </div>
+                </div>
+
+                <div className="grid gap-3 lg:grid-cols-2">
+                  <div className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-4">
+                    <p className="text-sm font-bold text-ink">Nganh kiem tien nhu the nao?</p>
+                    <p className="mt-2 text-sm leading-6 text-muted">{context.howIndustryMakesMoney ?? "N/A"}</p>
+                  </div>
+                  <div className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-4">
+                    <p className="text-sm font-bold text-ink">Khong duoc ket luan qua da</p>
+                    <p className="mt-2 text-sm leading-6 text-muted">{context.commonMisread ?? "N/A"}</p>
+                  </div>
+                </div>
+
+                <div className="grid gap-3 lg:grid-cols-4">
+                  {[
+                    ["Drivers can xem", keyDrivers],
+                    ["Rui ro nganh", industryRisks],
+                    ["Nhay voi vi mo", macroSensitivity],
+                    ["Can kiem tra tiep", nextChecks],
+                  ].map(([title, items]) => (
+                    <div key={title as string} className="rounded-[4px] border border-border-soft bg-surface px-4 py-4">
+                      <p className="text-sm font-bold text-ink">{title as string}</p>
+                      {(items as string[]).length > 0 ? (
+                        <ul className="mt-3 space-y-2">
+                          {(items as string[]).map((item) => (
+                            <li key={item} className="border-l-2 border-warning pl-3 text-xs leading-5 text-muted">
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="mt-2 text-xs leading-5 text-muted">N/A</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                <p className="rounded-[4px] border border-warning bg-warning/10 px-4 py-3 text-xs leading-5 text-muted">
+                  Layer 4 chi la qualitative context co nguon. Chua co metric nganh, chua co so sanh dinh luong, chua xep hang/cham diem, va khong thay the viec doc BCTC/rui ro/dinh gia.
+                </p>
+              </CardBody>
+            </Card>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 export function IndustryPage({ initialIndustryContexts, onNavigate }: IndustryPageProps) {
   const [selectedIndustryId, setSelectedIndustryId] = useState(
     industryCompassData.industries[0]?.id ?? ""
@@ -167,6 +324,10 @@ export function IndustryPage({ initialIndustryContexts, onNavigate }: IndustryPa
         onSelectIndustry={setSelectedIndustryId}
       />
       <IndustryRuntimeReadPathPanel
+        runtimeContexts={runtimeContexts}
+        selectedIndustry={selectedIndustry}
+      />
+      <IndustryLayer4ContextPanel
         runtimeContexts={runtimeContexts}
         selectedIndustry={selectedIndustry}
       />
