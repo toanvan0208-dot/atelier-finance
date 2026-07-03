@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { EmptyState, LoadingState } from "@/components/ui";
 import { useLocalStorageState } from "@/lib/use-local-storage-state";
 import { watchlistPageData } from "../data/watchlist.data";
@@ -105,8 +105,48 @@ const defaultWatchlistFilters: WatchlistFilterState = {
   pipelineStatus: "all",
 };
 
+type WatchlistApiItem = {
+  company?: {
+    companyName?: string | null;
+    exchange?: string | null;
+    industryName?: string | null;
+  } | null;
+  createdAt?: string;
+  notes?: string | null;
+  priority?: string | null;
+  status?: string | null;
+  thesisSummary?: string | null;
+  ticker: string;
+};
+
+type WatchlistApiBody = {
+  ok?: boolean;
+  data?: WatchlistApiItem[];
+};
+
+function mapWatchlistItemToIdea(item: WatchlistApiItem, fallbackIdeas: StockIdea[]): StockIdea {
+  const ticker = item.ticker.toUpperCase();
+  const existing = fallbackIdeas.find((idea) => idea.ticker === ticker);
+  const fallback = existing ?? fallbackIdeas[0];
+
+  return {
+    ...fallback,
+    addedDate: item.createdAt ? item.createdAt.slice(0, 10) : fallback.addedDate,
+    companyName: item.company?.companyName ?? fallback.companyName,
+    exchange: item.company?.exchange ?? fallback.exchange,
+    industry: item.company?.industryName ?? fallback.industry,
+    latestNote: item.notes ?? fallback.latestNote,
+    priority: item.priority ?? fallback.priority,
+    reason: item.notes ?? fallback.reason,
+    status: fallback.status,
+    thesis: item.thesisSummary ?? fallback.thesis,
+    ticker,
+  };
+}
+
 export function WatchlistPage({ onNavigate, portfolioReadiness }: WatchlistPageProps) {
   const data = watchlistPageData;
+  const [userIdeas, setUserIdeas] = useState<StockIdea[] | null>(null);
   const [persistedState, setPersistedState] = useLocalStorageState<WatchlistPersistentState>(
     watchlistStorageKey,
     {
@@ -115,8 +155,35 @@ export function WatchlistPage({ onNavigate, portfolioReadiness }: WatchlistPageP
     }
   );
   const { filters, openTickers } = persistedState;
+  const ideas = userIdeas ?? data.ideas;
 
-  const filteredIdeas = useMemo(() => applyFilters(data.ideas, filters), [data.ideas, filters]);
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadUserWatchlist() {
+      const response = await fetch("/api/watchlist");
+      if (!response.ok) return;
+
+      const body = await response.json().catch(() => null) as WatchlistApiBody | null;
+      if (cancelled || !body?.ok || !Array.isArray(body.data)) return;
+
+      setUserIdeas(body.data.map((item) => mapWatchlistItemToIdea(item, data.ideas)));
+    }
+
+    void loadUserWatchlist();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [data.ideas]);
+
+  const filteredIdeas = useMemo(() => applyFilters(ideas, filters), [ideas, filters]);
+  const headerData = useMemo(() => ({
+    ...data.header,
+    reviewCount: ideas.filter((idea) => String(idea.status) === "Cáº§n xem láº¡i").length,
+    simulationReadyCount: ideas.filter((idea) => String(idea.status) === "Sáºµn sÃ ng mÃ´ phá»ng").length,
+    totalIdeas: ideas.length,
+  }), [data.header, ideas]);
 
   function handleToggleIdea(ticker: string) {
     setPersistedState((current) => ({
@@ -131,7 +198,7 @@ export function WatchlistPage({ onNavigate, portfolioReadiness }: WatchlistPageP
     return <LoadingState description={data.loading.content} title={data.loading.title} />;
   }
 
-  if (data.ideas.length === 0) {
+  if (ideas.length === 0) {
     return (
       <EmptyState
         description={data.emptyState.description}
@@ -143,18 +210,18 @@ export function WatchlistPage({ onNavigate, portfolioReadiness }: WatchlistPageP
 
   return (
     <div className="mx-auto w-full max-w-[1180px] space-y-5">
-      <WatchlistHeader data={data.header} ideas={data.ideas} />
+      <WatchlistHeader data={headerData} ideas={ideas} />
 
       <div className="grid gap-5 lg:grid-cols-[300px_minmax(0,1fr)]">
         <aside className="space-y-4 lg:sticky lg:top-5 lg:self-start">
           <WatchlistFilters
             filteredCount={filteredIdeas.length}
             filters={filters}
-            ideas={data.ideas}
+            ideas={ideas}
             onChange={(nextFilters) =>
               setPersistedState((current) => ({ ...current, filters: nextFilters }))
             }
-            totalCount={data.ideas.length}
+            totalCount={ideas.length}
           />
         </aside>
 
@@ -166,7 +233,7 @@ export function WatchlistPage({ onNavigate, portfolioReadiness }: WatchlistPageP
             onNavigateModule={onNavigate}
             onToggleIdea={handleToggleIdea}
             openTickers={openTickers}
-            totalCount={data.ideas.length}
+            totalCount={ideas.length}
           />
           <WatchlistDisclaimer data={data.disclaimer} />
         </main>

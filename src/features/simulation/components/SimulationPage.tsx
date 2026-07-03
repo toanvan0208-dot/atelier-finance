@@ -1,21 +1,22 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Card, CardBody, CardHeader, Chip } from "@/components/ui";
 import { useLocalStorageState } from "@/lib/use-local-storage-state";
 import { simulationExperienceData } from "../data/simulation.data";
 import type {
   ClosedSimulatedPosition,
+  PossibleScenario,
   SimulatedAccountSummary,
   SimulatedOrderSide,
   SimulatedPosition,
   SimulatedStockQuote,
   SimulationHistoryEvent,
+  SimulationModeChoice,
   SimulationModeId,
 } from "../types";
 import { formatCurrency, getNowLabel } from "../utils";
 import { ClosePositionDrawer } from "./ClosePositionDrawer";
-import { HistoricalCaseWorkspace } from "./HistoricalCaseWorkspace";
 import { PaperTradingDashboard } from "./PaperTradingDashboard";
 import { PossibleScenariosPanel } from "./PossibleScenariosPanel";
 import { SimulationTabs } from "./SimulationTabs";
@@ -44,16 +45,164 @@ type SimulationPersistentState = {
 type StateUpdate<T> = T | ((current: T) => T);
 
 const simulationStorageKey = "atelier-finance.simulation.v1";
+const enabledModes = ["current", "scenario"] satisfies SimulationModeId[];
+
+function getVisibleSimulationModes(modes: SimulationModeChoice[]) {
+  return modes.filter((mode) => (enabledModes as readonly SimulationModeId[]).includes(mode.id));
+}
+
+type PaperTradesApiBody = {
+  ok?: boolean;
+  data?: {
+    closedPositions?: ClosedSimulatedPosition[];
+    openPosition?: SimulatedPosition;
+    openPositions?: SimulatedPosition[];
+  };
+};
+
+type SimulationProfileApiBody = {
+  ok?: boolean;
+  data?: {
+    cash?: number | null;
+    totalCapital?: number | null;
+    updatedAt?: string;
+  } | null;
+};
+
+type SimulationJournalApiBody = {
+  ok?: boolean;
+  data?: SimulationHistoryEvent[];
+};
+
+type SimulationScenariosApiBody = {
+  ok?: boolean;
+  data?: PossibleScenario[];
+};
+
+type MarketBoardApiBody = {
+  ok?: boolean;
+  data?: SimulatedStockQuote[];
+};
+
+type NewSimulationScenarioPayload = {
+  condition: string;
+  impactOnPosition: string;
+  paperTradeId?: string;
+  signalsToWatch: string[];
+  suggestedSimulationResponse: string;
+  ticker: string;
+  title: string;
+};
+
+function scenarioTypeForUi(value: string): PossibleScenario["type"] {
+  const allowedTypes: PossibleScenario["type"][] = [
+    "base",
+    "behavior",
+    "low_liquidity",
+    "market_risk",
+    "negative",
+    "positive",
+    "stop_loss",
+    "target",
+  ];
+  return allowedTypes.includes(value as PossibleScenario["type"]) ? (value as PossibleScenario["type"]) : "base";
+}
+
+function normalizeScenario(scenario: PossibleScenario): PossibleScenario {
+  return {
+    ...scenario,
+    type: scenarioTypeForUi(scenario.type),
+  };
+}
+
+function isSimulationEventType(value: string): value is SimulationHistoryEvent["type"] {
+  return [
+    "note_added",
+    "order_created",
+    "position_closed",
+    "position_opened",
+    "scenario_reviewed",
+    "stop_loss_updated",
+    "target_updated",
+  ].includes(value);
+}
+
+function normalizeJournalEvent(event: SimulationHistoryEvent): SimulationHistoryEvent {
+  return {
+    ...event,
+    type: isSimulationEventType(event.type) ? event.type : "note_added",
+  };
+}
+
+function persistSimulationJournal(event: Omit<SimulationHistoryEvent, "id" | "timestamp">): void {
+  void fetch("/api/simulation/journal", {
+    body: JSON.stringify({
+      content: event.description,
+      eventType: event.type,
+      ticker: event.symbol,
+      title: event.title,
+    }),
+    headers: { "content-type": "application/json" },
+    method: "POST",
+  }).catch(() => undefined);
+}
+
+function patchSimulationProfile(account: Pick<SimulatedAccountSummary, "cash" | "totalCapital">): void {
+  void fetch("/api/simulation/profile", {
+    body: JSON.stringify({
+      cash: account.cash,
+      totalCapital: account.totalCapital,
+    }),
+    headers: { "content-type": "application/json" },
+    method: "PATCH",
+  }).catch(() => undefined);
+}
+
+async function persistPaperTrade(position: SimulatedPosition): Promise<string | null> {
+  const response = await fetch("/api/simulation/paper-trades", {
+    body: JSON.stringify({
+      entryPrice: position.averagePrice,
+      quantity: position.quantity,
+      thesisSnapshot: position.openReason,
+      ticker: position.symbol,
+    }),
+    headers: { "content-type": "application/json" },
+    method: "POST",
+  });
+  if (!response.ok) return null;
+
+  const body = await response.json().catch(() => null) as PaperTradesApiBody | null;
+  return body?.data?.openPosition?.id ?? null;
+}
+
+async function patchPaperTrade(
+  id: string,
+  data: {
+    exitPrice?: number;
+    quantity?: number;
+    reflection?: string;
+    status?: "closed";
+    thesisSnapshot?: string;
+  },
+): Promise<void> {
+  await fetch(`/api/simulation/paper-trades/${encodeURIComponent(id)}`, {
+    body: JSON.stringify(data),
+    headers: { "content-type": "application/json" },
+    method: "PATCH",
+  }).catch(() => undefined);
+}
 
 export function SimulationPage() {
   const data = simulationExperienceData;
+  const visibleModes = getVisibleSimulationModes(data.modes);
   const [closeDrawer, setCloseDrawer] = useState<CloseDrawerState>({ open: false });
+  const [scenarios, setScenarios] = useState<PossibleScenario[]>(data.paperTrading.scenarios);
   const [simulationState, setSimulationState] = useLocalStorageState<SimulationPersistentState>(
     simulationStorageKey,
     {
       activeMode: "current",
       account: data.paperTrading.account,
-      quotes: data.paperTrading.quotes,
+      quotes: [],
       openPositions: data.paperTrading.openPositions,
       closedPositions: data.paperTrading.closedPositions,
       historyEvents: data.paperTrading.historyEvents,
@@ -70,19 +219,134 @@ export function SimulationPage() {
     account,
     activeMode,
     closedPositions,
-    historicalCaseId,
-    historicalDecision,
-    historicalReason,
-    historicalReflection,
     openPositions,
     quotes,
-    replayUnlocked,
   } = simulationState;
+  const visibleActiveMode = (enabledModes as readonly SimulationModeId[]).includes(activeMode) ? activeMode : "current";
   const selectedStock =
     quotes.find((quote) => quote.symbol === simulationState.selectedStockSymbol) ?? quotes[0];
   const selectedPosition =
     openPositions.find((position) => position.id === simulationState.selectedPositionId) ??
     openPositions.find((position) => position.symbol === selectedStock?.symbol);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadPaperTrades() {
+      const response = await fetch("/api/simulation/paper-trades");
+      if (!response.ok) return;
+
+      const body = await response.json().catch(() => null) as PaperTradesApiBody | null;
+      const nextOpenPositions = body?.data?.openPositions ?? [];
+      const nextClosedPositions = body?.data?.closedPositions ?? [];
+      if (cancelled || !body?.ok) return;
+
+      setSimulationState((current) => ({
+        ...current,
+        closedPositions: nextClosedPositions,
+        openPositions: nextOpenPositions.map((position) => ({
+          ...position,
+          weight: (position.marketValue / Math.max(current.account.totalCapital, 1)) * 100,
+        })),
+        quotes: current.quotes.map((quote) => ({
+          ...quote,
+          status: nextOpenPositions.some((position) => position.symbol === quote.symbol)
+            ? "has_position"
+            : quote.status === "has_position"
+              ? "watching"
+              : quote.status,
+        })),
+        selectedPositionId: nextOpenPositions[0]?.id ?? current.selectedPositionId,
+        selectedStockSymbol: nextOpenPositions[0]?.symbol ?? current.selectedStockSymbol,
+      }));
+    }
+
+    void loadPaperTrades();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [setSimulationState]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadMarketBoard() {
+      setSimulationState((current) => ({ ...current, quotes: [] }));
+      const response = await fetch("/api/simulation/market-board");
+      if (!response.ok) return;
+
+      const body = await response.json().catch(() => null) as MarketBoardApiBody | null;
+      if (cancelled || !body?.ok || !Array.isArray(body.data)) return;
+
+      setSimulationState((current) => {
+        const openSymbols = new Set(current.openPositions.map((position) => position.symbol));
+        const nextQuotes = body.data.map((quote) => ({
+          ...quote,
+          status: openSymbols.has(quote.symbol) ? "has_position" as const : quote.status,
+        }));
+        const currentSelectionStillExists = nextQuotes.some((quote) => quote.symbol === current.selectedStockSymbol);
+
+        return {
+          ...current,
+          quotes: nextQuotes,
+          selectedStockSymbol: currentSelectionStillExists ? current.selectedStockSymbol : nextQuotes[0]?.symbol,
+        };
+      });
+    }
+
+    async function loadSimulationProfile() {
+      const response = await fetch("/api/simulation/profile");
+      if (!response.ok) return;
+
+      const body = await response.json().catch(() => null) as SimulationProfileApiBody | null;
+      const profile = body?.data;
+      if (cancelled || !body?.ok || !profile) return;
+
+      setSimulationState((current) => ({
+        ...current,
+        account: {
+          ...current.account,
+          cash: profile.cash ?? current.account.cash,
+          totalCapital: profile.totalCapital ?? current.account.totalCapital,
+          updatedAt: profile.updatedAt ? new Intl.DateTimeFormat("vi-VN").format(new Date(profile.updatedAt)) : current.account.updatedAt,
+        },
+      }));
+    }
+
+    async function loadSimulationJournal() {
+      const response = await fetch("/api/simulation/journal");
+      if (!response.ok) return;
+
+      const body = await response.json().catch(() => null) as SimulationJournalApiBody | null;
+      if (cancelled || !body?.ok || !Array.isArray(body.data) || body.data.length === 0) return;
+      const entries = body.data;
+
+      setSimulationState((current) => ({
+        ...current,
+        historyEvents: entries.map(normalizeJournalEvent),
+      }));
+    }
+
+    async function loadSimulationScenarios() {
+      const response = await fetch("/api/simulation/scenarios");
+      if (!response.ok) return;
+
+      const body = await response.json().catch(() => null) as SimulationScenariosApiBody | null;
+      if (cancelled || !body?.ok || !Array.isArray(body.data)) return;
+
+      setScenarios([...body.data.map(normalizeScenario), ...data.paperTrading.scenarios]);
+    }
+
+    void loadMarketBoard();
+    void loadSimulationProfile();
+    void loadSimulationJournal();
+    void loadSimulationScenarios();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [data.paperTrading.scenarios, setSimulationState]);
 
   function resolveStateUpdate<T>(current: T, update: StateUpdate<T>): T {
     return typeof update === "function" ? (update as (current: T) => T)(current) : update;
@@ -123,26 +387,6 @@ export function SimulationPage() {
     }));
   }
 
-  function setHistoricalCaseId(historicalCaseId: string) {
-    setSimulationState((current) => ({ ...current, historicalCaseId }));
-  }
-
-  function setHistoricalDecision(historicalDecision: string) {
-    setSimulationState((current) => ({ ...current, historicalDecision }));
-  }
-
-  function setHistoricalReason(historicalReason: string) {
-    setSimulationState((current) => ({ ...current, historicalReason }));
-  }
-
-  function setHistoricalReflection(historicalReflection: string) {
-    setSimulationState((current) => ({ ...current, historicalReflection }));
-  }
-
-  function setReplayUnlocked(replayUnlocked: boolean) {
-    setSimulationState((current) => ({ ...current, replayUnlocked }));
-  }
-
   const recalculatedAccount = useMemo(
     () => {
       const positionValue = openPositions.reduce((total, position) => total + position.marketValue, 0);
@@ -159,6 +403,7 @@ export function SimulationPage() {
   );
 
   function addHistoryEvent(event: Omit<SimulationHistoryEvent, "id" | "timestamp">) {
+    persistSimulationJournal(event);
     setSimulationState((current) => ({
       ...current,
       historyEvents: [
@@ -210,6 +455,9 @@ export function SimulationPage() {
     const totalCost = orderValue + fee;
     const currentDate = new Intl.DateTimeFormat("vi-VN").format(new Date());
 
+    let positionToPersist: SimulatedPosition | null = null;
+    let positionToPatch: SimulatedPosition | null = null;
+
     setOpenPositions((current) => {
       const existing = current.find((position) => position.symbol === selectedStock.symbol);
       if (!existing) {
@@ -231,6 +479,7 @@ export function SimulationPage() {
           status: selectedStock.status === "low_liquidity" ? "low_liquidity" : "normal",
           openReason: order.reason,
         };
+        positionToPersist = newPosition;
         setSimulationState((state) => ({ ...state, selectedPositionId: newPosition.id }));
         return [...current, newPosition];
       }
@@ -252,6 +501,7 @@ export function SimulationPage() {
         target: order.target ?? existing.target,
         openReason: `${existing.openReason}; ${order.reason}`,
       };
+      positionToPatch = updated;
       setSimulationState((state) => ({ ...state, selectedPositionId: updated.id }));
       return current.map((position) => (position.id === existing.id ? updated : position));
     });
@@ -273,6 +523,29 @@ export function SimulationPage() {
       title: `Tạo tình huống tăng giả lập ${selectedStock.symbol}`,
       description: `${formatCurrency(orderValue)} được ghi nhận trong không gian luyện tập. Lý do: ${order.reason}`,
     });
+
+    const createdPosition = positionToPersist as SimulatedPosition | null;
+    const updatedPosition = positionToPatch as SimulatedPosition | null;
+
+    if (createdPosition) {
+      void persistPaperTrade(createdPosition).then((persistedId) => {
+        if (!persistedId || persistedId === createdPosition.id) return;
+        setSimulationState((current) => ({
+          ...current,
+          openPositions: current.openPositions.map((position) =>
+            position.id === createdPosition.id ? { ...position, id: persistedId } : position
+          ),
+          selectedPositionId: current.selectedPositionId === createdPosition.id ? persistedId : current.selectedPositionId,
+        }));
+      });
+    }
+
+    if (updatedPosition) {
+      void patchPaperTrade(updatedPosition.id, {
+        quantity: updatedPosition.quantity,
+        thesisSnapshot: updatedPosition.openReason,
+      });
+    }
   }
 
   function handleClosePosition(position: SimulatedPosition) {
@@ -355,6 +628,20 @@ export function SimulationPage() {
       title: `Đóng theo dõi giả lập ${position.symbol}`,
       description: `Lý do đóng: ${closeReason}. Bài học: ${lesson}`,
     });
+    if (closedQuantity >= position.quantity) {
+      void patchPaperTrade(position.id, {
+        exitPrice: closePrice,
+        quantity: closedQuantity,
+        reflection: lesson,
+        status: "closed",
+        thesisSnapshot: closeReason,
+      });
+    } else {
+      void patchPaperTrade(position.id, {
+        quantity: position.quantity - closedQuantity,
+        thesisSnapshot: `${position.openReason}; ${closeReason}`,
+      });
+    }
   }
 
   function handleReviewScenario(position: SimulatedPosition) {
@@ -370,6 +657,52 @@ export function SimulationPage() {
       title: `Xem kịch bản ${position.symbol}`,
       description: "Người dùng chuyển sang tab Kịch bản có thể xảy ra để kiểm tra theo dõi giả lập.",
     });
+  }
+
+  function handleCreateScenario(payload: NewSimulationScenarioPayload) {
+    const localScenario: PossibleScenario = {
+      id: `scenario-${payload.ticker.toLowerCase()}-${Date.now()}`,
+      condition: payload.condition,
+      impactOnPosition: payload.impactOnPosition || "Cần theo dõi xem dữ liệu mới làm thesis mạnh hơn hay yếu đi.",
+      relatedModules: ["Mô phỏng"],
+      signalsToWatch: payload.signalsToWatch,
+      suggestedSimulationResponse: payload.suggestedSimulationResponse || "Ghi lại kịch bản và kiểm tra lại khi dữ liệu mới xuất hiện.",
+      symbol: payload.ticker,
+      title: payload.title,
+      type: "base",
+    };
+
+    setScenarios((current) => [localScenario, ...current]);
+    addHistoryEvent({
+      symbol: payload.ticker,
+      type: "scenario_reviewed",
+      title: `Tạo kịch bản riêng ${payload.ticker}`,
+      description: payload.condition,
+    });
+
+    void fetch("/api/simulation/scenarios", {
+      body: JSON.stringify({
+        condition: payload.condition,
+        impactOnPosition: payload.impactOnPosition,
+        paperTradeId: payload.paperTradeId,
+        relatedModules: ["Mô phỏng"],
+        scenarioType: "base",
+        signalsToWatch: payload.signalsToWatch,
+        suggestedSimulationResponse: payload.suggestedSimulationResponse,
+        ticker: payload.ticker,
+        title: payload.title,
+      }),
+      headers: { "content-type": "application/json" },
+      method: "POST",
+    })
+      .then(async (response) => {
+        if (!response.ok) return;
+        const body = await response.json().catch(() => null) as { data?: PossibleScenario } | null;
+        const savedScenario = body?.data ? normalizeScenario(body.data) : null;
+        if (!savedScenario) return;
+        setScenarios((current) => current.map((scenario) => scenario.id === localScenario.id ? savedScenario : scenario));
+      })
+      .catch(() => undefined);
   }
 
   function handleUpdateStopLoss(position: SimulatedPosition) {
@@ -402,6 +735,7 @@ export function SimulationPage() {
     const note = window.prompt("Ghi chú mô phỏng cho theo dõi này", position.openReason);
     if (!note?.trim()) return;
     updatePosition(position.id, { openReason: note });
+    void patchPaperTrade(position.id, { thesisSnapshot: note });
     addHistoryEvent({
       symbol: position.symbol,
       type: "note_added",
@@ -414,6 +748,7 @@ export function SimulationPage() {
     const lesson = window.prompt("Ghi thêm bài học cho tình huống đã đóng", position.lesson);
     if (!lesson?.trim()) return;
     setClosedPositions((current) => current.map((item) => (item.id === position.id ? { ...item, lesson } : item)));
+    void patchPaperTrade(position.id, { reflection: lesson });
   }
 
   function handleCustomizeAccount() {
@@ -434,6 +769,7 @@ export function SimulationPage() {
       capitalUsagePercent: ((nextTotalCapital - nextCash) / nextTotalCapital) * 100,
       updatedAt: getNowLabel(),
     }));
+    patchSimulationProfile({ cash: nextCash, totalCapital: nextTotalCapital });
 
     addHistoryEvent({
       type: "note_added",
@@ -455,12 +791,13 @@ export function SimulationPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1320px] space-y-5">
-      <SimulationTabs modes={data.modes} activeMode={activeMode} onSelect={setActiveMode} />
+      <SimulationTabs modes={visibleModes} activeMode={visibleActiveMode} onSelect={setActiveMode} />
 
-      {activeMode === "current" ? (
+      {visibleActiveMode === "current" ? (
         <PaperTradingDashboard
           account={recalculatedAccount}
           closedPositions={closedPositions}
+          historyEvents={simulationState.historyEvents}
           openPositions={openPositions}
           quotes={quotes}
           selectedStock={selectedStock}
@@ -484,13 +821,14 @@ export function SimulationPage() {
         />
       ) : null}
 
-      {activeMode === "scenario" ? (
+      {visibleActiveMode === "scenario" ? (
         <PossibleScenariosPanel
           openPositions={openPositions}
-          scenarios={data.paperTrading.scenarios}
+          scenarios={scenarios}
           selectedPosition={selectedPosition}
           selectedStock={selectedStock}
           onClosePosition={handleClosePosition}
+          onCreateScenario={handleCreateScenario}
           onSelectStockFromPosition={(position) => {
             setSimulationState((current) => ({
               ...current,
@@ -500,25 +838,6 @@ export function SimulationPage() {
           }}
           onUpdateStopLoss={handleUpdateStopLoss}
           onUpdateTarget={handleUpdateTarget}
-        />
-      ) : null}
-
-      {activeMode === "history" ? (
-        <HistoricalCaseWorkspace
-          data={data.history}
-          decision={historicalDecision}
-          reason={historicalReason}
-          reflection={historicalReflection}
-          replayUnlocked={replayUnlocked}
-          selectedCaseId={historicalCaseId}
-          onCaseChange={(id) => {
-            setHistoricalCaseId(id);
-            setReplayUnlocked(false);
-          }}
-          onDecisionChange={setHistoricalDecision}
-          onReasonChange={setHistoricalReason}
-          onReflectionChange={setHistoricalReflection}
-          onUnlockReplay={() => setReplayUnlocked(true)}
         />
       ) : null}
 

@@ -531,7 +531,7 @@ function AITutorPanelContent({
         <p className="text-xs font-bold text-ink">AI Trợ giảng</p>
         <p className="mt-1 text-[11px] leading-4 text-muted">Hướng dẫn theo ngữ cảnh module hiện tại.</p>
         <div className="mt-2 rounded-[4px] border border-blue-200 bg-blue-50/50 p-2 text-[10px] leading-4 text-blue-900">
-          <strong>Lưu ý:</strong> AI chỉ hỗ trợ giải thích dữ liệu và khái niệm, không đưa ra khuyến nghị mua/bán/nắm giữ hoặc dự đoán giá. Trợ lý hiện dùng ngữ cảnh có kiểm soát của hệ thống, chưa phải truy xuất ngữ nghĩa đầy đủ.
+          <strong>Lưu ý:</strong> AI chỉ hỗ trợ giải thích dữ liệu và khái niệm, không đưa ra chỉ dẫn giao dịch hoặc dự đoán giá. Trợ lý hiện dùng ngữ cảnh có kiểm soát của hệ thống, chưa phải truy xuất ngữ nghĩa đầy đủ.
         </div>
       </div>
       <div className="space-y-4 px-4 py-4">

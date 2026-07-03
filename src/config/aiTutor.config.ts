@@ -220,7 +220,7 @@ export const aiTutorConfig: Record<string, AITutorConfig> = {
     moduleId: "pvt",
     moduleName: "Quan sát Giá - Thanh khoản - Thời điểm",
     currentGoal: "Quan sát giá, khối lượng, thời điểm và sự kiện như bối cảnh thị trường, không biến thành kết luận hành động.",
-    whatThisStepDoes: "PVT giúp bạn đọc hành vi thị trường và rủi ro FOMO trước khi mô phỏng hoặc checklist.",
+    whatThisStepDoes: "PVT giúp bạn đọc hành vi thị trường và tâm lý đuổi giá trước khi mô phỏng hoặc checklist.",
     questionsToCheck: ["Giá đang thay đổi vì gì?", "Volume có bất thường không?", "So với VN-Index thì cổ phiếu mạnh hay yếu?", "So với ngành thì cổ phiếu có vượt trội không?", "Có sự kiện nào gần đây không?"],
     commonMistakes: ["Giá tăng mạnh không có nghĩa doanh nghiệp tốt hơn.", "Xem mẫu hình giá là kết luận chắc chắn.", "Bỏ qua sự kiện và thanh khoản."],
     suggestedQuestions: ["Giá tăng mạnh có phải doanh nghiệp tốt hơn không?", "Volume bất thường nói lên điều gì?", "Tôi có đang FOMO không?"],

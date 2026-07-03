@@ -34,7 +34,7 @@ export function SimulationControlBar({
       <CardBody className="space-y-4">
         <div className="flex flex-wrap items-center gap-2">
           <Chip variant="accent">Simulation Lab</Chip>
-          <Chip>Mock data</Chip>
+          <Chip>Không gian mô phỏng</Chip>
           <span className="text-xs font-semibold text-muted">
             {ticker} · {companyName} · {industry}
           </span>

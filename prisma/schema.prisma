@@ -142,6 +142,9 @@ model User {
   authSessions          AuthSession[]
   passwordResetTokens   PasswordResetToken[]
   manualImportSessions  ManualImportSession[]
+  simulationProfile     SimulationProfile?
+  simulationScenarios   SimulationScenario[]
+  simulationJournals    SimulationJournal[]
   watchlists            Watchlist[]
   paperTrades           PaperTrade[]
   assistantInteractions AssistantInteraction[]
@@ -195,6 +198,8 @@ model Company {
   manualImportRecords   ManualImportRecord[]
   watchlists            Watchlist[]
   paperTrades           PaperTrade[]
+  simulationScenarios   SimulationScenario[]
+  simulationJournals    SimulationJournal[]
   assistantInteractions AssistantInteraction[]
   businessProfiles      CompanyBusinessProfile[]
 
@@ -508,7 +513,7 @@ model Watchlist {
 }
 
 model PaperTrade {
-  id             String           @id @default(cuid())
+  id             String               @id @default(cuid())
   userId         String?
   companyId      String
   ticker         String
@@ -518,19 +523,92 @@ model PaperTrade {
   exitPrice      Decimal?
   openedAt       DateTime?
   closedAt       DateTime?
-  status         PaperTradeStatus @default(planned)
+  status         PaperTradeStatus     @default(planned)
   thesisSnapshot String?
   reflection     String?
-  sourceMode     DataMode         @default(unknown)
-  readiness      ReadinessStatus  @default(unknown)
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-  user           User?            @relation(fields: [userId], references: [id])
-  company        Company          @relation(fields: [companyId], references: [id])
+  sourceMode     DataMode             @default(unknown)
+  readiness      ReadinessStatus      @default(unknown)
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  user           User?                @relation(fields: [userId], references: [id])
+  company        Company              @relation(fields: [companyId], references: [id])
+  scenarios      SimulationScenario[]
+  journals       SimulationJournal[]
 
   @@index([userId, status])
   @@index([companyId])
   @@index([sourceMode])
+}
+
+model SimulationProfile {
+  id                String          @id @default(cuid())
+  userId            String          @unique
+  totalCapital      Decimal?
+  cash              Decimal?
+  riskBudgetPercent Decimal?
+  notes             String?
+  dataMode          DataMode        @default(user_input)
+  readiness         ReadinessStatus @default(needs_review)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([dataMode])
+  @@index([readiness])
+}
+
+model SimulationScenario {
+  id                          String          @id @default(cuid())
+  userId                      String
+  paperTradeId                String?
+  companyId                   String?
+  ticker                      String?
+  scenarioType                String          @default("base")
+  title                       String
+  condition                   String?
+  signalsToWatch              String          @default("[]")
+  impactOnPosition            String?
+  suggestedSimulationResponse String?
+  relatedModules              String          @default("[]")
+  status                      String          @default("active")
+  dataMode                    DataMode        @default(user_input)
+  readiness                   ReadinessStatus @default(needs_review)
+  createdAt                   DateTime        @default(now())
+  updatedAt                   DateTime        @updatedAt
+  user                        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  paperTrade                  PaperTrade?     @relation(fields: [paperTradeId], references: [id], onDelete: SetNull)
+  company                     Company?        @relation(fields: [companyId], references: [id], onDelete: SetNull)
+
+  @@index([userId, status])
+  @@index([paperTradeId])
+  @@index([companyId])
+  @@index([ticker])
+  @@index([dataMode])
+}
+
+model SimulationJournal {
+  id           String          @id @default(cuid())
+  userId       String
+  paperTradeId String?
+  companyId    String?
+  ticker       String?
+  eventType    String
+  title        String
+  content      String?
+  metadata     String          @default("{}")
+  dataMode     DataMode        @default(user_input)
+  readiness    ReadinessStatus @default(needs_review)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  paperTrade   PaperTrade?     @relation(fields: [paperTradeId], references: [id], onDelete: SetNull)
+  company      Company?        @relation(fields: [companyId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([paperTradeId])
+  @@index([companyId])
+  @@index([ticker])
+  @@index([eventType])
 }
 
 model AssistantInteraction {

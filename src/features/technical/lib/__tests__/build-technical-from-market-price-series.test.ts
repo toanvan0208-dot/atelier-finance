@@ -286,6 +286,58 @@ describe("buildTechnicalFromMarketPriceSeries", () => {
     expect(result.data?.volume.label).toMatch(/20/);
   });
 
+  it("computes volume versus 20-session average when enough DB-backed volume exists", () => {
+    const result = buildTechnicalFromMarketPriceSeries(
+      baseData,
+      series(
+        Array.from({ length: 20 }, (_, index) =>
+          row({
+            date: `2025-02-${String(index + 1).padStart(2, "0")}`,
+            close: 100 + index,
+            volume: 1000 + index * 10,
+            tradingValue: (100 + index) * (1000 + index * 10),
+          }),
+        ),
+      ),
+    );
+    const expectedAverage = Array.from({ length: 20 }, (_, index) => 1000 + index * 10).reduce(
+      (sum, value) => sum + value,
+      0,
+    ) / 20;
+
+    expect(result.ok).toBe(true);
+    expect(result.data?.volume.currentVsAvg20).toBeCloseTo(1190 / expectedAverage);
+    expect(result.data?.pvtDerivedMetrics?.volumeRatio).toMatchObject({
+      value: expect.any(Number),
+      status: "computed_from_market_price_series",
+    });
+    expect(result.data?.volume.label).toMatch(/x TB20/);
+  });
+
+  it("computes reference support and resistance zones from repeated DB-backed pivots", () => {
+    const pattern = [100, 104, 110, 104, 100, 95, 100, 102];
+    const rows = Array.from({ length: 81 }, (_, index) =>
+      row({
+        date: new Date(Date.UTC(2025, 2, index + 1)).toISOString().slice(0, 10),
+        close: pattern[index % pattern.length],
+        volume: 1000 + index,
+        tradingValue: (1000 + index) * pattern[index % pattern.length],
+      }),
+    );
+    const result = buildTechnicalFromMarketPriceSeries(baseData, series(rows));
+
+    expect(result.ok).toBe(true);
+    expect(result.data?.currentPrice).toBe(100);
+    expect(result.data?.keyLevels.support).not.toMatch(/Ch|Kh|N\/A/i);
+    expect(result.data?.keyLevels.resistance).not.toMatch(/Ch|Kh|N\/A/i);
+    expect(result.data?.pvtDerivedMetrics?.supportRange.status).toBe("computed_from_market_price_series");
+    expect(result.data?.pvtDerivedMetrics?.resistanceRange.status).toBe("computed_from_market_price_series");
+    expect(result.data?.riskReward.supportPrice).toBeLessThan(100);
+    expect(result.data?.riskReward.resistancePrice).toBeGreaterThan(100);
+    expect(result.data?.riskReward.downside).toContain("-");
+    expect(result.data?.riskReward.upside).toContain("+");
+  });
+
   it("attaches unknown market unit metadata when DB-backed rows do not provide explicit units", () => {
     const result = buildTechnicalFromMarketPriceSeries(
       baseData,

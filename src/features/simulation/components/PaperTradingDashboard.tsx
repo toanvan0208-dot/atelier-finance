@@ -4,12 +4,14 @@ import { Button, Card, CardBody, CardHeader, Chip } from "@/components/ui";
 import type {
   ClosedSimulatedPosition,
   SimulatedAccountSummary,
+  SimulationHistoryEvent,
   SimulatedPosition,
   SimulatedStockQuote,
 } from "../types";
 import { ClosedPositionsTable } from "./ClosedPositionsTable";
 import { OpenPositionsTable } from "./OpenPositionsTable";
 import { SimulatedAccountSummary as AccountSummaryCards } from "./SimulatedAccountSummary";
+import { SimulationHistoryTimeline } from "./SimulationHistoryTimeline";
 import { SimulationMarketBoard } from "./SimulationMarketBoard";
 import { SimulationOrderTicket } from "./SimulationOrderTicket";
 
@@ -19,6 +21,7 @@ type PaperTradingDashboardProps = {
   selectedStock?: SimulatedStockQuote;
   openPositions: SimulatedPosition[];
   closedPositions: ClosedSimulatedPosition[];
+  historyEvents: SimulationHistoryEvent[];
   onSelectStock: (quote: SimulatedStockQuote) => void;
   onCreateOrder: Parameters<typeof SimulationOrderTicket>[0]["onSubmit"];
   onSaveDraft: (reason: string) => void;
@@ -34,6 +37,7 @@ type PaperTradingDashboardProps = {
 export function PaperTradingDashboard({
   account,
   closedPositions,
+  historyEvents,
   onAddClosedLesson,
   onAddNote,
   onClosePosition,
@@ -68,7 +72,7 @@ export function PaperTradingDashboard({
           <div className="flex flex-wrap gap-2">
             {sessionStatuses.map((status) => <Chip key={status} variant="neutral">{status}</Chip>)}
           </div>
-          <p className="text-xs leading-5 text-muted">Dữ liệu mock cập nhật gần nhất: {account.updatedAt}</p>
+          <p className="text-xs leading-5 text-muted">Dữ liệu luyện tập cập nhật gần nhất: {account.updatedAt}</p>
         </CardBody>
       </Card>
 
@@ -88,6 +92,8 @@ export function PaperTradingDashboard({
         onSaveDraft={onSaveDraft}
         onSubmit={onCreateOrder}
       />
+
+      <SimulationHistoryTimeline events={historyEvents} />
 
       {detailModal === "openPositions" ? (
         <SimulationDetailModal title="Theo dõi giả lập đang mở" onClose={() => setDetailModal(null)}>

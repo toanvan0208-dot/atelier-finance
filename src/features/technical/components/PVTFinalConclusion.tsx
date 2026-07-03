@@ -1,4 +1,4 @@
-import { Button, Card, CardBody, CardHeader, Chip } from "@/components/ui";
+import { Button, Chip } from "@/components/ui";
 import type { PVTFinalConclusionData, PVTNextAction } from "../types";
 
 type PVTFinalConclusionProps = {
@@ -20,22 +20,28 @@ export function PVTFinalConclusion({
   ];
 
   return (
-    <Card>
-      <CardHeader
-        title="Kết luận Price - Volume - Time"
-        description="Tóm tắt ngắn để chọn bước tiếp theo trong hệ thống."
-        chip={<Chip variant="accent">Tổng hợp cuối module</Chip>}
-      />
-      <CardBody className="space-y-4">
-        <div className="grid gap-3 md:grid-cols-2">
+    <section className="overflow-hidden rounded-[8px] border-[1.5px] border-slate-950 bg-white shadow-[8px_8px_0_#0f172a]">
+      <header className="border-b border-slate-200 bg-slate-50 px-5 py-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="text-xl font-black text-slate-950">Tóm tắt PVT cuối module</h2>
+            <p className="mt-1 text-sm leading-6 text-slate-600">
+              Chọn bước tiếp theo để kiểm tra bối cảnh, không biến quan sát giá thành kết luận hành động.
+            </p>
+          </div>
+          <Chip variant="accent">Tổng hợp</Chip>
+        </div>
+      </header>
+      <div className="space-y-4 px-5 py-5">
+        <div className="grid gap-3 sm:grid-cols-2">
           {rows.map((row) => (
-            <div key={row.label} className="rounded-[4px] border border-border-soft bg-surface-soft p-4">
-              <p className="text-[11px] font-bold uppercase text-subtle">{row.label}</p>
-              <p className="mt-2 text-sm font-semibold leading-6 text-ink">{row.value}</p>
+            <div key={row.label} className="rounded-[8px] border border-slate-200 bg-slate-50 p-4">
+              <p className="text-[11px] font-black uppercase tracking-[0.04em] text-slate-500">{row.label}</p>
+              <p className="mt-2 text-sm font-bold leading-6 text-slate-950">{row.value}</p>
             </div>
           ))}
         </div>
-        <div className="flex flex-wrap gap-2 border-t border-border-soft pt-4">
+        <div className="flex flex-wrap gap-2 border-t border-slate-200 pt-4">
           {actions.slice(0, 4).map((action) => (
             <Button
               key={action.label}
@@ -48,10 +54,10 @@ export function PVTFinalConclusion({
             </Button>
           ))}
         </div>
-        <div className="mt-4 rounded-[4px] border border-warning bg-warning/15 px-4 py-3 text-sm font-semibold leading-6 text-ink">
+        <div className="rounded-[8px] border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-bold leading-6 text-amber-950">
           Dữ liệu giá và thanh khoản chỉ phục vụ quan sát thị trường. Người dùng cần tự kiểm tra thêm mô hình kinh doanh, báo cáo tài chính, định giá và rủi ro.
         </div>
-      </CardBody>
-    </Card>
+      </div>
+    </section>
   );
 }

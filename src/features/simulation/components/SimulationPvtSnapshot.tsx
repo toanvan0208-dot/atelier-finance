@@ -35,7 +35,7 @@ export function SimulationPvtSnapshot({ data, interpretation, onChange }: Simula
             <div>
               <p className="font-mono text-2xl font-bold text-ink">PVT</p>
               <p className="mt-2 text-xs leading-5 text-muted">
-                Mock chart: giá, volume, VN-Index, ngành và mốc sự kiện.
+                Biểu đồ quan sát: giá, volume, VN-Index, ngành và mốc sự kiện.
               </p>
             </div>
           </div>

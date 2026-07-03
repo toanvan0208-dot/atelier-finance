@@ -2,13 +2,9 @@ import { DataQualityBanner } from "@/components/shared/DataQualityBanner";
 import { pvtDataQuality, pvtObservationData } from "../data/pvtObservation.data";
 import type { PVTObservationData, TechnicalIssuerMetadata, TechnicalMarketDataSource } from "../types";
 import type { MarketPvtUnitMetadataMap } from "../lib/market-pvt-unit-metadata-contract";
-import { PVTConfirmationScenarios } from "./PVTConfirmationScenarios";
 import { PVTFinalConclusion } from "./PVTFinalConclusion";
 import { PVTHeroStatus } from "./PVTHeroStatus";
-import { PVTMainChart } from "./PVTMainChart";
-import { PVTRiskRewardZone } from "./PVTRiskRewardZone";
-import { PVTSignalLayers } from "./PVTSignalLayers";
-import { PVTRelativeMarketSectorCards } from "./PVTRelativeMarketSectorCards";
+import { PVTTimeframeAnalysis } from "./PVTTimeframeAnalysis";
 
 export type TechnicalPageRuntimeData = {
   data: PVTObservationData | null;
@@ -181,31 +177,18 @@ export function TechnicalPage({ initialRuntimeData, onNavigate }: TechnicalPageP
       <PVTHeroStatus data={data} />
       
       {isSnapshotOnly ? (
-        <section className="rounded-lg border border-warning/20 bg-warning/5 p-6 text-center">
-          <h2 className="mb-2 text-base font-bold text-ink">Chưa đủ dữ liệu chuỗi thời gian (Time-Series)</h2>
-          <p className="text-sm text-subtle">
-            Hệ thống chỉ có một bản ghi giá gần nhất của {data.ticker}. Các phân tích kỹ thuật xu hướng, biểu đồ giá, và các lớp tín hiệu chỉ hiển thị khi có chuỗi thời gian liên tục.
-          </p>
+        <section className="rounded-[8px] border border-amber-300 bg-amber-50 p-6 shadow-[0_16px_40px_rgba(180,83,9,0.08)]">
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="text-xs font-black uppercase tracking-[0.04em] text-amber-700">Cần thêm dữ liệu</p>
+            <h2 className="mt-2 text-2xl font-black text-slate-950">Chưa đủ chuỗi thời gian để vẽ nhịp PVT</h2>
+            <p className="mt-3 text-sm leading-6 text-amber-950">
+              Hệ thống mới có bản ghi giá gần nhất của {data.ticker}. Khi có chuỗi giá liên tục, biểu đồ,
+              thanh khoản và các lớp quan sát sẽ mở ra đầy đủ hơn.
+            </p>
+          </div>
         </section>
       ) : (
-        <>
-          <PVTMainChart
-            data={data.chart}
-            chartSeries={data.pvtChartSeries}
-            supportLabel={data.keyLevels.support}
-            resistanceLabel={data.keyLevels.resistance}
-          />
-          <PVTSignalLayers layers={data.signalLayers} />
-          <PVTConfirmationScenarios
-            confirmation={data.confirmation}
-            invalidation={data.invalidation}
-            scenarios={data.scenarios}
-          />
-          <div className="grid gap-5">
-            <PVTRiskRewardZone data={data.riskReward} />
-          </div>
-          <PVTRelativeMarketSectorCards data={data.relativeMetrics} ticker={data.ticker} />
-        </>
+        <PVTTimeframeAnalysis data={data} />
       )}
 
       <PVTFinalConclusion
@@ -241,7 +224,6 @@ function SourceTransparencyStrip({
     issuerMetadata.verificationStatus === "limited" ||
     issuerMetadata.verificationStatus === "unknown";
   const industryText = issuerMetadata.industry ?? "Chưa có dữ liệu xác minh";
-  const sectorText = issuerMetadata.sector ?? "Chưa có dữ liệu xác minh";
   const sharesText =
     issuerMetadata.sharesOutstanding === null || issuerMetadata.sharesOutstanding === undefined
       ? "Số cổ phiếu lưu hành: Chưa đủ dữ liệu"
@@ -255,75 +237,48 @@ function SourceTransparencyStrip({
         ? "Thông tin doanh nghiệp và ngành đang được kiểm tra"
         : "Thông tin doanh nghiệp dùng dữ liệu trình bày, chưa phê duyệt sản xuất";
 
+  const chartStatus = pvtChartSeries ? technicalStatusLabel(pvtChartSeries.status) : "Đang kiểm tra";
+  const metricStatus = pvtDerivedMetrics ? technicalStatusLabel(pvtDerivedMetrics.dataStatus) : "Đang kiểm tra";
+
   return (
     <section
       aria-label="Technical/PVT source transparency"
-      className="rounded-[4px] border border-ink/10 bg-surface px-4 py-3 text-xs leading-5 text-muted"
+      className="rounded-[8px] border border-slate-200 bg-white p-4 shadow-[0_16px_40px_rgba(15,23,42,0.06)]"
     >
-      <p className="mb-2 font-bold uppercase text-subtle">Minh bạch nguồn dữ liệu</p>
-      
-      {provenance && (
-        <div className="mb-4 rounded bg-red-50 p-3 text-red-900 dark:bg-red-950/30 dark:text-red-200">
-          <p className="font-bold mb-1">Cảnh báo nguồn dữ liệu Market Price (Chưa được phê duyệt production)</p>
-          <ul className="list-disc pl-5 space-y-1">
-            <li>Trạng thái: <span className="font-semibold">{provenance.provenanceStatus}</span></li>
-            <li>Nguồn: {provenance.dataModeLabel} ({provenance.providerTypeLabel})</li>
-            <li>Dữ liệu: {provenance.stalenessStatusLabel} - {provenance.adjustmentStatusLabel}</li>
-            {provenance.warningLabels.length > 0 && (
-              <li>Vấn đề: {provenance.warningLabels.join(", ")}</li>
-            )}
-          </ul>
-        </div>
-      )}
-
-      <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+      <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
         <div>
-          <p className="font-semibold text-ink">
-            Nguồn giá và khối lượng: {sourceText}
-          </p>
-          <p>
-            Mã: {marketDataSource.ticker ?? "Chưa xác định"} · Cập nhật đến: {marketDataSource.asOf ?? "Chưa xác định"}
+          <p className="text-xs font-black uppercase tracking-[0.04em] text-slate-500">Độ tin cậy dữ liệu</p>
+          <h2 className="mt-1 text-xl font-black text-slate-950">Dữ liệu PVT đang ở trạng thái tham khảo</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            {sourceText}. Mã {marketDataSource.ticker ?? "chưa xác định"}, cập nhật đến{" "}
+            {marketDataSource.asOf ?? "chưa xác định"}. PVT chỉ dùng để quan sát, không thay thế phân tích cơ bản.
           </p>
         </div>
-        <div>
-          <p className="font-semibold text-ink">{metadataText}</p>
-          <p>
-            Ngành: {industryText} · Lĩnh vực: {sectorText}
-          </p>
-          <p>{sharesText}</p>
-          {issuerMetadata.verificationStatus === "local_research_seed" ||
-          issuerMetadata.verificationStatus === "controlled_local_research" ? (
-            <p>Chỉ dùng cho nghiên cứu; chưa đủ điều kiện xác nhận sản xuất.</p>
-          ) : null}
+        <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-1">
+          <StatusPill label="Biểu đồ" value={chartStatus} />
+          <StatusPill label="Chỉ số" value={metricStatus} />
+          <StatusPill label="Doanh nghiệp" value={technicalStatusLabel(issuerMetadata.verificationStatus)} />
         </div>
-        <div className="flex flex-wrap gap-2 lg:col-span-2">
-          <span className="rounded-[3px] border border-ink/10 bg-muted/10 px-2 py-1 font-bold text-ink">
-            Dữ liệu nghiên cứu, chưa phê duyệt sản xuất
+      </div>
+      <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold text-slate-700">
+        <span className="rounded-[6px] border border-slate-200 bg-slate-50 px-3 py-2">{metadataText}</span>
+        <span className="rounded-[6px] border border-slate-200 bg-slate-50 px-3 py-2">Ngành: {industryText}</span>
+        <span className="rounded-[6px] border border-slate-200 bg-slate-50 px-3 py-2">{sharesText}</span>
+        {provenance?.warningLabels.length ? (
+          <span className="rounded-[6px] border border-amber-300 bg-amber-50 px-3 py-2 text-amber-950">
+            Cần kiểm tra thêm: {provenance.warningLabels.slice(0, 2).join(", ")}
           </span>
-          <span className="rounded-[3px] border border-ink/10 bg-muted/10 px-2 py-1 font-bold text-ink">
-            {marketDataSource.fallbackUsed ? "Dữ liệu trình bày dự phòng" : "Dữ liệu nghiên cứu"}
-          </span>
-          <span className="rounded-[3px] border border-ink/10 bg-muted/10 px-2 py-1 font-bold text-ink">
-            Thông tin doanh nghiệp: {technicalStatusLabel(issuerMetadata.verificationStatus)}
-          </span>
-          {pvtDerivedMetrics ? (
-            <span className="rounded-[3px] border border-ink/10 bg-muted/10 px-2 py-1 font-bold text-ink">
-              Chỉ số kỹ thuật: {technicalStatusLabel(pvtDerivedMetrics.dataStatus)}
-            </span>
-          ) : null}
-          {pvtChartSeries ? (
-            <span className="rounded-[3px] border border-ink/10 bg-muted/10 px-2 py-1 font-bold text-ink">
-              Biểu đồ: {technicalStatusLabel(pvtChartSeries.status)}
-            </span>
-          ) : null}
-        </div>
-        <p className="lg:col-span-2">
-          Chỉ số PVT chỉ được tính từ chuỗi giá đang hiển thị; nếu thiếu dữ liệu, kết quả sẽ để trống.
-        </p>
-        <p className="lg:col-span-2">
-          Biểu đồ phải dùng cùng chuỗi dữ liệu đang hiển thị; dữ liệu chưa đủ sẽ được ghi rõ là chưa khả dụng hoặc chỉ dùng cho trình bày.
-        </p>
+        ) : null}
       </div>
     </section>
+  );
+}
+
+function StatusPill({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-[8px] border border-slate-200 bg-slate-50 px-3 py-2">
+      <p className="text-[11px] font-black uppercase tracking-[0.04em] text-slate-500">{label}</p>
+      <p className="mt-1 text-sm font-black text-slate-950">{value}</p>
+    </div>
   );
 }

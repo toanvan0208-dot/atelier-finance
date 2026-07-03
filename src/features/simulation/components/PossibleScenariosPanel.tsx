@@ -12,11 +12,21 @@ type PossibleScenariosPanelProps = {
   onUpdateStopLoss: (position: SimulatedPosition) => void;
   onUpdateTarget: (position: SimulatedPosition) => void;
   onClosePosition: (position: SimulatedPosition) => void;
+  onCreateScenario: (payload: {
+    condition: string;
+    impactOnPosition: string;
+    paperTradeId?: string;
+    signalsToWatch: string[];
+    suggestedSimulationResponse: string;
+    ticker: string;
+    title: string;
+  }) => void;
 };
 
 export function PossibleScenariosPanel({
   openPositions,
   onClosePosition,
+  onCreateScenario,
   onSelectStockFromPosition,
   onUpdateStopLoss,
   onUpdateTarget,
@@ -28,6 +38,30 @@ export function PossibleScenariosPanel({
   const position = selectedPosition ?? openPositions.find((item) => item.symbol === symbol);
   const quote = selectedStock;
   const filteredScenarios = scenarios.filter((scenario) => scenario.symbol === symbol);
+
+  function handleCreateScenario() {
+    if (!symbol) return;
+
+    const title = window.prompt("Tên kịch bản muốn theo dõi", `Kịch bản riêng cho ${symbol}`);
+    if (!title?.trim()) return;
+
+    const condition = window.prompt("Điều gì có thể xảy ra?", "");
+    if (!condition?.trim()) return;
+
+    const signals = window.prompt("Dấu hiệu cần theo dõi, cách nhau bằng dấu phẩy", "");
+    const impact = window.prompt("Nếu xảy ra, nó ảnh hưởng gì tới theo dõi giả lập?", "");
+    const response = window.prompt("Bạn sẽ kiểm tra điều gì trong mô phỏng?", "");
+
+    onCreateScenario({
+      condition,
+      impactOnPosition: impact?.trim() ?? "",
+      paperTradeId: position?.id,
+      signalsToWatch: signals?.split(",").map((item) => item.trim()).filter(Boolean) ?? [],
+      suggestedSimulationResponse: response?.trim() ?? "",
+      ticker: symbol,
+      title,
+    });
+  }
 
   return (
     <div className="space-y-5">
@@ -93,7 +127,16 @@ export function PossibleScenariosPanel({
         <Card>
           <CardHeader
             title="Danh sách kịch bản"
-            description="Các card này là mock/local state. Sau này AI/API có thể thay bằng phân tích dữ liệu thực tế."
+            description="Các kịch bản này dùng để luyện cách phản ứng, không phải dự báo hay gợi ý hành động."
+            action={(
+              <button
+                className="rounded-[3px] border border-border bg-surface px-3 py-2 text-xs font-bold text-ink hover:bg-surface-hover"
+                type="button"
+                onClick={handleCreateScenario}
+              >
+                Tạo kịch bản riêng
+              </button>
+            )}
           />
           <CardBody className="space-y-3">
             {filteredScenarios.length > 0 ? (
@@ -109,7 +152,7 @@ export function PossibleScenariosPanel({
               ))
             ) : (
               <p className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-6 text-sm leading-6 text-muted">
-                Chưa có kịch bản mock cho mã này. Có thể bổ sung bằng backend/AI ở bước sau.
+                Chưa có kịch bản phù hợp cho mã này. Hãy chọn mã khác hoặc tạo thêm theo dõi giả lập.
               </p>
             )}
           </CardBody>

@@ -27,6 +27,23 @@ const REQUIRED_TB20_OBSERVATIONS = 20;
 const REQUIRED_MA20_OBSERVATIONS = 20;
 const REQUIRED_MA50_OBSERVATIONS = 50;
 const REQUIRED_BASIC_CHART_OBSERVATIONS = 2;
+const REQUIRED_SUPPORT_RESISTANCE_OBSERVATIONS = 40;
+const PIVOT_LOOKBACK = 3;
+const PRICE_ZONE_TOLERANCE_PCT = 0.018;
+
+type PriceZone = {
+  lower: number;
+  upper: number;
+  midpoint: number;
+  touches: number;
+};
+
+type SupportResistanceResult = {
+  status: "computed_from_market_price_series" | "insufficient_data" | "unavailable";
+  support: PriceZone | null;
+  resistance: PriceZone | null;
+  limitations: string[];
+};
 
 const levelToPvtStatus = (level: MetricLevel): PVTStatus => {
   if (level === "good") return "aligned";
@@ -58,6 +75,129 @@ const toLogicMetric = (metric: FinancialMetricResult): PVTLogicMetric => ({
 });
 
 const unique = (items: string[]): string[] => Array.from(new Set(items.filter(Boolean)));
+
+const formatPriceNumber = (value: number): string => new Intl.NumberFormat("vi-VN").format(Math.round(value));
+
+const formatPriceRange = (zone: PriceZone | null): string | null => {
+  if (!zone) return null;
+  const lower = formatPriceNumber(zone.lower);
+  const upper = formatPriceNumber(zone.upper);
+  return lower === upper ? lower : `${lower} - ${upper}`;
+};
+
+const formatPercentDistance = (value: number | null): string => {
+  if (value === null || !Number.isFinite(value)) return DERIVED_NOT_AVAILABLE_LABEL;
+  const formatted = new Intl.NumberFormat("vi-VN", {
+    maximumFractionDigits: 1,
+    minimumFractionDigits: 1,
+  }).format(value * 100);
+  return `${value > 0 ? "+" : ""}${formatted}%`;
+};
+
+const calculateVolumeVsAverage20 = (snapshot: TechnicalMarketSnapshot): number | null => {
+  if (
+    (snapshot.availableObservations ?? 0) < REQUIRED_TB20_OBSERVATIONS ||
+    typeof snapshot.volume !== "number" ||
+    !Number.isFinite(snapshot.volume) ||
+    typeof snapshot.avgVolume20d !== "number" ||
+    !Number.isFinite(snapshot.avgVolume20d) ||
+    snapshot.avgVolume20d <= 0
+  ) {
+    return null;
+  }
+
+  return snapshot.volume / snapshot.avgVolume20d;
+};
+
+const formatVolumeRatioLabel = (ratio: number | null, fallback: string): string => {
+  if (ratio === null) return fallback;
+  return `${new Intl.NumberFormat("vi-VN", {
+    maximumFractionDigits: 1,
+    minimumFractionDigits: 1,
+  }).format(ratio)}x TB20`;
+};
+
+const volumeLabel = (snapshot: TechnicalMarketSnapshot, ratio: number | null, fallback: string): string => {
+  if ((snapshot.availableObservations ?? 0) < REQUIRED_TB20_OBSERVATIONS) return "Chưa đủ 20 phiên";
+  return formatVolumeRatioLabel(ratio, fallback);
+};
+
+const toPriceZone = (prices: number[]): PriceZone => {
+  const sorted = [...prices].sort((left, right) => left - right);
+  const midpoint = sorted.reduce((sum, value) => sum + value, 0) / sorted.length;
+  return {
+    lower: sorted[0],
+    upper: sorted[sorted.length - 1],
+    midpoint,
+    touches: sorted.length,
+  };
+};
+
+const clusterPivotPrices = (prices: number[]): PriceZone[] => {
+  const sorted = [...prices].sort((left, right) => left - right);
+  const clusters = sorted.reduce<number[][]>((items, price) => {
+    const last = items.at(-1);
+    if (!last) return [[price]];
+    const midpoint = last.reduce((sum, value) => sum + value, 0) / last.length;
+    const tolerance = Math.max(midpoint * PRICE_ZONE_TOLERANCE_PCT, 1);
+    if (Math.abs(price - midpoint) <= tolerance) {
+      last.push(price);
+      return items;
+    }
+    items.push([price]);
+    return items;
+  }, []);
+
+  return clusters.map(toPriceZone);
+};
+
+const buildSupportResistance = (points: PVTObservationPoint[], currentPrice: number | null): SupportResistanceResult => {
+  if (points.length < REQUIRED_SUPPORT_RESISTANCE_OBSERVATIONS || currentPrice === null) {
+    return {
+      status: "insufficient_data",
+      support: null,
+      resistance: null,
+      limitations: [
+        `Need at least ${REQUIRED_SUPPORT_RESISTANCE_OBSERVATIONS} close-price observations to compute support/resistance zones.`,
+      ],
+    };
+  }
+
+  const lows: number[] = [];
+  const highs: number[] = [];
+
+  for (let index = PIVOT_LOOKBACK; index < points.length - PIVOT_LOOKBACK; index += 1) {
+    const price = points[index]?.price;
+    const left = points[index - 1]?.price;
+    const right = points[index + 1]?.price;
+    const window = points.slice(index - PIVOT_LOOKBACK, index + PIVOT_LOOKBACK + 1).map((point) => point.price);
+    if (price === undefined || left === undefined || right === undefined) continue;
+
+    if (price <= Math.min(...window) && price < left && price < right) lows.push(price);
+    if (price >= Math.max(...window) && price > left && price > right) highs.push(price);
+  }
+
+  const support = clusterPivotPrices(lows)
+    .filter((zone) => zone.touches >= 2 && zone.upper < currentPrice)
+    .sort((left, right) => right.midpoint - left.midpoint)[0] ?? null;
+  const resistance = clusterPivotPrices(highs)
+    .filter((zone) => zone.touches >= 2 && zone.lower > currentPrice)
+    .sort((left, right) => left.midpoint - right.midpoint)[0] ?? null;
+  const status = support || resistance ? "computed_from_market_price_series" : "unavailable";
+
+  return {
+    status,
+    support,
+    resistance,
+    limitations:
+      status === "computed_from_market_price_series"
+        ? [
+            "Support/resistance zones are estimated from repeated local pivot lows/highs in the active market price series.",
+            "These zones are reference ranges only and must be read with volume, market context, valuation, and risk.",
+          ]
+        : ["No repeated pivot zone was found near the current price in the active market price series."],
+  };
+};
 
 const marketDataQualityRiskLevel = (status: ReturnType<typeof assessDataQuality>["status"]): RiskLevel => {
   if (status === "missing") return "unknown";
@@ -190,11 +330,13 @@ const buildIssuerMetadata = (
 const buildDerivedMetrics = ({
   baseData,
   isMarketPriceSeries,
+  priceZones,
   snapshot,
   volumeRatio,
 }: {
   baseData: PVTObservationData;
   isMarketPriceSeries: boolean;
+  priceZones: SupportResistanceResult | null;
   snapshot: TechnicalMarketSnapshot;
   volumeRatio: number | null;
 }): PVTDerivedMetrics => {
@@ -241,17 +383,20 @@ const buildDerivedMetrics = ({
     sourceLabel: snapshot.sourceName ?? "market_price_series",
     dataMode: snapshot.dataMode ?? "research_only",
     productionApproved: false,
-    dataStatus: "insufficient_data",
+    dataStatus:
+      priceZones?.status === "computed_from_market_price_series" || volumeStatus === "computed_from_market_price_series"
+        ? "computed_from_market_price_series"
+        : "insufficient_data",
     calculationBasis: "active_market_price_series",
     requiredObservations: REQUIRED_TB20_OBSERVATIONS,
     availableObservations,
     supportRange: {
-      value: null,
-      status: "unavailable",
+      value: formatPriceRange(priceZones?.support ?? null),
+      status: priceZones?.support ? "computed_from_market_price_series" : "unavailable",
     },
     resistanceRange: {
-      value: null,
-      status: "unavailable",
+      value: formatPriceRange(priceZones?.resistance ?? null),
+      status: priceZones?.resistance ? "computed_from_market_price_series" : "unavailable",
     },
     volumeRatio: {
       value: volumeStatus === "computed_from_market_price_series" ? volumeRatio : null,
@@ -262,7 +407,9 @@ const buildDerivedMetrics = ({
       status: "unavailable",
     },
     limitations: [
-      "Support/resistance ranges are not computed unless they come from the active market price series.",
+      ...(priceZones?.limitations ?? [
+        "Support/resistance ranges are not computed unless they come from the active market price series.",
+      ]),
       "Volume TB20 requires at least 20 observations from the active market price series.",
       "Tâm lý thị trường chưa khả dụng nếu chưa được tính từ chuỗi giá đang hiển thị.",
     ],
@@ -515,6 +662,7 @@ export const buildTechnicalDeskData = (
   const tradingValue = calculateTradingValue(logicInput);
   const avgTradingValue20d = calculateAvgTradingValue20d(logicInput);
   const liquidityStatus = calculateLiquidityStatus(logicInput);
+  const volumeVsAvg20 = calculateVolumeVsAverage20(snapshot);
   const liquidityRisk = calculateLiquidityRisk(logicInput);
   const dataQuality = assessDataQuality(logicInput, { profile: "market" });
   const dataQualityRiskLevel = marketDataQualityRiskLevel(dataQuality.status);
@@ -535,16 +683,20 @@ export const buildTechnicalDeskData = (
   const tickerChanged = Boolean(snapshotTicker && baseTicker && snapshotTicker !== baseTicker);
   const issuerMetadata = buildIssuerMetadata(baseData, snapshot);
   const isMarketPriceSeries = snapshot.sourceKind === "market_price_series";
-  const pvtDerivedMetrics = buildDerivedMetrics({
-    baseData,
-    isMarketPriceSeries,
-    snapshot,
-    volumeRatio: liquidityStatus.value,
-  });
   const { chart, pvtChartSeries } = buildChartSeries({
     baseData,
     isMarketPriceSeries,
     snapshot,
+  });
+  const priceZones = isMarketPriceSeries
+    ? buildSupportResistance(chart.points, snapshot.closePrice ?? null)
+    : null;
+  const pvtDerivedMetrics = buildDerivedMetrics({
+    baseData,
+    isMarketPriceSeries,
+    priceZones,
+    snapshot,
+    volumeRatio: volumeVsAvg20,
   });
 
   return {
@@ -562,14 +714,16 @@ export const buildTechnicalDeskData = (
     status: resolveStatus(priceChange, liquidityStatus, missingFields),
     keyLevels: isMarketPriceSeries
       ? {
-          support: DERIVED_UNAVAILABLE_LABEL,
-          resistance: DERIVED_UNAVAILABLE_LABEL,
+          support: formatPriceRange(priceZones?.support ?? null) ?? DERIVED_UNAVAILABLE_LABEL,
+          resistance: formatPriceRange(priceZones?.resistance ?? null) ?? DERIVED_UNAVAILABLE_LABEL,
         }
       : baseData.keyLevels,
     volume: {
       ...baseData.volume,
-      currentVsAvg20: isMarketPriceSeries ? null : baseData.volume.currentVsAvg20,
-      label: isMarketPriceSeries ? "Chưa đủ 20 phiên" : metricValueLabel(liquidityStatus),
+      currentVsAvg20: isMarketPriceSeries ? volumeVsAvg20 : baseData.volume.currentVsAvg20,
+      label: isMarketPriceSeries
+        ? volumeLabel(snapshot, volumeVsAvg20, metricValueLabel(liquidityStatus))
+        : metricValueLabel(liquidityStatus),
       conclusion:
         liquidityStatus.value === null
           ? "Chưa đủ dữ liệu để đọc thanh khoản."
@@ -614,7 +768,7 @@ export const buildTechnicalDeskData = (
     scenarios: isMarketPriceSeries
       ? [
           {
-            name: "Derived metrics unavailable",
+            name: priceZones?.status === "computed_from_market_price_series" ? "Vùng kỹ thuật đã tính" : "Derived metrics unavailable",
             condition: "Chưa đủ dữ liệu để tính vùng kỹ thuật.",
             meaning: "Không dùng dữ liệu thay thế.",
           },
@@ -623,10 +777,14 @@ export const buildTechnicalDeskData = (
     riskReward: isMarketPriceSeries
       ? {
           currentPrice: snapshot.closePrice ?? baseData.currentPrice,
-          supportPrice: null,
-          resistancePrice: null,
-          upside: DERIVED_NOT_AVAILABLE_LABEL,
-          downside: DERIVED_NOT_AVAILABLE_LABEL,
+          supportPrice: priceZones?.support?.midpoint ?? null,
+          resistancePrice: priceZones?.resistance?.midpoint ?? null,
+          upside: formatPercentDistance(
+            priceZones?.resistance && snapshot.closePrice ? priceZones.resistance.midpoint / snapshot.closePrice - 1 : null,
+          ),
+          downside: formatPercentDistance(
+            priceZones?.support && snapshot.closePrice ? priceZones.support.midpoint / snapshot.closePrice - 1 : null,
+          ),
           conclusion: "Chưa đủ dữ liệu để tính vùng giá.",
         }
       : baseData.riskReward,

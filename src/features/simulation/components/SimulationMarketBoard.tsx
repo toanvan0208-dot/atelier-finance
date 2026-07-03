@@ -12,12 +12,22 @@ export function SimulationMarketBoard({ quotes, selectedSymbol, onSelect }: Simu
   return (
     <Card className="h-full">
       <CardHeader
-        title="Bảng điện mô phỏng"
-        description="Chọn mã để tạo tình huống hoặc xem trạng thái theo dõi đang mở."
-        chip={<Chip variant="accent">Mock data</Chip>}
+        title="Bảng điện thị trường"
+        description="Giá và thanh khoản lấy từ dữ liệu thị trường hiện có; chọn mã để tạo tình huống mô phỏng."
+        chip={<Chip variant="accent">Dữ liệu thị trường</Chip>}
       />
       <CardBody className="p-0">
-        <div className="overflow-x-auto">
+        {quotes.length === 0 ? (
+          <div className="px-5 py-8">
+            <div className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-5">
+              <p className="text-sm font-bold text-ink">Chưa có dữ liệu bảng điện</p>
+              <p className="mt-2 text-sm leading-6 text-muted">
+                Khi hệ thống có MarketPrice mới nhất trong DB, giá và thanh khoản sẽ hiện ở đây. Không dùng dữ liệu giả thay thế.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
           <table className="min-w-[1120px] w-full border-collapse text-left text-xs">
             <thead className="sticky top-0 bg-surface-soft text-[11px] uppercase text-subtle">
               <tr>
@@ -67,7 +77,8 @@ export function SimulationMarketBoard({ quotes, selectedSymbol, onSelect }: Simu
               })}
             </tbody>
           </table>
-        </div>
+          </div>
+        )}
       </CardBody>
     </Card>
   );

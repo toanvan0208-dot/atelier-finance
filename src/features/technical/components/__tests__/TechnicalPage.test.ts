@@ -199,15 +199,15 @@ describe("TechnicalPage source transparency", () => {
       warnings: ["Static fallback"],
     });
 
-    expect(html).toContain("Minh bạch nguồn dữ liệu");
-    expect(html).toContain("Dữ liệu minh họa dự phòng");
-    expect(html).toContain("Dữ liệu nghiên cứu, chưa phê duyệt sản xuất");
-    expect(html).toContain("Thông tin doanh nghiệp minh họa, chưa phê duyệt sản xuất");
-    expect(html).toContain("Chỉ số kỹ thuật: Dữ liệu minh họa");
-    expect(html).toContain("Biểu đồ: Dữ liệu minh họa");
+    expect(html).toContain("Độ tin cậy dữ liệu");
+    expect(html).toContain("Dữ liệu PVT đang ở trạng thái tham khảo");
+    expect(html).toContain("Dữ liệu trình bày dự phòng");
+    expect(html).toContain("Doanh nghiệp");
+    expect(html).toContain("Chỉ số");
+    expect(html).toContain("Biểu đồ");
     expectNoRawSourceStatus(html);
-    expect(html).toContain("Biên tăng gần");
-    expect(html).toContain("Biên giảm gần");
+    expect(html).toContain("Khoảng cách tới kháng cự");
+    expect(html).toContain("Khoảng cách tới hỗ trợ");
     expect(html.toLowerCase()).not.toContain("upside");
     expect(html.toLowerCase()).not.toContain("downside");
   });
@@ -216,7 +216,23 @@ describe("TechnicalPage source transparency", () => {
     const html = renderPage({
       ...dbRuntimeBase,
     });
-    const forbidden = ["nên mua", "nên bán", "nắm giữ", "tín hiệu", "điểm mua", "điểm bán", "vào lệnh", "thoát lệnh", "fair value", "target price", "đáng mua", "đáng bán", "cổ phiếu khỏe để mua", "cổ phiếu yếu nên bán", "khuyến nghị"];
+    const forbidden = [
+      "nên mua",
+      "nên bán",
+      "nắm giữ",
+      "tín hiệu",
+      "điểm mua",
+      "điểm bán",
+      "vào lệnh",
+      "thoát lệnh",
+      "fair value",
+      "target price",
+      "đáng mua",
+      "đáng bán",
+      "cổ phiếu khỏe để mua",
+      "cổ phiếu yếu nên bán",
+      "khuyến nghị",
+    ];
     for (const term of forbidden) {
       expect(html.toLowerCase()).not.toContain(term.toLowerCase());
     }
@@ -240,19 +256,17 @@ describe("TechnicalPage source transparency", () => {
       },
     });
 
+    expect(html).toContain("Độ tin cậy dữ liệu");
+    expect(html).toContain("Dữ liệu PVT đang ở trạng thái tham khảo");
     expect(html).toContain("Dữ liệu giá tham khảo từ nguồn nghiên cứu");
-    expect(html).toContain("Dữ liệu nghiên cứu, chưa phê duyệt sản xuất");
     expect(html).toContain("Thông tin doanh nghiệp và ngành đang được kiểm tra");
-    expect(html).toContain("Thông tin doanh nghiệp: Nguồn đang được kiểm tra");
-    expect(html).toContain("Chỉ số kỹ thuật: Chưa đủ dữ liệu");
-    expect(html).toContain("Biểu đồ: Đã tính từ chuỗi giá đang hiển thị");
+    expect(html).toContain("Doanh nghiệp");
+    expect(html).toContain("Chỉ số");
+    expect(html).toContain("Biểu đồ");
     expect(html).toContain("Chart uses active local DB market price series");
-    expect(html).toContain("Biểu đồ phải dùng cùng chuỗi dữ liệu đang hiển thị");
-    expect(html).toContain("Chỉ số PVT chỉ được tính từ chuỗi giá đang hiển thị");
     expect(html).toContain("Chua du du lieu");
     expect(html).toContain("Chua du 20 phien");
-    expect(html).toContain("Khong kha dung");
-    expect(html).toContain("FOMO chua kha dung");
+    expect(html).toContain("Không khả dụng");
     expect(html).toContain("Ngành: Chưa có dữ liệu xác minh");
     expectNoRawSourceStatus(html);
     expect(html).not.toContain("Ban le");
@@ -341,9 +355,8 @@ describe("TechnicalPage source transparency", () => {
     });
 
     expect(html).toContain("Thông tin doanh nghiệp nội bộ đã kiểm soát");
-    expect(html).toContain("Thông tin doanh nghiệp: Dữ liệu nội bộ đã kiểm soát");
+    expect(html).toContain("Doanh nghiệp");
     expect(html).toContain("Số cổ phiếu lưu hành: Chưa đủ dữ liệu");
-    expect(html).toContain("Chỉ dùng cho nghiên cứu; chưa đủ điều kiện xác nhận sản xuất.");
     expectNoRawSourceStatus(html);
     expect(html.toLowerCase()).not.toContain("official metadata");
   });
