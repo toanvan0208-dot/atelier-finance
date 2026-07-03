@@ -326,13 +326,28 @@ export const loadTechnicalDeskData = async (
   const readIssuerMetadata = dependencies.readIssuerMetadata ?? getIssuerMetadata;
   const buildFromMarketPriceSeries =
     dependencies.buildFromMarketPriceSeries ?? buildTechnicalFromMarketPriceSeries;
-  const series = await readMarketPriceSeries({
+  let series = await readMarketPriceSeries({
     ticker: input.ticker,
     from: input.from,
     to: input.to,
-    sourceLabel: input.sourceLabel,
+    sourceLabel: input.sourceLabel ?? "VNStock historical market price",
     dataMode: input.dataMode,
   });
+
+  if ((!series.ok || series.count <= 1) && !input.sourceLabel) {
+    const fallbackSeries = await readMarketPriceSeries({
+      ticker: input.ticker,
+      from: input.from,
+      to: input.to,
+      sourceLabel: "VNStock market price snapshot",
+      dataMode: input.dataMode,
+    });
+    
+    if (fallbackSeries.ok && fallbackSeries.count > 0) {
+      // Use the snapshot if it has data, but the historical series did not have enough points.
+      series = fallbackSeries;
+    }
+  }
 
   if (!series.ok || series.count === 0) {
     if (allowFallback) {

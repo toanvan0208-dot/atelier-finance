@@ -21,7 +21,6 @@ export type LoadTechnicalRuntimeDataDependencies = {
 };
 
 const DEFAULT_TICKER = "FPT";
-const DEFAULT_SOURCE_LABEL = "vnstock_research_candidate";
 const ENABLED_FLAG = "enabled";
 
 const defaultToDate = () => new Date().toISOString().slice(0, 10);
@@ -46,9 +45,9 @@ const buildInput = (
     ticker: hasExplicitTicker ? requestedTicker.trim().toUpperCase() : DEFAULT_TICKER,
     from: input.from ?? defaultFromDate(),
     to: input.to ?? defaultToDate(),
-    sourceLabel: input.sourceLabel ?? (hasExplicitTicker ? "VNStock market price snapshot" : DEFAULT_SOURCE_LABEL),
+    sourceLabel: input.sourceLabel,
     preferDb: input.preferDb ?? (hasExplicitTicker || isDbSourceEnabled(env)),
-    allowFallback: input.allowFallback ?? !hasExplicitTicker,
+    allowFallback: input.allowFallback ?? false,
   };
 };
 
@@ -69,7 +68,7 @@ export const loadTechnicalRuntimeData = async (
     return {
       ...data,
       provenance: provenance ?? undefined,
-    } as any;
+    } as unknown as LoadTechnicalDeskDataResult;
   } catch (error) {
     const fallback = await loadTechnicalDeskData({
       ...runtimeInput,
