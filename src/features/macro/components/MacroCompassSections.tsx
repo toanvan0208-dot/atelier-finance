@@ -203,9 +203,11 @@ export function MacroTermTooltip({
 
 export function MacroCurrentPicture({
   data,
+  metrics,
   onNavigate,
 }: {
   data: MacroCompassData["currentPicture"];
+  metrics: MacroCompassMetric[];
   onNavigate?: MacroNavigate;
 }) {
   return (
@@ -237,7 +239,51 @@ export function MacroCurrentPicture({
           </div>
         </div>
       </div>
+
+      <MacroCurrentPictureEvidence metrics={metrics} />
     </section>
+  );
+}
+
+function MacroCurrentPictureEvidence({ metrics }: { metrics: MacroCompassMetric[] }) {
+  const visibleMetrics = useCoreMacroMetrics(metrics);
+
+  if (!visibleMetrics.length) return null;
+
+  return (
+    <div id="core-indicators" className="scroll-mt-6 border-t border-border-soft p-5">
+      <div className="rounded-[8px] border-[1.5px] border-border bg-surface p-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <div className="max-w-[820px]">
+            <p className="text-xs font-bold uppercase text-muted">Dữ liệu giải thích cho bức tranh trên</p>
+            <h3 className="mt-1 text-lg font-extrabold text-ink">6 câu hỏi vĩ mô đầu tiên</h3>
+            <p className="mt-2 text-sm leading-6 text-muted">
+              Hệ thống không chọn 6 chỉ số này để học thuộc. Đây là luồng kiểm tra tối thiểu:
+              tăng trưởng có khỏe không, giá cả và chi phí vốn có bóp lại không, tỷ giá có tạo áp lực không,
+              rồi xuất khẩu và tín dụng có xác nhận bức tranh đó không.
+            </p>
+          </div>
+          <Chip variant="neutral">Bằng chứng nền</Chip>
+        </div>
+
+        <CoreMacroReadingFlow metrics={visibleMetrics} />
+
+        <details className="mt-4 rounded-[6px] border border-border-soft bg-canvas p-4">
+          <summary className="cursor-pointer list-none text-sm font-extrabold text-ink underline-offset-4 hover:underline">
+            Mở chi tiết từng chỉ số nền
+          </summary>
+          <p className="mt-2 max-w-[760px] text-xs font-semibold leading-5 text-muted">
+            Phần này dùng để kiểm tra vì sao các lực hỗ trợ, áp lực và dữ liệu thiếu ở trên được ghi nhận.
+            Người mới có thể đọc theo đúng thứ tự bước 1 đến bước 6.
+          </p>
+          <div className="mt-4 grid gap-4 lg:grid-cols-2">
+            {visibleMetrics.map((metric) => (
+              <CoreMacroMetricCard key={metric.id} metric={metric} />
+            ))}
+          </div>
+        </details>
+      </div>
+    </div>
   );
 }
 
@@ -322,124 +368,104 @@ export function WorldContextSection({ metrics }: { metrics: MacroCompassMetric[]
   );
 }
 
-export function CoreMacroIndicatorsSection({ metrics }: { metrics: MacroCompassMetric[] }) {
+function useCoreMacroMetrics(metrics: MacroCompassMetric[]) {
   const metricMap = useMemo(() => new Map(metrics.map((metric) => [metric.id, metric])), [metrics]);
-  const visibleMetrics = coreMetricIds
+  return coreMetricIds
     .map((id) => metricMap.get(id))
     .filter((metric): metric is MacroCompassMetric => Boolean(metric));
+}
 
-  if (!visibleMetrics.length) return null;
+function CoreMacroReadingFlow({ metrics }: { metrics: MacroCompassMetric[] }) {
+  return (
+    <div className="mt-4 grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+      {metrics.map((metric) => {
+        const readingRole = coreMetricReadingRoles[metric.id];
+
+        if (!readingRole) return null;
+
+        return (
+          <div key={`reading-${metric.id}`} className="rounded-[5px] border border-border-soft bg-canvas p-3">
+            <p className="text-[11px] font-bold uppercase text-subtle">
+              {readingRole.step} · {readingRole.role}
+            </p>
+            <p className="mt-2 text-sm font-semibold leading-5 text-ink">{readingRole.question}</p>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function CoreMacroMetricCard({ metric }: { metric: MacroCompassMetric }) {
+  const readingRole = coreMetricReadingRoles[metric.id];
+  const sourceText = metric.sourceName
+    ? `${metric.sourceName}${metric.period ? ` · ${metric.period}` : ""}`
+    : "Chưa có nguồn đã rà soát";
+  const dataStatus = macroCompassMetricStatusLabel(metric);
+  const firstWarning = metric.warnings[0];
+  const missingValueNote =
+    metric.value === null
+      ? "Chỉ số này vẫn nằm trong luồng đọc vì nó là mắt xích cần kiểm tra, nhưng hiện chưa có dữ liệu đã kiểm duyệt nên chưa dùng để kết luận."
+      : null;
 
   return (
-    <section className="space-y-4">
-      <SectionIntro
-        id="core-indicators"
-        question="Nên nhìn chỉ số nào trước?"
-        title="Các chỉ số cần đọc trước"
-        description="Chỉ giữ nhóm tín hiệu nền tảng để người mới hiểu bối cảnh trước khi mở danh mục dữ liệu đầy đủ."
-      />
-      <div className="rounded-[8px] border-[1.5px] border-border bg-canvas p-4 shadow-hard-sm">
-        <div className="max-w-[860px]">
-          <h3 className="text-base font-extrabold text-ink">Vì sao đọc theo 6 chỉ số này?</h3>
-          <p className="mt-2 text-sm leading-6 text-muted">
-            Đây không phải danh sách chỉ số quan trọng nhất để học thuộc. Đây là luồng câu hỏi nền tảng:
-            kinh tế có tăng không, tăng có bị lạm phát hoặc lãi suất bóp lại không, tỷ giá có tạo áp lực không,
-            rồi xuất khẩu và tín dụng có xác nhận bức tranh đó không.
+    <article
+      className={cn(
+        "rounded-[8px] border-[1.5px] bg-surface p-4 shadow-soft",
+        toneClass[metric.tone]
+      )}
+    >
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <p className="text-xs font-bold uppercase text-subtle">
+            {readingRole
+              ? `${readingRole.step} · ${readingRole.role}`
+              : metricGroupLabel[metric.group]}
+          </p>
+          <h3 className="mt-1 text-base font-extrabold text-ink">{metric.name}</h3>
+          <p className="mt-1 text-lg font-extrabold text-ink">
+            {formatMacroCompassMetricValue(metric)}
           </p>
         </div>
-        <div className="mt-4 grid gap-2 md:grid-cols-2 xl:grid-cols-3">
-          {visibleMetrics.map((metric) => {
-            const readingRole = coreMetricReadingRoles[metric.id];
-
-            if (!readingRole) return null;
-
-            return (
-              <div key={`reading-${metric.id}`} className="rounded-[5px] border border-border-soft bg-surface p-3">
-                <p className="text-[11px] font-bold uppercase text-subtle">
-                  {readingRole.step} · {readingRole.role}
-                </p>
-                <p className="mt-2 text-sm font-semibold leading-5 text-ink">{readingRole.question}</p>
-              </div>
-            );
-          })}
-        </div>
+        <Chip variant={toneChip[metric.tone]}>{dataStatus}</Chip>
       </div>
-      <div className="grid gap-4 lg:grid-cols-2">
-        {visibleMetrics.map((metric) => {
-          const readingRole = coreMetricReadingRoles[metric.id];
-          const sourceText = metric.sourceName
-            ? `${metric.sourceName}${metric.period ? ` · ${metric.period}` : ""}`
-            : "Chưa có nguồn đã rà soát";
-          const dataStatus = macroCompassMetricStatusLabel(metric);
-          const firstWarning = metric.warnings[0];
-          const missingValueNote =
-            metric.value === null
-              ? "Chỉ số này vẫn nằm trong luồng đọc vì nó là mắt xích cần kiểm tra, nhưng hiện chưa có dữ liệu đã kiểm duyệt nên chưa dùng để kết luận."
-              : null;
 
-          return (
-            <article
-              key={metric.id}
-              className={cn(
-                "rounded-[8px] border-[1.5px] bg-surface p-4 shadow-soft",
-                toneClass[metric.tone]
-              )}
-            >
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div className="min-w-0">
-                  <p className="text-xs font-bold uppercase text-subtle">
-                    {readingRole
-                      ? `${readingRole.step} · ${readingRole.role}`
-                      : metricGroupLabel[metric.group]}
-                  </p>
-                  <h3 className="mt-1 text-base font-extrabold text-ink">{metric.name}</h3>
-                  <p className="mt-1 text-lg font-extrabold text-ink">
-                    {formatMacroCompassMetricValue(metric)}
-                  </p>
-                </div>
-                <Chip variant={toneChip[metric.tone]}>{dataStatus}</Chip>
-              </div>
-
-              <div className="mt-4 grid gap-3 text-sm leading-6 text-muted">
-                {readingRole ? (
-                  <div className="rounded-[5px] border border-border-soft bg-canvas p-3">
-                    <p>
-                      <span className="font-bold text-ink">Câu hỏi cần trả lời: </span>
-                      {readingRole.question}
-                    </p>
-                    <p className="mt-1">
-                      <span className="font-bold text-ink">Vì sao đọc ở đây: </span>
-                      {readingRole.whyFirst}
-                    </p>
-                    {missingValueNote ? <p className="mt-1 font-semibold text-ink">{missingValueNote}</p> : null}
-                  </div>
-                ) : null}
-                <p>
-                  <span className="font-bold text-ink">Đọc nhanh: </span>
-                  {metric.simpleMeaning}
-                </p>
-                <p>
-                  <span className="font-bold text-ink">Tác động: </span>
-                  {metric.marketImpact}
-                </p>
-                <p>
-                  <span className="font-bold text-ink">Cần kiểm tra tiếp: </span>
-                  {metric.whatToCheckNext}
-                </p>
-              </div>
-
-              <div className="mt-4 grid gap-2 rounded-[5px] border border-border-soft bg-canvas p-3 text-xs leading-5 text-muted">
-                <p>
-                  <span className="font-bold text-ink">Nguồn/kỳ dữ liệu: </span>
-                  {sourceText}
-                </p>
-                {firstWarning ? <p>{firstWarning}</p> : null}
-              </div>
-            </article>
-          );
-        })}
+      <div className="mt-4 grid gap-3 text-sm leading-6 text-muted">
+        {readingRole ? (
+          <div className="rounded-[5px] border border-border-soft bg-canvas p-3">
+            <p>
+              <span className="font-bold text-ink">Câu hỏi cần trả lời: </span>
+              {readingRole.question}
+            </p>
+            <p className="mt-1">
+              <span className="font-bold text-ink">Vì sao đọc ở đây: </span>
+              {readingRole.whyFirst}
+            </p>
+            {missingValueNote ? <p className="mt-1 font-semibold text-ink">{missingValueNote}</p> : null}
+          </div>
+        ) : null}
+        <p>
+          <span className="font-bold text-ink">Đọc nhanh: </span>
+          {metric.simpleMeaning}
+        </p>
+        <p>
+          <span className="font-bold text-ink">Tác động: </span>
+          {metric.marketImpact}
+        </p>
+        <p>
+          <span className="font-bold text-ink">Cần kiểm tra tiếp: </span>
+          {metric.whatToCheckNext}
+        </p>
       </div>
-    </section>
+
+      <div className="mt-4 grid gap-2 rounded-[5px] border border-border-soft bg-canvas p-3 text-xs leading-5 text-muted">
+        <p>
+          <span className="font-bold text-ink">Nguồn/kỳ dữ liệu: </span>
+          {sourceText}
+        </p>
+        {firstWarning ? <p>{firstWarning}</p> : null}
+      </div>
+    </article>
   );
 }
 
