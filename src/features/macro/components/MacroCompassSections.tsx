@@ -419,7 +419,6 @@ export function MacroIndicatorUniverseSection({ data }: { data: MacroCompassData
   if (!data.indicatorUniverse || data.indicatorUniverse.length === 0) return null;
 
   const indicators = data.indicatorUniverse as MacroIndicatorRuntimeViewItem[];
-  const indicatorByCode = new Map(indicators.map((indicator) => [indicator.indicatorCode, indicator]));
   const guidedIndicatorCodes = indicatorReadingGroups
     .flatMap((group) => group.codes)
     .filter((code, index, list) => list.indexOf(code) === index);
@@ -433,32 +432,6 @@ export function MacroIndicatorUniverseSection({ data }: { data: MacroCompassData
         title="Dữ liệu vĩ mô hệ thống đang theo dõi"
         description="Phần tra cứu trạng thái nguồn: dữ liệu nào đã có, dữ liệu nào đang chờ rà soát và dữ liệu nào chưa nên dùng để diễn giải."
       />
-      <div className="grid gap-4">
-        {indicatorReadingGroups.map((group) => {
-          const groupIndicators = group.codes
-            .map((code) => indicatorByCode.get(code))
-            .filter((indicator): indicator is MacroIndicatorRuntimeViewItem => Boolean(indicator));
-
-          if (!groupIndicators.length) return null;
-
-          return (
-            <article key={group.id} className="rounded-[8px] border-[1.5px] border-border-soft bg-surface p-4">
-              <div className="grid gap-3 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-5">
-                <div>
-                  <h3 className="text-base font-extrabold text-ink">{group.title}</h3>
-                  <p className="mt-1 text-sm font-bold leading-5 text-muted">{group.question}</p>
-                  <p className="mt-3 text-xs leading-5 text-muted">{group.description}</p>
-                </div>
-                <div className="grid gap-2">
-                  {groupIndicators.map((indicator) => (
-                    <IndicatorReadingRow key={indicator.indicatorCode} indicator={indicator} />
-                  ))}
-                </div>
-              </div>
-            </article>
-          );
-        })}
-      </div>
       <details className="rounded-[8px] border border-border-soft bg-canvas p-4">
         <summary className="cursor-pointer list-none text-sm font-extrabold text-ink underline-offset-4 hover:underline">
           Dữ liệu phụ trợ đang ẩn ({hiddenIndicators.length})
@@ -538,56 +511,6 @@ export function MacroIndicatorUniverseSection({ data }: { data: MacroCompassData
         </div>
       </details>
     </section>
-  );
-}
-
-function IndicatorReadingRow({ indicator }: { indicator: MacroIndicatorRuntimeViewItem }) {
-  const latestObservations =
-    indicator.latestObservations && indicator.latestObservations.length > 0
-      ? indicator.latestObservations
-      : indicator.latestObservation
-        ? [indicator.latestObservation]
-        : [];
-  const firstObservation = latestObservations[0];
-  let tone: "success" | "warning" | "neutral" | "danger" | "accent" = "neutral";
-  let statusText = "Chưa có dữ liệu";
-
-  if (latestObservations.length > 0) {
-    tone = indicator.freshness?.staleStatus === "stale" ? "warning" : "success";
-    statusText = indicator.freshness?.staleStatus === "stale" ? "Dữ liệu có thể đã cũ" : "Có dữ liệu";
-  } else if (indicator.supportStatus === "candidate_source_identified") {
-    tone = "accent";
-    statusText = "Đã có nguồn chờ rà soát";
-  } else if (indicator.supportStatus === "source_assessment_needed") {
-    tone = "warning";
-    statusText = "Cần chọn nguồn";
-  } else if (indicator.supportStatus === "planned") {
-    statusText = "Dự kiến hỗ trợ";
-  }
-
-  return (
-    <div className="rounded-[5px] border border-border-soft bg-canvas p-3">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0">
-          <p className="text-sm font-extrabold text-ink">{indicator.displayName}</p>
-          <p className="mt-1 text-xs leading-5 text-muted">{indicator.description}</p>
-        </div>
-        <Chip className="sm:max-w-[180px]" size="sm" variant={tone}>
-          {statusText}
-        </Chip>
-      </div>
-      {firstObservation ? (
-        <div className="mt-3 grid gap-1 rounded-[4px] border border-border-soft bg-surface px-3 py-2 text-xs leading-5 text-muted">
-          <p className="font-bold text-ink">
-            {firstObservation.value} {firstObservation.unit}
-          </p>
-          <p>Nguồn: {firstObservation.sourceLabel}</p>
-          {firstObservation.provenance?.semanticCaveats?.slice(0, 1).map((caveat) => (
-            <p key={caveat}>{caveat}</p>
-          ))}
-        </div>
-      ) : null}
-    </div>
   );
 }
 
@@ -788,11 +711,11 @@ function SectionIntro({
   title: string;
 }) {
   const displayQuestion =
-    id === "indicator-universe" ? "Nếu muốn tự kiểm tra dữ liệu thì nên đọc theo thứ tự nào?" : question;
-  const displayTitle = id === "indicator-universe" ? "Lộ trình đọc chỉ số vĩ mô" : title;
+    id === "indicator-universe" ? "Có dữ liệu nào hệ thống theo dõi nhưng người mới chưa cần đọc ngay?" : question;
+  const displayTitle = id === "indicator-universe" ? "Dữ liệu phụ trợ và nguồn mở rộng" : title;
   const displayDescription =
     id === "indicator-universe"
-      ? "Không cần đọc tất cả chỉ số. Hãy đi theo từng nhóm: sức khỏe nền kinh tế, áp lực chi phí vốn, dòng tiền thị trường, rồi mới đến yếu tố thế giới khi có liên quan."
+      ? "Phần này phục vụ kiểm toán nguồn và mở rộng dữ liệu. Luồng đọc chính đã nằm ở các card chỉ số phía trên; người mới có thể bỏ qua phần này."
       : description;
 
   return (

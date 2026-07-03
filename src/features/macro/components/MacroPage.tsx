@@ -9,8 +9,6 @@ import {
   MacroCurrentPicture,
   CoreMacroIndicatorsSection,
   MacroTransmissionSection,
-  VietnamContextSection,
-  WorldContextSection,
   MacroIndicatorUniverseSection
 } from "./MacroCompassSections";
 
@@ -42,8 +40,6 @@ export function MacroPage({ onNavigate, initialData }: MacroPageProps) {
         <MacroTransmissionSection paths={data.transmissionPaths} terms={data.terms} />
         <AffectedSectorsSection sectors={data.affectedSectors} onNavigate={onNavigate} />
         <EarlyWarningSection warnings={data.warnings} />
-        <WorldContextSection metrics={data.worldMetrics} />
-        <VietnamContextSection metrics={data.vietnamMetrics} />
         <MacroConclusionPanel data={data.conclusion} onNavigate={onNavigate} />
         <MacroIndicatorUniverseSection data={data} />
       </main>
