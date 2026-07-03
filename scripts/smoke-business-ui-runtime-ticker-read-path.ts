@@ -27,6 +27,7 @@ const forbiddenAdvicePatterns = [
 
 const sourceFiles = [
   "src/features/business/components/BusinessPage.tsx",
+  "src/features/business/components/MoneyMachineFlow.tsx",
   "src/features/business/data/businessJourney.data.ts",
 ];
 const oldJourneyComponentNames = [
@@ -103,6 +104,10 @@ async function run() {
   const oldPrototypeFallbackDetected = obsoleteFallbackTexts.some((text) => sourceText.includes(text));
   const runtimeAuditCardViewDetected = sourceText.includes("RuntimeBusinessProfileView");
   const runtimeJourneyAdapterPresent = sourceText.includes("buildRuntimeBusinessJourneyData");
+  const longRuntimeRiskNotesUsedAsBottleneckChips = sourceText.includes("bottlenecks: riskNotes");
+  const moneyMachineOverflowGuardPresent =
+    sourceText.includes("md:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)]") &&
+    sourceText.includes("className=\"max-w-[180px]\"");
   const oldJourneyComponentsStillRendered = oldJourneyComponentNames.every((componentName) =>
     sourceText.includes(`<${componentName}`)
   );
@@ -143,6 +148,8 @@ async function run() {
     oldPrototypeFallbackDetected,
     runtimeAuditCardViewDetected,
     runtimeJourneyAdapterPresent,
+    longRuntimeRiskNotesUsedAsBottleneckChips,
+    moneyMachineOverflowGuardPresent,
     oldJourneyComponentsStillRendered,
     hpgOldPrototypeFallbackAbsent: !oldPrototypeFallbackDetected,
     vnmOldPrototypeFallbackAbsent: !oldPrototypeFallbackDetected,
@@ -163,6 +170,8 @@ async function run() {
       !oldPrototypeFallbackDetected &&
       !runtimeAuditCardViewDetected &&
       runtimeJourneyAdapterPresent &&
+      !longRuntimeRiskNotesUsedAsBottleneckChips &&
+      moneyMachineOverflowGuardPresent &&
       oldJourneyComponentsStillRendered &&
       !benchmarkCreated &&
       !rankingCreated &&

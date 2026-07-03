@@ -43,16 +43,16 @@ export function MoneyMachineFlow({ data, onDeepDive }: MoneyMachineFlowProps) {
           ))}
         </div>
 
-        <div className="grid gap-3 md:grid-cols-[1fr_0.85fr]">
-          <div className="rounded-[4px] border border-border-soft bg-surface px-4 py-3">
+        <div className="grid min-w-0 gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)]">
+          <div className="min-w-0 rounded-[4px] border border-border-soft bg-surface px-4 py-3">
             <p className="text-[11px] font-bold uppercase text-subtle">Ví dụ với mã đang chọn</p>
             <p className="mt-1 text-sm leading-6 text-muted">{data.example}</p>
           </div>
-          <div className="rounded-[4px] border border-warning bg-warning/15 px-4 py-3">
+          <div className="min-w-0 rounded-[4px] border border-warning bg-warning/15 px-4 py-3">
             <p className="text-[11px] font-bold uppercase text-subtle">Điểm nghẽn dễ làm mô hình hỏng</p>
             <div className="mt-2 flex flex-wrap gap-2">
               {data.bottlenecks.slice(0, 5).map((item) => (
-                <Chip key={item} size="sm" variant="warning">
+                <Chip key={item} className="max-w-[180px]" size="sm" variant="warning">
                   {item}
                 </Chip>
               ))}

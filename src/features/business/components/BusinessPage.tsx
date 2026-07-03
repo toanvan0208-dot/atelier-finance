@@ -172,6 +172,24 @@ function splitReviewedText(value: string | null | undefined, fallback: string[])
   return parts.length > 0 ? parts.slice(0, 5) : fallback;
 }
 
+function buildBottleneckLabels(industryLabel: string) {
+  const normalizedIndustry = industryLabel.toLowerCase();
+
+  if (normalizedIndustry.includes("steel") || normalizedIndustry.includes("thép")) {
+    return ["Giá nguyên liệu", "Tồn kho", "Chu kỳ thép", "Nợ vay", "Công suất"];
+  }
+
+  if (normalizedIndustry.includes("dairy") || normalizedIndustry.includes("sữa")) {
+    return ["Giá sữa đầu vào", "Kênh phân phối", "Sức mua", "Biên lợi nhuận", "Thương hiệu"];
+  }
+
+  if (normalizedIndustry.includes("retail") || normalizedIndustry.includes("bán lẻ")) {
+    return ["Tồn kho", "Mặt bằng", "Sức mua", "Cạnh tranh giá", "Hiệu quả chuỗi"];
+  }
+
+  return ["Vốn lưu động", "Biên lợi nhuận", "Dòng tiền", "Nợ vay", "Năng lực vận hành"];
+}
+
 function buildRuntimeBusinessJourneyData(profile: RuntimeBusinessProfile): BusinessJourneyData | null {
   const businessProfile = profile.businessProfile;
   if (!businessProfile) return null;
@@ -185,6 +203,7 @@ function buildRuntimeBusinessJourneyData(profile: RuntimeBusinessProfile): Busin
   const riskNotes = splitReviewedText(businessProfile.businessRiskNotes, [
     "Cần đối chiếu thêm với báo cáo tài chính và nguồn doanh nghiệp",
   ]);
+  const bottleneckLabels = buildBottleneckLabels(industryLabel);
   const researchTags = [
     industryLabel,
     businessProfile.dataMode === "research_only" ? "Dữ liệu nghiên cứu" : businessProfile.dataMode,
@@ -259,7 +278,7 @@ function buildRuntimeBusinessJourneyData(profile: RuntimeBusinessProfile): Busin
       salesChannels: ["Kênh bán hàng chính", "Đối tác/đại lý nếu có", "Kênh xuất khẩu hoặc nội địa nếu được công bố"],
       cashCollection: ["Thu tiền từ khách hàng/đối tác", "Cần kiểm chứng thêm qua CFO và khoản phải thu"],
       expansionMethod: ["Mở rộng công suất/kênh bán", "Tối ưu vận hành", "Mở rộng thị trường nếu nguồn có nêu"],
-      bottlenecks: riskNotes,
+      bottlenecks: bottleneckLabels,
       example: businessDescription,
       practicalConclusion:
         "Mô hình tốt lên khi doanh thu chuyển được thành tiền và chi phí vận hành được kiểm soát.",
