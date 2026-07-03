@@ -148,14 +148,14 @@ model User {
 }
 
 model AuthSession {
-  id           String   @id @default(cuid())
-  userId       String
-  tokenHash    String   @unique
-  expiresAt    DateTime
-  createdAt    DateTime @default(now())
-  lastSeenAt   DateTime @default(now())
-  userAgent    String?
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id         String   @id @default(cuid())
+  userId     String
+  tokenHash  String   @unique
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  lastSeenAt DateTime @default(now())
+  userAgent  String?
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([expiresAt])
@@ -340,26 +340,27 @@ model MarketPriceUnitMetadata {
 }
 
 model DataSource {
-  id                    String               @id @default(cuid())
-  name                  String
-  sourceType            SourceType
-  supportedDataGroups   String               @default("[]")
-  usageStatus           SourceUsageStatus    @default(unknown)
-  licenseStatus         LegalReviewStatus    @default(not_checked)
-  tosStatus             LegalReviewStatus    @default(not_checked)
-  accessMethod          SourceAccessMethod   @default(unknown)
-  cachingAllowed        PermissionFlag       @default(unknown)
-  redistributionAllowed PermissionFlag       @default(unknown)
-  runtimeDisplayAllowed PermissionFlag       @default(unknown)
-  derivedDataAllowed    PermissionFlag       @default(unknown)
-  attributionText       String?
-  notes                 String?
-  createdAt             DateTime             @default(now())
-  updatedAt             DateTime             @updatedAt
-  profileCompanies      Company[]            @relation("CompanyProfileSource")
-  financialStatements   FinancialStatement[]
-  marketPrices          MarketPrice[]
-  sourceEvidence        SourceEvidence[]
+  id                      String                   @id @default(cuid())
+  name                    String
+  sourceType              SourceType
+  supportedDataGroups     String                   @default("[]")
+  usageStatus             SourceUsageStatus        @default(unknown)
+  licenseStatus           LegalReviewStatus        @default(not_checked)
+  tosStatus               LegalReviewStatus        @default(not_checked)
+  accessMethod            SourceAccessMethod       @default(unknown)
+  cachingAllowed          PermissionFlag           @default(unknown)
+  redistributionAllowed   PermissionFlag           @default(unknown)
+  runtimeDisplayAllowed   PermissionFlag           @default(unknown)
+  derivedDataAllowed      PermissionFlag           @default(unknown)
+  attributionText         String?
+  notes                   String?
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
+  profileCompanies        Company[]                @relation("CompanyProfileSource")
+  financialStatements     FinancialStatement[]
+  marketPrices            MarketPrice[]
+  marketIndexObservations MarketIndexObservation[]
+  sourceEvidence          SourceEvidence[]
 
   @@unique([name, sourceType])
   @@index([usageStatus])
@@ -946,4 +947,32 @@ model MacroObservationProvenance {
   @@index([observationDate])
   @@index([sourceLabel])
   @@index([dataMode])
+}
+
+model MarketIndexObservation {
+  id                 String     @id @default(cuid())
+  symbol             String
+  indexName          String?
+  tradingDate        DateTime
+  openPoint          Decimal?
+  highPoint          Decimal?
+  lowPoint           Decimal?
+  closePoint         Decimal
+  pointUnit          String
+  volume             BigInt?
+  volumeUnit         String?
+  sourceId           String
+  sourceLabel        String
+  sourceType         SourceType
+  dataMode           DataMode
+  needsReview        Boolean    @default(true)
+  productionApproved Boolean    @default(false)
+  warningCodes       Json?
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+  source             DataSource @relation(fields: [sourceId], references: [id])
+
+  @@unique([symbol, tradingDate, sourceId])
+  @@index([symbol, tradingDate])
+  @@index([sourceId])
 }
