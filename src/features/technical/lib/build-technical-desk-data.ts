@@ -163,7 +163,7 @@ const buildIssuerMetadata = (
       verificationStatus: "unavailable",
       limitations: [
         "Thông tin doanh nghiệp chưa khả dụng cho mã này.",
-        "Không dùng dữ liệu minh họa cho ngành và lĩnh vực.",
+        "Không dùng dữ liệu thay thế cho ngành và lĩnh vực.",
       ],
       warnings: ["Issuer metadata has not been verified for this market price ticker."],
     };
@@ -227,7 +227,7 @@ const buildDerivedMetrics = ({
         "Static sample PVT derived metrics are for local product behavior checks only.",
         "They are not production-approved technical analysis.",
       ],
-      warnings: ["Không dùng dữ liệu minh họa cho các chỉ số dẫn xuất."],
+      warnings: ["Không dùng dữ liệu thay thế cho các chỉ số dẫn xuất."],
     };
   }
 
@@ -264,10 +264,10 @@ const buildDerivedMetrics = ({
     limitations: [
       "Support/resistance ranges are not computed unless they come from the active market price series.",
       "Volume TB20 requires at least 20 observations from the active market price series.",
-      "FOMO is unavailable unless computed from the active market price series.",
+      "Tâm lý thị trường chưa khả dụng nếu chưa được tính từ chuỗi giá đang hiển thị.",
     ],
     warnings: [
-      "Không dùng dữ liệu minh họa cho vùng giá, khối lượng và tâm lý thị trường.",
+      "Không dùng dữ liệu thay thế cho vùng giá, khối lượng và tâm lý thị trường.",
     ],
   };
 };
@@ -387,7 +387,7 @@ const buildChartSeries = ({
           "Static sample chart series is for local product behavior checks only.",
           "It is not production-approved market chart data.",
         ],
-        warnings: ["Không dùng dữ liệu minh họa cho biểu đồ."],
+        warnings: ["Không dùng dữ liệu thay thế cho biểu đồ."],
       }),
     };
   }
@@ -431,7 +431,7 @@ const buildChartSeries = ({
         annotationsCount: 0,
         limitations: [
           "Chart needs at least two close-price observations from the active market price series.",
-          "Không dùng dữ liệu minh họa cho các điểm biểu đồ, đường trung bình, khối lượng và sự kiện.",
+          "Không dùng dữ liệu thay thế cho các điểm biểu đồ, đường trung bình, khối lượng và sự kiện.",
         ],
         warnings: ["Chưa đủ dữ liệu giá để vẽ biểu đồ."],
       }),
@@ -501,7 +501,7 @@ const buildChartSeries = ({
         "MA20 requires 20 observations and MA50 requires 50 observations from the same active series.",
         "Annotations are unavailable until an event source is connected.",
       ],
-      warnings: ["Sample chart points, sample MA lines, sample volume bars, and sample annotations were not reused."],
+      warnings: ["Static chart points, static MA lines, static volume bars, and static annotations were not reused."],
     }),
   };
 };
@@ -616,7 +616,7 @@ export const buildTechnicalDeskData = (
           {
             name: "Derived metrics unavailable",
             condition: "Chưa đủ dữ liệu để tính vùng kỹ thuật.",
-            meaning: "Không dùng dữ liệu minh họa.",
+            meaning: "Không dùng dữ liệu thay thế.",
           },
         ]
       : baseData.scenarios,

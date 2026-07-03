@@ -40,7 +40,7 @@ const numericValues = (points: PVTObservationPoint[]): number[] =>
 
 const chartStatusLabel = (status: PVTChartSeries["status"] | undefined): string => {
   if (status === "computed_from_market_price_series") return "Đã tính từ chuỗi giá đang hiển thị";
-  if (status === "static_sample" || status === "presentation_only") return "Dữ liệu minh họa";
+  if (status === "static_sample" || status === "presentation_only") return "Dữ liệu trình bày";
   if (status === "insufficient_data") return "Chưa đủ dữ liệu";
   return "Nguồn đang được kiểm tra";
 };
@@ -60,7 +60,7 @@ export function PVTMainChart({ data, chartSeries, resistanceLabel, supportLabel 
     chartSeries?.status === "computed_from_market_price_series"
       ? "Biểu đồ dùng dữ liệu giá và khối lượng đã lưu trong hệ thống."
       : chartSeries?.status === "static_sample" || chartSeries?.status === "presentation_only"
-        ? "Biểu đồ dùng dữ liệu minh họa và chưa phê duyệt sản xuất."
+        ? "Biểu đồ dùng dữ liệu trình bày và chưa phê duyệt sản xuất."
         : "Dữ liệu nghiên cứu, chưa phê duyệt sản xuất.";
 
   if (!hasChartPoints) {
@@ -75,7 +75,7 @@ export function PVTMainChart({ data, chartSeries, resistanceLabel, supportLabel 
           <div className="rounded-[4px] border border-border-soft bg-surface-soft p-5">
             <p className="text-sm font-bold text-ink">Dữ liệu nghiên cứu, chưa phê duyệt sản xuất.</p>
             <p className="mt-2 text-xs leading-5 text-muted">
-              Không dùng dữ liệu minh họa.
+              Không dùng dữ liệu thay thế.
             </p>
           </div>
           <p className="text-xs leading-5 text-muted">{sourceNote}</p>
@@ -108,7 +108,7 @@ export function PVTMainChart({ data, chartSeries, resistanceLabel, supportLabel 
       <CardBody className="space-y-4">
         {isDbChart ? (
           <p className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-2 text-xs leading-5 text-muted">
-            Biểu đồ dùng dữ liệu giá và khối lượng đã lưu trong hệ thống. MA20/MA50 chỉ hiển thị khi có đủ dữ liệu tính toán. Không dùng dữ liệu minh họa.
+            Biểu đồ dùng dữ liệu giá và khối lượng đã lưu trong hệ thống. MA20/MA50 chỉ hiển thị khi có đủ dữ liệu tính toán. Không dùng dữ liệu thay thế.
           </p>
         ) : null}
         <div className="overflow-x-auto rounded-[4px] border border-border-soft bg-surface-soft p-4">

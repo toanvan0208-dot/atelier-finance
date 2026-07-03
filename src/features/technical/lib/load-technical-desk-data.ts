@@ -402,6 +402,7 @@ export const loadTechnicalDeskData = async (
   }
 
   const issuerMetadata = toTechnicalIssuerMetadata(readIssuerMetadata(series.ticker ?? input.ticker));
+  const latestSeriesDate = series.rows.at(-1)?.date ?? stringOrNull(series.to);
 
   return {
     ok: true,
@@ -409,6 +410,7 @@ export const loadTechnicalDeskData = async (
     dataQuality: {
       ...fallbackDataQuality,
       source: "Du lieu gia tham khao tu nguon nghien cuu",
+      asOf: latestSeriesDate,
       isDemoData: false,
       missingFields: built.adapter.warnings,
     },

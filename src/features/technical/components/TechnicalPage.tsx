@@ -64,7 +64,7 @@ const fallbackIssuerMetadata = (
   sharesStatus: "unavailable",
   limitations: [
     sourceType === "sample_static_fallback"
-      ? "Thông tin doanh nghiệp dùng dữ liệu minh họa, chưa phê duyệt sản xuất."
+      ? "Thông tin doanh nghiệp dùng dữ liệu trình bày, chưa phê duyệt sản xuất."
       : "Thông tin doanh nghiệp chưa khả dụng cho mã này.",
   ],
   warnings: [],
@@ -83,7 +83,7 @@ const technicalStatusLabel = (status: string | null | undefined): string => {
       return "Chưa đủ dữ liệu";
     case "static_sample":
     case "presentation_only":
-      return "Dữ liệu minh họa";
+      return "Dữ liệu trình bày";
     case "controlled_local_research":
       return "Dữ liệu nội bộ đã kiểm soát";
     case "local_research_seed":
@@ -235,7 +235,7 @@ function SourceTransparencyStrip({
       ? marketDataSource.provider === "vnstock"
         ? "Dữ liệu giá tham khảo từ nguồn nghiên cứu"
         : "Nguồn dữ liệu nội bộ đã nhập có kiểm soát"
-      : "Dữ liệu minh họa dự phòng";
+      : "Dữ liệu trình bày dự phòng";
   const metadataUnavailable =
     issuerMetadata.verificationStatus === "unavailable" ||
     issuerMetadata.verificationStatus === "limited" ||
@@ -253,7 +253,7 @@ function SourceTransparencyStrip({
       ? "Thông tin doanh nghiệp nội bộ đã rà soát"
       : metadataUnavailable
         ? "Thông tin doanh nghiệp và ngành đang được kiểm tra"
-        : "Thông tin doanh nghiệp minh họa, chưa phê duyệt sản xuất";
+        : "Thông tin doanh nghiệp dùng dữ liệu trình bày, chưa phê duyệt sản xuất";
 
   return (
     <section
@@ -301,7 +301,7 @@ function SourceTransparencyStrip({
             Dữ liệu nghiên cứu, chưa phê duyệt sản xuất
           </span>
           <span className="rounded-[3px] border border-ink/10 bg-muted/10 px-2 py-1 font-bold text-ink">
-            {marketDataSource.fallbackUsed ? "Dữ liệu minh họa dự phòng" : "Dữ liệu nghiên cứu"}
+            {marketDataSource.fallbackUsed ? "Dữ liệu trình bày dự phòng" : "Dữ liệu nghiên cứu"}
           </span>
           <span className="rounded-[3px] border border-ink/10 bg-muted/10 px-2 py-1 font-bold text-ink">
             Thông tin doanh nghiệp: {technicalStatusLabel(issuerMetadata.verificationStatus)}
@@ -321,7 +321,7 @@ function SourceTransparencyStrip({
           Chỉ số PVT chỉ được tính từ chuỗi giá đang hiển thị; nếu thiếu dữ liệu, kết quả sẽ để trống.
         </p>
         <p className="lg:col-span-2">
-          Biểu đồ phải dùng cùng chuỗi dữ liệu đang hiển thị; dữ liệu chưa đủ sẽ được ghi rõ là chưa khả dụng hoặc chỉ mang tính minh họa.
+          Biểu đồ phải dùng cùng chuỗi dữ liệu đang hiển thị; dữ liệu chưa đủ sẽ được ghi rõ là chưa khả dụng hoặc chỉ dùng cho trình bày.
         </p>
       </div>
     </section>

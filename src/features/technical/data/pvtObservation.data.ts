@@ -47,7 +47,7 @@ const basePvtObservationData: PVTObservationData = {
       },
       {
         label: "Ngành",
-        title: "Tin sức mua bán lẻ cải thiện",
+        title: "Tin tiêu dùng bán lẻ cải thiện",
         pointIndex: 9,
         note: "Tác động còn cần kiểm chứng qua doanh thu và biên.",
       },
@@ -95,7 +95,7 @@ const basePvtObservationData: PVTObservationData = {
         "Nếu phiên giảm có volume lớn, bối cảnh giá/khối lượng sẽ cần kiểm tra lại nhanh.",
       ],
       commonMistake:
-        "Volume cao không phải lúc nào cũng tốt; giá giảm mạnh kèm volume cao có thể là áp lực bán.",
+        "Volume cao không phải lúc nào cũng tốt; giá giảm mạnh kèm volume cao có thể là áp lực cung.",
     },
     {
       id: "time",
@@ -115,10 +115,10 @@ const basePvtObservationData: PVTObservationData = {
       id: "relative_strength",
       title: "Relative Strength: So với thị trường/ngành",
       shortTitle: "So sánh",
-      question: "Cổ phiếu đang mạnh hơn hay yếu hơn thị trường và ngành?",
-      conclusion: "Cổ phiếu có cải thiện, nhưng chưa phải mã dẫn dắt rõ trong nhóm.",
+      question: "Biến động của cổ phiếu khác gì so với thị trường và ngành?",
+      conclusion: "Cổ phiếu có cải thiện, nhưng chưa đủ dữ liệu để kết luận vị thế trong nhóm.",
       evidence: [
-        "Mạnh hơn nhẹ so với VN-Index.",
+        "Biến động tích cực hơn VN-Index trong giai đoạn quan sát.",
         "Ngang bằng so với ngành bán lẻ.",
         "Chưa nổi bật so với nhóm cùng ngành.",
       ],
@@ -133,7 +133,7 @@ const basePvtObservationData: PVTObservationData = {
       conclusion:
         "Nhịp tăng gần đây cần đối chiếu với dữ liệu thật, chưa nên xem là xác nhận chắc chắn.",
       evidence: [
-        "Có kỳ vọng phục hồi sức mua.",
+        "Có kỳ vọng tiêu dùng phục hồi.",
         "Cần kiểm tra kết quả kinh doanh.",
         "Tâm lý thị trường ở mức trung bình.",
       ],
@@ -152,7 +152,7 @@ const basePvtObservationData: PVTObservationData = {
     "Giá không vượt được vùng giá trên và quay đầu với volume lớn.",
     "Phiên tăng có volume thấp, phiên giảm có volume cao.",
     "Giá thủng vùng giá thấp gần nhất.",
-    "Cổ phiếu yếu hơn VN-Index và ngành liên tục.",
+    "Cổ phiếu đi lệch hướng bất lợi so với VN-Index và ngành liên tục.",
     "Tin tốt xuất hiện nhưng giá không phản ứng tích cực.",
   ],
   scenarios: [
@@ -179,7 +179,7 @@ const basePvtObservationData: PVTObservationData = {
     upside: "+9,5%",
     downside: "-9,5%",
     conclusion:
-      "Tỷ lệ rủi ro/lợi nhuận ngắn hạn ở mức trung bình vì biên tăng và biên giảm gần tương đương.",
+      "Vùng giá tham khảo ngắn hạn ở mức cần quan sát vì biên tăng và biên giảm gần tương đương.",
   },
   fomo: {
     level: "Trung bình",

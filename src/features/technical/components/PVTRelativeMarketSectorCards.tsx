@@ -123,7 +123,7 @@ export const PVTRelativeMarketSectorCards = ({
             </div>
 
             <div className="mt-4 rounded bg-muted/10 p-3 text-xs text-subtle">
-              <p>Chỉ số ngành tham chiếu rộng, không phải xếp hạng ngành.</p>
+              <p>Chỉ số ngành tham chiếu rộng, không phải đánh giá thứ bậc ngành.</p>
               {isConsumerProxy && (
                 <p className="mt-1">VNCONS là chỉ số tiêu dùng rộng, không phải chỉ số bán lẻ chuyên biệt.</p>
               )}
