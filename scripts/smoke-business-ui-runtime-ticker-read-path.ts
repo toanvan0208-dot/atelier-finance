@@ -29,6 +29,15 @@ const sourceFiles = [
   "src/features/business/components/BusinessPage.tsx",
   "src/features/business/data/businessJourney.data.ts",
 ];
+const oldJourneyComponentNames = [
+  "BusinessIdentityCard",
+  "CustomerReasonSection",
+  "MoneyMachineFlow",
+  "AdvantageRealityCheck",
+  "StrategyLeadershipSection",
+  "NonFinancialRiskMap",
+  "BridgeToFinancialStatements",
+] as const;
 
 type TargetProfileStatus = {
   present: boolean;
@@ -92,6 +101,11 @@ async function run() {
   ) as Record<(typeof displayOnlyTickers)[number], DisplayOnlyProfileStatus>;
 
   const oldPrototypeFallbackDetected = obsoleteFallbackTexts.some((text) => sourceText.includes(text));
+  const runtimeAuditCardViewDetected = sourceText.includes("RuntimeBusinessProfileView");
+  const runtimeJourneyAdapterPresent = sourceText.includes("buildRuntimeBusinessJourneyData");
+  const oldJourneyComponentsStillRendered = oldJourneyComponentNames.every((componentName) =>
+    sourceText.includes(`<${componentName}`)
+  );
   const forbiddenAdviceDetected = forbiddenAdvicePatterns.some((pattern) => pattern.test(sourceText));
   const productionApprovedTrueCount = await prisma.companyBusinessProfile.count({
     where: { productionApproved: true },
@@ -127,6 +141,9 @@ async function run() {
     targetProfiles,
     displayOnlyProfiles,
     oldPrototypeFallbackDetected,
+    runtimeAuditCardViewDetected,
+    runtimeJourneyAdapterPresent,
+    oldJourneyComponentsStillRendered,
     hpgOldPrototypeFallbackAbsent: !oldPrototypeFallbackDetected,
     vnmOldPrototypeFallbackAbsent: !oldPrototypeFallbackDetected,
     mwgOldPrototypeFallbackAbsent: !oldPrototypeFallbackDetected,
@@ -144,6 +161,9 @@ async function run() {
       targetProfilesReady &&
       displayOnlyGuarded &&
       !oldPrototypeFallbackDetected &&
+      !runtimeAuditCardViewDetected &&
+      runtimeJourneyAdapterPresent &&
+      oldJourneyComponentsStillRendered &&
       !benchmarkCreated &&
       !rankingCreated &&
       !stockAttractivenessScoreCreated &&
