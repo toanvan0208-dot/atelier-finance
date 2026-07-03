@@ -572,25 +572,25 @@ model MacroContext {
 }
 
 model IndustryContext {
-  id                 String   @id @default(uuid())
-  industryCode       String?
-  industryName       String
-  contextLanguage    String   @default("vi")
-  industryOverview   String?
+  id                    String   @id @default(uuid())
+  industryCode          String?
+  industryName          String
+  contextLanguage       String   @default("vi")
+  industryOverview      String?
   howIndustryMakesMoney String?
-  keyDrivers         String?
-  industryRisks      String?
-  macroSensitivity   String?
-  nextChecks         String?
-  commonMisread      String?
-  relatedTickers     String[]
-  asOfDate           DateTime
-  sourceLabel        String
-  dataMode           String   @default("research_only")
-  productionApproved Boolean  @default(false)
-  needsReview        Boolean  @default(true)
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  keyDrivers            String?
+  industryRisks         String?
+  macroSensitivity      String?
+  nextChecks            String?
+  commonMisread         String?
+  relatedTickers        String[]
+  asOfDate              DateTime
+  sourceLabel           String
+  dataMode              String   @default("research_only")
+  productionApproved    Boolean  @default(false)
+  needsReview           Boolean  @default(true)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
 
   provenanceRows IndustryContextProvenance[]
 
@@ -776,7 +776,7 @@ model ScreeningCandidate {
 }
 
 model ScreeningCandidateMetric {
-  id                 String   @id @default(cuid())
+  id                 String    @id @default(cuid())
   candidateId        String
   ticker             String
   metricCode         String
@@ -793,12 +793,12 @@ model ScreeningCandidateMetric {
   sourceUrl          String?
   extractedQuote     String?
   reviewNote         String?
-  warningCodes       String   @default("[]")
-  dataMode           String   @default("research_only")
-  needsReview        Boolean  @default(true)
-  productionApproved Boolean  @default(false)
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  warningCodes       String    @default("[]")
+  dataMode           String    @default("research_only")
+  needsReview        Boolean   @default(true)
+  productionApproved Boolean   @default(false)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
   candidate      ScreeningCandidate             @relation(fields: [candidateId], references: [id], onDelete: Cascade)
   provenanceRows ScreeningCandidateProvenance[]
@@ -812,7 +812,7 @@ model ScreeningCandidateMetric {
 }
 
 model ScreeningCandidateProvenance {
-  id                 String   @id @default(cuid())
+  id                 String    @id @default(cuid())
   candidateId        String
   metricId           String?
   ticker             String
@@ -825,12 +825,12 @@ model ScreeningCandidateProvenance {
   extractedQuote     String?
   reviewNote         String?
   payloadChecksum    String?
-  warningCodes       String   @default("[]")
-  dataMode           String   @default("research_only")
-  needsReview        Boolean  @default(true)
-  productionApproved Boolean  @default(false)
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  warningCodes       String    @default("[]")
+  dataMode           String    @default("research_only")
+  needsReview        Boolean   @default(true)
+  productionApproved Boolean   @default(false)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
   candidate ScreeningCandidate        @relation(fields: [candidateId], references: [id], onDelete: Cascade)
   metric    ScreeningCandidateMetric? @relation(fields: [metricId], references: [id], onDelete: SetNull)
@@ -863,7 +863,7 @@ model MacroIndicator {
 }
 
 model MacroObservation {
-  id                 String         @id @default(cuid())
+  id                 String   @id @default(cuid())
   indicatorId        String
   indicatorCode      String
   region             String
@@ -874,10 +874,10 @@ model MacroObservation {
   periodLabel        String?
   sourceLabel        String
   dataMode           String
-  productionApproved Boolean        @default(false)
-  needsReview        Boolean        @default(true)
-  createdAt          DateTime       @default(now())
-  updatedAt          DateTime       @updatedAt
+  productionApproved Boolean  @default(false)
+  needsReview        Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
   indicator MacroIndicator @relation(fields: [indicatorId], references: [id])
 

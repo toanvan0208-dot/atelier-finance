@@ -212,12 +212,20 @@ export const loadFinancialsRuntimeData = async (
 
     if (!options.sourceLabel || options.sourceLabel.trim() === "") {
       if (ticker === "HPG" || ticker === "VNM" || ticker === "FPT" || ticker === "MSN" || ticker === "MWG") {
-        const pdfResult = await readSeries({ ticker, sourceLabel: "annual_report_2025_pdf_reviewed_preview", dataMode: "research_only", limit: 8 });
-        const pdfAdapted = adaptSeries(pdfResult);
-        if (pdfAdapted.ok && pdfAdapted.statements.length > 0) {
-          readResult = pdfResult;
-          adapted = pdfAdapted;
-          sourceLabel = "annual_report_2025_pdf_reviewed_preview";
+        const externalResult = await readSeries({ ticker, sourceLabel: "External financials review workspace", dataMode: "research_only", limit: 8 });
+        const externalAdapted = adaptSeries(externalResult);
+        if (externalAdapted.ok && externalAdapted.statements.length > 0) {
+          readResult = externalResult;
+          adapted = externalAdapted;
+          sourceLabel = "External financials review workspace";
+        } else {
+          const pdfResult = await readSeries({ ticker, sourceLabel: "annual_report_2025_pdf_reviewed_preview", dataMode: "research_only", limit: 8 });
+          const pdfAdapted = adaptSeries(pdfResult);
+          if (pdfAdapted.ok && pdfAdapted.statements.length > 0) {
+            readResult = pdfResult;
+            adapted = pdfAdapted;
+            sourceLabel = "annual_report_2025_pdf_reviewed_preview";
+          }
         }
       }
     }

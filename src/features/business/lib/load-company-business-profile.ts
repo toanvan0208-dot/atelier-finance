@@ -12,15 +12,13 @@ export const loadCompanyBusinessProfile = async (
   const normalizedTicker = ticker.trim().toUpperCase();
   const dataMode = options?.dataMode ?? "research_only";
   const profileLanguage = options?.profileLanguage ?? "vi";
-  const sourceLabel = "staging_company_business_profile_research_seed";
-
-  const profile = await prisma.companyBusinessProfile.findUnique({
+  const profile = await prisma.companyBusinessProfile.findFirst({
     where: {
-      ticker_sourceLabel_profileLanguage: {
-        ticker: normalizedTicker,
-        sourceLabel,
-        profileLanguage,
-      },
+      ticker: normalizedTicker,
+      profileLanguage,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      dataMode: dataMode as any,
+      productionApproved: false,
     },
   });
 
