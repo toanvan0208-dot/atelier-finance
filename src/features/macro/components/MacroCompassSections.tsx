@@ -46,6 +46,20 @@ const toneClass: Record<MacroCompassTone, string> = {
 
 const coreMetricIds = ["gdp", "cpi", "domestic-rate", "usd-vnd", "exports", "credit-growth"];
 
+const currentPictureMetricIds: Record<string, string> = {
+  "Tăng trưởng GDP": "gdp",
+  GDP: "gdp",
+  CPI: "cpi",
+  "Lãi suất": "domestic-rate",
+  "Lãi suất trong nước": "domestic-rate",
+  "USD/VND": "usd-vnd",
+  "Tín dụng": "credit-growth",
+  "Tăng trưởng tín dụng": "credit-growth",
+  PMI: "pmi",
+  "Dòng vốn ngoại": "foreign-flow",
+  "Đầu tư công": "public-investment",
+};
+
 type CoreMetricReadingRole = {
   step: string;
   role: string;
@@ -210,6 +224,8 @@ export function MacroCurrentPicture({
   metrics: MacroCompassMetric[];
   onNavigate?: MacroNavigate;
 }) {
+  const metricMap = useMemo(() => new Map(metrics.map((metric) => [metric.id, metric])), [metrics]);
+
   return (
     <section className="rounded-[8px] border-[1.5px] border-border bg-canvas shadow-hard">
       <div className="border-b border-border-soft p-5">
@@ -224,11 +240,23 @@ export function MacroCurrentPicture({
 
       <div className="grid gap-4 p-5 lg:grid-cols-[1fr_1fr]">
         <div className="grid gap-4">
-          <PanelList title="Ba lực hỗ trợ chính" items={data.supports} />
-          <PanelList title="Dữ liệu chưa xác nhận" items={data.unconfirmed} />
+          <PanelList
+            metricMap={metricMap}
+            title="Ba lực hỗ trợ chính"
+            items={data.supports}
+          />
+          <PanelList
+            metricMap={metricMap}
+            title="Dữ liệu chưa xác nhận"
+            items={data.unconfirmed}
+          />
         </div>
         <div className="grid gap-4">
-          <PanelList title="Ba lực gây áp lực chính" items={data.pressures} />
+          <PanelList
+            metricMap={metricMap}
+            title="Ba lực gây áp lực chính"
+            items={data.pressures}
+          />
           <div className="rounded-[6px] border border-border-soft bg-surface p-4">
             <h3 className="text-sm font-extrabold text-ink">Bước tiếp theo</h3>
             <div className="mt-3 flex flex-wrap gap-2">
@@ -267,21 +295,6 @@ function MacroCurrentPictureEvidence({ metrics }: { metrics: MacroCompassMetric[
         </div>
 
         <CoreMacroReadingFlow metrics={visibleMetrics} />
-
-        <details className="mt-4 rounded-[6px] border border-border-soft bg-canvas p-4">
-          <summary className="cursor-pointer list-none text-sm font-extrabold text-ink underline-offset-4 hover:underline">
-            Mở chi tiết từng chỉ số nền
-          </summary>
-          <p className="mt-2 max-w-[760px] text-xs font-semibold leading-5 text-muted">
-            Phần này dùng để kiểm tra vì sao các lực hỗ trợ, áp lực và dữ liệu thiếu ở trên được ghi nhận.
-            Người mới có thể đọc theo đúng thứ tự bước 1 đến bước 6.
-          </p>
-          <div className="mt-4 grid gap-4 lg:grid-cols-2">
-            {visibleMetrics.map((metric) => (
-              <CoreMacroMetricCard key={metric.id} metric={metric} />
-            ))}
-          </div>
-        </details>
       </div>
     </div>
   );
@@ -289,26 +302,62 @@ function MacroCurrentPictureEvidence({ metrics }: { metrics: MacroCompassMetric[
 
 function PanelList({
   items,
+  metricMap,
   title,
 }: {
   items: MacroCompassData["currentPicture"]["supports"];
+  metricMap: Map<string, MacroCompassMetric>;
   title: string;
 }) {
   return (
     <article className="rounded-[6px] border border-border-soft bg-surface p-4">
       <h3 className="text-sm font-extrabold text-ink">{title}</h3>
       <div className="mt-3 grid gap-2">
-        {items.map((item) => (
-          <div key={item.label} className={cn("rounded-[5px] border p-3", toneClass[item.tone])}>
-            <div className="flex items-center justify-between gap-3">
-              <strong className="text-sm text-ink">{item.label}</strong>
-              <Chip size="sm" variant={toneChip[item.tone]}>
-                {toneLabel[item.tone]}
-              </Chip>
-            </div>
-            <p className="mt-1 text-xs leading-5 text-muted">{item.value}</p>
-          </div>
-        ))}
+        {items.map((item) => {
+          const metricId = currentPictureMetricIds[item.label];
+          const linkedMetric = metricId ? metricMap.get(metricId) : null;
+          const content = (
+            <>
+              <div className="flex items-center justify-between gap-3">
+                <strong className="text-sm text-ink">{item.label}</strong>
+                <Chip size="sm" variant={toneChip[item.tone]}>
+                  {toneLabel[item.tone]}
+                </Chip>
+              </div>
+              <p className="mt-1 text-xs leading-5 text-muted">{item.value}</p>
+              {linkedMetric ? (
+                <p className="mt-2 text-[11px] font-bold uppercase text-subtle">
+                  Bấm để xem dữ liệu giải thích
+                </p>
+              ) : null}
+            </>
+          );
+
+          if (!linkedMetric || !metricId) {
+            return (
+              <div key={item.label} className={cn("rounded-[5px] border p-3", toneClass[item.tone])}>
+                {content}
+              </div>
+            );
+          }
+
+          return (
+            <details
+              key={item.label}
+              className={cn(
+                "group rounded-[5px] border transition hover:-translate-y-0.5 hover:shadow-hard-sm",
+                toneClass[item.tone]
+              )}
+            >
+              <summary className="cursor-pointer list-none p-3 focus:outline-none focus:ring-2 focus:ring-ink/20">
+                {content}
+              </summary>
+              <div className="border-t border-border-soft p-3">
+                <CoreMacroMetricCard metric={linkedMetric} />
+              </div>
+            </details>
+          );
+        })}
       </div>
     </article>
   );
