@@ -54,6 +54,49 @@ const metricGroupLabel: Record<MacroCompassMetric["group"], string> = {
   policy: "Chính sách",
 };
 
+type IndicatorReadingGroup = {
+  id: string;
+  title: string;
+  question: string;
+  description: string;
+  codes: string[];
+};
+
+const indicatorReadingGroups: IndicatorReadingGroup[] = [
+  {
+    id: "domestic-engine",
+    title: "1. Sức khỏe nền kinh tế",
+    question: "Nền kinh tế đang mở rộng hay chậm lại?",
+    description:
+      "Đọc trước để biết nền nhu cầu chung. Nhóm này chưa nói cổ phiếu nào tốt, chỉ cho biết bối cảnh tăng trưởng có thuận hay không.",
+    codes: ["GDP_GROWTH", "PMI_MANUFACTURING", "EXPORT_GROWTH", "CREDIT_GROWTH", "PUBLIC_INVESTMENT"],
+  },
+  {
+    id: "cost-of-money",
+    title: "2. Áp lực chi phí vốn và giá cả",
+    question: "Doanh nghiệp có thể chịu sức ép từ lạm phát, lãi vay hoặc tỷ giá không?",
+    description:
+      "Đọc sau tăng trưởng để tránh hiểu nhầm: tăng trưởng tốt nhưng chi phí vốn, chi phí đầu vào hoặc tỷ giá căng thì tác động lên từng ngành sẽ rất khác.",
+    codes: ["CPI_YOY", "POLICY_RATE", "USD_VND"],
+  },
+  {
+    id: "market-money",
+    title: "3. Dòng tiền trên thị trường",
+    question: "Dòng tiền vào thị trường đang khỏe hay yếu?",
+    description:
+      "Nhóm này chỉ dùng để hiểu thanh khoản và tâm lý thị trường, không dùng như tín hiệu mua bán.",
+    codes: ["MARKET_TRADING_VALUE", "FOREIGN_NET_FLOW"],
+  },
+  {
+    id: "global-pressure",
+    title: "4. Yếu tố thế giới chỉ xem khi có liên quan",
+    question: "Bối cảnh bên ngoài có đang tạo áp lực lên tỷ giá, chi phí đầu vào hoặc dòng vốn không?",
+    description:
+      "Không cần đọc nhóm này đầu tiên. Chỉ mở khi USD/VND, giá năng lượng hoặc dòng vốn đang là vấn đề cần kiểm tra.",
+    codes: ["FED_FUNDS_RATE", "DXY", "BRENT_OIL_PRICE"],
+  },
+];
+
 function MacroActionButton({
   action,
   onNavigate,
@@ -358,8 +401,29 @@ type MacroIndicatorDbObservation = {
   };
 };
 
+type MacroIndicatorRuntimeViewItem = {
+  indicatorCode: string;
+  displayName: string;
+  description: string;
+  supportStatus: string;
+  inCurrentFrontend?: boolean;
+  latestObservation?: MacroIndicatorDbObservation | null;
+  latestObservations?: MacroIndicatorDbObservation[];
+  limitations?: string[];
+  freshness?: {
+    staleStatus: "fresh" | "stale" | "unknown";
+  };
+};
+
 export function MacroIndicatorUniverseSection({ data }: { data: MacroCompassData }) {
   if (!data.indicatorUniverse || data.indicatorUniverse.length === 0) return null;
+
+  const indicators = data.indicatorUniverse as MacroIndicatorRuntimeViewItem[];
+  const indicatorByCode = new Map(indicators.map((indicator) => [indicator.indicatorCode, indicator]));
+  const guidedIndicatorCodes = indicatorReadingGroups
+    .flatMap((group) => group.codes)
+    .filter((code, index, list) => list.indexOf(code) === index);
+  const hiddenIndicators = indicators.filter((indicator) => !guidedIndicatorCodes.includes(indicator.indicatorCode));
 
   return (
     <section className="space-y-4">
@@ -369,8 +433,41 @@ export function MacroIndicatorUniverseSection({ data }: { data: MacroCompassData
         title="Dữ liệu vĩ mô hệ thống đang theo dõi"
         description="Phần tra cứu trạng thái nguồn: dữ liệu nào đã có, dữ liệu nào đang chờ rà soát và dữ liệu nào chưa nên dùng để diễn giải."
       />
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {data.indicatorUniverse.map((indicator) => {
+      <div className="grid gap-4">
+        {indicatorReadingGroups.map((group) => {
+          const groupIndicators = group.codes
+            .map((code) => indicatorByCode.get(code))
+            .filter((indicator): indicator is MacroIndicatorRuntimeViewItem => Boolean(indicator));
+
+          if (!groupIndicators.length) return null;
+
+          return (
+            <article key={group.id} className="rounded-[8px] border-[1.5px] border-border-soft bg-surface p-4">
+              <div className="grid gap-3 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-5">
+                <div>
+                  <h3 className="text-base font-extrabold text-ink">{group.title}</h3>
+                  <p className="mt-1 text-sm font-bold leading-5 text-muted">{group.question}</p>
+                  <p className="mt-3 text-xs leading-5 text-muted">{group.description}</p>
+                </div>
+                <div className="grid gap-2">
+                  {groupIndicators.map((indicator) => (
+                    <IndicatorReadingRow key={indicator.indicatorCode} indicator={indicator} />
+                  ))}
+                </div>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+      <details className="rounded-[8px] border border-border-soft bg-canvas p-4">
+        <summary className="cursor-pointer list-none text-sm font-extrabold text-ink underline-offset-4 hover:underline">
+          Dữ liệu phụ trợ đang ẩn ({hiddenIndicators.length})
+        </summary>
+        <p className="mt-2 text-xs font-semibold leading-5 text-muted">
+          Các chỉ số này phục vụ mở rộng nguồn và kiểm toán dữ liệu. Người mới chưa cần đọc ở bước phân tích chính.
+        </p>
+        <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {hiddenIndicators.map((indicator) => {
           const latestObservations =
             indicator.latestObservations && indicator.latestObservations.length > 0
               ? indicator.latestObservations
@@ -438,8 +535,59 @@ export function MacroIndicatorUniverseSection({ data }: { data: MacroCompassData
             </article>
           );
         })}
-      </div>
+        </div>
+      </details>
     </section>
+  );
+}
+
+function IndicatorReadingRow({ indicator }: { indicator: MacroIndicatorRuntimeViewItem }) {
+  const latestObservations =
+    indicator.latestObservations && indicator.latestObservations.length > 0
+      ? indicator.latestObservations
+      : indicator.latestObservation
+        ? [indicator.latestObservation]
+        : [];
+  const firstObservation = latestObservations[0];
+  let tone: "success" | "warning" | "neutral" | "danger" | "accent" = "neutral";
+  let statusText = "Chưa có dữ liệu";
+
+  if (latestObservations.length > 0) {
+    tone = indicator.freshness?.staleStatus === "stale" ? "warning" : "success";
+    statusText = indicator.freshness?.staleStatus === "stale" ? "Dữ liệu có thể đã cũ" : "Có dữ liệu";
+  } else if (indicator.supportStatus === "candidate_source_identified") {
+    tone = "accent";
+    statusText = "Đã có nguồn chờ rà soát";
+  } else if (indicator.supportStatus === "source_assessment_needed") {
+    tone = "warning";
+    statusText = "Cần chọn nguồn";
+  } else if (indicator.supportStatus === "planned") {
+    statusText = "Dự kiến hỗ trợ";
+  }
+
+  return (
+    <div className="rounded-[5px] border border-border-soft bg-canvas p-3">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <p className="text-sm font-extrabold text-ink">{indicator.displayName}</p>
+          <p className="mt-1 text-xs leading-5 text-muted">{indicator.description}</p>
+        </div>
+        <Chip className="sm:max-w-[180px]" size="sm" variant={tone}>
+          {statusText}
+        </Chip>
+      </div>
+      {firstObservation ? (
+        <div className="mt-3 grid gap-1 rounded-[4px] border border-border-soft bg-surface px-3 py-2 text-xs leading-5 text-muted">
+          <p className="font-bold text-ink">
+            {firstObservation.value} {firstObservation.unit}
+          </p>
+          <p>Nguồn: {firstObservation.sourceLabel}</p>
+          {firstObservation.provenance?.semanticCaveats?.slice(0, 1).map((caveat) => (
+            <p key={caveat}>{caveat}</p>
+          ))}
+        </div>
+      ) : null}
+    </div>
   );
 }
 
@@ -639,11 +787,19 @@ function SectionIntro({
   question: string;
   title: string;
 }) {
+  const displayQuestion =
+    id === "indicator-universe" ? "Nếu muốn tự kiểm tra dữ liệu thì nên đọc theo thứ tự nào?" : question;
+  const displayTitle = id === "indicator-universe" ? "Lộ trình đọc chỉ số vĩ mô" : title;
+  const displayDescription =
+    id === "indicator-universe"
+      ? "Không cần đọc tất cả chỉ số. Hãy đi theo từng nhóm: sức khỏe nền kinh tế, áp lực chi phí vốn, dòng tiền thị trường, rồi mới đến yếu tố thế giới khi có liên quan."
+      : description;
+
   return (
     <div id={id} className="scroll-mt-6">
-      <p className="text-xs font-bold uppercase text-muted">{question}</p>
-      <h2 className="mt-1 text-xl font-extrabold text-ink">{title}</h2>
-      <p className="mt-2 max-w-[780px] text-sm leading-6 text-muted">{description}</p>
+      <p className="text-xs font-bold uppercase text-muted">{displayQuestion}</p>
+      <h2 className="mt-1 text-xl font-extrabold text-ink">{displayTitle}</h2>
+      <p className="mt-2 max-w-[780px] text-sm leading-6 text-muted">{displayDescription}</p>
     </div>
   );
 }
