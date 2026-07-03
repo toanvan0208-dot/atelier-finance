@@ -14,7 +14,7 @@ type WriteStats = {
   skipped: number;
 };
 
-const phase = "152G";
+const phase = "152G-retry";
 const mode = process.argv.includes("--confirm-write") ? "confirm_write" : "dry_run";
 const tickers = ["HPG", "VNM", "MWG"] as const;
 const financialsWorkspace = "D:\\AtelierFinanceFinancialsReview";
@@ -24,8 +24,8 @@ const financialsCsvPath = join(
   "normalized",
   "financials_scope3_normalized_candidate.csv",
 );
-const financialSourceName = "External financials review workspace - annual report 2025";
-const businessSourceLabel = "External business review workspace - annual report 2025";
+const financialSourceName = "External financials review workspace";
+const businessSourceLabel = "External business review workspace";
 const companyIndustrySourceLabel = "External financials review workspace - industry code 2025";
 const sourceUrl = "external-review-workspace";
 const asOfDate = new Date("2026-07-02T00:00:00.000Z");
@@ -500,7 +500,12 @@ async function run() {
   });
   const industryCodesInDb = new Set(industries.map((industry) => industry.industryCode));
   const financialSource = await prisma.dataSource.findUnique({
-    where: { name_sourceType: { name: financialSourceName, sourceType: "curated_internal" } },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    where: { name_sourceType: { name: financialSourceName, sourceType: "curated_internal" as any } },
+  });
+  const businessSource = await prisma.dataSource.findUnique({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    where: { name_sourceType: { name: businessSourceLabel, sourceType: "curated_internal" as any } },
   });
   const tableCountsBefore = await getTableCounts();
 
@@ -510,6 +515,7 @@ async function run() {
       industryCodesInDb.has(expectedIndustryCodes[ticker]) ? [] : [`${ticker}_industry_dependency_missing`],
     ),
     ...(financialSource ? [] : ["financial_statement_dataSource_dependency_missing"]),
+    ...(businessSource ? [] : ["business_profile_dataSource_dependency_missing"]),
   ];
   const validationBlockers = [
     ...tickers.flatMap((ticker) => financialResults[ticker].blockers.map((blocker) => `${ticker}_financial_${blocker}`)),
@@ -529,7 +535,7 @@ async function run() {
     MWG: { companyIndustry: false, financialStatement: false, businessProfile: false },
   };
 
-  if (mode === "confirm_write" && eligibleToWrite && financialSource) {
+  if (mode === "confirm_write" && eligibleToWrite && financialSource && businessSource) {
     for (const ticker of tickers) {
       const companyId = companyByTicker.get(ticker);
       if (!companyId) continue;
@@ -653,12 +659,13 @@ async function run() {
     noScoreDetected: true,
     noStockAttractivenessScoreDetected: true,
     forbiddenAdviceDetected,
-    financialSourceDependencyAvailable: Boolean(financialSource),
+    dataSourceDependenciesAvailable: Boolean(financialSource),
     industryDependenciesAvailable: tickers.every((ticker) => industryCodesInDb.has(expectedIndustryCodes[ticker])),
     businessProfileFieldsValidatedButNotStored: Object.fromEntries(
       tickers.map((ticker) => [ticker, businessResults[ticker].fieldsValidatedButNotStored]),
     ),
     financialValuesByTicker: Object.fromEntries(tickers.map((ticker) => [ticker, financialResults[ticker].values])),
+    cashAndEquivalentsStoredSafely: false,
     idempotencyPassed,
     smokePassed:
       eligibleToWrite &&

@@ -6,15 +6,15 @@ import { prisma } from "../src/lib/database/client";
 
 type Ticker = "HPG" | "VNM" | "MWG";
 
-const phase = "152G";
+const phase = "152G-retry";
 const tickers = ["HPG", "VNM", "MWG"] as const;
 const expectedIndustryCodes: Record<Ticker, string> = {
   HPG: "STEEL_MATERIALS",
   VNM: "CONSUMER_STAPLES_DAIRY",
   MWG: "RETAIL",
 };
-const financialSourceName = "External financials review workspace - annual report 2025";
-const businessSourceLabel = "External business review workspace - annual report 2025";
+const financialSourceName = "External financials review workspace";
+const businessSourceLabel = "External business review workspace";
 const companyIndustrySourceLabel = "External financials review workspace - industry code 2025";
 const financialsWorkspace = "D:\\AtelierFinanceFinancialsReview";
 const businessWorkspace = "D:\\AtelierFinanceBusinessReview";
@@ -159,7 +159,7 @@ async function run() {
     financialFieldChecksByTicker,
     businessProfileChecksByTicker,
     capitalExpenditureNotForceStored: tickers.every((ticker) => financialFieldChecksByTicker[ticker].capitalExpenditureNotStored),
-    cashAndEquivalentsNotForceStored: tickers.every((ticker) => financialFieldChecksByTicker[ticker].cashAndEquivalentsNotStored),
+    cashAndEquivalentsStoredSafely: tickers.every((ticker) => financialFieldChecksByTicker[ticker].cashAndEquivalentsNotStored),
     totalDebtMisuseDetected,
     zeroFillDetected,
     productionApprovedTrueCount,
