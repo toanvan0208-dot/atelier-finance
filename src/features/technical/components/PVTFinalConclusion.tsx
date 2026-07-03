@@ -48,6 +48,9 @@ export function PVTFinalConclusion({
             </Button>
           ))}
         </div>
+        <div className="mt-4 rounded-[4px] border border-warning bg-warning/15 px-4 py-3 text-sm font-semibold leading-6 text-ink">
+          Dữ liệu giá và thanh khoản chỉ hỗ trợ quan sát thị trường. Người dùng cần tự kiểm tra thêm mô hình kinh doanh, báo cáo tài chính, định giá và rủi ro.
+        </div>
       </CardBody>
     </Card>
   );

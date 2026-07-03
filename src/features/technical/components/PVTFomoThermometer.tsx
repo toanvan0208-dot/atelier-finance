@@ -12,7 +12,7 @@ export function PVTFomoThermometer({ data }: PVTFomoThermometerProps) {
   return (
     <Card>
       <CardHeader
-        title="Thước đo FOMO"
+        title="Cảnh báo tâm lý thị trường"
         description="Nhận diện lúc cảm xúc có thể kéo bạn đi nhanh hơn dữ liệu."
         chip={<Chip variant="warning">{scoreLabel}</Chip>}
       />

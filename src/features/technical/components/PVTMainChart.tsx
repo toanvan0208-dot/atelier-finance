@@ -118,10 +118,10 @@ export function PVTMainChart({ data, chartSeries, resistanceLabel, supportLabel 
                 <rect x="0" y={resistanceY - 12} width={width} height="24" fill="#F4C542" opacity="0.18" />
                 <rect x="0" y={supportY - 12} width={width} height="24" fill="#00A676" opacity="0.12" />
                 <text x="8" y={Math.max(14, resistanceY - 16)} className="fill-subtle text-[11px] font-bold">
-                  Khang cu {resistanceLabel}
+                  Tham khảo (trên) {resistanceLabel}
                 </text>
                 <text x="8" y={supportY + 30} className="fill-subtle text-[11px] font-bold">
-                  Ho tro {supportLabel}
+                  Tham khảo (dưới) {supportLabel}
                 </text>
               </>
             ) : null}

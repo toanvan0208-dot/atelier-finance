@@ -13,8 +13,8 @@ function formatPrice(value: number | null) {
 export function PVTRiskRewardZone({ data }: PVTRiskRewardZoneProps) {
   const rows = [
     { label: "Giá hiện tại", value: formatPrice(data.currentPrice) },
-    { label: "Hỗ trợ gần", value: formatPrice(data.supportPrice) },
-    { label: "Kháng cự gần", value: formatPrice(data.resistancePrice) },
+    { label: "Vùng tham khảo dưới", value: formatPrice(data.supportPrice) },
+    { label: "Vùng tham khảo trên", value: formatPrice(data.resistancePrice) },
     { label: "Biên tăng gần", value: data.upside },
     { label: "Biên giảm gần", value: data.downside },
   ];

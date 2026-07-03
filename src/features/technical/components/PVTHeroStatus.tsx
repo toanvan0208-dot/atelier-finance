@@ -22,8 +22,8 @@ export function PVTHeroStatus({ data }: PVTHeroStatusProps) {
   const fomoValue = data.fomo.score === null ? "Không khả dụng" : `${data.fomo.level}, ${data.fomo.score}/${data.fomo.maxScore}`;
   const metrics = [
     { label: "Giá hiện tại", value: `${formatPrice(data.currentPrice)} đ/cp` },
-    { label: "Hỗ trợ gần", value: data.keyLevels.support },
-    { label: "Kháng cự gần", value: data.keyLevels.resistance },
+    { label: "Vùng tham khảo dưới", value: data.keyLevels.support },
+    { label: "Vùng tham khảo trên", value: data.keyLevels.resistance },
     { label: "Volume", value: volumeValue },
     { label: "FOMO", value: fomoValue },
   ];
@@ -46,7 +46,7 @@ export function PVTHeroStatus({ data }: PVTHeroStatusProps) {
             {data.status.conclusion}
           </p>
           <p className="mt-3 text-sm leading-6 text-muted">
-            Module này giúp quan sát diễn biến giá, khối lượng và thanh khoản theo thời gian. Đây không phải tín hiệu giao dịch hay lời khuyên đầu tư.
+            Module này giúp quan sát diễn biến giá, khối lượng và thanh khoản theo thời gian. PVT là chỉ báo kết hợp biến động giá và khối lượng, giúp quan sát xem thay đổi giá có đi kèm khối lượng đáng kể hay không. Đây không phải tín hiệu giao dịch hay lời khuyên đầu tư.
           </p>
         </div>
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1">

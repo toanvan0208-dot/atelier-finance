@@ -366,7 +366,7 @@ export function PVTCommandCenter({ data, priceVolume }: PVTCommandCenterProps) {
           <CardHeader
             action={<Button size="sm" variant="secondary" onClick={() => setDetail({ type: "fomo" })}>Kiểm tra kỹ hơn</Button>}
             icon="F"
-            title="FOMO check nhanh"
+            title="Cảnh báo tâm lý thị trường"
           />
           <CardBody>
             <div className="flex items-end justify-between gap-3">
@@ -421,7 +421,7 @@ export function PVTCommandCenter({ data, priceVolume }: PVTCommandCenterProps) {
           <div className="max-h-[92dvh] w-full max-w-[680px] overflow-hidden rounded-[6px] border-[1.5px] border-border bg-surface shadow-hard" onClick={(event) => event.stopPropagation()}>
             <div className="flex items-start justify-between gap-4 border-b border-border-soft bg-surface-soft px-4 py-4">
               <h3 className="text-lg font-bold text-ink">
-                {detail.type === "guide" ? "Cách đọc chart PVT" : detail.type === "metric" ? `Chi tiết: ${detail.metric.label}` : detail.type === "event" ? "Chi tiết event" : "FOMO check chi tiết"}
+                {detail.type === "guide" ? "Cách đọc chart PVT" : detail.type === "metric" ? `Chi tiết: ${detail.metric.label}` : detail.type === "event" ? "Chi tiết event" : "Kiểm tra tâm lý chi tiết"}
               </h3>
               <Button size="sm" variant="ghost" onClick={() => setDetail(null)}>Đóng</Button>
             </div>
@@ -429,10 +429,10 @@ export function PVTCommandCenter({ data, priceVolume }: PVTCommandCenterProps) {
               {detail.type === "guide" ? (
                 <>
                   <p className="text-sm leading-6 text-muted">Price cho biết thị trường đang phản ứng ở vùng nào, nhưng cần đọc cùng volume và bối cảnh.</p>
-                  <p className="text-sm leading-6 text-muted">Volume có thể xác nhận, phủ nhận hoặc chỉ phản ánh nhiễu do tin tức.</p>
+                  <p className="text-sm leading-6 text-muted">Volume có thể xác nhận, phủ nhận hoặc chỉ phản ánh nhiễu do tin tức. Khối lượng cao hơn bình thường có thể cho thấy mức độ quan tâm thị trường tăng lên, nhưng cần đối chiếu với tin tức, kết quả kinh doanh và rủi ro.</p>
                   <p className="text-sm leading-6 text-muted">Timeframe giúp tránh nhầm nhiễu ngắn hạn với xu hướng lớn.</p>
                   <p className="text-sm leading-6 text-muted">Event giúp tránh gán sai nguyên nhân cho biến động giá.</p>
-                  <p className="rounded-[4px] border border-warning bg-warning/15 px-3 py-2 text-xs leading-5 text-ink">PVT chỉ là lớp quan sát, không thay thế phân tích cơ bản.</p>
+                  <p className="rounded-[4px] border border-warning bg-warning/15 px-3 py-2 text-xs leading-5 text-ink">PVT là chỉ báo kết hợp biến động giá và khối lượng. Nó giúp quan sát xem thay đổi giá có đi kèm khối lượng đáng kể hay không. PVT không tự tạo kết luận hành động. PVT chỉ là lớp quan sát, không thay thế phân tích cơ bản.</p>
                 </>
               ) : detail.type === "metric" ? (
                 <>
