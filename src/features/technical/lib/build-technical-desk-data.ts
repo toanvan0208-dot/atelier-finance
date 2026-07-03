@@ -148,8 +148,9 @@ const buildIssuerMetadata = (
   const snapshotTicker = normalizeTicker(snapshot.ticker);
   const baseTicker = normalizeTicker(baseData.ticker);
   const ticker = snapshotTicker ?? baseTicker ?? "UNKNOWN";
+  const isMarketPriceSeries = snapshot.sourceKind === "market_price_series";
 
-  if (snapshotTicker && baseTicker && snapshotTicker !== baseTicker) {
+  if ((snapshotTicker && baseTicker && snapshotTicker !== baseTicker) || isMarketPriceSeries) {
     return {
       ticker,
       displayName: null,
@@ -162,7 +163,7 @@ const buildIssuerMetadata = (
       verificationStatus: "unavailable",
       limitations: [
         "Company/issuer metadata is unavailable for this DB-backed ticker.",
-        "Sample company, industry, and sector metadata were not reused because the ticker differs from the sample base ticker.",
+        "Sample company, industry, and sector metadata were not reused.",
       ],
       warnings: ["Issuer metadata has not been verified for this market price ticker."],
     };
@@ -550,10 +551,10 @@ export const buildTechnicalDeskData = (
     ...baseData,
     ticker: snapshot.ticker ?? baseData.ticker,
     companyName:
-      tickerChanged
+      (tickerChanged || isMarketPriceSeries)
         ? snapshotTicker ?? baseData.ticker
         : baseData.companyName,
-    industry: tickerChanged ? UNVERIFIED_METADATA_LABEL : baseData.industry,
+    industry: (tickerChanged || isMarketPriceSeries) ? UNVERIFIED_METADATA_LABEL : baseData.industry,
     issuerMetadata,
     pvtDerivedMetrics,
     pvtChartSeries,

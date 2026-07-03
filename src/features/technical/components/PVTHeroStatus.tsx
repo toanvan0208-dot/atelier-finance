@@ -40,13 +40,13 @@ export function PVTHeroStatus({ data }: PVTHeroStatusProps) {
             {data.ticker} · {data.companyName} · {data.industry}
           </p>
           <h1 className="mt-2 font-brand text-3xl font-bold leading-tight text-ink md:text-4xl">
-            Giá và dòng tiền hiện tại đang xác nhận luận điểm hay đang tạo FOMO?
+            Giá và thanh khoản đang thay đổi như thế nào?
           </h1>
           <p className="mt-4 max-w-3xl text-base font-semibold leading-7 text-ink">
             {data.status.conclusion}
           </p>
           <p className="mt-3 text-sm leading-6 text-muted">
-            Module này chỉ giúp quan sát hành vi thị trường sau các bước phân tích cơ bản, không phải màn hình giao dịch ngắn hạn.
+            Module này giúp quan sát diễn biến giá, khối lượng và thanh khoản theo thời gian. Đây không phải tín hiệu giao dịch hay lời khuyên đầu tư.
           </p>
         </div>
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1">

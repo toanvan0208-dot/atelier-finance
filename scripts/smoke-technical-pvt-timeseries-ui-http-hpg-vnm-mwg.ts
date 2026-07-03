@@ -133,19 +133,39 @@ const smokeTechnicalPvtTimeSeriesUiHttp = async () => {
       // But the fallback text in dummy `pvtObservationData` might leak words like "mua/bán/upside" into the HTML if it renders the static RiskReward component.
       // Let's just check for explicitly banned phrases that we know should not appear in ANY active UI state.
       // E.g., "khuyến nghị", "tín hiệu giao dịch", "giá mục tiêu".
-      const explicitBanned = ["khuyến nghị", "tín hiệu mua", "tín hiệu bán", "giá mục tiêu", "cổ phiếu hấp dẫn", "xếp hạng", "chấm điểm", "ranking", "scoring"];
+      const explicitBanned = [
+        "khuyến nghị", "tín hiệu mua", "tín hiệu bán", "giá mục tiêu", "cổ phiếu hấp dẫn", "xếp hạng", "chấm điểm", "ranking", "scoring",
+        "dữ liệu minh họa", "minh họa dự phòng", "thông tin doanh nghiệp minh họa", "demo", "mock", "fallback", "cập nhật đến: 2026-06-01",
+        "xác nhận luận điểm", "đang tạo fomo", "target price", "fair value", "upside", "downside"
+      ];
       for (const word of explicitBanned) {
          if (lowerHtml.includes(word)) {
-             console.log(`Forbidden explicit word found: ${word}`);
+             console.log(`Forbidden explicit word found: ${word} in ${ticker}`);
              if (word.includes("khuyến nghị") || word.includes("tín hiệu")) summary.tradingSignalDetected = true;
-             if (word.includes("giá mục tiêu")) summary.targetPriceOrFairValueDetected = true;
+             if (word.includes("giá mục tiêu") || word.includes("target price") || word.includes("fair value")) summary.targetPriceOrFairValueDetected = true;
+             if (word.includes("upside") || word.includes("downside")) summary.upsideDownsideDetected = true;
              if (word.includes("xếp hạng") || word.includes("ranking") || word.includes("scoring") || word.includes("chấm điểm")) {
                  summary.rankingDetected = true;
                  summary.scoringDetected = true;
                  summary.benchmarkDetected = true;
              }
              if (word.includes("cổ phiếu hấp dẫn")) summary.stockAttractivenessDetected = true;
+             if (word.includes("minh họa") || word.includes("demo") || word.includes("mock") || word.includes("fallback") || word.includes("2026-06-01")) {
+                 summary.mockDataDetected = true;
+                 summary.fakeFallbackDetected = true;
+             }
+             summary.smokePassed = false;
          }
+      }
+
+      // Assert HPG page does not show MWG demo copy
+      if (ticker === "HPG" && html.includes("MWG")) {
+         console.log("HPG leaked MWG demo copy");
+         summary.smokePassed = false;
+      }
+      if (ticker === "VNM" && html.includes("MWG")) {
+         console.log("VNM leaked MWG demo copy");
+         summary.smokePassed = false;
       }
 
       // Let's also verify that "mua" or "bán" is only used neutrally (e.g., "sức mua", "áp lực bán") and not as "khuyến nghị mua" etc.
