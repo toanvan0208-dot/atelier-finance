@@ -25,6 +25,10 @@
     "probe:financials:vnstock": "tsx scripts/probe-vnstock-financials.ts",
     "import:market-prices:vnstock:local": "tsx scripts/import-vnstock-market-prices.ts",
     "import:market-pvt:vnstock:controlled": "tsx scripts/import-vnstock-market-pvt-controlled.ts",
+    "market-prices:daily-refresh:dry-run": "tsx scripts/job-market-price-daily-refresh.ts",
+    "market-prices:daily-refresh:write": "tsx scripts/job-market-price-daily-refresh.ts --confirm-write",
+    "market-prices:daily-refresh:scheduler": "tsx scripts/schedule-market-price-daily-refresh.ts",
+    "market-prices:daily-refresh:smoke": "tsx scripts/smoke-market-price-daily-refresh-scheduler-no-write.ts",
     "test": "vitest run",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui"

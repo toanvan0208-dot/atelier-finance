@@ -278,10 +278,11 @@ export function SimulationPage() {
 
       const body = await response.json().catch(() => null) as MarketBoardApiBody | null;
       if (cancelled || !body?.ok || !Array.isArray(body.data)) return;
+      const marketQuotes = body.data;
 
       setSimulationState((current) => {
         const openSymbols = new Set(current.openPositions.map((position) => position.symbol));
-        const nextQuotes = body.data.map((quote) => ({
+        const nextQuotes = marketQuotes.map((quote) => ({
           ...quote,
           status: openSymbols.has(quote.symbol) ? "has_position" as const : quote.status,
         }));

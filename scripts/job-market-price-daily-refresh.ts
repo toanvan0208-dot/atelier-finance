@@ -1,4 +1,6 @@
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import "dotenv/config";
 import { prisma } from "../src/lib/database/client";
 import { fetchLocalPythonVnstockHistory } from "../src/lib/data-sources/vnstock-market-pvt-controlled-ingestion";
 import crypto from "crypto";
@@ -19,11 +21,11 @@ async function runDailyProviderRefreshJob() {
     let productionApprovedTrueCount = 0;
     let needsReviewTrueCount = 0;
     
-    let adjustmentStatusCounts: Record<string, number> = {};
-    let stalenessStatusCounts: Record<string, number> = {};
-    let dataModeCounts: Record<string, number> = {};
-    let providerTypeCounts: Record<string, number> = {};
-    let warningCodeCounts: Record<string, number> = {};
+    const adjustmentStatusCounts: Record<string, number> = {};
+    const stalenessStatusCounts: Record<string, number> = {};
+    const dataModeCounts: Record<string, number> = {};
+    const providerTypeCounts: Record<string, number> = {};
+    const warningCodeCounts: Record<string, number> = {};
     
     let payloadChecksumGeneratedCount = 0;
     let preWriteMarketPriceRowCount = 0;
@@ -36,7 +38,7 @@ async function runDailyProviderRefreshJob() {
     let rowsInsertedProvenance = 0;
     let postWriteMarketPriceRowCount = 0;
     let postWriteProvenanceRowCount = 0;
-    let marketPriceUnitMetadataRowsChanged = 0;
+    const marketPriceUnitMetadataRowsChanged = 0;
 
     const importRunId = "run_" + new Date().getTime();
     const candidateDataToInsert: any[] = [];
@@ -53,11 +55,13 @@ async function runDailyProviderRefreshJob() {
             companyMap.set(c.ticker, c.id);
         }
 
-        let vnstockSource = await prisma.dataSource.findFirst({
+        const vnstockSource = await prisma.dataSource.findFirst({
             where: { name: "vnstock" }
         });
-        if (!vnstockSource) {
-            vnstockSource = await prisma.dataSource.create({
+
+        let sourceId = vnstockSource?.id;
+        if (!sourceId && isConfirmWrite) {
+            const createdSource = await prisma.dataSource.create({
                 data: {
                     name: "vnstock",
                     sourceType: "unknown",
@@ -68,8 +72,10 @@ async function runDailyProviderRefreshJob() {
                     accessMethod: "undocumented_api"
                 }
             });
+            sourceId = createdSource.id;
         }
-        const sourceId = vnstockSource.id;
+
+        const sourceAvailableForWrite = Boolean(sourceId);
 
         const existingMarketPrices = await prisma.marketPrice.findMany({
             where: { ticker: { in: APPROVED_TICKERS } },
@@ -106,13 +112,13 @@ async function runDailyProviderRefreshJob() {
                     for (const r of rows) {
                         const row = r as any;
                         
-                        let marketDateStr = row.time || row.date || row.tradingDate;
+                        const marketDateStr = row.time || row.date || row.tradingDate;
                         let marketDate: Date | null = null;
                         if (marketDateStr) {
                             marketDate = new Date(marketDateStr);
                         }
                         
-                        let warningCodes: string[] = [];
+                        const warningCodes: string[] = [];
                         let needsReview = false;
 
                         if (!marketDate || isNaN(marketDate.getTime())) {
@@ -173,9 +179,14 @@ async function runDailyProviderRefreshJob() {
                         const payloadChecksum = crypto.createHash('sha256').update(JSON.stringify(row)).digest('hex');
 
                         const companyId = companyMap.get(ticker);
-                        let closePrice = row.close !== undefined ? row.close : row.closePrice;
+                        const closePrice = row.close !== undefined ? row.close : row.closePrice;
                         
                         if (!marketDate || isNaN(marketDate.getTime()) || !companyId || closePrice === undefined || closePrice === null) {
+                            rowsBlocked++;
+                            continue;
+                        }
+
+                        if (isConfirmWrite && !sourceAvailableForWrite) {
                             rowsBlocked++;
                             continue;
                         }
@@ -259,7 +270,7 @@ async function runDailyProviderRefreshJob() {
                                         period: dateKey,
                                         closePrice: closePrice,
                                         volume: row.volume !== undefined ? row.volume : null,
-                                        sourceId,
+                                        sourceId: sourceId ?? "__dry_run_source__",
                                         sourceLabel,
                                         sourceType: "unknown",
                                         dataMode: "research_only",
@@ -283,14 +294,13 @@ async function runDailyProviderRefreshJob() {
             for (const item of candidateDataToInsert) {
                 try {
                     // 1. Write MarketPrice
-                    let marketPriceRec;
                     if (item.operation === "insert") {
-                        marketPriceRec = await prisma.marketPrice.create({
+                        await prisma.marketPrice.create({
                             data: item.marketPriceData
                         });
                         rowsInsertedMarketPrice++;
                     } else if (item.operation === "update") {
-                        marketPriceRec = await prisma.marketPrice.update({
+                        await prisma.marketPrice.update({
                             where: { id: item.updateId },
                             data: {
                                 closePrice: item.marketPriceData.closePrice,
@@ -347,7 +357,7 @@ async function runDailyProviderRefreshJob() {
     
     let recommendedNextPhase = "Phase 146C - Re-run with confirm-write if needed";
     if (isConfirmWrite) {
-        recommendedNextPhase = "Phase 146D — Scheduled MarketPrice refresh dry-run orchestration";
+        recommendedNextPhase = "Phase 146D - Scheduled MarketPrice refresh dry-run orchestration";
     }
 
     console.log(`\n--- Smoke Summary ---`);
