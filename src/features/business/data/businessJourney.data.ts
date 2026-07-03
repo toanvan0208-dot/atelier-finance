@@ -9,7 +9,7 @@ export const businessJourneyByTicker: Record<string, BusinessJourneyData> = {
     },
     emptyState: {
       title: "Chưa có dữ liệu mô hình kinh doanh cho mã này",
-      description: "Prototype hiện có dữ liệu mẫu MWG. Hãy chọn MWG hoặc bỏ ticker trên URL để xem luồng minh họa.",
+      description: "Chưa có hồ sơ doanh nghiệp đã rà soát cho mã này. Hệ thống không dùng dữ liệu mẫu của mã khác để thay thế.",
       icon: "DN",
     },
     businessIdentity: {

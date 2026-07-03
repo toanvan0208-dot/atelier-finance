@@ -25,6 +25,24 @@ type BusinessPageProps = {
   onNavigate?: (moduleKey: string) => void;
 };
 
+type RuntimeBusinessProfile = {
+  ticker: string;
+  companyName: string;
+  exchange: string | null;
+  industryCode: string | null;
+  industryName: string | null;
+  businessProfile?: {
+    businessDescription: string | null;
+    mainProducts: string | null;
+    businessRiskNotes: string | null;
+    sourceLabel: string;
+    dataMode: string;
+    productionApproved: boolean;
+    needsReview: boolean;
+    profileLanguage: string;
+  };
+};
+
 const navigationChangeEvent = "app:navigation";
 
 const journeySteps = [
@@ -60,6 +78,52 @@ function useTickerFromUrl() {
   }, []);
 
   return ticker;
+}
+
+function useRuntimeBusinessProfile(selectedTicker: string | null) {
+  const [profile, setProfile] = useState<RuntimeBusinessProfile | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    if (!selectedTicker) {
+      void Promise.resolve().then(() => {
+        if (!cancelled) {
+          setProfile(null);
+          setIsLoading(false);
+        }
+      });
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    void Promise.resolve().then(() => {
+      if (!cancelled) setIsLoading(true);
+    });
+    fetch(`/api/companies/${encodeURIComponent(selectedTicker)}`)
+      .then(async (response) => {
+        if (!response.ok) return null;
+        const payload = (await response.json()) as { data?: RuntimeBusinessProfile };
+        return payload.data?.businessProfile ? payload.data : null;
+      })
+      .then((nextProfile) => {
+        if (!cancelled) setProfile(nextProfile);
+      })
+      .catch(() => {
+        if (!cancelled) setProfile(null);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedTicker]);
+
+  return { profile, isLoading };
 }
 
 export function resolveBusinessJourneyData(selectedTicker: string | null) {
@@ -182,6 +246,99 @@ function JourneyProgress() {
   );
 }
 
+function RuntimeBusinessProfileView({
+  profile,
+  onNavigate,
+}: {
+  profile: RuntimeBusinessProfile;
+  onNavigate?: (moduleKey: string) => void;
+}) {
+  const businessProfile = profile.businessProfile;
+
+  if (!businessProfile) return null;
+
+  return (
+    <div className="mx-auto w-full max-w-[1120px] space-y-4 px-4 py-5 lg:px-0">
+      <JourneyProgress />
+
+      <Card className="border-border-soft bg-surface">
+        <CardBody className="space-y-4 px-4 py-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <Chip variant="accent">{profile.ticker}</Chip>
+              <Chip variant="neutral">{profile.exchange ?? "N/A"}</Chip>
+              <Chip variant="warning">research_only</Chip>
+              <Chip variant="warning">needsReview</Chip>
+            </div>
+            <Button variant="secondary" onClick={() => onNavigate?.("financials")}>
+              Sang Báo cáo tài chính
+            </Button>
+          </div>
+
+          <div>
+            <p className="text-[11px] font-bold uppercase text-subtle">Hiểu doanh nghiệp</p>
+            <h1 className="mt-1 text-2xl font-bold text-ink">{profile.companyName}</h1>
+            <p className="mt-2 max-w-[82ch] text-sm leading-6 text-muted">
+              Dữ liệu bên dưới lấy từ CompanyBusinessProfile đã lưu trong hệ thống cho {profile.ticker}. Đây là dữ liệu nghiên cứu cần rà soát, không phải khuyến nghị đầu tư.
+            </p>
+          </div>
+        </CardBody>
+      </Card>
+
+      <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+        <Card className="border-border-soft bg-surface">
+          <CardBody className="space-y-3 px-4 py-4">
+            <h2 className="text-lg font-bold text-ink">Mô hình kinh doanh</h2>
+            <p className="text-sm leading-6 text-muted">
+              {businessProfile.businessDescription || "Chưa đủ dữ liệu"}
+            </p>
+          </CardBody>
+        </Card>
+
+        <Card className="border-border-soft bg-surface">
+          <CardBody className="space-y-3 px-4 py-4">
+            <h2 className="text-lg font-bold text-ink">Nguồn và giới hạn</h2>
+            <div className="space-y-2 text-sm leading-6 text-muted">
+              <p>Nguồn: {businessProfile.sourceLabel}</p>
+              <p>dataMode: {businessProfile.dataMode}</p>
+              <p>needsReview: {String(businessProfile.needsReview)}</p>
+              <p>productionApproved: {String(businessProfile.productionApproved)}</p>
+            </div>
+          </CardBody>
+        </Card>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card className="border-border-soft bg-surface">
+          <CardBody className="space-y-3 px-4 py-4">
+            <h2 className="text-lg font-bold text-ink">Sản phẩm / dịch vụ chính</h2>
+            <p className="text-sm leading-6 text-muted">
+              {businessProfile.mainProducts || "Chưa đủ dữ liệu"}
+            </p>
+          </CardBody>
+        </Card>
+
+        <Card className="border-border-soft bg-surface">
+          <CardBody className="space-y-3 px-4 py-4">
+            <h2 className="text-lg font-bold text-ink">Điểm cần kiểm tra tiếp</h2>
+            <p className="text-sm leading-6 text-muted">
+              {businessProfile.businessRiskNotes || "Chưa đủ dữ liệu"}
+            </p>
+          </CardBody>
+        </Card>
+      </div>
+
+      <Card className="border-warning bg-warning/15">
+        <CardBody className="px-4 py-3">
+          <p className="text-sm font-semibold leading-6 text-ink">
+            Phần này chỉ giúp hiểu mô hình kinh doanh và mức độ sẵn sàng dữ liệu. Không dùng làm benchmark định giá/rủi ro, không phải phân tích đầy đủ và không phải khuyến nghị đầu tư.
+          </p>
+        </CardBody>
+      </Card>
+    </div>
+  );
+}
+
 function PageIntro() {
   return (
     <div className="rounded-[4px] border border-border-soft bg-surface px-4 py-4">
@@ -195,11 +352,27 @@ function PageIntro() {
 export function BusinessPage({ onNavigate }: BusinessPageProps) {
   const tickerFromUrl = useTickerFromUrl();
   const selectedTicker = normalizeBusinessTicker(tickerFromUrl);
+  const { profile: runtimeProfile, isLoading: isRuntimeProfileLoading } = useRuntimeBusinessProfile(selectedTicker);
   const { data, profile, hasUnsupportedTicker, isUsingSampleData } = useMemo(
     () => resolveBusinessJourneyData(selectedTicker),
     [selectedTicker]
   );
   const [deepDive, setDeepDive] = useState<BusinessDeepDiveData | null>(null);
+
+  if (isRuntimeProfileLoading && selectedTicker) {
+    return (
+      <div className="mx-auto w-full max-w-[1120px] px-4 py-5 lg:px-0">
+        <LoadingState
+          title="Đang kiểm tra hồ sơ doanh nghiệp"
+          description="Hệ thống đang đọc CompanyBusinessProfile cho mã đã chọn."
+        />
+      </div>
+    );
+  }
+
+  if (runtimeProfile) {
+    return <RuntimeBusinessProfileView profile={runtimeProfile} onNavigate={onNavigate} />;
+  }
 
   if (data?.isLoading) {
     return (
@@ -218,7 +391,7 @@ export function BusinessPage({ onNavigate }: BusinessPageProps) {
         : emptyState.title;
     const description = profile
       ? "Cần bổ sung dữ liệu doanh nghiệp đã rà soát trước khi kết luận. Hệ thống không dùng nội dung mẫu của mã khác để thay thế."
-      : emptyState.description;
+      : "Chưa có hồ sơ doanh nghiệp đã rà soát cho mã này trong hệ thống. Hệ thống không dùng dữ liệu mẫu của mã khác để thay thế.";
 
     return (
       <div className="mx-auto w-full max-w-[1120px] space-y-3 px-4 py-5 lg:px-0">
