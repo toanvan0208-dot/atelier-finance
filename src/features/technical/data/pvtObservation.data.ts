@@ -81,7 +81,7 @@ const basePvtObservationData: PVTObservationData = {
         "Khoảng cách tới hỗ trợ và kháng cự tương đối cân bằng.",
       ],
       commonMistake:
-        "Thấy giá xanh nhiều phiên không có nghĩa vùng quan sát hiện tại còn hấp dẫn.",
+        "Thấy giá xanh nhiều phiên không có nghĩa vùng quan sát hiện tại còn phù hợp.",
     },
     {
       id: "volume",
@@ -179,7 +179,7 @@ const basePvtObservationData: PVTObservationData = {
     upside: "+9,5%",
     downside: "-9,5%",
     conclusion:
-      "Tỷ lệ rủi ro/lợi nhuận ngắn hạn chưa hấp dẫn vì biên tăng và biên giảm gần tương đương.",
+      "Tỷ lệ rủi ro/lợi nhuận ngắn hạn ở mức trung bình vì biên tăng và biên giảm gần tương đương.",
   },
   fomo: {
     level: "Trung bình",

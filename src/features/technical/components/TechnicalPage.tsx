@@ -9,6 +9,7 @@ import { PVTHeroStatus } from "./PVTHeroStatus";
 import { PVTMainChart } from "./PVTMainChart";
 import { PVTRiskRewardZone } from "./PVTRiskRewardZone";
 import { PVTSignalLayers } from "./PVTSignalLayers";
+import { PVTRelativeMarketSectorCards } from "./PVTRelativeMarketSectorCards";
 
 export type TechnicalPageRuntimeData = {
   data: PVTObservationData | null;
@@ -205,6 +206,7 @@ export function TechnicalPage({ initialRuntimeData, onNavigate }: TechnicalPageP
             <PVTRiskRewardZone data={data.riskReward} />
             <PVTFomoThermometer data={data.fomo} />
           </div>
+          <PVTRelativeMarketSectorCards data={data.relativeMetrics} ticker={data.ticker} />
         </>
       )}
 

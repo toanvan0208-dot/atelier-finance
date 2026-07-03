@@ -576,6 +576,34 @@ export type TechnicalIssuerMetadata = {
   warnings: string[];
 };
 
+export type PVTRelativeMarketSectorData = {
+  isComputable: boolean;
+  sectorProxySymbol: string | null;
+  stockReturn5d: number | null;
+  stockReturn20d: number | null;
+  stockReturn60d: number | null;
+  vnindexReturn5d: number | null;
+  vnindexReturn20d: number | null;
+  vnindexReturn60d: number | null;
+  vn30Return5d: number | null;
+  vn30Return20d: number | null;
+  vn30Return60d: number | null;
+  sectorProxyReturn5d: number | null;
+  sectorProxyReturn20d: number | null;
+  sectorProxyReturn60d: number | null;
+  relativeToVNINDEX5d: number | null;
+  relativeToVNINDEX20d: number | null;
+  relativeToVNINDEX60d: number | null;
+  relativeToVN305d: number | null;
+  relativeToVN3020d: number | null;
+  relativeToVN3060d: number | null;
+  relativeToSectorProxy5d: number | null;
+  relativeToSectorProxy20d: number | null;
+  relativeToSectorProxy60d: number | null;
+  limitations: string[];
+  warnings: string[];
+};
+
 export type PVTObservationData = {
   ticker: string;
   companyName: string;
@@ -614,6 +642,7 @@ export type PVTObservationData = {
   pvtDerivedMetrics?: PVTDerivedMetrics;
   pvtChartSeries?: PVTChartSeries;
   logicSummary?: PVTLogicSummary;
+  relativeMetrics?: PVTRelativeMarketSectorData;
   finalConclusion: PVTFinalConclusionData;
   nextActions: PVTNextAction[];
 };

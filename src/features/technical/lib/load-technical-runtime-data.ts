@@ -3,6 +3,7 @@ import {
   type LoadTechnicalDeskDataInput,
   type LoadTechnicalDeskDataResult,
 } from "./load-technical-desk-data";
+import { buildRelativeMarketSectorMetrics } from "./build-relative-market-sector-metrics";
 
 export type LoadTechnicalRuntimeDataInput = {
   ticker?: string;
@@ -65,8 +66,20 @@ export const loadTechnicalRuntimeData = async (
     const { loadTechnicalProvenanceRuntime } = await import("./technical-provenance-runtime");
     const provenance = await loadTechnicalProvenanceRuntime(runtimeInput.ticker);
     
+    let updatedData = data.data;
+    if (updatedData) {
+      const relativeMetrics = await buildRelativeMarketSectorMetrics(runtimeInput.ticker);
+      if (relativeMetrics) {
+        updatedData = {
+          ...updatedData,
+          relativeMetrics
+        };
+      }
+    }
+    
     return {
       ...data,
+      data: updatedData,
       provenance: provenance ?? undefined,
     } as unknown as LoadTechnicalDeskDataResult;
   } catch (error) {
