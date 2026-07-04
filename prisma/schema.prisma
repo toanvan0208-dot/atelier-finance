@@ -724,6 +724,7 @@ model Industry {
 
   companyMappings CompanyIndustry[]
   peerGroups      IndustryPeerGroup[]
+  metrics         IndustryMetric[]
 
   @@index([sectorCode])
   @@index([classificationSystem])
@@ -788,6 +789,76 @@ model IndustryPeerGroup {
   @@index([industryCode])
   @@index([peerTicker])
   @@index([peerRole])
+  @@index([dataMode])
+  @@index([productionApproved])
+}
+
+model IndustryMetric {
+  id                 String    @id @default(cuid())
+  industryCode       String
+  metricCode         String
+  metricName         String
+  metricLabelVi      String
+  metricGroup        String
+  value              Decimal?
+  unit               String
+  periodType         String
+  periodLabel        String
+  observationDate    DateTime
+  sourceLabel        String
+  sourceUrl          String?
+  sourceKey          String
+  dataMode           String    @default("research_only")
+  productionApproved Boolean   @default(false)
+  needsReview        Boolean   @default(true)
+  qualityStatus      String    @default("needs_review")
+  missingReason      String?
+  warningCodes       String    @default("[]")
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  industry       Industry                   @relation(fields: [industryCode], references: [industryCode])
+  provenanceRows IndustryMetricProvenance[]
+
+  @@unique([industryCode, metricCode, observationDate, sourceKey])
+  @@index([industryCode])
+  @@index([metricCode])
+  @@index([observationDate])
+  @@index([dataMode])
+  @@index([productionApproved])
+  @@index([needsReview])
+}
+
+model IndustryMetricProvenance {
+  id                 String    @id @default(cuid())
+  industryMetricId   String
+  industryCode       String
+  metricCode         String
+  observationDate    DateTime
+  sourceLabel        String
+  sourceUrl          String?
+  sourceKey          String
+  sourceType         String
+  publicationDate    DateTime?
+  retrievedAt        DateTime?
+  dataMode           String    @default("research_only")
+  productionApproved Boolean   @default(false)
+  needsReview        Boolean   @default(true)
+  payloadChecksum    String?
+  evidenceNotes      String?
+  warningCodes       String    @default("[]")
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  industryMetric IndustryMetric @relation(fields: [industryMetricId], references: [id])
+
+  @@unique([industryMetricId, sourceKey])
+  @@index([industryMetricId])
+  @@index([industryCode])
+  @@index([metricCode])
+  @@index([observationDate])
+  @@index([sourceLabel])
+  @@index([sourceKey])
   @@index([dataMode])
   @@index([productionApproved])
 }
