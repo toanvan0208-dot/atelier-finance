@@ -9,7 +9,7 @@ const SOURCE_LABEL_PREFIX = "Phase 158D PDF Layer 4 - ";
 type PrismaClientLike = typeof PrismaClientInstance;
 type IndustryCode = "STEEL_MATERIALS" | "RETAIL" | "CONSUMER_STAPLES_DAIRY";
 
-type PdfBackedLayer4Package = {
+export type PdfBackedLayer4Package = {
   industryCode: IndustryCode;
   industryName: "Steel and Materials" | "Retail" | "Consumer Staples - Dairy";
   ticker: "HPG" | "MWG" | "VNM";
@@ -45,7 +45,7 @@ type SimulatedWriteResult = {
   wouldWriteIndustryContextProvenance: true;
 };
 
-const candidatePackages: PdfBackedLayer4Package[] = [
+export const candidatePackages: PdfBackedLayer4Package[] = [
   {
     industryCode: "STEEL_MATERIALS",
     industryName: "Steel and Materials",
@@ -325,7 +325,7 @@ const hasFullLayer4Fields = (sourcePackage: PdfBackedLayer4Package): boolean =>
       sourcePackage.commonMisread,
   );
 
-const buildWriteInput = (sourcePackage: PdfBackedLayer4Package) => {
+export const buildWriteInput = (sourcePackage: PdfBackedLayer4Package) => {
   const asOfDate = parseDate(sourcePackage.publicationDate);
   const sourceLabel = contextSourceLabel(sourcePackage.sourceLabel);
   const sourceUrl = localPdfSourceUrl(sourcePackage.localPdfPath);
@@ -376,7 +376,7 @@ const buildWriteInput = (sourcePackage: PdfBackedLayer4Package) => {
   };
 };
 
-const validatePackage = (sourcePackage: PdfBackedLayer4Package) => {
+export const validatePackage = (sourcePackage: PdfBackedLayer4Package) => {
   const text = textForPackage(sourcePackage);
   const forbiddenAdviceDetected = hasPattern(FORBIDDEN_ADVICE_PATTERNS, text);
   const layer5OrScoringLanguageDetected = hasPattern(LAYER5_OR_SCORING_PATTERNS, text);

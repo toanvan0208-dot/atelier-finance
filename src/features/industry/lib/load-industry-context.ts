@@ -667,10 +667,10 @@ export async function loadIndustryContextByTicker(ticker: string) {
     },
     orderBy: [
       {
-        sourceLabel: "asc",
+        createdAt: "desc",
       },
       {
-        createdAt: "desc",
+        sourceLabel: "asc",
       },
     ],
   });
