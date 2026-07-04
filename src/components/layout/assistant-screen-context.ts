@@ -8,6 +8,16 @@ import {
 import type { AssistantContextPacket } from "@/lib/ai-rag/context";
 
 const FINANCIAL_CONTEXT_MODULES = new Set(["financials", "valuation", "risk"]);
+const TICKER_CONTEXT_MODULES = new Set([
+  "business",
+  "financials",
+  "valuation",
+  "risk",
+  "technical",
+  "industry",
+  "screening",
+  "checklist",
+]);
 
 const DEFAULT_CONSTRAINTS = [
   "Only explain facts included in this packet or eligible retrieved RAG chunks.",
@@ -43,7 +53,8 @@ export const buildAssistantScreenContextPacket = ({
   ticker: string | null;
   financialsRuntimeData?: FinancialsRuntimeData;
 }): AssistantContextPacket => {
-  const normalizedTicker = normalizeTicker(ticker);
+  const moduleUsesTicker = TICKER_CONTEXT_MODULES.has(activeModule);
+  const normalizedTicker = moduleUsesTicker ? normalizeTicker(ticker) : null;
   const runtimeTicker = normalizeTicker(financialsRuntimeData?.source.ticker);
   const canUseFinancialsContext = Boolean(
     financialsRuntimeData &&

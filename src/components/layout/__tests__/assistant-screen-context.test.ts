@@ -96,6 +96,21 @@ describe("RightAssistantPanel grounded screen context", () => {
     );
   });
 
+  it("does not attach URL ticker for macro-wide questions", () => {
+    const ticker = readAssistantTickerFromSearch("?module=macro&ticker=HPG");
+    const packet = buildAssistantScreenContextPacket({
+      activeModule: "macro",
+      ticker,
+      financialsRuntimeData: runtimeData,
+    });
+    const payload = buildAssistantApiPayload("Lai suat anh huong co phieu nhu the nao?", packet);
+
+    expect(packet.ticker).toBeNull();
+    expect(payload.ticker).toBeNull();
+    expect(packet.visibleFacts.join(" ")).not.toContain("HPG");
+    expect(packet.visibleFacts).toContain("Ticker: not_available");
+  });
+
   it("does not expose sample or fallback runtime values as grounded evidence", () => {
     const packet = buildAssistantScreenContextPacket({
       activeModule: "valuation",

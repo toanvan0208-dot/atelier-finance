@@ -153,6 +153,41 @@ describe("POST /api/assistant", () => {
     expect(json.runtime?.prompt.promptText).toContain("PVT is market observation, not a trading signal.");
   });
 
+  it("does not infer a URL ticker for macro-wide questions", async () => {
+    const response = await postJson({
+      question: "Lai suat anh huong co phieu nhu the nao?",
+      activeModule: "macro",
+      contextPacket: {
+        ticker: null,
+        activeModule: "macro",
+        moduleContext: null,
+        dataQuality: {
+          dataMode: "unavailable",
+          status: "insufficient_data",
+          productionApproved: false,
+          sourceName: null,
+          sourceLabel: null,
+          asOf: null,
+          period: null,
+          missingFields: ["ticker", "moduleContext", "source", "asOf", "period"],
+          warnings: ["Screen data context is not available for this module."],
+        },
+        missingFields: ["ticker", "moduleContext", "source", "asOf", "period"],
+        allowedNumericValues: [],
+        visibleFacts: ["Active module: macro", "Ticker: not_available"],
+        constraints: ["Do not infer missing values."],
+      },
+    });
+    const json = await readJson<AssistantApiResponse>(response);
+    const prompt = json.runtime?.prompt.promptText ?? "";
+
+    expect(response.status).toBe(200);
+    expect(prompt).toContain("Packet active module: macro");
+    expect(prompt).toContain("Packet ticker: not_available");
+    expect(prompt).not.toContain("Packet ticker: HPG");
+    expect(prompt).not.toContain("Context ticker: HPG");
+  });
+
   it("selects financial statements and risk for negative CFO question", async () => {
     const response = await postJson({
       question: "Loi nhuan duong nhung CFO am nghia la gi?",
