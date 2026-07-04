@@ -57,6 +57,150 @@ const contextSourceStatusLabel = (payload: IndustryContextRuntimePayload): strin
   return "Chua co qualitative context co nguon";
 };
 
+type Layer4DisplayContext = {
+  industryName: string;
+  industryOverview: string | null;
+  howIndustryMakesMoney: string | null;
+  keyDrivers: string[];
+  industryRisks: string[];
+  macroSensitivity: string[];
+  nextChecks: string[];
+  commonMisread: string | null;
+  translationMode: "pdf_vi_display" | "source_text";
+};
+
+const pdfBackedVietnameseDisplayByIndustryCode: Record<string, Omit<Layer4DisplayContext, "translationMode">> = {
+  STEEL_MATERIALS: {
+    industryName: "Thep va vat lieu",
+    industryOverview:
+      "Ngành thép cần đọc qua cung cầu thép trong và ngoài nước, sản lượng tiêu thụ, xuất khẩu, giá bán, chi phí nguyên liệu và chu kỳ tồn kho.",
+    howIndustryMakesMoney:
+      "Doanh thu đến từ sản lượng bán ra, giá bán, cơ cấu sản phẩm, mức sử dụng công suất, tỷ trọng nội địa/xuất khẩu và chênh lệch giữa giá thép với chi phí đầu vào, năng lượng, logistics.",
+    keyDrivers: [
+      "Nhu cầu xây dựng và đầu tư hạ tầng trong nước",
+      "Sản lượng tiêu thụ thép thành phẩm và nhu cầu xuất khẩu",
+      "Biến động chi phí nguyên liệu, năng lượng và logistics",
+      "Kỷ luật tồn kho khi giá thép thay đổi nhanh",
+      "Rào cản thương mại và gián đoạn xuất nhập khẩu",
+    ],
+    industryRisks: [
+      "Nhu cầu bất động sản hoặc xây dựng yếu có thể kéo giảm sản lượng và công suất.",
+      "Chi phí đầu vào tăng có thể làm biên lợi nhuận bị ép nếu giá bán điều chỉnh chậm.",
+      "Biện pháp phòng vệ thương mại có thể ảnh hưởng kênh xuất khẩu.",
+      "Tồn kho cao có thể gây áp lực dòng tiền khi giá thép đảo chiều.",
+    ],
+    macroSensitivity: [
+      "Chu kỳ hạ tầng và xây dựng",
+      "Điều kiện bất động sản và tín dụng",
+      "Giá quặng sắt, than, năng lượng và logistics",
+      "Tỷ giá với đầu vào nhập khẩu hoặc doanh thu xuất khẩu",
+      "Căng thẳng thương mại toàn cầu",
+    ],
+    nextChecks: [
+      "Kiểm tra sản lượng/doanh thu, biên gộp, tồn kho, dòng tiền hoạt động và nợ vay.",
+      "Tách tín hiệu nhu cầu trong nước khỏi tín hiệu xuất khẩu.",
+      "Kiểm tra giá thép tăng do nhu cầu tốt lên hay do chi phí đẩy.",
+    ],
+    commonMisread:
+      "Báo cáo thị trường thép chỉ giúp hiểu bối cảnh cầu, chi phí, thương mại và tồn kho; không tự quyết định chất lượng cổ phiếu hay hành động thị trường.",
+  },
+  RETAIL: {
+    industryName: "Ban le",
+    industryOverview:
+      "Ngành bán lẻ cần đọc qua sức mua, lưu lượng khách, kênh cửa hàng và online, mở rộng chuỗi hiện đại, độ phủ khu vực, danh mục hàng, tồn kho và kiểm soát chi phí vận hành.",
+    howIndustryMakesMoney:
+      "Doanh thu phụ thuộc vào lượng khách, tỷ lệ chuyển đổi, giá trị đơn hàng, năng suất cửa hàng, quy mô kênh online, điều khoản với nhà cung cấp, vòng quay tồn kho và kiểm soát chi phí bán hàng/logistics.",
+    keyDrivers: [
+      "Sức mua hộ gia đình và niềm tin tiêu dùng",
+      "Mở rộng chuỗi bán lẻ hiện đại",
+      "Độ phủ ở khu vực nông thôn và ngoại thành",
+      "Khả năng vận hành thương mại điện tử và đa kênh",
+      "Vòng quay tồn kho và kỷ luật danh mục hàng",
+    ],
+    industryRisks: [
+      "Nhu cầu chậm lại có thể làm giảm lượng khách và giá trị giỏ hàng.",
+      "Lệch tồn kho có thể gây áp lực lên biên và dòng tiền.",
+      "Cạnh tranh giá có thể làm giảm biên gộp.",
+      "Chi phí thuê mặt bằng, nhân sự, logistics và tài chính có thể ép lợi nhuận.",
+    ],
+    macroSensitivity: [
+      "Tăng trưởng GDP và thu nhập",
+      "Lạm phát và áp lực giá tiêu dùng",
+      "Chính sách hỗ trợ tiêu dùng hoặc thuế",
+      "Điều kiện việc làm và tín dụng tiêu dùng",
+      "Tỷ giá và chi phí hàng nhập khẩu",
+    ],
+    nextChecks: [
+      "Kiểm tra chất lượng doanh thu, biên gộp, tồn kho, chi phí bán hàng, chi phí tài chính và dòng tiền hoạt động.",
+      "Tách tăng trưởng từ mở rộng cửa hàng khỏi tăng trưởng cùng cửa hàng.",
+      "Kiểm tra tăng trưởng online có cải thiện lợi nhuận hay chỉ tăng quy mô.",
+    ],
+    commonMisread:
+      "Báo cáo ngành bán lẻ chỉ cung cấp bối cảnh về nhu cầu, kênh bán, tồn kho và chi phí; các phần nói về cổ phiếu riêng lẻ không được biến thành kết luận tự động.",
+  },
+  CONSUMER_STAPLES_DAIRY: {
+    industryName: "Sua va hang tieu dung thiet yeu",
+    industryOverview:
+      "Ngành sữa và hàng tiêu dùng thiết yếu cần đọc qua thu nhập hộ gia đình, sức mua, niềm tin tiêu dùng, chi phí thực phẩm/đầu vào, kênh phân phối và dịch chuyển sang kênh bán lẻ chuyên nghiệp.",
+    howIndustryMakesMoney:
+      "Doanh thu phụ thuộc vào nhu cầu tiêu dùng lặp lại, cơ cấu sản phẩm, giá bán, sức mạnh thương hiệu, độ phủ phân phối và khả năng kiểm soát chi phí sữa, bao bì, logistics, bán hàng.",
+    keyDrivers: [
+      "Thu nhập khả dụng và sức mua hộ gia đình",
+      "Niềm tin tiêu dùng và mức chi tiêu bình thường hóa",
+      "Chi phí thực phẩm, bao bì, logistics và đầu vào nông nghiệp",
+      "Kênh bán lẻ hiện đại và hệ thống phân phối chuyên nghiệp",
+      "Cơ cấu sản phẩm giữa nhóm thiết yếu và nhóm tiêu dùng khác",
+    ],
+    industryRisks: [
+      "Chi phí đầu vào tăng có thể ép biên nếu giá bán không điều chỉnh kịp.",
+      "Sức mua yếu có thể làm chậm sản lượng tiêu thụ.",
+      "Hàng nhập khẩu hoặc nguyên liệu cạnh tranh có thể gây áp lực cho nhà sản xuất nội địa.",
+      "Chi phí khuyến mại và phân phối có thể kéo lợi nhuận giảm.",
+    ],
+    macroSensitivity: [
+      "Tăng trưởng GDP và thu nhập hộ gia đình",
+      "Lạm phát thực phẩm, nhiên liệu và logistics",
+      "Chính sách tài khóa/tiền tệ hỗ trợ tiêu dùng",
+      "Tỷ giá với nguyên liệu hoặc bao bì nhập khẩu",
+    ],
+    nextChecks: [
+      "Kiểm tra tăng trưởng doanh thu, biên gộp, chi phí bán hàng, vốn lưu động, dòng tiền hoạt động và nợ vay nếu có.",
+      "Dùng báo cáo tiêu dùng làm bối cảnh cầu chung; vẫn cần kiểm tra riêng nguồn cung và sản phẩm ngành sữa.",
+      "Xác nhận tăng trưởng đến từ sản lượng, giá bán hay cơ cấu sản phẩm.",
+    ],
+    commonMisread:
+      "Báo cáo ngành tiêu dùng rộng có thể hỗ trợ đọc bối cảnh cầu và chi phí cho ngành sữa, nhưng không phải kết luận riêng cho ngành sữa và không tự quyết định chất lượng cổ phiếu hay hành động thị trường.",
+  },
+};
+
+const isPdfBackedLayer4Context = (
+  context: NonNullable<IndustryContextRuntimePayload["context"]>,
+): boolean => context.sourceLabel.startsWith("Phase 158D PDF Layer 4 - ");
+
+const layer4DisplayContext = (
+  context: NonNullable<IndustryContextRuntimePayload["context"]>,
+): Layer4DisplayContext => {
+  const pdfDisplay = context.industryCode ? pdfBackedVietnameseDisplayByIndustryCode[context.industryCode] : null;
+  if (isPdfBackedLayer4Context(context) && pdfDisplay) {
+    return {
+      ...pdfDisplay,
+      translationMode: "pdf_vi_display",
+    };
+  }
+
+  return {
+    industryName: context.industryName,
+    industryOverview: context.industryOverview,
+    howIndustryMakesMoney: context.howIndustryMakesMoney,
+    keyDrivers: parseRuntimeList(context.keyDrivers),
+    industryRisks: parseRuntimeList(context.industryRisks),
+    macroSensitivity: parseRuntimeList(context.macroSensitivity),
+    nextChecks: parseRuntimeList(context.nextChecks),
+    commonMisread: context.commonMisread,
+    translationMode: "source_text",
+  };
+};
+
 const runtimeContextsForIndustry = (
   runtimeContexts: IndustryContextRuntimePayload[],
   industryCode: string | null,
@@ -196,11 +340,8 @@ function IndustryLayer4ContextPanel({
           const context = payload.context;
           if (!context) return null;
 
-          const keyDrivers = parseRuntimeList(context.keyDrivers);
-          const industryRisks = parseRuntimeList(context.industryRisks);
-          const macroSensitivity = parseRuntimeList(context.macroSensitivity);
-          const nextChecks = parseRuntimeList(context.nextChecks);
           const sourceUrl = context.provenanceSummary.sourceUrls[0] ?? null;
+          const displayContext = layer4DisplayContext(context);
 
           return (
             <Card key={`${payload.ticker}-${context.industryCode ?? context.industryName}`}>
@@ -212,9 +353,12 @@ function IndustryLayer4ContextPanel({
                       <Chip variant="warning">{runtimeDataModeLabel(context.dataMode)}</Chip>
                       <Chip variant="warning">needsReview</Chip>
                       <Chip variant="neutral">productionApproved=false</Chip>
+                      {displayContext.translationMode === "pdf_vi_display" ? (
+                        <Chip variant="accent">Ban hien thi tieng Viet</Chip>
+                      ) : null}
                     </div>
-                    <h2 className="text-xl font-bold leading-tight text-ink">{context.industryName}</h2>
-                    <p className="mt-2 text-sm leading-6 text-muted">{context.industryOverview ?? "N/A"}</p>
+                    <h2 className="text-xl font-bold leading-tight text-ink">{displayContext.industryName}</h2>
+                    <p className="mt-2 text-sm leading-6 text-muted">{displayContext.industryOverview ?? "N/A"}</p>
                   </div>
                   <div className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-3 text-xs leading-5 text-muted lg:w-[320px]">
                     <p className="font-bold text-ink">Nguon</p>
@@ -239,20 +383,20 @@ function IndustryLayer4ContextPanel({
                 <div className="grid gap-3 lg:grid-cols-2">
                   <div className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-4">
                     <p className="text-sm font-bold text-ink">Nganh kiem tien nhu the nao?</p>
-                    <p className="mt-2 text-sm leading-6 text-muted">{context.howIndustryMakesMoney ?? "N/A"}</p>
+                    <p className="mt-2 text-sm leading-6 text-muted">{displayContext.howIndustryMakesMoney ?? "N/A"}</p>
                   </div>
                   <div className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-4">
                     <p className="text-sm font-bold text-ink">Khong duoc ket luan qua da</p>
-                    <p className="mt-2 text-sm leading-6 text-muted">{context.commonMisread ?? "N/A"}</p>
+                    <p className="mt-2 text-sm leading-6 text-muted">{displayContext.commonMisread ?? "N/A"}</p>
                   </div>
                 </div>
 
                 <div className="grid gap-3 lg:grid-cols-4">
                   {[
-                    ["Drivers can xem", keyDrivers],
-                    ["Rui ro nganh", industryRisks],
-                    ["Nhay voi vi mo", macroSensitivity],
-                    ["Can kiem tra tiep", nextChecks],
+                    ["Drivers can xem", displayContext.keyDrivers],
+                    ["Rui ro nganh", displayContext.industryRisks],
+                    ["Nhay voi vi mo", displayContext.macroSensitivity],
+                    ["Can kiem tra tiep", displayContext.nextChecks],
                   ].map(([title, items]) => (
                     <div key={title as string} className="rounded-[4px] border border-border-soft bg-surface px-4 py-4">
                       <p className="text-sm font-bold text-ink">{title as string}</p>

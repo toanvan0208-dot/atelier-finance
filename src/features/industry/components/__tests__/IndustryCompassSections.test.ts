@@ -287,4 +287,125 @@ describe("IndustryPage runtime read path", () => {
     expect(html).toContain("Chua co metric nganh");
     expect(html).not.toContain("Layer 4 dang thieu");
   });
+
+  it("renders Vietnamese display copy for PDF-backed Layer 4 context without changing source metadata", () => {
+    const hpgRuntimePayload: IndustryContextRuntimePayload = {
+      ticker: "HPG",
+      status: "available",
+      missingReason: null,
+      peerGroupSummary: {
+        ticker: "HPG",
+        status: "missing",
+        industryCode: null,
+        anchorTicker: "HPG",
+        peers: [],
+        missingReason: "No peer group rows.",
+        warnings: [],
+        peerGroupUsedAsValuationBenchmark: false,
+        peerGroupUsedAsRiskBenchmark: false,
+        peerGroupInferred: false,
+      },
+      taxonomy: {
+        ticker: "HPG",
+        status: "available",
+        missingReason: null,
+        peerGroupsAvailable: false,
+        numericIndustryMetricsAvailable: false,
+        valuationRiskBenchmarksAvailable: false,
+        peerGroupInferred: false,
+        industryMetricCreated: false,
+        valuationRiskBenchmarkInvented: false,
+        warningCodes: ["INDUSTRY_TAXONOMY_RESEARCH_ONLY"],
+        taxonomySummary: {
+          status: "available",
+          ticker: "HPG",
+          industryCode: "STEEL_MATERIALS",
+          industryName: "Steel and Materials",
+          displayNameVi: "Thep va vat lieu",
+          roleType: "reviewed_lane_ticker",
+          mappingConfidence: "reviewed",
+          dataMode: "research_only",
+          productionApproved: false,
+          needsReview: true,
+          sourceType: "manual_review",
+          sourceUrl: "external-review-workspace",
+          warnings: [],
+        },
+        mappings: [
+          {
+            ticker: "HPG",
+            industryCode: "STEEL_MATERIALS",
+            industryName: "Steel and Materials",
+            displayNameVi: "Thep va vat lieu",
+            sectorCode: null,
+            sectorName: null,
+            classificationSystem: "atelier_reviewed",
+            roleType: "reviewed_lane_ticker",
+            segmentDescription: null,
+            mappingConfidence: "reviewed",
+            sourceLabel: "External financials review workspace - industry code 2025",
+            sourceUrl: "external-review-workspace",
+            sourceType: "manual_review",
+            dataMode: "research_only",
+            productionApproved: false,
+            needsReview: true,
+            warningCodes: [],
+            caveats: [],
+          },
+        ],
+      },
+      context: {
+        industryCode: "STEEL_MATERIALS",
+        industryName: "Steel and Materials",
+        industryOverview: "Steel and construction-material businesses are exposed to global and domestic steel supply.",
+        howIndustryMakesMoney: "Revenue is driven by shipped volume and selling price.",
+        keyDrivers: JSON.stringify(["Domestic construction and infrastructure demand"]),
+        industryRisks: JSON.stringify(["Input-cost pressure"]),
+        macroSensitivity: JSON.stringify(["Infrastructure and construction cycle"]),
+        nextChecks: JSON.stringify(["Check revenue volume and inventory."]),
+        commonMisread: "A steel-market report gives context only.",
+        relatedTickers: ["HPG"],
+        asOfDate: "2026-05-05T00:00:00.000Z",
+        sourceLabel: "Phase 158D PDF Layer 4 - Local PDF - Bao cao thi truong thep Quy I 2026",
+        dataMode: "research_only",
+        productionApproved: false,
+        needsReview: true,
+        numericIndustryMetricsAvailable: false,
+        valuationRiskBenchmarksAvailable: false,
+        caveats: [],
+        warningCodes: ["INDUSTRY_QUALITATIVE_CONTEXT_SOURCE_BACKED"],
+        provenanceLimitations: [],
+        reviewedQualitativeContextAvailable: true,
+        fullQualitativeContextAvailable: true,
+        qualitativeContextSourceStatus: "source_backed",
+        staticGuidanceUsedAsReviewedContext: false,
+        provenanceSummary: {
+          rowsFound: 1,
+          sourceLabels: ["Local PDF - Bao cao thi truong thep Quy I 2026"],
+          sourceUrls: ["local-pdf://bao-cao-thi-truong-thep-quy-i-2026-20260505095914229.pdf"],
+          sourceTypes: ["reviewed_manual_note"],
+          productionApprovedTrueCount: 0,
+          needsReviewTrueCount: 1,
+          warningCodes: ["PDF_SOURCE_LOCAL_REVIEW_ONLY"],
+          sidecarReadStatus: "available",
+        },
+      },
+    };
+
+    const html = renderToStaticMarkup(
+      createElement(IndustryPage, {
+        initialIndustryContexts: {
+          HPG: hpgRuntimePayload,
+        },
+      }),
+    );
+
+    expect(html).toContain("Ban hien thi tieng Viet");
+    expect(html).toContain("Ngành thép cần đọc qua cung cầu thép");
+    expect(html).toContain("Doanh thu đến từ sản lượng bán ra");
+    expect(html).toContain("Nhu cầu xây dựng và đầu tư hạ tầng trong nước");
+    expect(html).toContain("Phase 158D PDF Layer 4 - Local PDF - Bao cao thi truong thep Quy I 2026");
+    expect(html).toContain("local-pdf://bao-cao-thi-truong-thep-quy-i-2026-20260505095914229.pdf");
+    expect(html).not.toContain("Steel and construction-material businesses are exposed");
+  });
 });
