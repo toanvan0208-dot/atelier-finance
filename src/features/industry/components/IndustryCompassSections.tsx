@@ -320,13 +320,13 @@ export function IndustryQuickPicture({
   const supports = layer4Context?.keyDrivers.length
     ? layer4Context.keyDrivers.map((item) => ({
         title: item,
-        description: "Can doi chieu bang du lieu doanh nghiep va bao cao tai chinh.",
+        description: "Cần đối chiếu với dữ liệu doanh nghiệp và báo cáo tài chính.",
       }))
     : quickPicture.supports;
   const pressures = layer4Context?.industryRisks.length
     ? layer4Context.industryRisks.map((item) => ({
         title: item,
-        description: "Day la rui ro can kiem tra tiep, khong phai ket luan dau tu.",
+        description: "Đây là rủi ro cần kiểm tra tiếp, không phải kết luận đầu tư.",
       }))
     : quickPicture.pressures;
   const firstData = layer4Context?.nextChecks.length ? layer4Context.nextChecks : quickPicture.firstData;
@@ -495,9 +495,9 @@ export function IndustryMacroPressureSection({
         factor,
         direction: fallbackMacroDriver.direction,
         strength: fallbackMacroDriver.strength,
-        mechanism: "Yeu to nay duoc Layer 4 danh dau la nhay voi nganh; can xac nhan bang du lieu thuc te.",
-        chain: ["Theo doi bien dong vi mo", "Doi chieu voi doanh thu, bien loi nhuan, ton kho va dong tien"],
-        checkNext: "Kiem tra chung voi bao cao tai chinh va du lieu nganh.",
+        mechanism: "Yếu tố này được Layer 4 đánh dấu là nhạy với ngành; cần xác nhận bằng dữ liệu thực tế.",
+        chain: ["Theo dõi biến động vĩ mô", "Đối chiếu với doanh thu, biên lợi nhuận, tồn kho và dòng tiền"],
+        checkNext: "Kiểm tra cùng báo cáo tài chính và dữ liệu ngành.",
         tone: "watch" as const,
       }))
     : null;
@@ -592,12 +592,12 @@ export function IndustryDataConfirmationSection({
   const layer4SignalMetrics = layer4Context?.nextChecks.length
     ? layer4Context.nextChecks.map((item) => ({
         name: item,
-        sampleStatus: "Can kiem tra",
-        simpleRead: "Layer 4 goi y day la du lieu can doc tiep; module hien chua co metric nganh dinh luong.",
-        goodSignal: "Chi ket luan khi du lieu doanh nghiep va bao cao tai chinh cung xac nhan.",
-        badSignal: "Neu du lieu trai chieu hoac thieu, giu trang thai can ra soat.",
-        frequency: "Theo ky cong bo",
-        relatedStep: "Layer 4 next checks",
+        sampleStatus: "Cần kiểm tra",
+        simpleRead: "Layer 4 gợi ý đây là dữ liệu cần đọc tiếp; module hiện chưa có metric ngành định lượng.",
+        goodSignal: "Chỉ kết luận khi dữ liệu doanh nghiệp và báo cáo tài chính cùng xác nhận.",
+        badSignal: "Nếu dữ liệu trái chiều hoặc thiếu, giữ trạng thái cần rà soát.",
+        frequency: "Theo kỳ công bố",
+        relatedStep: "Layer 4 - bước kiểm tra tiếp",
       }))
     : null;
   const activeMetrics = layer4SignalMetrics ?? selectedIndustry.dataSignals[activeTab];
@@ -746,11 +746,11 @@ export function IndustryConditionalConclusion({
 }) {
   const conclusionBlocks = layer4Context
     ? [
-        { title: "Boi canh nganh", content: layer4Context.industryOverview ?? "N/A" },
-        { title: "Kiem tien", content: layer4Context.howIndustryMakesMoney ?? "N/A" },
+        { title: "Bối cảnh ngành", content: layer4Context.industryOverview ?? "N/A" },
+        { title: "Kiếm tiền", content: layer4Context.howIndustryMakesMoney ?? "N/A" },
         { title: "Drivers", content: layer4Context.keyDrivers.join("; ") || "N/A" },
-        { title: "Rui ro", content: layer4Context.industryRisks.join("; ") || "N/A" },
-        { title: "Can kiem tra", content: layer4Context.nextChecks.join("; ") || "N/A" },
+        { title: "Rủi ro", content: layer4Context.industryRisks.join("; ") || "N/A" },
+        { title: "Cần kiểm tra", content: layer4Context.nextChecks.join("; ") || "N/A" },
       ]
     : selectedIndustry.conclusion.blocks;
   const warning = layer4Context?.commonMisread ?? selectedIndustry.conclusion.warning;

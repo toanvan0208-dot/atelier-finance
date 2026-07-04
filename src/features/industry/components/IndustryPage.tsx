@@ -29,8 +29,8 @@ const industryCodeByCompassKey: Record<string, string> = {
 };
 
 const runtimeDataModeLabel = (value: string | null | undefined): string => {
-  if (value === "research_only") return "Du lieu nghien cuu";
-  if (!value) return "Chua co";
+  if (value === "research_only") return "Dữ liệu nghiên cứu";
+  if (!value) return "Chưa có";
   return value;
 };
 
@@ -53,9 +53,9 @@ const parseRuntimeList = (value: string | null | undefined): string[] => {
 };
 
 const contextSourceStatusLabel = (payload: IndustryContextRuntimePayload): string => {
-  if (payload.context?.reviewedQualitativeContextAvailable) return "Co context co provenance";
-  if (payload.context) return "Co context nhung chua du provenance";
-  return "Chua co qualitative context co nguon";
+  if (payload.context?.reviewedQualitativeContextAvailable) return "Có nội dung ngành kèm nguồn";
+  if (payload.context) return "Có nội dung ngành nhưng chưa đủ nguồn";
+  return "Chưa có bối cảnh ngành có nguồn";
 };
 
 type Layer4DisplayContext = {
@@ -247,18 +247,18 @@ function IndustryRuntimeReadPathPanel({
     <section>
       <SectionHeader
         eyebrow="Read-path"
-        title="Du lieu nganh dang doc tu he thong"
-        description="Phan nay chi hien mapping nganh da co trong DB. Neu qualitative context chua co nguon, UI giu trang thai thieu du lieu."
+        title="Dữ liệu ngành đang đọc từ hệ thống"
+        description="Phần này chỉ hiện mapping ngành đã có trong DB. Nếu chưa có bối cảnh ngành có nguồn, UI giữ trạng thái thiếu dữ liệu."
       />
       <Card className="parent-surface-card">
         <CardBody className="space-y-4">
           <div className="flex flex-wrap items-center gap-2">
             <Chip variant={hasMappings ? "success" : "warning"}>
-              {hasMappings ? "Da doc mapping DB" : "Chua co mapping DB cho nganh dang chon"}
+              {hasMappings ? "Đã đọc mapping DB" : "Chưa có mapping DB cho ngành đang chọn"}
             </Chip>
-            <Chip variant="warning">research_only</Chip>
-            <Chip variant="warning">needsReview</Chip>
-            <Chip variant="neutral">productionApproved=false</Chip>
+            <Chip variant="warning">Dữ liệu nghiên cứu</Chip>
+            <Chip variant="warning">Cần rà soát</Chip>
+            <Chip variant="neutral">Chưa phê duyệt sản xuất</Chip>
           </div>
 
           <div className="grid gap-3 lg:grid-cols-3">
@@ -287,7 +287,7 @@ function IndustryRuntimeReadPathPanel({
                     </div>
                     <dl className="mt-3 grid gap-2 text-xs leading-5">
                       <div>
-                        <dt className="font-semibold text-subtle">Nguon mapping</dt>
+                        <dt className="font-semibold text-subtle">Nguồn mapping</dt>
                         <dd className="font-bold text-ink">{primaryMapping.sourceLabel}</dd>
                       </div>
                       <div>
@@ -300,16 +300,16 @@ function IndustryRuntimeReadPathPanel({
                       </div>
                     </dl>
                     <p className="mt-3 rounded-[4px] border border-warning bg-warning/10 px-3 py-2 text-xs leading-5 text-muted">
-                      Mapping nay chi dung de dieu huong doc nganh. Chua co metric nganh, chua co context Layer 4 day du, va khong thay the buoc doc BCTC/rui ro/dinh gia.
+                      Mapping này chỉ dùng để điều hướng đọc ngành. Chưa có metric ngành, chưa có so sánh định lượng, và không thay thế bước đọc BCTC/rủi ro/định giá.
                     </p>
                   </article>
                 );
               })
             ) : (
               <div className="rounded-[4px] border border-warning bg-warning/10 px-4 py-4 lg:col-span-3">
-                <p className="text-sm font-bold text-ink">Chua co mapping DB phu hop cho nganh nay.</p>
+                <p className="text-sm font-bold text-ink">Chưa có mapping DB phù hợp cho ngành này.</p>
                 <p className="mt-1 text-xs leading-5 text-muted">
-                  Trang khong tu suy luan ticker hay nganh thay the. Du lieu thieu giu nguyen trang thai N/A.
+                  Trang không tự suy luận ticker hay ngành thay thế. Dữ liệu thiếu giữ nguyên trạng thái N/A.
                 </p>
               </div>
             )}
@@ -337,13 +337,13 @@ function IndustryLayer4ContextPanel({
       <section>
         <SectionHeader
           eyebrow="Layer 4"
-          title="Ho so nganh co nguon"
-          description="Chua co context co provenance cho nganh dang chon. UI khong tu lay noi dung tinh thay the."
+          title="Nguồn dữ liệu Layer 4"
+          description="Chưa có bối cảnh ngành có nguồn cho ngành đang chọn. UI không tự lấy nội dung tĩnh để giả làm dữ liệu đã rà soát."
         />
         <Card>
           <CardBody>
             <p className="rounded-[4px] border border-warning bg-warning/10 px-4 py-3 text-sm leading-6 text-muted">
-              Layer 4 dang thieu cho nganh nay. Du lieu thieu giu nguyen la N/A, khong lay static guidance lam reviewed context.
+              Ngành này chưa có Layer 4 có nguồn. Dữ liệu thiếu giữ nguyên là N/A, không dùng hướng dẫn tĩnh để giả làm context đã rà soát.
             </p>
           </CardBody>
         </Card>
@@ -355,8 +355,8 @@ function IndustryLayer4ContextPanel({
     <section>
       <SectionHeader
         eyebrow="Layer 4"
-        title="Nguon du lieu Layer 4"
-        description="Layer 4 dang lam nguon cho cac section ben duoi. Khoi nay chi giu provenance va trang thai an toan."
+        title="Nguồn dữ liệu Layer 4"
+        description="Layer 4 đang làm nguồn cho các phần bên dưới. Khối này chỉ giữ nguồn, ngày dữ liệu và trạng thái rà soát."
       />
       <div className="space-y-4">
         {contexts.map((payload) => {
@@ -372,23 +372,23 @@ function IndustryLayer4ContextPanel({
                 <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
                   <div className="min-w-0">
                     <div className="mb-2 flex flex-wrap gap-2">
-                      <Chip variant="success">Co provenance</Chip>
+                      <Chip variant="success">Có nguồn</Chip>
                       <Chip variant="warning">{runtimeDataModeLabel(context.dataMode)}</Chip>
-                      <Chip variant="warning">needsReview</Chip>
-                      <Chip variant="neutral">productionApproved=false</Chip>
+                      <Chip variant="warning">Cần rà soát</Chip>
+                      <Chip variant="neutral">Chưa phê duyệt sản xuất</Chip>
                       {displayContext.translationMode === "pdf_vi_display" ? (
-                        <Chip variant="accent">Ban hien thi tieng Viet</Chip>
+                        <Chip variant="accent">Bản hiển thị tiếng Việt</Chip>
                       ) : null}
                     </div>
                     <p className="text-sm font-bold text-ink">
                       {payload.ticker} - {context.industryCode ?? displayContext.industryName}
                     </p>
                     <p className="mt-2 text-sm leading-6 text-muted">
-                      Noi dung Layer 4 dang duoc dung de dien cac section ben duoi. The nay chi giu nguon va trang thai du lieu.
+                      Nội dung Layer 4 đang được dùng cho các phần bên dưới. Thẻ này chỉ giữ nguồn và trạng thái dữ liệu.
                     </p>
                   </div>
                   <div className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-3 text-xs leading-5 text-muted">
-                    <p className="font-bold text-ink">Nguon</p>
+                    <p className="font-bold text-ink">Nguồn</p>
                     <p className="mt-1">{context.sourceLabel}</p>
                     {sourceUrl ? (
                       <a
@@ -408,7 +408,7 @@ function IndustryLayer4ContextPanel({
                 </div>
 
                 <p className="rounded-[4px] border border-warning bg-warning/10 px-4 py-3 text-xs leading-5 text-muted">
-                  Layer 4 chi la qualitative context co nguon. Chua co metric nganh, chua co so sanh dinh luong, chua xep hang/cham diem, va khong thay the viec doc BCTC/rui ro/dinh gia.
+                  Đây là bối cảnh ngành có nguồn. Chưa có metric ngành, chưa có so sánh định lượng, chưa xếp hạng/chấm điểm, và không thay thế việc đọc BCTC/rủi ro/định giá.
                 </p>
               </CardBody>
             </Card>

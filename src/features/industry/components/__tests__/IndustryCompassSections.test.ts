@@ -155,12 +155,12 @@ describe("IndustryPage runtime read path", () => {
       }),
     );
 
-    expect(html).toContain("Du lieu nganh dang doc tu he thong");
-    expect(html).toContain("Da doc mapping DB");
+    expect(html).toContain("Dữ liệu ngành đang đọc từ hệ thống");
+    expect(html).toContain("Đã đọc mapping DB");
     expect(html).toContain("HPG");
     expect(html).toContain("STEEL_MATERIALS");
-    expect(html).toContain("Chua co qualitative context co nguon");
-    expect(html).toContain("Chua co metric nganh");
+    expect(html).toContain("Chưa có bối cảnh ngành có nguồn");
+    expect(html).toContain("Chưa có metric ngành");
     expect(html).not.toContain("IndustryContext is available");
   });
 
@@ -276,16 +276,16 @@ describe("IndustryPage runtime read path", () => {
       }),
     );
 
-    expect(html).toContain("Nguon du lieu Layer 4");
-    expect(html).toContain("Co provenance");
-    expect(html).toContain("The nay chi giu nguon va trang thai du lieu");
+    expect(html).toContain("Nguồn dữ liệu Layer 4");
+    expect(html).toContain("Có nguồn");
+    expect(html).toContain("Thẻ này chỉ giữ nguồn và trạng thái dữ liệu");
     expect(html).toContain("Steel businesses transform raw materials");
     expect(html).toContain("Revenue depends on shipped volume");
     expect(html).toContain("Construction and infrastructure demand");
     expect(html).toContain("Weak demand cycles");
     expect(html).toContain("World Steel Association");
     expect(html).toContain("https://worldsteel.org/wp-content/uploads/Fact-sheet-raw-materials-2023-1.pdf");
-    expect(html).toContain("Chua co metric nganh");
+    expect(html).toContain("Chưa có metric ngành");
     expect(html).not.toContain("Layer 4 dang thieu");
   });
 
@@ -401,7 +401,7 @@ describe("IndustryPage runtime read path", () => {
       }),
     );
 
-    expect(html).toContain("Ban hien thi tieng Viet");
+    expect(html).toContain("Bản hiển thị tiếng Việt");
     expect(html).toContain("Ngành thép cần đọc qua cung cầu thép");
     expect(html).toContain("Doanh thu đến từ sản lượng bán ra");
     expect(html).toContain("Nhu cầu xây dựng và đầu tư hạ tầng trong nước");
