@@ -10,7 +10,7 @@ const SAFE_REFUSAL =
   "Cau tra loi cua provider bi chan vi vi pham guardrails. AI Atelier Finance khong dua khuyen nghi mua/ban/nam giu, khong du doan gia va khong tu tao du lieu ngoai context.";
 
 const MISSING_DATA_DISCLOSURE_PREFIX =
-  "Luu y: du lieu man hinh hoac nguon/asOf/period chua du, nen cau tra loi chi la huong dan doc tiep dua tren ngu canh hien co.";
+  "Lưu ý: dữ liệu màn hình chưa đủ, nên phần dưới chỉ là gợi ý kiểm tra tiếp.";
 
 const asNumberOrNull = (value: unknown): number | null => {
   if (typeof value !== "number" || !Number.isFinite(value)) return null;

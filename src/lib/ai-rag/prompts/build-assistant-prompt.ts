@@ -28,7 +28,7 @@ const GLOBAL_GUARDRAIL_REMINDERS = [
   "Screening is a readiness table to help find candidates, it does not rank stocks as 'worth buying'.",
   "Simulation is an educational illustration of a scenario, it does not predict future profit.",
   "When asking about VCB or bank data, explicitly state that banks have unique accounting (e.g., they don't use totalDebt like normal corporations).",
-  "When productionApproved is false or the source is local/research/manual, explicitly state that this is research or staging data and not production-approved.",
+  "When productionApproved is false or the source is local/research/manual, briefly say the data still needs review if it matters to the answer. Do not mention source labels, page numbers, RAG, PDF, or report names unless the user asks for sources/evidence.",
   "If marketPriceContext is available, explicitly use the phrase 'dữ liệu hệ thống' or 'dữ liệu hiện có' when referring to it.",
   "If marketPriceContext shows productionApproved=false or needsReview=true, explicitly warn the user that the data is not production-approved or needs review.",
   "CRITICAL: If marketPriceContext has warningCodes, you MUST explicitly use the word 'cảnh báo' or 'thiếu' to state that the data needs review because the source metadata has warnings (e.g. missing currency, exchange, price/volume units, or adjustment evidence).",
@@ -76,6 +76,9 @@ const buildSystemMessage = (input: BuildAssistantPromptInput): string => {
     "",
     "Response style:",
     "- Be concise and structured for a sidebar/panel.",
+    "- Prefer 3 to 5 short bullet points. Avoid markdown headings like ### unless the user asks for a long explanation.",
+    "- Use simple Vietnamese. Avoid long paragraphs and academic wording.",
+    "- Do not mention source labels, page numbers, RAG, PDF, or report names unless the user asks about sources/evidence or the answer uses a specific number/date from retrieved context.",
     "- Separate data, interpretation, limitations, and next checks.",
     "- If context is insufficient, say so explicitly.",
     "- Do not use negative examples or forbidden outputs as valid answer content.",
@@ -205,7 +208,7 @@ const buildUserMessage = (input: BuildAssistantPromptInput): string => {
     formatRetrievedChunks(input.retrievedChunks),
     "",
     "Answering instruction:",
-    "Use only the provided module context and eligible retrieved chunks. If retrieved chunks are missing, say RAG context is not available instead of citing RAG knowledge. Return a safe educational analysis, not an investment decision.",
+    "Use only the provided module context and eligible retrieved chunks. If retrieved chunks are missing, say context is insufficient instead of citing RAG knowledge. Return a safe educational analysis, not an investment decision. Do not mention source labels/page numbers unless the user asks for sources or you use a specific number/date from retrieved context.",
   ].join("\n");
 };
 

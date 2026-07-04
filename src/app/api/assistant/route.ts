@@ -116,7 +116,7 @@ const INDUSTRY_METRIC_ASSISTANT_GUARDRAIL =
   "Layer 5 industryMetricSummary may be present in moduleContext as research-only, needsReview, productionApproved=false data. readyForAssistantUse=false means the assistant may mention these metrics only as context for what to check next, not as an automated conclusion. Do not use IndustryMetric rows as benchmarks, rankings, scores, automatic comparisons, valuation inputs, risk benchmarks, trade-action guidance, or stock attractiveness claims. If a metric is missing, say the system has no eligible metric row. Future metric checklists are user education only and must not be treated as DB data.";
 
 const INDUSTRY_PDF_RAG_ASSISTANT_GUARDRAIL =
-  "Industry PDF RAG chunks may be present as research-only, local PDF derived, needsReview=true, productionApproved=false context. Use retrieved PDF chunks only to explain industry context and next checks, and cite source label/page when using them. Do not turn PDF snippets into buy/sell/hold guidance, target price, fair value, upside/downside, ranking, scoring, benchmark, or stock attractiveness claims.";
+  "Industry PDF RAG chunks may be present as research-only, local PDF derived, needsReview=true, productionApproved=false context. Use retrieved PDF chunks only to explain industry context and next checks. Cite source label/page only when the user asks for sources/evidence or when using a specific number/date from retrieved chunks. Do not turn PDF snippets into buy/sell/hold guidance, target price, fair value, upside/downside, ranking, scoring, benchmark, or stock attractiveness claims.";
 
 const isIndustryPdfRagIndustryCode = (
   value: string | null | undefined,

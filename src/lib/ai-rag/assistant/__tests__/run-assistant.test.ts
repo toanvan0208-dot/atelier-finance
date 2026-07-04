@@ -170,7 +170,7 @@ describe("runAssistant", () => {
     });
 
     expect(disclosed.llmStatus).toBe("completed");
-    expect(disclosed.answer).toContain("du lieu man hinh hoac nguon/asOf/period chua du");
+    expect(disclosed.answer).toContain("dữ liệu màn hình chưa đủ");
     expect(disclosed.answer).toContain("Doanh thu dang tang.");
     expect(disclosed.violations).toEqual([]);
     expect(safe.llmStatus).toBe("completed");

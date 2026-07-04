@@ -59,6 +59,55 @@ function AITutorSoftWarning({ children }: { children: string }) {
   );
 }
 
+function renderInlineAnswerText(value: string) {
+  const parts = value.split(/(\*\*[^*]+\*\*)/g);
+
+  return parts.map((part, index) => {
+    if (part.startsWith("**") && part.endsWith("**")) {
+      return (
+        <strong key={`${part}-${index}`} className="font-bold text-ink">
+          {part.slice(2, -2)}
+        </strong>
+      );
+    }
+
+    return <span key={`${part}-${index}`}>{part}</span>;
+  });
+}
+
+function AssistantAnswerBlock({ answer }: { answer: string }) {
+  const blocks = answer
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  return (
+    <div className="mt-3 space-y-2 rounded-[3px] border border-border-soft bg-surface-soft px-3 py-2 text-xs leading-5 text-muted">
+      {blocks.map((block, index) => {
+        const headingMatch = block.match(/^#{1,4}\s+(.+)$/);
+        if (headingMatch) {
+          return (
+            <p key={`${block}-${index}`} className="font-bold text-ink">
+              {renderInlineAnswerText(headingMatch[1] ?? "")}
+            </p>
+          );
+        }
+
+        const bulletMatch = block.match(/^[-*]\s+(.+)$/);
+        if (bulletMatch) {
+          return (
+            <p key={`${block}-${index}`} className="pl-3 before:mr-2 before:content-['•']">
+              {renderInlineAnswerText(bulletMatch[1] ?? "")}
+            </p>
+          );
+        }
+
+        return <p key={`${block}-${index}`}>{renderInlineAnswerText(block)}</p>;
+      })}
+    </div>
+  );
+}
+
 function AITutorNextActionCard({
   config,
   onNavigate,
@@ -457,9 +506,7 @@ function AITutorAskRuntimeTab({
         </p>
 
         {runtimeResponse?.answer ? (
-          <div className="mt-3 rounded-[3px] border border-border-soft bg-surface-soft px-3 py-2 text-xs leading-5 text-muted">
-            {runtimeResponse.answer}
-          </div>
+          <AssistantAnswerBlock answer={runtimeResponse.answer} />
         ) : null}
 
         {runtimeResponse ? (

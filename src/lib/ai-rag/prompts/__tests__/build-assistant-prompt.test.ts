@@ -128,6 +128,19 @@ describe("buildAssistantPrompt", () => {
     expect(result.promptText).toContain("filePath: docs/rag/RAG_PVT_KNOWLEDGE.md");
   });
 
+  it("keeps source disclosure conditional for concise sidebar answers", () => {
+    const result = buildAssistantPrompt(
+      baseInput({
+        activeModule: "industry",
+        userQuestion: "Rui ro nganh can kiem tra",
+      }),
+    );
+
+    expect(result.promptText).toContain("Prefer 3 to 5 short bullet points.");
+    expect(result.promptText).toContain("Avoid markdown headings like ###");
+    expect(result.promptText).toContain("Do not mention source labels/page numbers unless the user asks for sources");
+  });
+
   it("does not contain an instruction that permits buy/sell/hold", () => {
     const result = buildAssistantPrompt(baseInput({}));
     const normalizedPrompt = result.promptText.toLowerCase();
