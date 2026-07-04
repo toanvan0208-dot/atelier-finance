@@ -289,6 +289,131 @@ describe("IndustryPage runtime read path", () => {
     expect(html).not.toContain("Layer 4 dang thieu");
   });
 
+  it("renders research-only Layer 5 industry metrics without promoting them", () => {
+    const hpgRuntimePayload: IndustryContextRuntimePayload = {
+      ticker: "HPG",
+      status: "missing",
+      context: null,
+      missingReason: "No eligible IndustryContext row found for this ticker.",
+      peerGroupSummary: {
+        ticker: "HPG",
+        status: "missing",
+        industryCode: null,
+        anchorTicker: "HPG",
+        peers: [],
+        missingReason: "No peer group rows.",
+        warnings: [],
+        peerGroupUsedAsValuationBenchmark: false,
+        peerGroupUsedAsRiskBenchmark: false,
+        peerGroupInferred: false,
+      },
+      taxonomy: {
+        ticker: "HPG",
+        status: "available",
+        missingReason: null,
+        peerGroupsAvailable: false,
+        numericIndustryMetricsAvailable: false,
+        valuationRiskBenchmarksAvailable: false,
+        peerGroupInferred: false,
+        industryMetricCreated: false,
+        valuationRiskBenchmarkInvented: false,
+        warningCodes: ["INDUSTRY_TAXONOMY_RESEARCH_ONLY"],
+        taxonomySummary: {
+          status: "available",
+          ticker: "HPG",
+          industryCode: "STEEL_MATERIALS",
+          industryName: "Steel and Materials",
+          displayNameVi: "Thep va vat lieu",
+          roleType: "reviewed_lane_ticker",
+          mappingConfidence: "reviewed",
+          dataMode: "research_only",
+          productionApproved: false,
+          needsReview: true,
+          sourceType: "manual_review",
+          sourceUrl: "external-review-workspace",
+          warnings: [],
+        },
+        mappings: [
+          {
+            ticker: "HPG",
+            industryCode: "STEEL_MATERIALS",
+            industryName: "Steel and Materials",
+            displayNameVi: "Thep va vat lieu",
+            sectorCode: null,
+            sectorName: null,
+            classificationSystem: "atelier_reviewed",
+            roleType: "reviewed_lane_ticker",
+            segmentDescription: null,
+            mappingConfidence: "reviewed",
+            sourceLabel: "External financials review workspace - industry code 2025",
+            sourceUrl: "external-review-workspace",
+            sourceType: "manual_review",
+            dataMode: "research_only",
+            productionApproved: false,
+            needsReview: true,
+            warningCodes: [],
+            caveats: [],
+          },
+        ],
+      },
+      industryMetricSummary: {
+        status: "available",
+        industryCode: "STEEL_MATERIALS",
+        rowsFound: 2,
+        missingReason: null,
+        productionApprovedTrueCount: 0,
+        needsReviewTrueCount: 2,
+        rowsWithoutProvenance: 0,
+        dataMode: "research_only",
+        readyForUiDisplay: true,
+        readyForAssistantUse: false,
+        usedAsAutoComparison: false,
+        usedAsInvestmentConclusion: false,
+        warningCodes: ["INDUSTRY_METRICS_RESEARCH_ONLY"],
+        caveats: ["Layer 5 metrics are research-only."],
+        metrics: [
+          {
+            industryCode: "STEEL_MATERIALS",
+            metricCode: "STEEL_GLOBAL_CRUDE_STEEL_PRODUCTION",
+            metricName: "Global crude steel production",
+            metricLabelVi: "San luong thep tho toan cau",
+            metricGroup: "volume",
+            value: 159.9,
+            unit: "million_tonnes",
+            periodType: "month",
+            periodLabel: "2026-03",
+            observationDate: "2026-03-31T00:00:00.000Z",
+            sourceLabel: "Local PDF - Steel market Q1 2026",
+            sourceKey: "local_pdf_steel_q1_2026:p3:global_crude_steel_mar_2026",
+            dataMode: "research_only",
+            productionApproved: false,
+            needsReview: true,
+            qualityStatus: "needs_review",
+            provenanceCount: 1,
+            caveats: [],
+            warningCodes: [],
+          },
+        ],
+      },
+    };
+
+    const html = renderToStaticMarkup(
+      createElement(IndustryPage, {
+        initialIndustryContexts: {
+          HPG: hpgRuntimePayload,
+        },
+      }),
+    );
+
+    expect(html).toContain("So lieu nganh co nguon");
+    expect(html).toContain("Co metric DB");
+    expect(html).toContain("San luong thep tho toan cau");
+    expect(html).toContain("159,9 trieu tan");
+    expect(html).toContain("Local PDF - Steel market Q1 2026");
+    expect(html).toContain("productionApproved=false");
+    expect(html).toContain("Khong phai ket luan dau tu");
+  });
+
   it("renders Vietnamese display copy for PDF-backed Layer 4 context without changing source metadata", () => {
     const hpgRuntimePayload: IndustryContextRuntimePayload = {
       ticker: "HPG",

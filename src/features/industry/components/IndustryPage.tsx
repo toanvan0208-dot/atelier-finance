@@ -232,6 +232,20 @@ const runtimeContextsForIndustry = (
     payload.taxonomy.mappings.some((mapping) => mapping.industryCode === industryCode),
   );
 
+const formatMetricValue = (value: number, unit: string): string => {
+  const formatted = new Intl.NumberFormat("vi-VN", {
+    maximumFractionDigits: 2,
+  }).format(value);
+
+  const unitLabelByCode: Record<string, string> = {
+    million_tonnes: "trieu tan",
+    percent: "%",
+    vnd_trillion: "nghin ty VND",
+  };
+
+  return `${formatted} ${unitLabelByCode[unit] ?? unit}`;
+};
+
 function IndustryRuntimeReadPathPanel({
   runtimeContexts,
   selectedIndustry,
@@ -419,6 +433,93 @@ function IndustryLayer4ContextPanel({
   );
 }
 
+function IndustryMetricReadPathPanel({
+  runtimeContexts,
+  selectedIndustry,
+}: {
+  runtimeContexts: IndustryContextRuntimePayload[];
+  selectedIndustry: (typeof industryCompassData.industries)[number];
+}) {
+  const expectedIndustryCode = industryCodeByCompassKey[selectedIndustry.industryKey] ?? null;
+  const contexts = runtimeContextsForIndustry(runtimeContexts, expectedIndustryCode);
+  const metricSummary = contexts.find((payload) => payload.industryMetricSummary?.industryCode === expectedIndustryCode)
+    ?.industryMetricSummary;
+  const metrics = metricSummary?.metrics ?? [];
+  const hasMetrics = metricSummary?.status === "available" && metrics.length > 0;
+
+  return (
+    <section>
+      <SectionHeader
+        eyebrow="Layer 5"
+        title="So lieu nganh co nguon"
+        description="Cac metric nay doc tu IndustryMetric trong DB. Tat ca van la research-only, needsReview va khong phai ket luan dau tu."
+      />
+      <Card>
+        <CardBody className="space-y-4">
+          <div className="flex flex-wrap gap-2">
+            <Chip variant={hasMetrics ? "success" : "warning"}>
+              {hasMetrics ? "Co metric DB" : "Chua co metric DB"}
+            </Chip>
+            <Chip variant="warning">research_only</Chip>
+            <Chip variant="warning">needsReview=true</Chip>
+            <Chip variant="neutral">productionApproved=false</Chip>
+            <Chip variant="neutral">Khong phai ket luan dau tu</Chip>
+          </div>
+
+          {hasMetrics ? (
+            <div className="grid gap-3 lg:grid-cols-2">
+              {metrics.map((metric) => (
+                <article
+                  key={metric.sourceKey}
+                  className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-4"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold text-ink">{metric.metricLabelVi}</p>
+                      <p className="mt-1 break-words text-[11px] font-semibold text-muted">{metric.metricCode}</p>
+                    </div>
+                    <Chip size="sm" variant="accent">
+                      {metric.periodLabel}
+                    </Chip>
+                  </div>
+                  <p className="mt-3 text-2xl font-bold text-ink">
+                    {formatMetricValue(metric.value, metric.unit)}
+                  </p>
+                  <dl className="mt-3 grid gap-2 text-xs leading-5 text-muted">
+                    <div>
+                      <dt className="font-semibold text-subtle">Nguon</dt>
+                      <dd className="font-bold text-ink">{metric.sourceLabel}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-semibold text-subtle">Trang thai</dt>
+                      <dd className="font-bold text-ink">
+                        {metric.dataMode}, {metric.qualityStatus}, provenance={metric.provenanceCount}
+                      </dd>
+                    </div>
+                  </dl>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-[4px] border border-warning bg-warning/10 px-4 py-4">
+              <p className="text-sm font-bold text-ink">Chua co metric nganh du dieu kien hien thi.</p>
+              <p className="mt-1 text-xs leading-5 text-muted">
+                Gia tri thieu giu nguyen la N/A. He thong khong lay taxonomy, peer group hay context chu de thay the
+                so lieu.
+              </p>
+            </div>
+          )}
+
+          <p className="rounded-[4px] border border-warning bg-warning/10 px-4 py-3 text-xs leading-5 text-muted">
+            Layer 5 hien chi la du lieu so co nguon va can ra soat. Cac metric nay khong tu dong tao ket luan dau tu
+            hay thay the viec doc BCTC, rui ro va boi canh doanh nghiep.
+          </p>
+        </CardBody>
+      </Card>
+    </section>
+  );
+}
+
 export function IndustryPage({ initialIndustryContexts, onNavigate }: IndustryPageProps) {
   const [selectedIndustryId, setSelectedIndustryId] = useState(
     industryCompassData.industries[0]?.id ?? ""
@@ -473,6 +574,10 @@ export function IndustryPage({ initialIndustryContexts, onNavigate }: IndustryPa
         selectedIndustry={selectedIndustry}
       />
       <IndustryLayer4ContextPanel
+        runtimeContexts={runtimeContexts}
+        selectedIndustry={selectedIndustry}
+      />
+      <IndustryMetricReadPathPanel
         runtimeContexts={runtimeContexts}
         selectedIndustry={selectedIndustry}
       />

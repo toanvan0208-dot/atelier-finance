@@ -17,6 +17,46 @@ type IndustryContextProvenanceSummary = {
   sidecarReadStatus: "available" | "missing_or_not_applied";
 };
 
+export type IndustryMetricRuntimeRow = {
+  industryCode: string;
+  metricCode: string;
+  metricName: string;
+  metricLabelVi: string;
+  metricGroup: string;
+  value: number;
+  unit: string;
+  periodType: string;
+  periodLabel: string;
+  observationDate: string;
+  sourceLabel: string;
+  sourceKey: string;
+  dataMode: "research_only";
+  productionApproved: false;
+  needsReview: true;
+  qualityStatus: "needs_review";
+  provenanceCount: number;
+  caveats: string[];
+  warningCodes: string[];
+};
+
+export type IndustryMetricRuntimeSummary = {
+  status: "available" | "missing";
+  industryCode: string | null;
+  rowsFound: number;
+  metrics: IndustryMetricRuntimeRow[];
+  missingReason: string | null;
+  productionApprovedTrueCount: number;
+  needsReviewTrueCount: number;
+  rowsWithoutProvenance: number;
+  dataMode: "research_only" | null;
+  readyForUiDisplay: boolean;
+  readyForAssistantUse: false;
+  usedAsAutoComparison: false;
+  usedAsInvestmentConclusion: false;
+  warningCodes: string[];
+  caveats: string[];
+};
+
 const peerGroupWarnings = [
   "PEER_GROUP_RESEARCH_ONLY",
   "PEER_GROUP_NEEDS_REVIEW",
@@ -130,7 +170,7 @@ export type IndustryContextRuntimePayload = {
     dataMode: string;
     productionApproved: false;
     needsReview: true;
-    numericIndustryMetricsAvailable: false;
+    numericIndustryMetricsAvailable: boolean;
     valuationRiskBenchmarksAvailable: false;
     caveats: string[];
     warningCodes: string[];
@@ -143,6 +183,7 @@ export type IndustryContextRuntimePayload = {
   } | null;
   taxonomy: IndustryTaxonomyRuntimePayload;
   peerGroupSummary: IndustryPeerGroupRuntimeSummary;
+  industryMetricSummary?: IndustryMetricRuntimeSummary;
   missingReason: string | null;
 };
 
@@ -169,6 +210,7 @@ const buildIndustryContextPayload = (
   industryContext: IndustryContextRow | null,
   taxonomy: IndustryTaxonomyRuntimePayload,
   peerGroupSummary: IndustryPeerGroupRuntimeSummary,
+  industryMetricSummary: IndustryMetricRuntimeSummary,
   provenanceRows: IndustryContextProvenanceRow[] = [],
   provenanceSidecarReadStatus: IndustryContextProvenanceSummary["sidecarReadStatus"] = "available",
 ): IndustryContextRuntimePayload => {
@@ -181,6 +223,7 @@ const buildIndustryContextPayload = (
       context: null,
       taxonomy,
       peerGroupSummary,
+      industryMetricSummary,
       missingReason:
         "No eligible IndustryContext row found for this ticker. Missing data must remain unavailable and must not be filled from static or mock content.",
     };
@@ -188,7 +231,9 @@ const buildIndustryContextPayload = (
 
   const caveats = [
     "IndustryContext is qualitative research-only data, not production-approved data.",
-    "Numeric industry metrics are not available yet.",
+    industryMetricSummary.status === "available"
+      ? "Numeric industry metrics are available separately as research-only, needs-review Layer 5 data."
+      : "Numeric industry metrics are not available yet.",
     "Valuation and risk industry benchmarks are not available yet.",
     "Qualitative industry context is not a peer benchmark.",
     "Do not use this context to make deterministic macro-to-industry conclusions.",
@@ -196,7 +241,9 @@ const buildIndustryContextPayload = (
   const warningCodes = [
     "INDUSTRY_CONTEXT_RESEARCH_ONLY",
     "INDUSTRY_CONTEXT_NEEDS_REVIEW",
-    "INDUSTRY_NUMERIC_METRICS_MISSING",
+    industryMetricSummary.status === "available"
+      ? "INDUSTRY_NUMERIC_METRICS_RESEARCH_ONLY"
+      : "INDUSTRY_NUMERIC_METRICS_MISSING",
     "INDUSTRY_BENCHMARKS_MISSING",
   ];
   const provenanceLimitations = [
@@ -288,7 +335,7 @@ const buildIndustryContextPayload = (
       dataMode: industryContext.dataMode,
       productionApproved: false,
       needsReview: true,
-      numericIndustryMetricsAvailable: false,
+      numericIndustryMetricsAvailable: industryMetricSummary.status === "available",
       valuationRiskBenchmarksAvailable: false,
       caveats,
       warningCodes,
@@ -305,6 +352,7 @@ const buildIndustryContextPayload = (
     },
     taxonomy,
     peerGroupSummary,
+    industryMetricSummary,
     missingReason: null,
   };
 };
@@ -612,6 +660,173 @@ export async function loadIndustryPeerGroupSummaryByTicker(
   };
 }
 
+const buildMissingIndustryMetricSummary = (
+  industryCode: string | null,
+  reason = "No eligible research-only IndustryMetric rows found for this industry.",
+): IndustryMetricRuntimeSummary => ({
+  status: "missing",
+  industryCode,
+  rowsFound: 0,
+  metrics: [],
+  missingReason: reason,
+  productionApprovedTrueCount: 0,
+  needsReviewTrueCount: 0,
+  rowsWithoutProvenance: 0,
+  dataMode: null,
+  readyForUiDisplay: false,
+  readyForAssistantUse: false,
+  usedAsAutoComparison: false,
+  usedAsInvestmentConclusion: false,
+  warningCodes: [
+    "INDUSTRY_METRICS_MISSING",
+    "INDUSTRY_METRICS_NO_FALLBACK",
+    "INDUSTRY_METRICS_NOT_AUTO_COMPARISON",
+    "INDUSTRY_METRICS_NOT_INVESTMENT_CONCLUSION",
+  ],
+  caveats: [
+    "No eligible reviewed metric rows are available for this industry.",
+    "Missing industry metric values must remain N/A.",
+    "Do not infer metrics from taxonomy, peer group, or qualitative context.",
+  ],
+});
+
+export async function loadIndustryMetricSummaryByIndustryCode(
+  industryCode: string | null,
+): Promise<IndustryMetricRuntimeSummary> {
+  if (!industryCode) {
+    return buildMissingIndustryMetricSummary(null, "No industry code is available for metric lookup.");
+  }
+
+  try {
+    const rows = await prisma.$queryRaw<
+      Array<{
+        industryCode: string;
+        metricCode: string;
+        metricName: string;
+        metricLabelVi: string;
+        metricGroup: string;
+        value: string | number | { toString(): string };
+        unit: string;
+        periodType: string;
+        periodLabel: string;
+        observationDate: Date;
+        sourceLabel: string;
+        sourceKey: string;
+        dataMode: string;
+        productionApproved: boolean;
+        needsReview: boolean;
+        qualityStatus: string;
+        provenanceCount: bigint;
+      }>
+    >`
+      select
+        m."industryCode",
+        m."metricCode",
+        m."metricName",
+        m."metricLabelVi",
+        m."metricGroup",
+        m."value",
+        m."unit",
+        m."periodType",
+        m."periodLabel",
+        m."observationDate",
+        m."sourceLabel",
+        m."sourceKey",
+        m."dataMode",
+        m."productionApproved",
+        m."needsReview",
+        m."qualityStatus",
+        count(p."id")::bigint as "provenanceCount"
+      from "IndustryMetric" m
+      left join "IndustryMetricProvenance" p on p."industryMetricId" = m."id"
+      where m."industryCode" = ${industryCode}
+        and m."dataMode" = 'research_only'
+        and m."productionApproved" = false
+        and m."needsReview" = true
+      group by m."id"
+      order by m."metricGroup", m."metricCode"
+    `;
+
+    const validRows = rows.filter(
+      (row) =>
+        row.dataMode === "research_only" &&
+        row.productionApproved === false &&
+        row.needsReview === true &&
+        row.qualityStatus === "needs_review",
+    );
+
+    if (validRows.length === 0) {
+      return buildMissingIndustryMetricSummary(industryCode);
+    }
+
+    const metrics: IndustryMetricRuntimeRow[] = validRows.map((row) => ({
+      industryCode: row.industryCode,
+      metricCode: row.metricCode,
+      metricName: row.metricName,
+      metricLabelVi: row.metricLabelVi,
+      metricGroup: row.metricGroup,
+      value: typeof row.value === "number" ? row.value : Number(row.value.toString()),
+      unit: row.unit,
+      periodType: row.periodType,
+      periodLabel: row.periodLabel,
+      observationDate: row.observationDate.toISOString(),
+      sourceLabel: row.sourceLabel,
+      sourceKey: row.sourceKey,
+      dataMode: "research_only",
+      productionApproved: false,
+      needsReview: true,
+      qualityStatus: "needs_review",
+      provenanceCount: Number(row.provenanceCount),
+      caveats: [
+        "Industry metric is research-only and needs review.",
+        "Industry metric is not an automatic comparison or investment conclusion.",
+        "Use the metric as one source-backed data point only.",
+      ],
+      warningCodes: [
+        "INDUSTRY_METRIC_RESEARCH_ONLY",
+        "INDUSTRY_METRIC_NEEDS_REVIEW",
+        "INDUSTRY_METRIC_NOT_AUTO_COMPARISON",
+        "INDUSTRY_METRIC_NOT_INVESTMENT_CONCLUSION",
+      ],
+    }));
+
+    const productionApprovedTrueCount = validRows.filter((row) => row.productionApproved).length;
+    const rowsWithoutProvenance = validRows.filter((row) => Number(row.provenanceCount) === 0).length;
+
+    return {
+      status: "available",
+      industryCode,
+      rowsFound: metrics.length,
+      metrics,
+      missingReason: null,
+      productionApprovedTrueCount,
+      needsReviewTrueCount: validRows.filter((row) => row.needsReview).length,
+      rowsWithoutProvenance,
+      dataMode: "research_only",
+      readyForUiDisplay: rowsWithoutProvenance === 0 && productionApprovedTrueCount === 0,
+      readyForAssistantUse: false,
+      usedAsAutoComparison: false,
+      usedAsInvestmentConclusion: false,
+      warningCodes: [
+        "INDUSTRY_METRICS_RESEARCH_ONLY",
+        "INDUSTRY_METRICS_NEEDS_REVIEW",
+        "INDUSTRY_METRICS_NOT_AUTO_COMPARISON",
+        "INDUSTRY_METRICS_NOT_INVESTMENT_CONCLUSION",
+      ],
+      caveats: [
+        "Layer 5 metrics are available as research-only data.",
+        "Metrics remain needsReview and productionApproved=false.",
+        "Metrics must not be used as automatic comparisons or investment conclusions.",
+      ],
+    };
+  } catch {
+    return buildMissingIndustryMetricSummary(
+      industryCode,
+      "IndustryMetric table/model is not readable in the current database snapshot.",
+    );
+  }
+}
+
 const loadIndustryContextProvenanceRows = async (
   industryContext: IndustryContextRow | null,
   ticker: string,
@@ -692,12 +907,16 @@ export async function loadIndustryContextRuntimeByTicker(
     loadIndustryTaxonomyRuntimeByTicker(ticker),
     loadIndustryPeerGroupSummaryByTicker(ticker),
   ]);
+  const industryMetricSummary = await loadIndustryMetricSummaryByIndustryCode(
+    taxonomy.taxonomySummary.industryCode,
+  );
   const provenance = await loadIndustryContextProvenanceRows(context, ticker);
   return buildIndustryContextPayload(
     ticker,
     context,
     taxonomy,
     peerGroupSummary,
+    industryMetricSummary,
     provenance.rows,
     provenance.sidecarReadStatus,
   );
