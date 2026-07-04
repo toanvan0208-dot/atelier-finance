@@ -1,5 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { existsSync } from "node:fs";
+import type { RetrievedPromptChunk } from "../../../lib/ai-rag/prompts";
 
 export type IndustryPdfRagIndustryCode =
   | "STEEL_MATERIALS"
@@ -53,6 +54,7 @@ export type IndustryPdfRagRetrievedChunk = {
   industryCode: IndustryPdfRagIndustryCode;
   sourceKey: string;
   sourceLabel: string;
+  filePath: string;
   reportDate: string;
   pageNumber: number;
   score: number;
@@ -338,6 +340,7 @@ export const retrieveIndustryPdfRagChunks = (
       industryCode: chunk.industryCode,
       sourceKey: chunk.sourceKey,
       sourceLabel: chunk.sourceLabel,
+      filePath: chunk.filePath,
       reportDate: chunk.reportDate,
       pageNumber: chunk.pageNumber,
       score,
@@ -345,3 +348,27 @@ export const retrieveIndustryPdfRagChunks = (
       riskyForEndUserAnswer: chunk.riskyForEndUserAnswer,
     }));
 };
+
+export const toIndustryPdfRagPromptChunks = (
+  chunks: IndustryPdfRagRetrievedChunk[],
+): RetrievedPromptChunk[] =>
+  chunks.map((chunk) => ({
+    chunkId: chunk.chunkId,
+    documentId: chunk.sourceKey,
+    filePath: chunk.filePath,
+    title: chunk.sourceLabel,
+    sectionPath: [
+      chunk.industryCode,
+      `reportDate:${chunk.reportDate}`,
+      `page:${chunk.pageNumber}`,
+    ],
+    sectionType: "industry_pdf_report_page",
+    score: chunk.score,
+    text: [
+      `Source: ${chunk.sourceLabel}`,
+      `Report date: ${chunk.reportDate}`,
+      `Page: ${chunk.pageNumber}`,
+      "",
+      chunk.snippet,
+    ].join("\n"),
+  }));
