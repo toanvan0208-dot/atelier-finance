@@ -405,20 +405,20 @@ describe("IndustryPage runtime read path", () => {
       }),
     );
 
-    expect(html).toContain("Ghi chu cach doc so lieu nganh");
-    expect(html).toContain("Co metric DB");
-    expect(html).toContain("San luong thep tho toan cau");
-    expect(html).toContain("159,9 trieu tan");
-    expect(html).toContain("So nay noi gi");
-    expect(html).toContain("Can soi tiep");
-    expect(html).toContain("San luong ban hang cua doanh nghiep co di cung chieu thi truong khong");
-    expect(html).toContain("Chi so nen tu tim them");
-    expect(html).toContain("Xem ghi chu");
-    expect(html).toContain("chua phai metric trong DB");
-    expect(html).not.toContain("San luong thep Viet Nam");
+    expect(html).toContain("Ghi chú cách đọc số liệu ngành");
+    expect(html).toContain("Có metric DB");
+    expect(html).toContain("Sản lượng thép thô toàn cầu");
+    expect(html).toContain("159,9 triệu tấn");
+    expect(html).toContain("Số này nói gì");
+    expect(html).toContain("Cần soi tiếp");
+    expect(html).toContain("Sản lượng bán hàng của doanh nghiệp có đi cùng chiều thị trường không");
+    expect(html).toContain("Chỉ số nên tự tìm thêm");
+    expect(html).toContain("Xem ghi chú");
+    expect(html).toContain("chưa phải metric trong DB");
+    expect(html).not.toContain("Sản lượng thép Việt Nam");
     expect(html).toContain("Local PDF - Steel market Q1 2026");
     expect(html).toContain("productionApproved=false");
-    expect(html).toContain("Chi la ghi chu doc so");
+    expect(html).toContain("Chỉ là ghi chú đọc số");
   });
 
   it("renders Vietnamese display copy for PDF-backed Layer 4 context without changing source metadata", () => {

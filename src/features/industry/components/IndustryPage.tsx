@@ -238,12 +238,24 @@ const formatMetricValue = (value: number, unit: string): string => {
   }).format(value);
 
   const unitLabelByCode: Record<string, string> = {
-    million_tonnes: "trieu tan",
+    million_tonnes: "triệu tấn",
     percent: "%",
-    vnd_trillion: "nghin ty VND",
+    vnd_trillion: "nghìn tỷ VND",
   };
 
   return `${formatted} ${unitLabelByCode[unit] ?? unit}`;
+};
+
+const metricDisplayLabel = (metricCode: string, fallback: string): string => {
+  const labelByMetricCode: Record<string, string> = {
+    RETAIL_SALES_REAL_GROWTH: "Tăng trưởng bán lẻ thực",
+    RETAIL_SALES_VALUE_CURRENT_PRICE: "Tổng mức bán lẻ theo giá hiện hành",
+    RETAIL_SALES_VALUE_YOY_CURRENT_PRICE: "Tăng trưởng tổng mức bán lẻ danh nghĩa",
+    STEEL_GLOBAL_CRUDE_STEEL_PRODUCTION: "Sản lượng thép thô toàn cầu",
+    STEEL_GLOBAL_CRUDE_STEEL_PRODUCTION_YOY: "Tăng trưởng sản lượng thép thô toàn cầu YoY",
+  };
+
+  return labelByMetricCode[metricCode] ?? fallback;
 };
 
 type MetricReadingGuide = {
@@ -261,103 +273,103 @@ type FutureMetricGuide = {
 const futureMetricGuidesByIndustryCode: Record<string, FutureMetricGuide[]> = {
   STEEL_MATERIALS: [
     {
-      label: "San luong thep Viet Nam",
-      readAs: "Dung de xem nhu cau va san xuat trong nuoc dang mo rong hay thu hep.",
-      nextCheck: "Doi chieu voi san luong ban hang, cong suat su dung va ton kho cua doanh nghiep thep.",
+      label: "Sản lượng thép Việt Nam",
+      readAs: "Dùng để xem nhu cầu và sản xuất trong nước đang mở rộng hay thu hẹp.",
+      nextCheck: "Đối chiếu với sản lượng bán hàng, công suất sử dụng và tồn kho của doanh nghiệp thép.",
     },
     {
-      label: "Tieu thu thep xay dung",
-      readAs: "Gan truc tiep voi xay dung, ha tang va bat dong san.",
-      nextCheck: "Kiem tra doanh thu noi dia, co cau san pham va no phai thu tu khach hang xay dung.",
+      label: "Tiêu thụ thép xây dựng",
+      readAs: "Gắn trực tiếp với xây dựng, hạ tầng và bất động sản.",
+      nextCheck: "Kiểm tra doanh thu nội địa, cơ cấu sản phẩm và nợ phải thu từ khách hàng xây dựng.",
     },
     {
-      label: "Gia HRC",
-      readAs: "Cho biet mat bang gia ban dau ra cua mot nhom san pham thep quan trong.",
-      nextCheck: "So voi gia nguyen lieu de xem bien gop co nguy co bi ep hay duoc ho tro.",
+      label: "Giá HRC",
+      readAs: "Cho biết mặt bằng giá bán đầu ra của một nhóm sản phẩm thép quan trọng.",
+      nextCheck: "So với giá nguyên liệu để xem biên gộp có nguy cơ bị ép hay được hỗ trợ.",
     },
     {
-      label: "Gia quang sat",
-      readAs: "La dau vao lon cua san xuat thep, anh huong den gia von.",
-      nextCheck: "Kiem tra bien gop va ton kho nguyen lieu khi gia quang sat bien dong nhanh.",
+      label: "Giá quặng sắt",
+      readAs: "Là đầu vào lớn của sản xuất thép, ảnh hưởng đến giá vốn.",
+      nextCheck: "Kiểm tra biên gộp và tồn kho nguyên liệu khi giá quặng sắt biến động nhanh.",
     },
     {
-      label: "Gia than luyen coc",
-      readAs: "Anh huong den chi phi san xuat, nhat la voi doanh nghiep dung lo cao.",
-      nextCheck: "Doi chieu voi bien gop, gia ban va kha nang chuyen chi phi sang khach hang.",
+      label: "Giá than luyện cốc",
+      readAs: "Ảnh hưởng đến chi phí sản xuất, nhất là với doanh nghiệp dùng lò cao.",
+      nextCheck: "Đối chiếu với biên gộp, giá bán và khả năng chuyển chi phí sang khách hàng.",
     },
     {
-      label: "Bien loi nhuan nganh neu co nguon",
-      readAs: "Giup nhin ap luc loi nhuan chung cua nganh, nhung khong thay the bien gop doanh nghiep.",
-      nextCheck: "So voi bien gop rieng cua doanh nghiep de xem chenhlech den tu co cau san pham hay hieu qua van hanh.",
+      label: "Biên lợi nhuận ngành nếu có nguồn",
+      readAs: "Giúp nhìn áp lực lợi nhuận chung của ngành, nhưng không thay thế biên gộp doanh nghiệp.",
+      nextCheck: "So với biên gộp riêng của doanh nghiệp để xem chênh lệch đến từ cơ cấu sản phẩm hay hiệu quả vận hành.",
     },
     {
-      label: "Ton kho thep",
-      readAs: "Ton kho cao co the bao hieu cau yeu, gia dao chieu hoac chu ky dang cham lai.",
-      nextCheck: "Kiem tra ton kho/doanh thu, du phong giam gia hang ton kho va dong tien van hanh.",
+      label: "Tồn kho thép",
+      readAs: "Tồn kho cao có thể báo hiệu cầu yếu, giá đảo chiều hoặc chu kỳ đang chậm lại.",
+      nextCheck: "Kiểm tra tồn kho/doanh thu, dự phòng giảm giá hàng tồn kho và dòng tiền vận hành.",
     },
   ],
   RETAIL: [
     {
-      label: "Tong muc ban le",
-      readAs: "Cho biet quy mo chi tieu danh nghia cua nen kinh te.",
-      nextCheck: "Tach tang truong do gia va tang truong do luong khach/luong hang ban ra.",
+      label: "Tổng mức bán lẻ",
+      readAs: "Cho biết quy mô chi tiêu danh nghĩa của nền kinh tế.",
+      nextCheck: "Tách tăng trưởng do giá và tăng trưởng do lượng khách/lượng hàng bán ra.",
     },
     {
-      label: "Tang truong ban le thuc",
-      readAs: "Huu ich de doc suc mua that sau khi loai bot mot phan tac dong gia.",
-      nextCheck: "Doi chieu voi doanh thu cung cua hang, luong khach va gia tri don hang.",
+      label: "Tăng trưởng bán lẻ thực",
+      readAs: "Hữu ích để đọc sức mua thật sau khi loại bớt một phần tác động giá.",
+      nextCheck: "Đối chiếu với doanh thu cùng cửa hàng, lượng khách và giá trị đơn hàng.",
     },
     {
-      label: "Luu luong khach",
-      readAs: "Cho biet cua hang/khu ban le co hut khach hay khong.",
-      nextCheck: "Kiem tra ty le chuyen doi, gia tri don hang va chi phi khuyen mai.",
+      label: "Lưu lượng khách",
+      readAs: "Cho biết cửa hàng/khu bán lẻ có hút khách hay không.",
+      nextCheck: "Kiểm tra tỷ lệ chuyển đổi, giá trị đơn hàng và chi phí khuyến mãi.",
     },
     {
-      label: "Doanh so online/offline neu co",
-      readAs: "Giup tach tang truong den tu kenh ban va hanh vi mua sam.",
-      nextCheck: "Kiem tra bien loi nhuan tung kenh, chi phi giao hang va vong quay ton kho.",
+      label: "Doanh số online/offline nếu có",
+      readAs: "Giúp tách tăng trưởng đến từ kênh bán và hành vi mua sắm.",
+      nextCheck: "Kiểm tra biên lợi nhuận từng kênh, chi phí giao hàng và vòng quay tồn kho.",
     },
     {
-      label: "Chi so niem tin tieu dung",
-      readAs: "La tin hieu som ve tam ly chi tieu cua ho gia dinh.",
-      nextCheck: "Doi chieu voi doanh thu cac nhom hang khong thiet yeu va muc khuyen mai.",
+      label: "Chỉ số niềm tin tiêu dùng",
+      readAs: "Là tín hiệu sớm về tâm lý chi tiêu của hộ gia đình.",
+      nextCheck: "Đối chiếu với doanh thu các nhóm hàng không thiết yếu và mức khuyến mãi.",
     },
     {
-      label: "Tang truong thu nhap/ho gia dinh",
-      readAs: "Anh huong den suc mua va kha nang chi cho hang khong thiet yeu.",
-      nextCheck: "Kiem tra co cau hang hoa, gia tri gio hang va ty le hang cao cap/pho thong.",
+      label: "Tăng trưởng thu nhập/hộ gia đình",
+      readAs: "Ảnh hưởng đến sức mua và khả năng chi cho hàng không thiết yếu.",
+      nextCheck: "Kiểm tra cơ cấu hàng hóa, giá trị giỏ hàng và tỷ lệ hàng cao cấp/phổ thông.",
     },
   ],
   CONSUMER_STAPLES_DAIRY: [
     {
-      label: "San luong sua",
-      readAs: "Cho biet quy mo cung/cau vat ly cua nganh sua.",
-      nextCheck: "Doi chieu voi san luong ban ra, ton kho va cong suat nha may cua doanh nghiep.",
+      label: "Sản lượng sữa",
+      readAs: "Cho biết quy mô cung/cầu vật lý của ngành sữa.",
+      nextCheck: "Đối chiếu với sản lượng bán ra, tồn kho và công suất nhà máy của doanh nghiệp.",
     },
     {
-      label: "Tieu thu sua binh quan",
-      readAs: "Giup doc du dia tang truong dai han cua nhu cau sua.",
-      nextCheck: "Kiem tra tang truong theo nhom san pham va khu vuc phan phoi.",
+      label: "Tiêu thụ sữa bình quân",
+      readAs: "Giúp đọc dư địa tăng trưởng dài hạn của nhu cầu sữa.",
+      nextCheck: "Kiểm tra tăng trưởng theo nhóm sản phẩm và khu vực phân phối.",
     },
     {
-      label: "Gia sua bot nguyen lieu",
-      readAs: "Anh huong den gia von cua doanh nghiep san xuat sua.",
-      nextCheck: "Doi chieu voi bien gop, ton kho nguyen lieu va kha nang dieu chinh gia ban.",
+      label: "Giá sữa bột nguyên liệu",
+      readAs: "Ảnh hưởng đến giá vốn của doanh nghiệp sản xuất sữa.",
+      nextCheck: "Đối chiếu với biên gộp, tồn kho nguyên liệu và khả năng điều chỉnh giá bán.",
     },
     {
-      label: "Tang truong FMCG",
-      readAs: "Cho biet nen cau cua hang tieu dung nhanh.",
-      nextCheck: "Tach rieng nganh sua voi cac nhom FMCG khac, tranh doc qua rong.",
+      label: "Tăng trưởng FMCG",
+      readAs: "Cho biết nền cầu của hàng tiêu dùng nhanh.",
+      nextCheck: "Tách riêng ngành sữa với các nhóm FMCG khác, tránh đọc quá rộng.",
     },
     {
-      label: "Tang truong tieu dung thiet yeu",
-      readAs: "Giup xem nhom hang can thiet co con giu duoc suc mua khong.",
-      nextCheck: "Kiem tra san luong, gia ban, khuyen mai va bien gop doanh nghiep.",
+      label: "Tăng trưởng tiêu dùng thiết yếu",
+      readAs: "Giúp xem nhóm hàng cần thiết có còn giữ được sức mua không.",
+      nextCheck: "Kiểm tra sản lượng, giá bán, khuyến mãi và biên gộp doanh nghiệp.",
     },
     {
-      label: "Bien gop nganh neu co nguon",
-      readAs: "Dung de xem ap luc loi nhuan chung, khong phai muc chuan de ket luan doanh nghiep.",
-      nextCheck: "So voi bien gop rieng, chi phi ban hang va co cau san pham cua doanh nghiep.",
+      label: "Biên gộp ngành nếu có nguồn",
+      readAs: "Dùng để xem áp lực lợi nhuận chung, không phải mức chuẩn để kết luận doanh nghiệp.",
+      nextCheck: "So với biên gộp riêng, chi phí bán hàng và cơ cấu sản phẩm của doanh nghiệp.",
     },
   ],
 };
@@ -370,82 +382,82 @@ const metricReadingGuide = (
   if (metricCode === "STEEL_GLOBAL_CRUDE_STEEL_PRODUCTION") {
     return {
       meaning:
-        "So nay cho biet quy mo san xuat thep trong ky, dung de nhin nen cung-cau chung truoc khi doc doanh nghiep thep.",
+        "Số này cho biết quy mô sản xuất thép trong kỳ, dùng để nhìn nền cung-cầu chung trước khi đọc doanh nghiệp thép.",
       companyChecks: [
-        "San luong ban hang cua doanh nghiep co di cung chieu thi truong khong",
-        "Gia ban va bien gop co bi ep khi thi truong yeu khong",
-        "Ton kho co tang nhanh hon doanh thu khong",
+        "Sản lượng bán hàng của doanh nghiệp có đi cùng chiều thị trường không",
+        "Giá bán và biên gộp có bị ép khi thị trường yếu không",
+        "Tồn kho có tăng nhanh hơn doanh thu không",
       ],
       watchCase:
-        "Neu san luong nganh yeu ma doanh nghiep van giu duoc san luong, bien gop va ton kho, can doc ky de xem do loi the rieng hay do do tre so lieu.",
+        "Nếu sản lượng ngành yếu mà doanh nghiệp vẫn giữ được sản lượng, biên gộp và tồn kho, cần đọc kỹ để xem đó là lợi thế riêng hay do độ trễ số liệu.",
     };
   }
 
   if (metricCode === "STEEL_GLOBAL_CRUDE_STEEL_PRODUCTION_YOY") {
     const direction = value < 0 ? "giam" : "tang";
     return {
-      meaning: `Toc do ${direction} so voi cung ky giup nhan dien chu ky thep dang nong len hay ha nhiet.`,
+      meaning: `Tốc độ ${direction === "giam" ? "giảm" : "tăng"} so với cùng kỳ giúp nhận diện chu kỳ thép đang nóng lên hay hạ nhiệt.`,
       companyChecks: [
-        "Doanh thu thep tang/giam do san luong hay do gia ban",
-        "Gia nguyen lieu co di nguoc voi gia ban thanh pham khong",
-        "Dong tien van hanh co kem di khi chu ky yeu khong",
+        "Doanh thu thép tăng/giảm do sản lượng hay do giá bán",
+        "Giá nguyên liệu có đi ngược với giá bán thành phẩm không",
+        "Dòng tiền vận hành có kém đi khi chu kỳ yếu không",
       ],
       watchCase:
-        "Neu nganh giam nhung doanh nghiep rieng le van co ket qua vuot nen, dung vo vang gan do la xu huong ben vung; can doi chieu san luong, bien gop va ton kho.",
+        "Nếu ngành giảm nhưng doanh nghiệp riêng lẻ vẫn có kết quả vượt nền, đừng vội gán đó là xu hướng bền vững; cần đối chiếu sản lượng, biên gộp và tồn kho.",
     };
   }
 
   if (metricCode === "RETAIL_SALES_VALUE_CURRENT_PRICE") {
     return {
       meaning:
-        "Tong muc ban le theo gia hien hanh cho biet quy mo chi tieu danh nghia; so nay co the bi day len boi gia, khong chi boi luong hang ban ra.",
+        "Tổng mức bán lẻ theo giá hiện hành cho biết quy mô chi tiêu danh nghĩa; số này có thể bị đẩy lên bởi giá, không chỉ bởi lượng hàng bán ra.",
       companyChecks: [
-        "Doanh thu cua doanh nghiep tang nhanh hon hay cham hon tong muc ban le",
-        "Tang truong den tu mo them diem ban hay tu cua hang hien huu",
-        "Bien gop va chi phi ban hang co giu duoc khi doanh thu tang khong",
+        "Doanh thu của doanh nghiệp tăng nhanh hơn hay chậm hơn tổng mức bán lẻ",
+        "Tăng trưởng đến từ mở thêm điểm bán hay từ cửa hàng hiện hữu",
+        "Biên gộp và chi phí bán hàng có giữ được khi doanh thu tăng không",
       ],
       watchCase:
-        "Neu doanh thu tang nhung bien gop, ton kho hoac chi phi kem di, can coi day la tang quy mo chua chac la tang chat luong loi nhuan.",
+        "Nếu doanh thu tăng nhưng biên gộp, tồn kho hoặc chi phí kém đi, cần coi đây là tăng quy mô, chưa chắc là tăng chất lượng lợi nhuận.",
     };
   }
 
   if (metricCode === "RETAIL_SALES_VALUE_YOY_CURRENT_PRICE") {
     return {
       meaning:
-        "Tang truong ban le danh nghia cho thay suc mua tinh theo gia tien, nhung can tach anh huong lam phat va gia ban.",
+        "Tăng trưởng bán lẻ danh nghĩa cho thấy sức mua tính theo giá tiền, nhưng cần tách ảnh hưởng lạm phát và giá bán.",
       companyChecks: [
-        "Tang truong doanh thu co cao hon tang truong nganh khong",
-        "Gia tri don hang va luong khach thay doi ra sao",
-        "Ton kho co phu hop voi toc do ban hang khong",
+        "Tăng trưởng doanh thu có cao hơn tăng trưởng ngành không",
+        "Giá trị đơn hàng và lượng khách thay đổi ra sao",
+        "Tồn kho có phù hợp với tốc độ bán hàng không",
       ],
       watchCase:
-        "Neu nganh tang danh nghia manh nhung tang truong thuc thap, hay canh giac viec doanh thu tang chu yeu do gia, khong phai nhu cau that.",
+        "Nếu ngành tăng danh nghĩa mạnh nhưng tăng trưởng thực thấp, hãy cảnh giác việc doanh thu tăng chủ yếu do giá, không phải nhu cầu thật.",
     };
   }
 
   if (metricCode === "RETAIL_SALES_REAL_GROWTH") {
     return {
       meaning:
-        "Tang truong thuc da loai bot mot phan anh huong gia, nen huu ich hon de doc suc mua that cua nguoi tieu dung.",
+        "Tăng trưởng thực đã loại bớt một phần ảnh hưởng giá, nên hữu ích hơn để đọc sức mua thật của người tiêu dùng.",
       companyChecks: [
-        "Doanh thu cung cua hang co cai thien theo suc mua that khong",
-        "Nhom hang nao dang keo tang truong va nhom nao yeu",
-        "Chi phi van hanh co tang nhanh hon tang truong thuc khong",
+        "Doanh thu cùng cửa hàng có cải thiện theo sức mua thật không",
+        "Nhóm hàng nào đang kéo tăng trưởng và nhóm nào yếu",
+        "Chi phí vận hành có tăng nhanh hơn tăng trưởng thực không",
       ],
       watchCase:
-        "Neu tang truong thuc cham lai, doanh nghiep ban le can duoc kiem tra ky ve luong khach, hang ton va ap luc khuyen mai.",
+        "Nếu tăng trưởng thực chậm lại, doanh nghiệp bán lẻ cần được kiểm tra kỹ về lượng khách, hàng tồn và áp lực khuyến mãi.",
     };
   }
 
   return {
     meaning:
-      "Metric nay chi la dau vao de dat cau hoi khi doc nganh va doanh nghiep, khong phai ket luan san.",
+      "Metric này chỉ là đầu vào để đặt câu hỏi khi đọc ngành và doanh nghiệp, không phải kết luận sẵn.",
     companyChecks:
       industryCode === "RETAIL"
-        ? ["Doanh thu", "Bien gop", "Ton kho", "Chi phi ban hang", "Dong tien van hanh"]
-        : ["San luong", "Gia ban", "Bien gop", "Ton kho", "Dong tien van hanh"],
+        ? ["Doanh thu", "Biên gộp", "Tồn kho", "Chi phí bán hàng", "Dòng tiền vận hành"]
+        : ["Sản lượng", "Giá bán", "Biên gộp", "Tồn kho", "Dòng tiền vận hành"],
     watchCase:
-      "Neu metric nganh va so lieu doanh nghiep di khac nhau, can uu tien kiem tra ly do thay vi ket luan tu mot con so rieng le.",
+      "Nếu metric ngành và số liệu doanh nghiệp đi khác nhau, cần ưu tiên kiểm tra lý do thay vì kết luận từ một con số riêng lẻ.",
   };
 };
 
@@ -656,27 +668,27 @@ function IndustryMetricReadPathPanel({
     <section>
       <SectionHeader
         eyebrow="Layer 5"
-        title="Ghi chu cach doc so lieu nganh"
-        description="Cac metric hien co chi la dau vao nho de nguoi dung biet nen tu soi tiep dieu gi khi doc doanh nghiep."
+        title="Ghi chú cách đọc số liệu ngành"
+        description="Các metric hiện có chỉ là đầu vào nhỏ để người dùng biết nên tự soi tiếp điều gì khi đọc doanh nghiệp."
       />
       <Card>
         <CardBody className="space-y-4">
           <div className="flex flex-wrap gap-2">
             <Chip variant={hasMetrics ? "success" : "warning"}>
-              {hasMetrics ? "Co metric DB" : "Chua co metric DB"}
+              {hasMetrics ? "Có metric DB" : "Chưa có metric DB"}
             </Chip>
             <Chip variant="warning">research_only</Chip>
             <Chip variant="warning">needsReview=true</Chip>
             <Chip variant="neutral">productionApproved=false</Chip>
-            <Chip variant="neutral">Chi la ghi chu doc so</Chip>
+            <Chip variant="neutral">Chỉ là ghi chú đọc số</Chip>
           </div>
 
           <div className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-3">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <p className="text-sm font-bold text-ink">Chi so nen tu tim them</p>
+                <p className="text-sm font-bold text-ink">Chỉ số nên tự tìm thêm</p>
                 <p className="mt-1 text-xs leading-5 text-muted">
-                  Day la checklist doc so lieu cho nguoi dung, chua phai metric trong DB.
+                  Đây là checklist đọc số liệu cho người dùng, chưa phải metric trong DB.
                 </p>
               </div>
               <button
@@ -685,7 +697,7 @@ function IndustryMetricReadPathPanel({
                 aria-expanded={showFutureMetricGuide}
                 onClick={() => setShowFutureMetricGuide((value) => !value)}
               >
-                {showFutureMetricGuide ? "An ghi chu" : "Xem ghi chu"}
+                {showFutureMetricGuide ? "Ẩn ghi chú" : "Xem ghi chú"}
               </button>
             </div>
 
@@ -696,7 +708,7 @@ function IndustryMetricReadPathPanel({
                     <p className="text-xs font-bold text-ink">{guide.label}</p>
                     <p className="mt-2 text-xs leading-5 text-muted">{guide.readAs}</p>
                     <p className="mt-2 border-l border-warning pl-3 text-xs leading-5 text-muted">
-                      Tu soi tiep: {guide.nextCheck}
+                      Tự soi tiếp: {guide.nextCheck}
                     </p>
                   </article>
                 ))}
@@ -725,7 +737,9 @@ function IndustryMetricReadPathPanel({
                               provenance={metric.provenanceCount}
                             </Chip>
                           </div>
-                          <p className="mt-3 text-sm font-bold text-ink">{metric.metricLabelVi}</p>
+                          <p className="mt-3 text-sm font-bold text-ink">
+                            {metricDisplayLabel(metric.metricCode, metric.metricLabelVi)}
+                          </p>
                           <p className="mt-1 text-xl font-bold text-ink">
                             {formatMetricValue(metric.value, metric.unit)}
                           </p>
@@ -737,13 +751,13 @@ function IndustryMetricReadPathPanel({
                         <div className="grid gap-3 md:grid-cols-3">
                           <div>
                             <p className="text-xs font-bold uppercase tracking-[0.08em] text-subtle">
-                              So nay noi gi
+                              Số này nói gì
                             </p>
                             <p className="mt-2 text-xs leading-5 text-muted">{guide.meaning}</p>
                           </div>
                           <div>
                             <p className="text-xs font-bold uppercase tracking-[0.08em] text-subtle">
-                              Can soi tiep
+                              Cần soi tiếp
                             </p>
                             <ul className="mt-2 space-y-1 text-xs leading-5 text-muted">
                               {guide.companyChecks.map((check) => (
@@ -755,7 +769,7 @@ function IndustryMetricReadPathPanel({
                           </div>
                           <div>
                             <p className="text-xs font-bold uppercase tracking-[0.08em] text-subtle">
-                              Can doc than trong
+                              Cần đọc thận trọng
                             </p>
                             <p className="mt-2 text-xs leading-5 text-muted">{guide.watchCase}</p>
                           </div>
@@ -768,17 +782,17 @@ function IndustryMetricReadPathPanel({
             </div>
           ) : (
             <div className="rounded-[4px] border border-warning bg-warning/10 px-4 py-4">
-              <p className="text-sm font-bold text-ink">Chua co metric nganh du dieu kien de ghi chu.</p>
+              <p className="text-sm font-bold text-ink">Chưa có metric ngành đủ điều kiện để ghi chú.</p>
               <p className="mt-1 text-xs leading-5 text-muted">
-                Gia tri thieu giu nguyen la N/A. He thong khong lay taxonomy, peer group hay context chu de thay the
-                so lieu.
+                Giá trị thiếu giữ nguyên là N/A. Hệ thống không lấy taxonomy, peer group hay context chữ để thay thế
+                số liệu.
               </p>
             </div>
           )}
 
           <p className="rounded-[4px] border border-warning bg-warning/10 px-4 py-3 text-xs leading-5 text-muted">
-            Ghi chu nay chi huong dan cach tu doc so lieu. He thong khong tu dong bien metric thanh ket luan dau tu,
-            khong thay the viec doc BCTC, rui ro va boi canh doanh nghiep.
+            Ghi chú này chỉ hướng dẫn cách tự đọc số liệu. Hệ thống không tự động biến metric thành kết luận đầu tư,
+            không thay thế việc đọc BCTC, rủi ro và bối cảnh doanh nghiệp.
           </p>
         </CardBody>
       </Card>
