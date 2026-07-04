@@ -252,6 +252,116 @@ type MetricReadingGuide = {
   watchCase: string;
 };
 
+type FutureMetricGuide = {
+  label: string;
+  readAs: string;
+  nextCheck: string;
+};
+
+const futureMetricGuidesByIndustryCode: Record<string, FutureMetricGuide[]> = {
+  STEEL_MATERIALS: [
+    {
+      label: "San luong thep Viet Nam",
+      readAs: "Dung de xem nhu cau va san xuat trong nuoc dang mo rong hay thu hep.",
+      nextCheck: "Doi chieu voi san luong ban hang, cong suat su dung va ton kho cua doanh nghiep thep.",
+    },
+    {
+      label: "Tieu thu thep xay dung",
+      readAs: "Gan truc tiep voi xay dung, ha tang va bat dong san.",
+      nextCheck: "Kiem tra doanh thu noi dia, co cau san pham va no phai thu tu khach hang xay dung.",
+    },
+    {
+      label: "Gia HRC",
+      readAs: "Cho biet mat bang gia ban dau ra cua mot nhom san pham thep quan trong.",
+      nextCheck: "So voi gia nguyen lieu de xem bien gop co nguy co bi ep hay duoc ho tro.",
+    },
+    {
+      label: "Gia quang sat",
+      readAs: "La dau vao lon cua san xuat thep, anh huong den gia von.",
+      nextCheck: "Kiem tra bien gop va ton kho nguyen lieu khi gia quang sat bien dong nhanh.",
+    },
+    {
+      label: "Gia than luyen coc",
+      readAs: "Anh huong den chi phi san xuat, nhat la voi doanh nghiep dung lo cao.",
+      nextCheck: "Doi chieu voi bien gop, gia ban va kha nang chuyen chi phi sang khach hang.",
+    },
+    {
+      label: "Bien loi nhuan nganh neu co nguon",
+      readAs: "Giup nhin ap luc loi nhuan chung cua nganh, nhung khong thay the bien gop doanh nghiep.",
+      nextCheck: "So voi bien gop rieng cua doanh nghiep de xem chenhlech den tu co cau san pham hay hieu qua van hanh.",
+    },
+    {
+      label: "Ton kho thep",
+      readAs: "Ton kho cao co the bao hieu cau yeu, gia dao chieu hoac chu ky dang cham lai.",
+      nextCheck: "Kiem tra ton kho/doanh thu, du phong giam gia hang ton kho va dong tien van hanh.",
+    },
+  ],
+  RETAIL: [
+    {
+      label: "Tong muc ban le",
+      readAs: "Cho biet quy mo chi tieu danh nghia cua nen kinh te.",
+      nextCheck: "Tach tang truong do gia va tang truong do luong khach/luong hang ban ra.",
+    },
+    {
+      label: "Tang truong ban le thuc",
+      readAs: "Huu ich de doc suc mua that sau khi loai bot mot phan tac dong gia.",
+      nextCheck: "Doi chieu voi doanh thu cung cua hang, luong khach va gia tri don hang.",
+    },
+    {
+      label: "Luu luong khach",
+      readAs: "Cho biet cua hang/khu ban le co hut khach hay khong.",
+      nextCheck: "Kiem tra ty le chuyen doi, gia tri don hang va chi phi khuyen mai.",
+    },
+    {
+      label: "Doanh so online/offline neu co",
+      readAs: "Giup tach tang truong den tu kenh ban va hanh vi mua sam.",
+      nextCheck: "Kiem tra bien loi nhuan tung kenh, chi phi giao hang va vong quay ton kho.",
+    },
+    {
+      label: "Chi so niem tin tieu dung",
+      readAs: "La tin hieu som ve tam ly chi tieu cua ho gia dinh.",
+      nextCheck: "Doi chieu voi doanh thu cac nhom hang khong thiet yeu va muc khuyen mai.",
+    },
+    {
+      label: "Tang truong thu nhap/ho gia dinh",
+      readAs: "Anh huong den suc mua va kha nang chi cho hang khong thiet yeu.",
+      nextCheck: "Kiem tra co cau hang hoa, gia tri gio hang va ty le hang cao cap/pho thong.",
+    },
+  ],
+  CONSUMER_STAPLES_DAIRY: [
+    {
+      label: "San luong sua",
+      readAs: "Cho biet quy mo cung/cau vat ly cua nganh sua.",
+      nextCheck: "Doi chieu voi san luong ban ra, ton kho va cong suat nha may cua doanh nghiep.",
+    },
+    {
+      label: "Tieu thu sua binh quan",
+      readAs: "Giup doc du dia tang truong dai han cua nhu cau sua.",
+      nextCheck: "Kiem tra tang truong theo nhom san pham va khu vuc phan phoi.",
+    },
+    {
+      label: "Gia sua bot nguyen lieu",
+      readAs: "Anh huong den gia von cua doanh nghiep san xuat sua.",
+      nextCheck: "Doi chieu voi bien gop, ton kho nguyen lieu va kha nang dieu chinh gia ban.",
+    },
+    {
+      label: "Tang truong FMCG",
+      readAs: "Cho biet nen cau cua hang tieu dung nhanh.",
+      nextCheck: "Tach rieng nganh sua voi cac nhom FMCG khac, tranh doc qua rong.",
+    },
+    {
+      label: "Tang truong tieu dung thiet yeu",
+      readAs: "Giup xem nhom hang can thiet co con giu duoc suc mua khong.",
+      nextCheck: "Kiem tra san luong, gia ban, khuyen mai va bien gop doanh nghiep.",
+    },
+    {
+      label: "Bien gop nganh neu co nguon",
+      readAs: "Dung de xem ap luc loi nhuan chung, khong phai muc chuan de ket luan doanh nghiep.",
+      nextCheck: "So voi bien gop rieng, chi phi ban hang va co cau san pham cua doanh nghiep.",
+    },
+  ],
+};
+
 const metricReadingGuide = (
   metricCode: string,
   industryCode: string,
@@ -539,6 +649,8 @@ function IndustryMetricReadPathPanel({
     ?.industryMetricSummary;
   const metrics = metricSummary?.metrics ?? [];
   const hasMetrics = metricSummary?.status === "available" && metrics.length > 0;
+  const futureMetricGuides = expectedIndustryCode ? futureMetricGuidesByIndustryCode[expectedIndustryCode] ?? [] : [];
+  const [showFutureMetricGuide, setShowFutureMetricGuide] = useState(false);
 
   return (
     <section>
@@ -557,6 +669,39 @@ function IndustryMetricReadPathPanel({
             <Chip variant="warning">needsReview=true</Chip>
             <Chip variant="neutral">productionApproved=false</Chip>
             <Chip variant="neutral">Chi la ghi chu doc so</Chip>
+          </div>
+
+          <div className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-bold text-ink">Chi so nen tu tim them</p>
+                <p className="mt-1 text-xs leading-5 text-muted">
+                  Day la checklist doc so lieu cho nguoi dung, chua phai metric trong DB.
+                </p>
+              </div>
+              <button
+                type="button"
+                className="rounded-[4px] border border-border-strong bg-surface px-3 py-2 text-xs font-bold text-ink transition hover:bg-warning/10"
+                aria-expanded={showFutureMetricGuide}
+                onClick={() => setShowFutureMetricGuide((value) => !value)}
+              >
+                {showFutureMetricGuide ? "An ghi chu" : "Xem ghi chu"}
+              </button>
+            </div>
+
+            {showFutureMetricGuide ? (
+              <div className="mt-3 grid gap-2 md:grid-cols-2">
+                {futureMetricGuides.map((guide) => (
+                  <article key={guide.label} className="rounded-[4px] border border-border-soft bg-surface px-3 py-3">
+                    <p className="text-xs font-bold text-ink">{guide.label}</p>
+                    <p className="mt-2 text-xs leading-5 text-muted">{guide.readAs}</p>
+                    <p className="mt-2 border-l border-warning pl-3 text-xs leading-5 text-muted">
+                      Tu soi tiep: {guide.nextCheck}
+                    </p>
+                  </article>
+                ))}
+              </div>
+            ) : null}
           </div>
 
           {hasMetrics ? (

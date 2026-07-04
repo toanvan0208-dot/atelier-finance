@@ -412,6 +412,10 @@ describe("IndustryPage runtime read path", () => {
     expect(html).toContain("So nay noi gi");
     expect(html).toContain("Can soi tiep");
     expect(html).toContain("San luong ban hang cua doanh nghiep co di cung chieu thi truong khong");
+    expect(html).toContain("Chi so nen tu tim them");
+    expect(html).toContain("Xem ghi chu");
+    expect(html).toContain("chua phai metric trong DB");
+    expect(html).not.toContain("San luong thep Viet Nam");
     expect(html).toContain("Local PDF - Steel market Q1 2026");
     expect(html).toContain("productionApproved=false");
     expect(html).toContain("Chi la ghi chu doc so");
