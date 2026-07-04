@@ -115,7 +115,7 @@ describe("runAssistant", () => {
     expect(result.validation).toBeNull();
   });
 
-  it("requires provider output to disclose incomplete grounded context", async () => {
+  it("adds missing-data disclosure when provider output only misses that caveat", async () => {
     const contextPacket = {
       ticker: "FPT",
       activeModule: "risk",
@@ -134,7 +134,7 @@ describe("runAssistant", () => {
       visibleFacts: ["Ticker in workspace URL: FPT"],
       constraints: ["Do not infer missing values."],
     } as const;
-    const blocked = await runAssistant({
+    const disclosed = await runAssistant({
       question: "Giai thich du lieu hien tai",
       activeModule: "risk",
       contextPacket: {
@@ -169,10 +169,10 @@ describe("runAssistant", () => {
       }),
     });
 
-    expect(blocked.llmStatus).toBe("blocked_by_guardrails");
-    expect(blocked.violations.map((violation) => violation.code)).toContain(
-      "MISSING_DATA_NOT_DISCLOSED",
-    );
+    expect(disclosed.llmStatus).toBe("completed");
+    expect(disclosed.answer).toContain("du lieu man hinh hoac nguon/asOf/period chua du");
+    expect(disclosed.answer).toContain("Doanh thu dang tang.");
+    expect(disclosed.violations).toEqual([]);
     expect(safe.llmStatus).toBe("completed");
   });
 

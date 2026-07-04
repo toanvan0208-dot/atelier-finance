@@ -9,6 +9,9 @@ import type { RunAssistantInput, RunAssistantOutput } from "./types";
 const SAFE_REFUSAL =
   "Cau tra loi cua provider bi chan vi vi pham guardrails. AI Atelier Finance khong dua khuyen nghi mua/ban/nam giu, khong du doan gia va khong tu tao du lieu ngoai context.";
 
+const MISSING_DATA_DISCLOSURE_PREFIX =
+  "Luu y: du lieu man hinh hoac nguon/asOf/period chua du, nen cau tra loi chi la huong dan doc tiep dua tren ngu canh hien co.";
+
 const asNumberOrNull = (value: unknown): number | null => {
   if (typeof value !== "number" || !Number.isFinite(value)) return null;
   return value;
@@ -47,6 +50,12 @@ const buildValidationContext = (
     ...override,
   };
 };
+
+const hasOnlyMissingDataDisclosureViolation = (
+  validation: ReturnType<typeof validateAssistantOutput>,
+): boolean =>
+  validation.violations.length > 0 &&
+  validation.violations.every((violation) => violation.code === "MISSING_DATA_NOT_DISCLOSED");
 
 export const runAssistant = async (input: RunAssistantInput): Promise<RunAssistantOutput> => {
   const runtime = buildAssistantRuntime(input);
@@ -94,6 +103,28 @@ export const runAssistant = async (input: RunAssistantInput): Promise<RunAssista
     candidateAnswer,
     buildValidationContext(input, input.validationContext),
   );
+
+  if (candidateAnswer && hasOnlyMissingDataDisclosureViolation(validation)) {
+    const disclosedAnswer = `${MISSING_DATA_DISCLOSURE_PREFIX}\n\n${candidateAnswer}`;
+    const disclosedValidation = validateAssistantOutput(
+      disclosedAnswer,
+      buildValidationContext(input, input.validationContext),
+    );
+
+    if (disclosedValidation.isValid) {
+      return {
+        ok: true,
+        runtime,
+        answer: disclosedAnswer,
+        llmStatus: "completed",
+        message: "Assistant provider response passed after adding missing-data disclosure.",
+        providerResponse,
+        validation: disclosedValidation,
+        violations: [],
+        refusal: null,
+      };
+    }
+  }
 
   if (!candidateAnswer || !validation.isValid) {
     return {
