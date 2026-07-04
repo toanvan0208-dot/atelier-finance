@@ -405,13 +405,16 @@ describe("IndustryPage runtime read path", () => {
       }),
     );
 
-    expect(html).toContain("So lieu nganh co nguon");
+    expect(html).toContain("Ghi chu cach doc so lieu nganh");
     expect(html).toContain("Co metric DB");
     expect(html).toContain("San luong thep tho toan cau");
     expect(html).toContain("159,9 trieu tan");
+    expect(html).toContain("So nay noi gi");
+    expect(html).toContain("Can soi tiep");
+    expect(html).toContain("San luong ban hang cua doanh nghiep co di cung chieu thi truong khong");
     expect(html).toContain("Local PDF - Steel market Q1 2026");
     expect(html).toContain("productionApproved=false");
-    expect(html).toContain("Khong phai ket luan dau tu");
+    expect(html).toContain("Chi la ghi chu doc so");
   });
 
   it("renders Vietnamese display copy for PDF-backed Layer 4 context without changing source metadata", () => {

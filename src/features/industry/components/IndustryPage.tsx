@@ -246,6 +246,99 @@ const formatMetricValue = (value: number, unit: string): string => {
   return `${formatted} ${unitLabelByCode[unit] ?? unit}`;
 };
 
+type MetricReadingGuide = {
+  meaning: string;
+  companyChecks: string[];
+  watchCase: string;
+};
+
+const metricReadingGuide = (
+  metricCode: string,
+  industryCode: string,
+  value: number,
+): MetricReadingGuide => {
+  if (metricCode === "STEEL_GLOBAL_CRUDE_STEEL_PRODUCTION") {
+    return {
+      meaning:
+        "So nay cho biet quy mo san xuat thep trong ky, dung de nhin nen cung-cau chung truoc khi doc doanh nghiep thep.",
+      companyChecks: [
+        "San luong ban hang cua doanh nghiep co di cung chieu thi truong khong",
+        "Gia ban va bien gop co bi ep khi thi truong yeu khong",
+        "Ton kho co tang nhanh hon doanh thu khong",
+      ],
+      watchCase:
+        "Neu san luong nganh yeu ma doanh nghiep van giu duoc san luong, bien gop va ton kho, can doc ky de xem do loi the rieng hay do do tre so lieu.",
+    };
+  }
+
+  if (metricCode === "STEEL_GLOBAL_CRUDE_STEEL_PRODUCTION_YOY") {
+    const direction = value < 0 ? "giam" : "tang";
+    return {
+      meaning: `Toc do ${direction} so voi cung ky giup nhan dien chu ky thep dang nong len hay ha nhiet.`,
+      companyChecks: [
+        "Doanh thu thep tang/giam do san luong hay do gia ban",
+        "Gia nguyen lieu co di nguoc voi gia ban thanh pham khong",
+        "Dong tien van hanh co kem di khi chu ky yeu khong",
+      ],
+      watchCase:
+        "Neu nganh giam nhung doanh nghiep rieng le van co ket qua vuot nen, dung vo vang gan do la xu huong ben vung; can doi chieu san luong, bien gop va ton kho.",
+    };
+  }
+
+  if (metricCode === "RETAIL_SALES_VALUE_CURRENT_PRICE") {
+    return {
+      meaning:
+        "Tong muc ban le theo gia hien hanh cho biet quy mo chi tieu danh nghia; so nay co the bi day len boi gia, khong chi boi luong hang ban ra.",
+      companyChecks: [
+        "Doanh thu cua doanh nghiep tang nhanh hon hay cham hon tong muc ban le",
+        "Tang truong den tu mo them diem ban hay tu cua hang hien huu",
+        "Bien gop va chi phi ban hang co giu duoc khi doanh thu tang khong",
+      ],
+      watchCase:
+        "Neu doanh thu tang nhung bien gop, ton kho hoac chi phi kem di, can coi day la tang quy mo chua chac la tang chat luong loi nhuan.",
+    };
+  }
+
+  if (metricCode === "RETAIL_SALES_VALUE_YOY_CURRENT_PRICE") {
+    return {
+      meaning:
+        "Tang truong ban le danh nghia cho thay suc mua tinh theo gia tien, nhung can tach anh huong lam phat va gia ban.",
+      companyChecks: [
+        "Tang truong doanh thu co cao hon tang truong nganh khong",
+        "Gia tri don hang va luong khach thay doi ra sao",
+        "Ton kho co phu hop voi toc do ban hang khong",
+      ],
+      watchCase:
+        "Neu nganh tang danh nghia manh nhung tang truong thuc thap, hay canh giac viec doanh thu tang chu yeu do gia, khong phai nhu cau that.",
+    };
+  }
+
+  if (metricCode === "RETAIL_SALES_REAL_GROWTH") {
+    return {
+      meaning:
+        "Tang truong thuc da loai bot mot phan anh huong gia, nen huu ich hon de doc suc mua that cua nguoi tieu dung.",
+      companyChecks: [
+        "Doanh thu cung cua hang co cai thien theo suc mua that khong",
+        "Nhom hang nao dang keo tang truong va nhom nao yeu",
+        "Chi phi van hanh co tang nhanh hon tang truong thuc khong",
+      ],
+      watchCase:
+        "Neu tang truong thuc cham lai, doanh nghiep ban le can duoc kiem tra ky ve luong khach, hang ton va ap luc khuyen mai.",
+    };
+  }
+
+  return {
+    meaning:
+      "Metric nay chi la dau vao de dat cau hoi khi doc nganh va doanh nghiep, khong phai ket luan san.",
+    companyChecks:
+      industryCode === "RETAIL"
+        ? ["Doanh thu", "Bien gop", "Ton kho", "Chi phi ban hang", "Dong tien van hanh"]
+        : ["San luong", "Gia ban", "Bien gop", "Ton kho", "Dong tien van hanh"],
+    watchCase:
+      "Neu metric nganh va so lieu doanh nghiep di khac nhau, can uu tien kiem tra ly do thay vi ket luan tu mot con so rieng le.",
+  };
+};
+
 function IndustryRuntimeReadPathPanel({
   runtimeContexts,
   selectedIndustry,
@@ -451,8 +544,8 @@ function IndustryMetricReadPathPanel({
     <section>
       <SectionHeader
         eyebrow="Layer 5"
-        title="So lieu nganh co nguon"
-        description="Cac metric nay doc tu IndustryMetric trong DB. Tat ca van la research-only, needsReview va khong phai ket luan dau tu."
+        title="Ghi chu cach doc so lieu nganh"
+        description="Cac metric hien co chi la dau vao nho de nguoi dung biet nen tu soi tiep dieu gi khi doc doanh nghiep."
       />
       <Card>
         <CardBody className="space-y-4">
@@ -463,46 +556,74 @@ function IndustryMetricReadPathPanel({
             <Chip variant="warning">research_only</Chip>
             <Chip variant="warning">needsReview=true</Chip>
             <Chip variant="neutral">productionApproved=false</Chip>
-            <Chip variant="neutral">Khong phai ket luan dau tu</Chip>
+            <Chip variant="neutral">Chi la ghi chu doc so</Chip>
           </div>
 
           {hasMetrics ? (
-            <div className="grid gap-3 lg:grid-cols-2">
+            <div className="space-y-3">
               {metrics.map((metric) => (
-                <article
-                  key={metric.sourceKey}
-                  className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-4"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="text-sm font-bold text-ink">{metric.metricLabelVi}</p>
-                      <p className="mt-1 break-words text-[11px] font-semibold text-muted">{metric.metricCode}</p>
-                    </div>
-                    <Chip size="sm" variant="accent">
-                      {metric.periodLabel}
-                    </Chip>
-                  </div>
-                  <p className="mt-3 text-2xl font-bold text-ink">
-                    {formatMetricValue(metric.value, metric.unit)}
-                  </p>
-                  <dl className="mt-3 grid gap-2 text-xs leading-5 text-muted">
-                    <div>
-                      <dt className="font-semibold text-subtle">Nguon</dt>
-                      <dd className="font-bold text-ink">{metric.sourceLabel}</dd>
-                    </div>
-                    <div>
-                      <dt className="font-semibold text-subtle">Trang thai</dt>
-                      <dd className="font-bold text-ink">
-                        {metric.dataMode}, {metric.qualityStatus}, provenance={metric.provenanceCount}
-                      </dd>
-                    </div>
-                  </dl>
-                </article>
+                (() => {
+                  const guide = metricReadingGuide(metric.metricCode, metric.industryCode, metric.value);
+
+                  return (
+                    <article
+                      key={metric.sourceKey}
+                      className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-4"
+                    >
+                      <div className="grid gap-4 lg:grid-cols-[minmax(0,260px)_minmax(0,1fr)]">
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <Chip size="sm" variant="accent">
+                              {metric.periodLabel}
+                            </Chip>
+                            <Chip size="sm" variant="neutral">
+                              provenance={metric.provenanceCount}
+                            </Chip>
+                          </div>
+                          <p className="mt-3 text-sm font-bold text-ink">{metric.metricLabelVi}</p>
+                          <p className="mt-1 text-xl font-bold text-ink">
+                            {formatMetricValue(metric.value, metric.unit)}
+                          </p>
+                          <p className="mt-2 break-words text-[11px] leading-5 text-muted">
+                            {metric.sourceLabel}
+                          </p>
+                        </div>
+
+                        <div className="grid gap-3 md:grid-cols-3">
+                          <div>
+                            <p className="text-xs font-bold uppercase tracking-[0.08em] text-subtle">
+                              So nay noi gi
+                            </p>
+                            <p className="mt-2 text-xs leading-5 text-muted">{guide.meaning}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs font-bold uppercase tracking-[0.08em] text-subtle">
+                              Can soi tiep
+                            </p>
+                            <ul className="mt-2 space-y-1 text-xs leading-5 text-muted">
+                              {guide.companyChecks.map((check) => (
+                                <li key={check} className="border-l border-warning pl-3">
+                                  {check}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                          <div>
+                            <p className="text-xs font-bold uppercase tracking-[0.08em] text-subtle">
+                              Can doc than trong
+                            </p>
+                            <p className="mt-2 text-xs leading-5 text-muted">{guide.watchCase}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })()
               ))}
             </div>
           ) : (
             <div className="rounded-[4px] border border-warning bg-warning/10 px-4 py-4">
-              <p className="text-sm font-bold text-ink">Chua co metric nganh du dieu kien hien thi.</p>
+              <p className="text-sm font-bold text-ink">Chua co metric nganh du dieu kien de ghi chu.</p>
               <p className="mt-1 text-xs leading-5 text-muted">
                 Gia tri thieu giu nguyen la N/A. He thong khong lay taxonomy, peer group hay context chu de thay the
                 so lieu.
@@ -511,8 +632,8 @@ function IndustryMetricReadPathPanel({
           )}
 
           <p className="rounded-[4px] border border-warning bg-warning/10 px-4 py-3 text-xs leading-5 text-muted">
-            Layer 5 hien chi la du lieu so co nguon va can ra soat. Cac metric nay khong tu dong tao ket luan dau tu
-            hay thay the viec doc BCTC, rui ro va boi canh doanh nghiep.
+            Ghi chu nay chi huong dan cach tu doc so lieu. He thong khong tu dong bien metric thanh ket luan dau tu,
+            khong thay the viec doc BCTC, rui ro va boi canh doanh nghiep.
           </p>
         </CardBody>
       </Card>
