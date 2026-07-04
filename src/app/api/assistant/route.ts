@@ -106,6 +106,9 @@ const buildRuntimeInput = (body: AssistantApiRequestBody): AssistantRuntimeInput
   };
 };
 
+const INDUSTRY_METRIC_ASSISTANT_GUARDRAIL =
+  "Layer 5 industryMetricSummary may be present in moduleContext as research-only, needsReview, productionApproved=false data. readyForAssistantUse=false means the assistant may mention these metrics only as context for what to check next, not as an automated conclusion. Do not use IndustryMetric rows as benchmarks, rankings, scores, automatic comparisons, valuation inputs, risk benchmarks, trade-action guidance, or stock attractiveness claims. If a metric is missing, say the system has no eligible metric row. Future metric checklists are user education only and must not be treated as DB data.";
+
 export const createAssistantPostHandler =
   (options: AssistantRouteOptions = {}) =>
   async (request: Request): Promise<Response> => {
@@ -154,8 +157,9 @@ export const createAssistantPostHandler =
       runtimeInput.moduleContext = {
         ...runtimeInput.moduleContext,
         industryContext,
+        industryMetricAssistantGuardrail: INDUSTRY_METRIC_ASSISTANT_GUARDRAIL,
         industryContextGuardrail:
-          `IndustryContext, Industry taxonomy, and peer group data are qualitative research-only data with productionApproved=false and needsReview=true. Reviewed Industry coverage is currently limited to ${REVIEWED_INDUSTRY_CODES.join(", ")} for mapped tickers ${REVIEWED_MAPPED_TICKERS.join(", ")}. Source-backed full qualitative context may be used only when industryContext.context.reviewedQualitativeContextAvailable and industryContext.context.fullQualitativeContextAvailable are true for HPG, MWG, or VNM. Unsupported milestone tickers include ${REVIEWED_UNSUPPORTED_TICKERS.join(", ")}. ${UNSUPPORTED_TICKER_POLICY} Missing taxonomy or qualitative context means not yet reviewed in system data, not that the company has no industry. Taxonomy and qualitative context are not investment advice, not valuation benchmarks, not risk benchmarks, and not peer benchmarks. Peer groups are taxonomy/context comparison only, not valuation benchmarks or risk benchmarks. If taxonomy, peer group, or qualitative context status is missing, say the system has no eligible reviewed data for the ticker. Do not infer peers, invent industry metrics, create benchmarks, say one ticker is better/worse from taxonomy or peer membership, or make deterministic macro-to-industry conclusions.`,
+          `IndustryContext, Industry taxonomy, and peer group data are qualitative research-only data with productionApproved=false and needsReview=true. Reviewed Industry coverage is currently limited to ${REVIEWED_INDUSTRY_CODES.join(", ")} for mapped tickers ${REVIEWED_MAPPED_TICKERS.join(", ")}. Source-backed full qualitative context may be used only when industryContext.context.reviewedQualitativeContextAvailable and industryContext.context.fullQualitativeContextAvailable are true for HPG, MWG, or VNM. Unsupported milestone tickers include ${REVIEWED_UNSUPPORTED_TICKERS.join(", ")}. ${UNSUPPORTED_TICKER_POLICY} Missing taxonomy or qualitative context means not yet reviewed in system data, not that the company has no industry. Taxonomy and qualitative context are not investment advice, not valuation benchmarks, not risk benchmarks, and not peer benchmarks. Peer groups are taxonomy/context comparison only, not valuation benchmarks or risk benchmarks. If taxonomy, peer group, or qualitative context status is missing, say the system has no eligible reviewed data for the ticker. Do not infer peers, invent industry metrics, create benchmarks, say one ticker is better/worse from taxonomy or peer membership, or make deterministic macro-to-industry conclusions. ${INDUSTRY_METRIC_ASSISTANT_GUARDRAIL}`,
       };
     }
 
