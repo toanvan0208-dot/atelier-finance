@@ -2,6 +2,7 @@ import type {
   AssistantDataQuality,
   AssistantModuleContext,
   BuildAssistantPromptResult,
+  RetrievedPromptChunk,
 } from "../prompts";
 import type {
   PackedRetrievalContext,
@@ -23,6 +24,7 @@ export type AssistantRuntimeInput = {
   source?: string | null;
   timestamp?: string | null;
   contextPacket?: AssistantContextPacket | null;
+  supplementalRetrievedChunks?: RetrievedPromptChunk[];
 };
 
 export type AssistantRuntimeDebugInfo = {
@@ -38,6 +40,7 @@ export type AssistantRuntimeDebugInfo = {
   hasActualRetrievedChunks: boolean;
   retrievedChunkCount: number;
   excludedChunkCount: number;
+  supplementalRetrievedChunkCount: number;
   allowedNumericValuesCount: number;
   source?: string | null;
   timestamp?: string | null;
@@ -46,6 +49,7 @@ export type AssistantRuntimeDebugInfo = {
 export type AssistantRuntimeOutput = {
   selectedDocuments: RetrievalDocument[];
   retrievedChunks: RagDocumentChunk[];
+  supplementalRetrievedChunks: RetrievedPromptChunk[];
   retrieval: SelectRetrievedChunksResult;
   detectedIntent: RetrievalIntent;
   activeModule: string;

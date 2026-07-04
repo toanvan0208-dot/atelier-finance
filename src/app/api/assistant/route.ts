@@ -7,6 +7,12 @@ import { parseAssistantContextPacket } from "../../../lib/ai-rag/context";
 import { loadAssistantMarketPriceContext } from "../../../features/assistant/lib/assistant-market-price-context";
 import { loadIndustryContextRuntimeByTicker } from "../../../features/industry/lib/load-industry-context";
 import {
+  buildIndustryPdfRagIndex,
+  retrieveIndustryPdfRagChunks,
+  toIndustryPdfRagPromptChunks,
+  type IndustryPdfRagIndustryCode,
+} from "../../../features/industry/lib/industry-pdf-rag";
+import {
   REVIEWED_INDUSTRY_CODES,
   REVIEWED_MAPPED_TICKERS,
   REVIEWED_UNSUPPORTED_TICKERS,
@@ -109,6 +115,16 @@ const buildRuntimeInput = (body: AssistantApiRequestBody): AssistantRuntimeInput
 const INDUSTRY_METRIC_ASSISTANT_GUARDRAIL =
   "Layer 5 industryMetricSummary may be present in moduleContext as research-only, needsReview, productionApproved=false data. readyForAssistantUse=false means the assistant may mention these metrics only as context for what to check next, not as an automated conclusion. Do not use IndustryMetric rows as benchmarks, rankings, scores, automatic comparisons, valuation inputs, risk benchmarks, trade-action guidance, or stock attractiveness claims. If a metric is missing, say the system has no eligible metric row. Future metric checklists are user education only and must not be treated as DB data.";
 
+const INDUSTRY_PDF_RAG_ASSISTANT_GUARDRAIL =
+  "Industry PDF RAG chunks may be present as research-only, local PDF derived, needsReview=true, productionApproved=false context. Use retrieved PDF chunks only to explain industry context and next checks, and cite source label/page when using them. Do not turn PDF snippets into buy/sell/hold guidance, target price, fair value, upside/downside, ranking, scoring, benchmark, or stock attractiveness claims.";
+
+const isIndustryPdfRagIndustryCode = (
+  value: string | null | undefined,
+): value is IndustryPdfRagIndustryCode =>
+  value === "STEEL_MATERIALS" ||
+  value === "RETAIL" ||
+  value === "CONSUMER_STAPLES_DAIRY";
+
 export const createAssistantPostHandler =
   (options: AssistantRouteOptions = {}) =>
   async (request: Request): Promise<Response> => {
@@ -154,12 +170,67 @@ export const createAssistantPostHandler =
       }
 
       const industryContext = await loadIndustryContextRuntimeByTicker(runtimeInput.ticker);
+      const activeModuleIsIndustry = runtimeInput.activeModule.toLowerCase() === "industry";
+      let industryPdfRagContext: Record<string, unknown> | undefined;
+      let industryPdfRagWarnings: string[] = [];
+
+      if (
+        activeModuleIsIndustry &&
+        isIndustryPdfRagIndustryCode(industryContext.taxonomy.taxonomySummary.industryCode)
+      ) {
+        try {
+          const industryPdfRagIndex = buildIndustryPdfRagIndex();
+          const retrievedPdfChunks = retrieveIndustryPdfRagChunks(industryPdfRagIndex, {
+            industryCode: industryContext.taxonomy.taxonomySummary.industryCode,
+            question: runtimeInput.question,
+            topK: 3,
+          });
+
+          runtimeInput.supplementalRetrievedChunks =
+            toIndustryPdfRagPromptChunks(retrievedPdfChunks);
+          industryPdfRagContext = {
+            status: retrievedPdfChunks.length > 0 ? "available" : "missing",
+            dataMode: "research_only",
+            needsReview: true,
+            productionApproved: false,
+            sourceType: "local_pdf_reports",
+            sourceFilesMissing: industryPdfRagIndex.sourceFilesMissing,
+            retrievedChunkCount: retrievedPdfChunks.length,
+            usedChunkIds: retrievedPdfChunks.map((chunk) => chunk.chunkId),
+            sourcePages: retrievedPdfChunks.map((chunk) => ({
+              sourceKey: chunk.sourceKey,
+              sourceLabel: chunk.sourceLabel,
+              reportDate: chunk.reportDate,
+              pageNumber: chunk.pageNumber,
+            })),
+            guardrail: INDUSTRY_PDF_RAG_ASSISTANT_GUARDRAIL,
+          };
+        } catch (error) {
+          industryPdfRagWarnings = [
+            "INDUSTRY_PDF_RAG_UNAVAILABLE",
+            error instanceof Error ? error.message : "Unknown Industry PDF RAG error",
+          ];
+          industryPdfRagContext = {
+            status: "unavailable",
+            dataMode: "research_only",
+            needsReview: true,
+            productionApproved: false,
+            sourceType: "local_pdf_reports",
+            retrievedChunkCount: 0,
+            guardrail: INDUSTRY_PDF_RAG_ASSISTANT_GUARDRAIL,
+            warnings: industryPdfRagWarnings,
+          };
+        }
+      }
+
       runtimeInput.moduleContext = {
         ...runtimeInput.moduleContext,
         industryContext,
+        ...(industryPdfRagContext ? { industryPdfRagContext } : {}),
         industryMetricAssistantGuardrail: INDUSTRY_METRIC_ASSISTANT_GUARDRAIL,
+        industryPdfRagAssistantGuardrail: INDUSTRY_PDF_RAG_ASSISTANT_GUARDRAIL,
         industryContextGuardrail:
-          `IndustryContext, Industry taxonomy, and peer group data are qualitative research-only data with productionApproved=false and needsReview=true. Reviewed Industry coverage is currently limited to ${REVIEWED_INDUSTRY_CODES.join(", ")} for mapped tickers ${REVIEWED_MAPPED_TICKERS.join(", ")}. Source-backed full qualitative context may be used only when industryContext.context.reviewedQualitativeContextAvailable and industryContext.context.fullQualitativeContextAvailable are true for HPG, MWG, or VNM. Unsupported milestone tickers include ${REVIEWED_UNSUPPORTED_TICKERS.join(", ")}. ${UNSUPPORTED_TICKER_POLICY} Missing taxonomy or qualitative context means not yet reviewed in system data, not that the company has no industry. Taxonomy and qualitative context are not investment advice, not valuation benchmarks, not risk benchmarks, and not peer benchmarks. Peer groups are taxonomy/context comparison only, not valuation benchmarks or risk benchmarks. If taxonomy, peer group, or qualitative context status is missing, say the system has no eligible reviewed data for the ticker. Do not infer peers, invent industry metrics, create benchmarks, say one ticker is better/worse from taxonomy or peer membership, or make deterministic macro-to-industry conclusions. ${INDUSTRY_METRIC_ASSISTANT_GUARDRAIL}`,
+          `IndustryContext, Industry taxonomy, and peer group data are qualitative research-only data with productionApproved=false and needsReview=true. Reviewed Industry coverage is currently limited to ${REVIEWED_INDUSTRY_CODES.join(", ")} for mapped tickers ${REVIEWED_MAPPED_TICKERS.join(", ")}. Source-backed full qualitative context may be used only when industryContext.context.reviewedQualitativeContextAvailable and industryContext.context.fullQualitativeContextAvailable are true for HPG, MWG, or VNM. Unsupported milestone tickers include ${REVIEWED_UNSUPPORTED_TICKERS.join(", ")}. ${UNSUPPORTED_TICKER_POLICY} Missing taxonomy or qualitative context means not yet reviewed in system data, not that the company has no industry. Taxonomy and qualitative context are not investment advice, not valuation benchmarks, not risk benchmarks, and not peer benchmarks. Peer groups are taxonomy/context comparison only, not valuation benchmarks or risk benchmarks. If taxonomy, peer group, or qualitative context status is missing, say the system has no eligible reviewed data for the ticker. Do not infer peers, invent industry metrics, create benchmarks, say one ticker is better/worse from taxonomy or peer membership, or make deterministic macro-to-industry conclusions. ${INDUSTRY_METRIC_ASSISTANT_GUARDRAIL} ${INDUSTRY_PDF_RAG_ASSISTANT_GUARDRAIL}`,
       };
     }
 

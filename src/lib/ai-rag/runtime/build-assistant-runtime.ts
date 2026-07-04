@@ -54,6 +54,7 @@ const resolveRuntimeInput = (input: AssistantRuntimeInput): AssistantRuntimeInpu
     source:
       input.source ?? packetQuality.sourceName ?? packetQuality.sourceLabel ?? null,
     timestamp: input.timestamp ?? packetQuality.asOf ?? null,
+    supplementalRetrievedChunks: input.supplementalRetrievedChunks,
   };
 };
 
@@ -119,7 +120,12 @@ export const buildAssistantRuntime = (input: AssistantRuntimeInput): AssistantRu
     safetyLevel: selection.safetyLevel,
     maxChunks: 4,
   });
-  const missingContext = buildMissingContext(resolvedInput, retrieval.retrievedChunks.length > 0);
+  const supplementalRetrievedChunks = resolvedInput.supplementalRetrievedChunks ?? [];
+  const combinedRetrievedChunks = [
+    ...retrieval.retrievedChunks,
+    ...supplementalRetrievedChunks,
+  ];
+  const missingContext = buildMissingContext(resolvedInput, combinedRetrievedChunks.length > 0);
   const warnings = [
     ...selection.warnings,
     ...retrieval.warnings,
@@ -133,13 +139,14 @@ export const buildAssistantRuntime = (input: AssistantRuntimeInput): AssistantRu
     userIntent: mapRetrievalIntentToPromptIntent(selection.intent),
     moduleContext: enrichModuleContext(resolvedInput),
     dataQuality: resolvedInput.dataQuality,
-    retrievedChunks: retrieval.retrievedChunks,
+    retrievedChunks: combinedRetrievedChunks,
     contextPacket: input.contextPacket ?? undefined,
   });
 
   return {
     selectedDocuments: selection.selectedDocuments,
     retrievedChunks: retrieval.retrievedChunks,
+    supplementalRetrievedChunks,
     retrieval,
     detectedIntent: selection.intent,
     activeModule: resolvedInput.activeModule,
@@ -162,6 +169,7 @@ export const buildAssistantRuntime = (input: AssistantRuntimeInput): AssistantRu
       hasActualRetrievedChunks: retrieval.retrievedChunks.length > 0,
       retrievedChunkCount: retrieval.retrievedChunks.length,
       excludedChunkCount: retrieval.excludedChunks.length,
+      supplementalRetrievedChunkCount: supplementalRetrievedChunks.length,
       allowedNumericValuesCount: resolvedInput.allowedNumericValues?.length ?? 0,
       source: resolvedInput.source ?? null,
       timestamp: resolvedInput.timestamp ?? null,
