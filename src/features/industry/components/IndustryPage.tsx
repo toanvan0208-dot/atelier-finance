@@ -22,6 +22,7 @@ type IndustryPageProps = {
 
 const industryCodeByCompassKey: Record<string, string> = {
   consumer_staples_dairy: "CONSUMER_STAPLES_DAIRY",
+  dairy_consumer_staples: "CONSUMER_STAPLES_DAIRY",
   retail: "RETAIL",
   steel_materials: "STEEL_MATERIALS",
 };
