@@ -11,6 +11,19 @@ import type {
 
 type IndustryNavigate = (moduleKey: string) => void;
 
+export type IndustryLayer4SectionContext = {
+  industryOverview: string | null;
+  howIndustryMakesMoney: string | null;
+  keyDrivers: string[];
+  industryRisks: string[];
+  macroSensitivity: string[];
+  nextChecks: string[];
+  commonMisread: string | null;
+  sourceLabel: string;
+  asOfDate: string;
+  translationMode: "pdf_vi_display" | "source_text";
+};
+
 const toneVariant: Record<IndustryCompassTone, "neutral" | "accent" | "success" | "warning" | "danger"> = {
   mixed: "warning",
   neutral: "neutral",
@@ -296,8 +309,28 @@ export function IndustryCurrentHeader({
   );
 }
 
-export function IndustryQuickPicture({ selectedIndustry }: { selectedIndustry: IndustryCompassOption }) {
+export function IndustryQuickPicture({
+  layer4Context,
+  selectedIndustry,
+}: {
+  selectedIndustry: IndustryCompassOption;
+  layer4Context?: IndustryLayer4SectionContext | null;
+}) {
   const { quickPicture } = selectedIndustry;
+  const supports = layer4Context?.keyDrivers.length
+    ? layer4Context.keyDrivers.map((item) => ({
+        title: item,
+        description: "Can doi chieu bang du lieu doanh nghiep va bao cao tai chinh.",
+      }))
+    : quickPicture.supports;
+  const pressures = layer4Context?.industryRisks.length
+    ? layer4Context.industryRisks.map((item) => ({
+        title: item,
+        description: "Day la rui ro can kiem tra tiep, khong phai ket luan dau tu.",
+      }))
+    : quickPicture.pressures;
+  const firstData = layer4Context?.nextChecks.length ? layer4Context.nextChecks : quickPicture.firstData;
+  const nextStep = layer4Context?.commonMisread ?? quickPicture.nextStep;
 
   return (
     <section>
@@ -312,9 +345,9 @@ export function IndustryQuickPicture({ selectedIndustry }: { selectedIndustry: I
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="max-w-[820px]">
                 <p className="text-sm font-bold text-ink">Trạng thái sơ bộ: {selectedIndustry.statusLabel}</p>
-                <p className="mt-2 text-sm leading-6 text-muted">{quickPicture.summary}</p>
+                <p className="mt-2 text-sm leading-6 text-muted">{layer4Context?.industryOverview ?? quickPicture.summary}</p>
               </div>
-              <Chip variant={toneVariant[selectedIndustry.statusTone]}>
+              <Chip variant={layer4Context ? "success" : toneVariant[selectedIndustry.statusTone]}>
                 Nhận định có điều kiện
               </Chip>
             </div>
@@ -324,7 +357,7 @@ export function IndustryQuickPicture({ selectedIndustry }: { selectedIndustry: I
             <div className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-4">
               <p className="text-sm font-bold text-ink">Yếu tố ảnh hưởng cần kiểm tra</p>
               <div className="mt-3 space-y-3">
-                {quickPicture.supports.map((item) => (
+                {supports.map((item) => (
                   <div key={item.title} className="border-l-2 border-accent-green pl-3">
                     <p className="text-xs font-bold text-ink">{item.title}</p>
                     <p className="mt-1 text-xs leading-5 text-muted">{item.description}</p>
@@ -336,7 +369,7 @@ export function IndustryQuickPicture({ selectedIndustry }: { selectedIndustry: I
             <div className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-4">
               <p className="text-sm font-bold text-ink">Rủi ro ngành cần kiểm tra</p>
               <div className="mt-3 space-y-3">
-                {quickPicture.pressures.map((item) => (
+                {pressures.map((item) => (
                   <div key={item.title} className="border-l-2 border-danger pl-3">
                     <p className="text-xs font-bold text-ink">{item.title}</p>
                     <p className="mt-1 text-xs leading-5 text-muted">{item.description}</p>
@@ -350,7 +383,7 @@ export function IndustryQuickPicture({ selectedIndustry }: { selectedIndustry: I
             <div className="rounded-[4px] border border-border-soft bg-surface px-4 py-4">
               <p className="text-sm font-bold text-ink">Dữ liệu đầu tiên cần xem</p>
               <div className="mt-3 flex flex-wrap gap-2">
-                {quickPicture.firstData.map((item) => (
+                {firstData.map((item) => (
                   <Chip key={item} variant="accent">
                     {item}
                   </Chip>
@@ -359,7 +392,7 @@ export function IndustryQuickPicture({ selectedIndustry }: { selectedIndustry: I
             </div>
             <div className="rounded-[4px] border border-border-soft bg-surface px-4 py-4">
               <p className="text-sm font-bold text-ink">Bước tiếp theo nên làm</p>
-              <p className="mt-2 text-xs leading-5 text-muted">{quickPicture.nextStep}</p>
+              <p className="mt-2 text-xs leading-5 text-muted">{nextStep}</p>
             </div>
           </div>
         </CardBody>
@@ -369,11 +402,13 @@ export function IndustryQuickPicture({ selectedIndustry }: { selectedIndustry: I
 }
 
 export function IndustryMoneyMap({
+  layer4Context,
   selectedIndustry,
   termTips,
 }: {
   selectedIndustry: IndustryCompassOption;
   termTips: Record<string, string>;
+  layer4Context?: IndustryLayer4SectionContext | null;
 }) {
   const money = selectedIndustry.moneyMap;
   const shortAnswers = [
@@ -395,10 +430,12 @@ export function IndustryMoneyMap({
       <Card>
         <CardBody className="space-y-5">
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {shortAnswers.map(([label, value]) => (
+            {shortAnswers.map(([label, value], index) => (
               <div key={label} className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-3">
                 <p className="text-[11px] font-semibold text-subtle">{label}</p>
-                <p className="mt-1 text-sm font-bold leading-5 text-ink">{value}</p>
+                <p className="mt-1 text-sm font-bold leading-5 text-ink">
+                  {index === 2 ? layer4Context?.howIndustryMakesMoney ?? value : value}
+                </p>
               </div>
             ))}
           </div>
@@ -445,7 +482,27 @@ export function IndustryMoneyMap({
   );
 }
 
-export function IndustryMacroPressureSection({ selectedIndustry }: { selectedIndustry: IndustryCompassOption }) {
+export function IndustryMacroPressureSection({
+  layer4Context,
+  selectedIndustry,
+}: {
+  selectedIndustry: IndustryCompassOption;
+  layer4Context?: IndustryLayer4SectionContext | null;
+}) {
+  const fallbackMacroDriver = selectedIndustry.macroDrivers[0];
+  const layer4MacroDrivers = layer4Context?.macroSensitivity.length
+    ? layer4Context.macroSensitivity.map((factor) => ({
+        factor,
+        direction: fallbackMacroDriver.direction,
+        strength: fallbackMacroDriver.strength,
+        mechanism: "Yeu to nay duoc Layer 4 danh dau la nhay voi nganh; can xac nhan bang du lieu thuc te.",
+        chain: ["Theo doi bien dong vi mo", "Doi chieu voi doanh thu, bien loi nhuan, ton kho va dong tien"],
+        checkNext: "Kiem tra chung voi bao cao tai chinh va du lieu nganh.",
+        tone: "watch" as const,
+      }))
+    : null;
+  const macroDrivers = layer4MacroDrivers ?? selectedIndustry.macroDrivers;
+
   return (
     <section>
       <SectionHeader
@@ -456,7 +513,7 @@ export function IndustryMacroPressureSection({ selectedIndustry }: { selectedInd
       <Card>
         <CardBody>
           <div className="grid gap-4 lg:grid-cols-3">
-            {selectedIndustry.macroDrivers.map((driver) => (
+            {macroDrivers.map((driver) => (
               <article key={driver.factor} className={`rounded-[4px] border px-4 py-4 ${toneBorder[driver.tone]}`}>
                 <div className="flex items-start justify-between gap-3">
                   <div>
@@ -518,11 +575,13 @@ function SignalMetricList({ metrics }: { metrics: IndustrySignalMetric[] }) {
 }
 
 export function IndustryDataConfirmationSection({
+  layer4Context,
   selectedIndustry,
   termTips,
 }: {
   selectedIndustry: IndustryCompassOption;
   termTips: Record<string, string>;
+  layer4Context?: IndustryLayer4SectionContext | null;
 }) {
   const [activeTab, setActiveTab] = useState<"leading" | "confirming" | "warning">("leading");
   const tabConfig = [
@@ -530,7 +589,18 @@ export function IndustryDataConfirmationSection({
     { id: "confirming" as const, label: "Xác nhận", description: "Dữ liệu cho thấy ngành thật sự tốt/xấu hơn." },
     { id: "warning" as const, label: "Cảnh báo", description: "Dữ liệu cho thấy rủi ro cần hạ mức tin cậy." },
   ];
-  const activeMetrics = selectedIndustry.dataSignals[activeTab];
+  const layer4SignalMetrics = layer4Context?.nextChecks.length
+    ? layer4Context.nextChecks.map((item) => ({
+        name: item,
+        sampleStatus: "Can kiem tra",
+        simpleRead: "Layer 4 goi y day la du lieu can doc tiep; module hien chua co metric nganh dinh luong.",
+        goodSignal: "Chi ket luan khi du lieu doanh nghiep va bao cao tai chinh cung xac nhan.",
+        badSignal: "Neu du lieu trai chieu hoac thieu, giu trang thai can ra soat.",
+        frequency: "Theo ky cong bo",
+        relatedStep: "Layer 4 next checks",
+      }))
+    : null;
+  const activeMetrics = layer4SignalMetrics ?? selectedIndustry.dataSignals[activeTab];
 
   return (
     <section>
@@ -666,12 +736,25 @@ export function IndustryCompanyMapSection({
 }
 
 export function IndustryConditionalConclusion({
+  layer4Context,
   onNavigate,
   selectedIndustry,
 }: {
   selectedIndustry: IndustryCompassOption;
   onNavigate?: IndustryNavigate;
+  layer4Context?: IndustryLayer4SectionContext | null;
 }) {
+  const conclusionBlocks = layer4Context
+    ? [
+        { title: "Boi canh nganh", content: layer4Context.industryOverview ?? "N/A" },
+        { title: "Kiem tien", content: layer4Context.howIndustryMakesMoney ?? "N/A" },
+        { title: "Drivers", content: layer4Context.keyDrivers.join("; ") || "N/A" },
+        { title: "Rui ro", content: layer4Context.industryRisks.join("; ") || "N/A" },
+        { title: "Can kiem tra", content: layer4Context.nextChecks.join("; ") || "N/A" },
+      ]
+    : selectedIndustry.conclusion.blocks;
+  const warning = layer4Context?.commonMisread ?? selectedIndustry.conclusion.warning;
+
   return (
     <section>
       <SectionHeader
@@ -687,7 +770,7 @@ export function IndustryConditionalConclusion({
         />
         <CardBody className="space-y-4">
           <div className="grid gap-3 lg:grid-cols-5">
-            {selectedIndustry.conclusion.blocks.map((block) => (
+            {conclusionBlocks.map((block) => (
               <div key={block.title} className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3">
                 <p className="text-xs font-bold text-ink">{block.title}</p>
                 <p className="mt-2 text-xs leading-5 text-muted">{block.content}</p>
@@ -696,7 +779,7 @@ export function IndustryConditionalConclusion({
           </div>
           <div className="rounded-[4px] border border-warning bg-warning/10 px-4 py-3">
             <p className="text-sm font-bold text-ink">Cảnh báo trước khi đi tiếp</p>
-            <p className="mt-1 text-xs leading-5 text-muted">{selectedIndustry.conclusion.warning}</p>
+            <p className="mt-1 text-xs leading-5 text-muted">{warning}</p>
           </div>
           <div className="flex flex-wrap gap-2">
             {selectedIndustry.conclusion.actions.map((action) => (

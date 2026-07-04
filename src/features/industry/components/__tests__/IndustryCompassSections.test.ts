@@ -276,8 +276,9 @@ describe("IndustryPage runtime read path", () => {
       }),
     );
 
-    expect(html).toContain("Ho so nganh co nguon");
+    expect(html).toContain("Nguon du lieu Layer 4");
     expect(html).toContain("Co provenance");
+    expect(html).toContain("The nay chi giu nguon va trang thai du lieu");
     expect(html).toContain("Steel businesses transform raw materials");
     expect(html).toContain("Revenue depends on shipped volume");
     expect(html).toContain("Construction and infrastructure demand");

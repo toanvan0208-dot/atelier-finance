@@ -10,6 +10,7 @@ import {
   IndustryConditionalConclusion,
   IndustryCurrentHeader,
   IndustryDataConfirmationSection,
+  type IndustryLayer4SectionContext,
   IndustryMacroPressureSection,
   IndustryMoneyMap,
   IndustryQuickPicture,
@@ -201,6 +202,28 @@ const layer4DisplayContext = (
   };
 };
 
+const layer4SectionContextFromPayload = (
+  payload: IndustryContextRuntimePayload,
+): IndustryLayer4SectionContext | null => {
+  const context = payload.context;
+  if (!context?.reviewedQualitativeContextAvailable) return null;
+
+  const displayContext = layer4DisplayContext(context);
+
+  return {
+    industryOverview: displayContext.industryOverview,
+    howIndustryMakesMoney: displayContext.howIndustryMakesMoney,
+    keyDrivers: displayContext.keyDrivers,
+    industryRisks: displayContext.industryRisks,
+    macroSensitivity: displayContext.macroSensitivity,
+    nextChecks: displayContext.nextChecks,
+    commonMisread: displayContext.commonMisread,
+    sourceLabel: context.sourceLabel,
+    asOfDate: context.asOfDate,
+    translationMode: displayContext.translationMode,
+  };
+};
+
 const runtimeContextsForIndustry = (
   runtimeContexts: IndustryContextRuntimePayload[],
   industryCode: string | null,
@@ -332,8 +355,8 @@ function IndustryLayer4ContextPanel({
     <section>
       <SectionHeader
         eyebrow="Layer 4"
-        title="Ho so nganh co nguon"
-        description="Noi dung ben duoi doc tu IndustryContext trong DB, kem provenance. Day la du lieu nghien cuu, chua production-approved."
+        title="Nguon du lieu Layer 4"
+        description="Layer 4 dang lam nguon cho cac section ben duoi. Khoi nay chi giu provenance va trang thai an toan."
       />
       <div className="space-y-4">
         {contexts.map((payload) => {
@@ -345,9 +368,9 @@ function IndustryLayer4ContextPanel({
 
           return (
             <Card key={`${payload.ticker}-${context.industryCode ?? context.industryName}`}>
-              <CardBody className="space-y-5">
-                <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                  <div className="max-w-[820px]">
+              <CardBody className="space-y-4">
+                <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
+                  <div className="min-w-0">
                     <div className="mb-2 flex flex-wrap gap-2">
                       <Chip variant="success">Co provenance</Chip>
                       <Chip variant="warning">{runtimeDataModeLabel(context.dataMode)}</Chip>
@@ -357,10 +380,14 @@ function IndustryLayer4ContextPanel({
                         <Chip variant="accent">Ban hien thi tieng Viet</Chip>
                       ) : null}
                     </div>
-                    <h2 className="text-xl font-bold leading-tight text-ink">{displayContext.industryName}</h2>
-                    <p className="mt-2 text-sm leading-6 text-muted">{displayContext.industryOverview ?? "N/A"}</p>
+                    <p className="text-sm font-bold text-ink">
+                      {payload.ticker} - {context.industryCode ?? displayContext.industryName}
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-muted">
+                      Noi dung Layer 4 dang duoc dung de dien cac section ben duoi. The nay chi giu nguon va trang thai du lieu.
+                    </p>
                   </div>
-                  <div className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-3 text-xs leading-5 text-muted lg:w-[320px]">
+                  <div className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-3 text-xs leading-5 text-muted">
                     <p className="font-bold text-ink">Nguon</p>
                     <p className="mt-1">{context.sourceLabel}</p>
                     {sourceUrl ? (
@@ -378,41 +405,6 @@ function IndustryLayer4ContextPanel({
                     <p className="mt-2">Rows provenance: {context.provenanceSummary.rowsFound}</p>
                     <p>As of: {context.asOfDate.slice(0, 10)}</p>
                   </div>
-                </div>
-
-                <div className="grid gap-3 lg:grid-cols-2">
-                  <div className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-4">
-                    <p className="text-sm font-bold text-ink">Nganh kiem tien nhu the nao?</p>
-                    <p className="mt-2 text-sm leading-6 text-muted">{displayContext.howIndustryMakesMoney ?? "N/A"}</p>
-                  </div>
-                  <div className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-4">
-                    <p className="text-sm font-bold text-ink">Khong duoc ket luan qua da</p>
-                    <p className="mt-2 text-sm leading-6 text-muted">{displayContext.commonMisread ?? "N/A"}</p>
-                  </div>
-                </div>
-
-                <div className="grid gap-3 lg:grid-cols-4">
-                  {[
-                    ["Drivers can xem", displayContext.keyDrivers],
-                    ["Rui ro nganh", displayContext.industryRisks],
-                    ["Nhay voi vi mo", displayContext.macroSensitivity],
-                    ["Can kiem tra tiep", displayContext.nextChecks],
-                  ].map(([title, items]) => (
-                    <div key={title as string} className="rounded-[4px] border border-border-soft bg-surface px-4 py-4">
-                      <p className="text-sm font-bold text-ink">{title as string}</p>
-                      {(items as string[]).length > 0 ? (
-                        <ul className="mt-3 space-y-2">
-                          {(items as string[]).map((item) => (
-                            <li key={item} className="border-l-2 border-warning pl-3 text-xs leading-5 text-muted">
-                              {item}
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p className="mt-2 text-xs leading-5 text-muted">N/A</p>
-                      )}
-                    </div>
-                  ))}
                 </div>
 
                 <p className="rounded-[4px] border border-warning bg-warning/10 px-4 py-3 text-xs leading-5 text-muted">
@@ -441,6 +433,14 @@ export function IndustryPage({ initialIndustryContexts, onNavigate }: IndustryPa
     () => Object.values(initialIndustryContexts ?? {}),
     [initialIndustryContexts],
   );
+  const selectedLayer4Context = useMemo(() => {
+    const expectedIndustryCode = industryCodeByCompassKey[selectedIndustry?.industryKey ?? ""] ?? null;
+    return (
+      runtimeContextsForIndustry(runtimeContexts, expectedIndustryCode)
+        .map(layer4SectionContextFromPayload)
+        .find((context): context is IndustryLayer4SectionContext => Boolean(context)) ?? null
+    );
+  }, [runtimeContexts, selectedIndustry?.industryKey]);
 
   if (industryPageData.isLoading) {
     return (
@@ -476,17 +476,26 @@ export function IndustryPage({ initialIndustryContexts, onNavigate }: IndustryPa
         runtimeContexts={runtimeContexts}
         selectedIndustry={selectedIndustry}
       />
-      <IndustryQuickPicture selectedIndustry={selectedIndustry} />
+      <IndustryQuickPicture
+        layer4Context={selectedLayer4Context}
+        selectedIndustry={selectedIndustry}
+      />
       <IndustryMoneyMap
+        layer4Context={selectedLayer4Context}
         selectedIndustry={selectedIndustry}
         termTips={industryCompassData.termTips}
       />
-      <IndustryMacroPressureSection selectedIndustry={selectedIndustry} />
+      <IndustryMacroPressureSection
+        layer4Context={selectedLayer4Context}
+        selectedIndustry={selectedIndustry}
+      />
       <IndustryDataConfirmationSection
+        layer4Context={selectedLayer4Context}
         selectedIndustry={selectedIndustry}
         termTips={industryCompassData.termTips}
       />
       <IndustryConditionalConclusion
+        layer4Context={selectedLayer4Context}
         selectedIndustry={selectedIndustry}
         onNavigate={onNavigate}
       />
