@@ -32,6 +32,10 @@ const createPrismaClient = (): PrismaClient => {
 
   const pool = new Pool({
     connectionString: poolConnectionString.toString(),
+    connectionTimeoutMillis: 10_000,
+    idleTimeoutMillis: 10_000,
+    max: Number(process.env.DATABASE_POOL_MAX ?? (process.env.NODE_ENV === "production" ? "1" : "5")),
+    allowExitOnIdle: true,
     ssl: needsSsl ? { rejectUnauthorized: false } : undefined,
   });
   const adapter = new PrismaPg(pool);
