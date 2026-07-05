@@ -35,7 +35,7 @@ export function ResetPasswordPanel({ token }: { token: string }) {
 
   return (
     <div className="mx-auto grid min-h-dvh max-w-xl place-items-center px-4 py-10">
-      <section className="w-full rounded-[2rem] border border-slate-900 bg-white p-6 shadow-[8px_8px_0_#0f172a] sm:p-8">
+      <section className="w-full rounded-[2rem] border border-slate-900 bg-white p-6 shadow-[5px_5px_0_rgb(15_23_42_/_0.24)] sm:p-8">
         <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Đặt lại mật khẩu</p>
         <h1 className="mt-3 text-3xl font-black tracking-[-0.05em] text-slate-950">Tạo mật khẩu mới</h1>
         <p className="mt-3 text-sm leading-6 text-slate-600">Mật khẩu mới sẽ thay thế mật khẩu cũ và đăng xuất các phiên hiện tại.</p>

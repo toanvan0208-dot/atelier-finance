@@ -28,6 +28,7 @@ import {
 export const FPT_DB_WRITE_TRIAL_SCENARIO = "phase79_fpt_financial_statement_db_write_trial" as const;
 export const FPT_DB_WRITE_TRIAL_SOURCE_BASELINE =
   "phase78_fpt_local_research_financial_statement_trial" as const;
+const FPT_DB_WRITE_TRIAL_DATABASE_URL = "postgresql://research:research@localhost:5432/atelier_finance_test" as const;
 
 export type FptFinancialStatementDbWriteTrialPayload = {
   scenario: typeof FPT_DB_WRITE_TRIAL_SCENARIO;
@@ -36,7 +37,7 @@ export type FptFinancialStatementDbWriteTrialPayload = {
   sourceLabel: typeof FPT_DB_WRITE_TRIAL_SCENARIO;
   dataMode: "research_only";
   productionApproved: false;
-  databaseUrl: "file:./dev.db";
+  databaseUrl: string;
   confirmations: {
     confirmLocalResearchOnly: true;
     confirmNoProductionSource: true;
@@ -151,7 +152,7 @@ export const buildFptFinancialStatementDbWriteTrialPayload = (
       confirmReviewedDryRun: true,
     },
     dataMode: "research_only",
-    databaseUrl: "file:./dev.db",
+    databaseUrl: FPT_DB_WRITE_TRIAL_DATABASE_URL,
     productionApproved: false,
     scenario: FPT_DB_WRITE_TRIAL_SCENARIO,
     sourceBaseline: FPT_DB_WRITE_TRIAL_SOURCE_BASELINE,

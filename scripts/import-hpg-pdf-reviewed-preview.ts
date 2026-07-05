@@ -4,10 +4,9 @@ import { buildFinancialStatementImportDryRun } from "../src/lib/data-sources/fin
 import { buildDryRunImport } from "./dry-run-hpg-pdf-reviewed-import";
 import { runFinancialStatementLocalWriteTrial } from "../src/lib/data-sources/financial-statement-local-write-service";
 
+import { requirePostgresDatabaseUrl } from "./lib/supabase-env";
 const main = async (): Promise<void> => {
-  if (!process.env.DATABASE_URL) {
-    process.env.DATABASE_URL = "file:./dev.db";
-  }
+  const databaseUrl = requirePostgresDatabaseUrl("import-hpg-pdf-reviewed-preview.ts");
   const argv = process.argv.slice(2);
   const isConfirmWrite = argv.includes("--confirm-write");
   const isDryRun = !isConfirmWrite;
@@ -103,7 +102,7 @@ const main = async (): Promise<void> => {
       confirmReviewedDryRun: true,
       confirmNoProductionDatabase: true,
     },
-    databaseUrl: process.env.DATABASE_URL
+    databaseUrl
   });
 
   console.log(JSON.stringify({

@@ -110,6 +110,37 @@ describe("Financials runtime UI boundary", () => {
     );
   });
 
+  it("explains current metric values with quick benchmark guidance", () => {
+    const runtimeDataWithMargin = {
+      ...dbBackedRuntimeData,
+      dataQuality: {
+        ...dbBackedRuntimeData.dataQuality,
+        missingFields: [],
+      },
+      statementSnapshot: {
+        ...dbBackedRuntimeData.statementSnapshot,
+        revenue: 1000,
+        previousRevenue: 900,
+        grossProfit: 157,
+        previousGrossProfit: 120,
+        netProfit: 99,
+        previousNetProfit: 90,
+        totalEquity: 800,
+        previousTotalEquity: 760,
+      },
+    } satisfies FinancialsRuntimeData;
+
+    const html = renderToStaticMarkup(
+      createElement(FinancialsPage, { initialRuntimeData: runtimeDataWithMargin }),
+    );
+
+    expect(html).toContain("Con số này nói gì?");
+    expect(html).toContain("Mốc đọc nhanh:");
+    expect(html).toContain("cứ 100 đồng doanh thu");
+    expect(html).toContain("Cao hơn năm trước");
+    expect(html).toContain("ngưỡng mặc định");
+  });
+
   it("renders DB-backed local research source transparency", () => {
     const html = renderToStaticMarkup(
       createElement(FinancialsSourceTransparency, {

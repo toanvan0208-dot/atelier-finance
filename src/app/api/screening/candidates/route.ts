@@ -1,5 +1,5 @@
 import { loadScreeningCandidatePayload } from "@/features/screening/lib/screening-candidate-read-path";
-import { apiInternalError, apiSuccess } from "@/lib/api/response";
+import { apiDataReadError, apiSuccess } from "@/lib/api/response";
 
 export const GET = async (): Promise<Response> => {
   try {
@@ -18,7 +18,7 @@ export const GET = async (): Promise<Response> => {
         productionApprovedTrueCount: candidates.filter((candidate) => candidate.productionApproved).length,
       },
     });
-  } catch {
-    return apiInternalError();
+  } catch (error) {
+    return apiDataReadError(error);
   }
 };

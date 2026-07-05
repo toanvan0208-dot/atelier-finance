@@ -1,4 +1,5 @@
 import type { DataQualityBannerProps } from "@/components/shared/DataQualityBanner";
+import type { FinancialsRuntimeData } from "@/features/financials/lib/financials-runtime-types";
 import type { FinancialsStatementSnapshot } from "@/features/financials/lib/map-financials-to-logic-input";
 
 type ApiSuccessBody<T> = {
@@ -171,6 +172,9 @@ const buildFinancialsEndpoint = ({ dataMode, latest, limit, ticker }: Financials
   return query ? `${path}?${query}` : path;
 };
 
+const buildFinancialsRuntimeEndpoint = (ticker: string): string =>
+  `/api/companies/${encodeURIComponent(ticker.trim().toUpperCase())}/financials/runtime`;
+
 const mapFinancialStatementRecord = (
   record: FinancialStatementApiRecord,
   previous?: FinancialStatementApiRecord,
@@ -270,8 +274,28 @@ export const fetchLatestFinancialStatementByTicker = async (
   return statements[0] ?? null;
 };
 
+export const fetchFinancialsRuntimeByTicker = async (
+  ticker: string,
+  fetcher: typeof fetch = fetch,
+): Promise<FinancialsRuntimeData> => {
+  const response = await fetcher(buildFinancialsRuntimeEndpoint(ticker));
+  const body = await readApiBody<FinancialsRuntimeData>(response);
+
+  if (!response.ok || !body?.ok) {
+    const apiError = body && !body.ok ? body.error : null;
+    throw new FinancialsApiError(
+      apiError?.message ?? "Unable to load financials runtime data.",
+      apiError?.code,
+      response.status,
+    );
+  }
+
+  return body.data;
+};
+
 export const financialsApiClientInternals = {
   buildFinancialsEndpoint,
+  buildFinancialsRuntimeEndpoint,
   mapFinancialStatementRecord,
   parseJsonStringArray,
   toNullableNumber,

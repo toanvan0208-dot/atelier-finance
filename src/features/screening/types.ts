@@ -315,6 +315,7 @@ export type ScreeningReadinessCheckKey =
   | "eps"
   | "total_debt"
   | "shares_outstanding"
+  | "market_price"
   | "pe"
   | "pb"
   | "risk_readiness"

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   baseRiskRedesignData,
+  riskDisclosureReviewsByTicker,
   riskRedesignDataByTicker,
   riskStatementSnapshotsByTicker,
 } from "../../data/riskRedesign.data";
@@ -85,9 +86,97 @@ describe("buildRiskDeskData", () => {
   it("uses neutral missing-data labels instead of investment score labels", () => {
     const data = buildRiskDeskData(baseRiskRedesignData, { ...completeSnapshot, eps: null });
 
-    expect(data.overall.score).toBeNull();
+    expect(data.overall).not.toHaveProperty("score");
     expect(data.finalConclusion.readiness).toMatch(/dữ liệu|kiểm tra/i);
     expect(data.overall.status).not.toMatch(/điểm đầu tư|risk score/i);
+  });
+
+  it("adds disclosure transparency as its own verification group without approval claims", () => {
+    const data = buildRiskDeskData(baseRiskRedesignData, completeSnapshot, riskDisclosureReviewsByTicker.FPT);
+    const source = data.riskSources.find((item) => item.id === "disclosure-transparency");
+
+    expect(data.disclosureReview.productionApproved).toBe(false);
+    expect(data.disclosureReview.needsReview).toBe(true);
+    expect(data.disclosureReadiness.status).toBe("Thiếu nguồn");
+    expect(source?.title).toBe("Minh bạch công bố thông tin");
+    expect(source?.missingData).toEqual(
+      expect.arrayContaining(["Kiểm toán viên", "Ý kiến kiểm toán", "Đường dẫn nguồn công bố"]),
+    );
+    expect(data.topRisks.slice(0, 3).map((item) => item.id)).toContain("disclosure-transparency-review");
+  });
+
+  it("marks HPG, VNM, and MWG manual disclosure records as review-needed sources", () => {
+    for (const ticker of ["HPG", "VNM", "MWG"] as const) {
+      const data = buildRiskDeskData(
+        baseRiskRedesignData,
+        riskStatementSnapshotsByTicker[ticker],
+        riskDisclosureReviewsByTicker[ticker],
+      );
+      const disclosureSource = data.riskSources.find((item) => item.id === "disclosure-transparency");
+
+      expect(data.ticker).toBe(ticker);
+      expect(data.disclosureReadiness.status).toBe("Cần rà soát");
+      expect(data.disclosureReview.sourceUrl).toBeTruthy();
+      expect(data.disclosureReview.productionApproved).toBe(false);
+      expect(disclosureSource?.status).toBe("Cần rà soát");
+      expect(disclosureSource?.defaultOpen).toBe(true);
+      expect(disclosureSource?.evidenceDetails?.length).toBeGreaterThan(0);
+      expect(JSON.stringify(data).toLowerCase()).not.toContain("minh bạch tốt");
+      expect(JSON.stringify(data).toLowerCase()).not.toContain("minh bạch xấu");
+    }
+  });
+
+  it("surfaces local PDF page evidence without filling unverified disclosure fields", () => {
+    const hpg = buildRiskDeskData(
+      baseRiskRedesignData,
+      riskStatementSnapshotsByTicker.HPG,
+      riskDisclosureReviewsByTicker.HPG,
+    );
+    const vnm = buildRiskDeskData(
+      baseRiskRedesignData,
+      riskStatementSnapshotsByTicker.VNM,
+      riskDisclosureReviewsByTicker.VNM,
+    );
+    const hpgDisclosure = hpg.riskSources.find((item) => item.id === "disclosure-transparency");
+    const vnmDisclosure = vnm.riskSources.find((item) => item.id === "disclosure-transparency");
+
+    expect(hpgDisclosure?.evidenceDetails).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ field: "auditOpinion", page: 94, status: "backed_by_pdf" }),
+        expect.objectContaining({ field: "relatedPartyNotes", page: null, status: "not_found" }),
+      ]),
+    );
+    expect(vnmDisclosure?.evidenceDetails).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ field: "auditOpinion", page: 107, status: "not_found" }),
+        expect.objectContaining({ field: "relatedPartyNotes", page: null, status: "not_found" }),
+      ]),
+    );
+    expect(vnm.disclosureReview.auditOpinion).toBeNull();
+    expect(vnm.disclosureReview.relatedPartyNotes).toBeNull();
+  });
+
+  it("can represent available disclosure fields while still keeping review-only status", () => {
+    const data = buildRiskDeskData(baseRiskRedesignData, completeSnapshot, {
+      ticker: "AAA",
+      auditor: "Independent auditor",
+      auditOpinion: "Unmodified opinion",
+      reportPublishedDate: "2025-03-31",
+      filingStatus: "available",
+      relatedPartyNotes: "Related-party notes reviewed in annual report.",
+      sourceUrl: "https://example.test/annual-report.pdf",
+      sourceType: "company_disclosure",
+      needsReview: true,
+      productionApproved: false,
+    });
+
+    expect(data.disclosureReadiness.status).toBe("Đã có nguồn");
+    expect(data.disclosureReview.productionApproved).toBe(false);
+    expect(data.disclosureReadiness.availableFields).toEqual(
+      expect.arrayContaining(["Kiểm toán viên", "Ý kiến kiểm toán", "Đường dẫn nguồn công bố"]),
+    );
+    expect(JSON.stringify(data).toLowerCase()).not.toContain("nên mua");
+    expect(JSON.stringify(data).toLowerCase()).not.toContain("nên bán");
   });
 
   it("lists unavailable valuation metrics as metrics that cannot be calculated", () => {

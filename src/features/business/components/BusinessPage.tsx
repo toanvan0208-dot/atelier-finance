@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { Button, EmptyState, LoadingState } from "@/components/ui";
+import { FormEvent, useEffect, useMemo, useState } from "react";
+import { Button, Card, CardBody, EmptyState, LoadingState } from "@/components/ui";
 import {
   businessJourneyByTicker,
   defaultBusinessJourneyTicker,
@@ -113,6 +113,52 @@ function useRuntimeBusinessProfile(selectedTicker: string | null) {
   }, [selectedTicker]);
 
   return { profile, isLoading };
+}
+
+function updateBusinessTickerUrl(ticker: string) {
+  const url = new URL(window.location.href);
+  url.searchParams.set("module", "business");
+  url.searchParams.set("ticker", ticker);
+  window.history.pushState(null, "", url);
+  window.dispatchEvent(new Event(navigationChangeEvent));
+}
+
+function BusinessTickerLookupCard({ activeTicker }: { activeTicker: string }) {
+  const [tickerInput, setTickerInput] = useState(activeTicker);
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const nextTicker = tickerInput.trim().toUpperCase();
+    setTickerInput(nextTicker);
+    if (!nextTicker) return;
+    updateBusinessTickerUrl(nextTicker);
+  }
+
+  return (
+    <Card className="border-border bg-surface shadow-soft">
+      <CardBody className="px-4 py-4">
+        <form className="grid gap-3 lg:grid-cols-[minmax(180px,220px)_1fr_auto] lg:items-end" onSubmit={handleSubmit}>
+          <div className="min-w-0">
+            <p className="text-[11px] font-bold uppercase tracking-[0.04em] text-subtle">Hồ sơ doanh nghiệp</p>
+            <label className="mt-2 block text-sm font-bold text-ink" htmlFor="business-ticker-input">
+              Mã doanh nghiệp
+            </label>
+            <input
+              id="business-ticker-input"
+              className="mt-2 h-10 w-full rounded-[4px] border-[1.5px] border-border bg-surface px-3 font-mono text-sm font-bold uppercase text-ink outline-none transition focus:bg-accent-soft"
+              maxLength={10}
+              value={tickerInput}
+              onChange={(event) => setTickerInput(event.target.value.toUpperCase())}
+            />
+          </div>
+          <div className="hidden lg:block" />
+          <Button className="h-10" size="md" type="submit">
+            Kiểm tra dữ liệu
+          </Button>
+        </form>
+      </CardBody>
+    </Card>
+  );
 }
 
 export function resolveBusinessJourneyData(selectedTicker: string | null) {
@@ -431,6 +477,7 @@ function buildRuntimeBusinessJourneyData(profile: RuntimeBusinessProfile): Busin
 export function BusinessPage({ onNavigate }: BusinessPageProps) {
   const tickerFromUrl = useTickerFromUrl();
   const selectedTicker = normalizeBusinessTicker(tickerFromUrl);
+  const lookupTicker = selectedTicker ?? defaultBusinessJourneyTicker;
   const { profile: runtimeProfile, isLoading: isRuntimeProfileLoading } = useRuntimeBusinessProfile(selectedTicker);
   const { data, profile, hasUnsupportedTicker, isUsingSampleData } = useMemo(
     () => resolveBusinessJourneyData(selectedTicker),
@@ -446,7 +493,8 @@ export function BusinessPage({ onNavigate }: BusinessPageProps) {
 
   if (isRuntimeProfileLoading && selectedTicker) {
     return (
-      <div className="mx-auto w-full max-w-[1120px] px-4 py-5 lg:px-0">
+      <div className="mx-auto w-full max-w-[1120px] space-y-4 px-4 py-5 lg:px-0">
+        <BusinessTickerLookupCard key={lookupTicker} activeTicker={lookupTicker} />
         <LoadingState
           title="Đang kiểm tra hồ sơ doanh nghiệp"
           description="Hệ thống đang đọc CompanyBusinessProfile cho mã đã chọn."
@@ -457,7 +505,8 @@ export function BusinessPage({ onNavigate }: BusinessPageProps) {
 
   if (activeData?.isLoading) {
     return (
-      <div className="mx-auto w-full max-w-[1120px] px-4 py-5 lg:px-0">
+      <div className="mx-auto w-full max-w-[1120px] space-y-4 px-4 py-5 lg:px-0">
+        <BusinessTickerLookupCard key={lookupTicker} activeTicker={lookupTicker} />
         <LoadingState title={activeData.loading.title} description={activeData.loading.description} />
       </div>
     );
@@ -476,6 +525,7 @@ export function BusinessPage({ onNavigate }: BusinessPageProps) {
 
     return (
       <div className="mx-auto w-full max-w-[1120px] space-y-3 px-4 py-5 lg:px-0">
+        <BusinessTickerLookupCard key={lookupTicker} activeTicker={lookupTicker} />
         <EmptyState
           title={title}
           description={description}
@@ -492,6 +542,7 @@ export function BusinessPage({ onNavigate }: BusinessPageProps) {
 
   return (
     <div className="mx-auto w-full max-w-[1180px] space-y-4 px-4 py-5 lg:px-0">
+      <BusinessTickerLookupCard key={lookupTicker} activeTicker={lookupTicker} />
       <main className="min-w-0 space-y-4">
         <BusinessIdentityCard
           data={activeData.businessIdentity}

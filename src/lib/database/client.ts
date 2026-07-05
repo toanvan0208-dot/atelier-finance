@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../../generated/prisma/client";
@@ -17,7 +18,22 @@ const createPrismaClient = (): PrismaClient => {
     throw new Error("Phase 142F Prisma runtime supports postgresql DATABASE_URL only.");
   }
 
-  const pool = new Pool({ connectionString: databaseUrl });
+  const parsedDatabaseUrl = new URL(databaseUrl);
+  const isLocalHost = ["localhost", "127.0.0.1", "::1"].includes(parsedDatabaseUrl.hostname);
+  const sslMode = parsedDatabaseUrl.searchParams.get("sslmode");
+  const needsSsl =
+    !isLocalHost &&
+    (parsedDatabaseUrl.hostname.includes("supabase.com") || sslMode === "require" || sslMode === "no-verify");
+  const poolConnectionString = new URL(databaseUrl);
+
+  if (needsSsl) {
+    poolConnectionString.searchParams.delete("sslmode");
+  }
+
+  const pool = new Pool({
+    connectionString: poolConnectionString.toString(),
+    ssl: needsSsl ? { rejectUnauthorized: false } : undefined,
+  });
   const adapter = new PrismaPg(pool);
   return new PrismaClient({ adapter });
 };

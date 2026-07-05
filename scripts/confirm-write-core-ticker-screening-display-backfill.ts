@@ -5,6 +5,17 @@ const phase = "152C";
 const mode = process.argv.includes("--confirm-write") ? "confirm_write" : "dry_run";
 const targetTickers = ["FPT", "HPG", "VNM", "MSN", "MWG", "VCB"];
 
+const decimalToNumber = (value: unknown): number | null => {
+  if (value === null || value === undefined) return null;
+  if (typeof value === "number") return Number.isFinite(value) ? value : null;
+  if (typeof value === "object" && "toNumber" in value && typeof value.toNumber === "function") {
+    const parsed = value.toNumber() as number;
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
 async function main() {
   const confirmWrite = mode === "confirm_write";
   let screeningCandidatesPrepared = 0;
@@ -39,8 +50,14 @@ async function main() {
 
   for (const ticker of targetTickers) {
     const company = await prisma.company.findFirst({ where: { ticker } });
-    const marketPrice = await prisma.marketPrice.findFirst({ where: { ticker }, orderBy: { updatedAt: 'desc' } });
-    const financials = await prisma.financialStatement.findFirst({ where: { ticker } });
+    const marketPrice = await prisma.marketPrice.findFirst({
+      where: { ticker },
+      orderBy: [{ tradingDate: "desc" }, { updatedAt: "desc" }],
+    });
+    const financials = await prisma.financialStatement.findFirst({
+      where: { ticker },
+      orderBy: [{ fiscalYear: "desc" }, { fiscalQuarter: "desc" }, { asOf: "desc" }],
+    });
     const companyIndustry = await prisma.companyIndustry.findFirst({ where: { ticker } });
 
     let analysisEligible = false;
@@ -49,7 +66,7 @@ async function main() {
     if (["HPG", "VNM", "MWG"].includes(ticker)) {
       if (company && marketPrice && financials && companyIndustry) {
         analysisEligible = true;
-        coverageLevel = "full_analysis_candidate";
+        coverageLevel = "full_analysis";
       }
     }
 
@@ -96,40 +113,118 @@ async function main() {
       const newExisting = await prisma.screeningCandidate.findUnique({ where: { ticker } });
       if (newExisting && marketPrice) {
         const metricsToCreate = [];
-        if (marketPrice.closePrice !== null) {
+        const closePrice = decimalToNumber(marketPrice.closePrice);
+        const volume = decimalToNumber(marketPrice.volume);
+        const tradingValue = decimalToNumber(marketPrice.tradingValue);
+        const eps = decimalToNumber(financials?.eps);
+        const bvps = decimalToNumber(financials?.bvps);
+        const operatingCashFlow = decimalToNumber(financials?.operatingCashFlow);
+
+        if (closePrice !== null) {
           metricsToCreate.push({
             candidateId: newExisting.id,
             ticker,
             metricCode: "CLOSE_PRICE",
-            value: marketPrice.closePrice,
+            value: closePrice,
             unit: "vnd_per_share",
+            period: marketPrice.period,
+            periodType: marketPrice.periodType,
+            snapshotDate: marketPrice.tradingDate,
+            sourceType: marketPrice.sourceType,
+            sourceLabel: marketPrice.sourceLabel,
             dataMode: "research_only",
             needsReview: true,
             warningCodes: JSON.stringify(["MARKET_PRICE_SNAPSHOT", "RESEARCH_ONLY"])
           });
         }
-        if (marketPrice.volume !== null) {
+        if (volume !== null) {
           metricsToCreate.push({
             candidateId: newExisting.id,
             ticker,
             metricCode: "VOLUME",
-            value: marketPrice.volume,
+            value: volume,
             unit: "shares",
+            period: marketPrice.period,
+            periodType: marketPrice.periodType,
+            snapshotDate: marketPrice.tradingDate,
+            sourceType: marketPrice.sourceType,
+            sourceLabel: marketPrice.sourceLabel,
             dataMode: "research_only",
             needsReview: true,
             warningCodes: JSON.stringify(["MARKET_PRICE_SNAPSHOT", "RESEARCH_ONLY"])
           });
         }
-        if (marketPrice.tradingValue !== null) {
+        if (tradingValue !== null) {
           metricsToCreate.push({
             candidateId: newExisting.id,
             ticker,
             metricCode: "LIQUIDITY",
-            value: marketPrice.tradingValue,
+            value: tradingValue,
             unit: "vnd_trading_value",
+            period: marketPrice.period,
+            periodType: marketPrice.periodType,
+            snapshotDate: marketPrice.tradingDate,
+            sourceType: marketPrice.sourceType,
+            sourceLabel: marketPrice.sourceLabel,
             dataMode: "research_only",
             needsReview: true,
             warningCodes: JSON.stringify(["MARKET_PRICE_SNAPSHOT", "RESEARCH_ONLY"])
+          });
+        }
+        if (closePrice !== null && eps !== null && eps > 0) {
+          metricsToCreate.push({
+            candidateId: newExisting.id,
+            ticker,
+            metricCode: "PE",
+            value: closePrice / eps,
+            unit: "ratio",
+            period: financials?.period ?? null,
+            periodType: financials?.periodType ?? null,
+            providerPeriod: marketPrice.period,
+            snapshotDate: marketPrice.tradingDate,
+            fiscalYearEnd: financials?.reportDate ?? null,
+            sourceType: "derived_from_research_financials_and_market_price",
+            sourceLabel: `${financials?.sourceLabel ?? "financial_statement"} + ${marketPrice.sourceLabel}`,
+            dataMode: "research_only",
+            needsReview: true,
+            warningCodes: JSON.stringify(["DERIVED_METRIC", "RESEARCH_ONLY", "NEEDS_REVIEW"])
+          });
+        }
+        if (closePrice !== null && bvps !== null && bvps > 0) {
+          metricsToCreate.push({
+            candidateId: newExisting.id,
+            ticker,
+            metricCode: "PB",
+            value: closePrice / bvps,
+            unit: "ratio",
+            period: financials?.period ?? null,
+            periodType: financials?.periodType ?? null,
+            providerPeriod: marketPrice.period,
+            snapshotDate: marketPrice.tradingDate,
+            fiscalYearEnd: financials?.reportDate ?? null,
+            sourceType: "derived_from_research_financials_and_market_price",
+            sourceLabel: `${financials?.sourceLabel ?? "financial_statement"} + ${marketPrice.sourceLabel}`,
+            dataMode: "research_only",
+            needsReview: true,
+            warningCodes: JSON.stringify(["DERIVED_METRIC", "RESEARCH_ONLY", "NEEDS_REVIEW"])
+          });
+        }
+        if (operatingCashFlow !== null) {
+          metricsToCreate.push({
+            candidateId: newExisting.id,
+            ticker,
+            metricCode: "CFO",
+            value: operatingCashFlow,
+            unit: financials?.unit ?? "vnd",
+            period: financials?.period ?? null,
+            periodType: financials?.periodType ?? null,
+            fiscalYearEnd: financials?.reportDate ?? null,
+            statementScope: "consolidated_or_company_reported",
+            sourceType: financials?.sourceType ?? "manual_reviewed_financial_statement",
+            sourceLabel: financials?.sourceLabel ?? "financial_statement",
+            dataMode: "research_only",
+            needsReview: true,
+            warningCodes: JSON.stringify(["FINANCIAL_STATEMENT_METRIC", "RESEARCH_ONLY", "NEEDS_REVIEW"])
           });
         }
         

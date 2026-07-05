@@ -21,7 +21,7 @@ export type LoadTechnicalRuntimeDataDependencies = {
   loadDeskData?: typeof loadTechnicalDeskData;
 };
 
-const DEFAULT_TICKER = "FPT";
+const DEFAULT_TICKER = "HPG";
 const ENABLED_FLAG = "enabled";
 
 const defaultToDate = () => new Date().toISOString().slice(0, 10);
@@ -47,7 +47,7 @@ const buildInput = (
     from: input.from ?? defaultFromDate(),
     to: input.to ?? defaultToDate(),
     sourceLabel: input.sourceLabel,
-    preferDb: input.preferDb ?? (hasExplicitTicker || isDbSourceEnabled(env)),
+    preferDb: input.preferDb ?? true,
     allowFallback: input.allowFallback ?? false,
   };
 };

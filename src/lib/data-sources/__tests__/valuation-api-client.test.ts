@@ -104,6 +104,17 @@ describe("valuation API client", () => {
     expect(result.dataQuality.isDemoData).toBe(true);
   });
 
+  it("maps enterprise value from financial records when provided", async () => {
+    const fetcher = vi
+      .fn()
+      .mockResolvedValueOnce(successResponse({ ...financialRecord, enterpriseValue: "73000000000000" }))
+      .mockResolvedValueOnce(successResponse(marketRecord));
+
+    const result = await fetchValuationInputsByTicker({ ticker: "FPTLAB" }, fetcher);
+
+    expect(result.snapshot.enterpriseValue).toBe(73_000_000_000_000);
+  });
+
   it("throws a safe error for unhandled API failures", async () => {
     const fetcher = vi
       .fn()

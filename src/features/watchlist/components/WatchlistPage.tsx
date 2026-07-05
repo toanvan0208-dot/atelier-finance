@@ -4,9 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { EmptyState, LoadingState } from "@/components/ui";
 import { useLocalStorageState } from "@/lib/use-local-storage-state";
 import { watchlistPageData } from "../data/watchlist.data";
-import type { PortfolioReadinessResult } from "../lib/load-portfolio-readiness";
+import type { UserWatchlistItem } from "../lib/load-user-watchlist-items";
 import type { StockIdea, WatchlistFilterState } from "../types";
-import { PortfolioReadinessPanel } from "./PortfolioReadinessPanel";
 import { StockIdeaGrid } from "./StockIdeaGrid";
 import { WatchlistDisclaimer } from "./WatchlistDisclaimer";
 import { WatchlistFilters } from "./WatchlistFilters";
@@ -90,8 +89,8 @@ function applyFilters(ideas: StockIdea[], filters: WatchlistFilterState) {
 }
 
 type WatchlistPageProps = {
+  initialItems?: UserWatchlistItem[];
   onNavigate: (key: string, params?: { ticker?: string }) => void;
-  portfolioReadiness?: PortfolioReadinessResult | null;
 };
 
 type WatchlistPersistentState = {
@@ -105,19 +104,7 @@ const defaultWatchlistFilters: WatchlistFilterState = {
   pipelineStatus: "all",
 };
 
-type WatchlistApiItem = {
-  company?: {
-    companyName?: string | null;
-    exchange?: string | null;
-    industryName?: string | null;
-  } | null;
-  createdAt?: string;
-  notes?: string | null;
-  priority?: string | null;
-  status?: string | null;
-  thesisSummary?: string | null;
-  ticker: string;
-};
+type WatchlistApiItem = UserWatchlistItem;
 
 type WatchlistApiBody = {
   ok?: boolean;
@@ -128,6 +115,7 @@ function mapWatchlistItemToIdea(item: WatchlistApiItem, fallbackIdeas: StockIdea
   const ticker = item.ticker.toUpperCase();
   const existing = fallbackIdeas.find((idea) => idea.ticker === ticker);
   const fallback = existing ?? fallbackIdeas[0];
+  const status = item.status ? (item.status as StockIdea["status"]) : fallback.status;
 
   return {
     ...fallback,
@@ -138,15 +126,24 @@ function mapWatchlistItemToIdea(item: WatchlistApiItem, fallbackIdeas: StockIdea
     latestNote: item.notes ?? fallback.latestNote,
     priority: item.priority ?? fallback.priority,
     reason: item.notes ?? fallback.reason,
-    status: fallback.status,
+    status,
     thesis: item.thesisSummary ?? fallback.thesis,
     ticker,
   };
 }
 
-export function WatchlistPage({ onNavigate, portfolioReadiness }: WatchlistPageProps) {
+function mapWatchlistItemsToIdeas(items: WatchlistApiItem[], fallbackIdeas: StockIdea[]): StockIdea[] {
+  return items.map((item) => mapWatchlistItemToIdea(item, fallbackIdeas));
+}
+
+export function WatchlistPage({ initialItems = [], onNavigate }: WatchlistPageProps) {
   const data = watchlistPageData;
-  const [userIdeas, setUserIdeas] = useState<StockIdea[] | null>(null);
+  const initialIdeas = useMemo(
+    () => mapWatchlistItemsToIdeas(initialItems, data.ideas),
+    [data.ideas, initialItems],
+  );
+  const [userIdeas, setUserIdeas] = useState<StockIdea[] | null>(initialIdeas);
+  const [isLoadingUserIdeas, setIsLoadingUserIdeas] = useState(initialItems.length === 0);
   const [persistedState, setPersistedState] = useLocalStorageState<WatchlistPersistentState>(
     watchlistStorageKey,
     {
@@ -155,19 +152,30 @@ export function WatchlistPage({ onNavigate, portfolioReadiness }: WatchlistPageP
     }
   );
   const { filters, openTickers } = persistedState;
-  const ideas = userIdeas ?? data.ideas;
+  const ideas = userIdeas ?? [];
 
   useEffect(() => {
     let cancelled = false;
 
     async function loadUserWatchlist() {
-      const response = await fetch("/api/watchlist");
-      if (!response.ok) return;
+      setIsLoadingUserIdeas(true);
 
-      const body = await response.json().catch(() => null) as WatchlistApiBody | null;
-      if (cancelled || !body?.ok || !Array.isArray(body.data)) return;
+      try {
+        const response = await fetch("/api/watchlist");
+        if (!response.ok) {
+          if (!cancelled) setUserIdeas([]);
+          return;
+        }
 
-      setUserIdeas(body.data.map((item) => mapWatchlistItemToIdea(item, data.ideas)));
+        const body = await response.json().catch(() => null) as WatchlistApiBody | null;
+        if (cancelled) return;
+
+        setUserIdeas(body?.ok && Array.isArray(body.data)
+          ? body.data.map((item) => mapWatchlistItemToIdea(item, data.ideas))
+          : []);
+      } finally {
+        if (!cancelled) setIsLoadingUserIdeas(false);
+      }
     }
 
     void loadUserWatchlist();
@@ -194,7 +202,7 @@ export function WatchlistPage({ onNavigate, portfolioReadiness }: WatchlistPageP
     }));
   }
 
-  if (data.isLoading) {
+  if (data.isLoading || isLoadingUserIdeas) {
     return <LoadingState description={data.loading.content} title={data.loading.title} />;
   }
 
@@ -226,7 +234,6 @@ export function WatchlistPage({ onNavigate, portfolioReadiness }: WatchlistPageP
         </aside>
 
         <main className="space-y-4">
-          <PortfolioReadinessPanel data={portfolioReadiness} />
           <StockIdeaGrid
             data={filteredIdeas}
             filteredCount={filteredIdeas.length}

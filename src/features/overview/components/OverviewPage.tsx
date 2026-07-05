@@ -13,6 +13,7 @@ import type {
   PortfolioReadinessItem,
   PortfolioReadinessResult,
 } from "@/features/watchlist/lib/load-portfolio-readiness";
+import type { UserWatchlistItem } from "@/features/watchlist/lib/load-user-watchlist-items";
 import { baseOverviewCaseData } from "../data/overviewCase.data";
 import { buildOverviewDeskData } from "../lib/build-overview-desk-data";
 import {
@@ -25,6 +26,7 @@ import type { OverviewBottleneck, OverviewCaseDashboardData, OverviewCaseData } 
 type OverviewPageProps = {
   currentUser?: AuthUser | null;
   initialFinancialsRuntimeData?: FinancialsRuntimeData;
+  initialWatchlistItems?: UserWatchlistItem[];
   onNavigate: (key: string) => void;
   portfolioReadiness?: PortfolioReadinessResult;
 };
@@ -128,6 +130,7 @@ export function MvpCurrentTicker({ activeCase }: { activeCase: OverviewCaseData 
       missingFields={[]}
       onNavigate={() => undefined}
       portfolioReadiness={undefined}
+      watchlistItems={[]}
     />
   );
 }
@@ -184,20 +187,24 @@ function OverviewHero({
   missingFields,
   onNavigate,
   portfolioReadiness,
+  watchlistItems,
 }: {
   activeCase: OverviewCaseData;
   currentUser?: AuthUser | null;
   missingFields: string[];
   onNavigate: (key: string) => void;
   portfolioReadiness?: PortfolioReadinessResult;
+  watchlistItems: UserWatchlistItem[];
 }) {
   const userLabel = userLabelFrom(currentUser);
-  const watchlistCount = portfolioReadiness?.tickers.length ?? 0;
+  const watchlistCount = watchlistItems.length;
   const readyCount =
-    portfolioReadiness?.tickers.filter((item) => readinessScore(item) >= 4).length ?? 0;
+    portfolioReadiness?.tickers
+      .filter((item) => watchlistItems.some((watchlistItem) => watchlistItem.ticker.toUpperCase() === item.ticker.toUpperCase()))
+      .filter((item) => readinessScore(item) >= 4).length ?? 0;
 
   return (
-    <section className="overflow-hidden rounded-[8px] border-[1.5px] border-slate-950 bg-white shadow-[8px_8px_0_#0f172a]">
+    <section className="overflow-hidden rounded-[8px] border-[1.5px] border-slate-950 bg-white shadow-[5px_5px_0_rgb(15_23_42_/_0.24)]">
       <div className="grid gap-0 2xl:grid-cols-[minmax(0,1.28fr)_380px]">
         <div className="relative min-h-[330px] px-6 py-7 sm:px-8 lg:px-9">
           <div className="absolute right-8 top-8 hidden h-24 w-24 rounded-full border border-amber-300 bg-amber-200/40 blur-2xl lg:block" />
@@ -220,7 +227,7 @@ function OverviewHero({
 
           <div className="mt-7 flex flex-wrap gap-3">
             <button
-              className="rounded-[6px] border-[1.5px] border-slate-950 bg-amber-300 px-4 py-3 text-sm font-black text-slate-950 shadow-[4px_4px_0_#0f172a] transition hover:-translate-y-0.5"
+              className="rounded-[6px] border-[1.5px] border-slate-950 bg-amber-300 px-4 py-3 text-sm font-black text-slate-950 shadow-[3px_3px_0_rgb(15_23_42_/_0.20)] transition hover:-translate-y-0.5"
               type="button"
               onClick={() => onNavigate("financials")}
             >
@@ -293,13 +300,17 @@ function HeroMetric({ label, value }: { label: string; value: string }) {
 }
 
 function WatchlistPreview({
+  items,
   onNavigate,
   portfolioReadiness,
 }: {
+  items: UserWatchlistItem[];
   onNavigate: (key: string) => void;
   portfolioReadiness?: PortfolioReadinessResult;
 }) {
-  const items = portfolioReadiness?.tickers ?? [];
+  const readinessByTicker = new Map(
+    (portfolioReadiness?.tickers ?? []).map((item) => [item.ticker.toUpperCase(), item]),
+  );
 
   return (
     <section className="rounded-[8px] border border-slate-200 bg-white p-5 shadow-[0_16px_40px_rgba(15,23,42,0.06)]">
@@ -318,24 +329,27 @@ function WatchlistPreview({
       <div className="mt-5 grid gap-3">
         {items.length > 0 ? (
           items.slice(0, 3).map((item) => {
-            const score = readinessScore(item);
+            const ticker = item.ticker.toUpperCase();
+            const readiness = readinessByTicker.get(ticker);
+            const score = readiness ? readinessScore(readiness) : 0;
+            const missingInputs = readiness?.missingInputs ?? [];
             return (
               <button
-                key={item.ticker}
+                key={ticker}
                 className="grid gap-3 rounded-[8px] border border-slate-200 bg-slate-50 p-4 text-left transition hover:border-slate-950 hover:bg-white sm:grid-cols-[92px_minmax(0,1fr)_120px]"
                 type="button"
                 onClick={() => onNavigate("watchlist")}
               >
                 <div>
-                  <p className="text-xl font-black text-slate-950">{item.ticker}</p>
-                  <p className="text-xs font-bold text-slate-500">{item.exchange ?? "Sàn chưa rõ"}</p>
+                  <p className="text-xl font-black text-slate-950">{ticker}</p>
+                  <p className="text-xs font-bold text-slate-500">{item.company?.exchange ?? "Sàn chưa rõ"}</p>
                 </div>
                 <div>
-                  <p className="font-bold text-slate-950">{item.companyName ?? "Đang cập nhật tên doanh nghiệp"}</p>
+                  <p className="font-bold text-slate-950">{item.company?.companyName ?? "Đang cập nhật tên doanh nghiệp"}</p>
                   <p className="mt-1 text-sm leading-6 text-slate-600">
-                    {item.missingInputs.length > 0
-                      ? `Cần bổ sung: ${item.missingInputs.slice(0, 2).map(friendlyFieldLabel).join(", ")}`
-                      : "Có thể đọc tiếp với dữ liệu hiện có."}
+                    {missingInputs.length > 0
+                      ? `Cần bổ sung: ${missingInputs.slice(0, 2).map(friendlyFieldLabel).join(", ")}`
+                      : item.notes ?? "Có thể đọc tiếp với dữ liệu hiện có."}
                   </p>
                 </div>
                 <div className="self-center">
@@ -505,7 +519,7 @@ function ManualDataImportCta() {
           </p>
         </div>
         <a
-          className="inline-flex h-10 items-center justify-center rounded-[6px] border-[1.5px] border-slate-950 bg-white px-4 text-sm font-black text-slate-950 shadow-[4px_4px_0_#0f172a] transition hover:-translate-y-0.5"
+          className="inline-flex h-10 items-center justify-center rounded-[6px] border-[1.5px] border-slate-950 bg-white px-4 text-sm font-black text-slate-950 shadow-[3px_3px_0_rgb(15_23_42_/_0.20)] transition hover:-translate-y-0.5"
           href="/data-import"
         >
           Nhập dữ liệu
@@ -518,10 +532,11 @@ function ManualDataImportCta() {
 export function OverviewPage({
   currentUser,
   initialFinancialsRuntimeData,
+  initialWatchlistItems = [],
   onNavigate,
   portfolioReadiness,
 }: OverviewPageProps) {
-  const initialTicker = initialFinancialsRuntimeData?.source.ticker ?? "FPT";
+  const initialTicker = initialWatchlistItems[0]?.ticker ?? "HPG";
   const [tickerInput, setTickerInput] = useState(initialTicker);
   const [request, setRequest] = useState({ ticker: initialTicker, id: 0 });
   const [bridgeState, setBridgeState] = useState<OverviewBridgeState>({ status: "loading" });
@@ -621,6 +636,7 @@ export function OverviewPage({
             missingFields={missingFields}
             onNavigate={onNavigate}
             portfolioReadiness={portfolioReadiness}
+            watchlistItems={initialWatchlistItems}
           />
 
           <div className="grid gap-5 2xl:grid-cols-[minmax(0,1.1fr)_390px]">
@@ -630,7 +646,11 @@ export function OverviewPage({
               <SimulationPreview onNavigate={onNavigate} />
             </div>
             <div className="space-y-5">
-              <WatchlistPreview onNavigate={onNavigate} portfolioReadiness={portfolioReadiness} />
+              <WatchlistPreview
+                items={initialWatchlistItems}
+                onNavigate={onNavigate}
+                portfolioReadiness={portfolioReadiness}
+              />
               <MissingDataStrip bottlenecks={readyData.missingData} />
               <ManualDataImportCta />
             </div>

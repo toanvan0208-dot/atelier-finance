@@ -76,11 +76,16 @@ const buildSystemMessage = (input: BuildAssistantPromptInput): string => {
     "",
     "Response style:",
     "- Be concise and structured for a sidebar/panel.",
-    "- Prefer 3 to 5 short bullet points. Avoid markdown headings like ### unless the user asks for a long explanation.",
+    "- For simple concept questions, answer in at most 3 short bullets and keep the whole answer under about 650 characters.",
+    "- Prefer short hyphen bullets. Do not use numbered lists unless the numbers are provided in grounded context.",
+    "- Do not use markdown headings like ### or bold markers like **text**; the app displays plain text in a narrow panel.",
     "- Use simple Vietnamese. Avoid long paragraphs and academic wording.",
     "- Do not mention source labels, page numbers, RAG, PDF, or report names unless the user asks about sources/evidence or the answer uses a specific number/date from retrieved context.",
     "- Separate data, interpretation, limitations, and next checks.",
-    "- If context is insufficient, say so explicitly.",
+    "- If the user asks a conceptual or workflow question, answer the concept/workflow directly first, then mention missing data only as a limitation for stock-specific conclusions.",
+    "- If context is insufficient for a specific ticker/company conclusion, say so explicitly without saying the whole question cannot be answered.",
+    "- Do not say the active module is missing when the prompt includes Active module, Packet active module, or Module context moduleKey.",
+    "- If no ticker is provided, say there is no specific ticker selected; do not say there is no module context.",
     "- Do not use negative examples or forbidden outputs as valid answer content.",
   ].join("\n");
 };

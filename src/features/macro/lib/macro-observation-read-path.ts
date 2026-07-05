@@ -37,6 +37,7 @@ export interface MacroObservationResult {
     }>;
     missingIndicators: string[];
     safetyNotes: string[];
+    error?: string;
 }
 
 export async function loadLatestMacroObservations(
@@ -163,8 +164,15 @@ export async function loadLatestMacroObservations(
         }
 
         return result;
-    } catch {
-        // Safe fail-open for empty schema or DB connection issues
+    } catch (error) {
+        result.error = error instanceof Error ? error.message : "Unknown macro observation read error.";
+        result.safetyNotes = [
+            ...result.safetyNotes,
+            `MacroObservation read failed; UI must treat this as a data-read error, not as confirmed absence of macro data. ${result.error}`,
+        ];
+        if (options.indicatorCodes) {
+            result.missingIndicators = [...options.indicatorCodes];
+        }
         return result;
     }
 }

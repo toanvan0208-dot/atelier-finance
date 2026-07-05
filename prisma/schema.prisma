@@ -145,6 +145,7 @@ model User {
   simulationProfile     SimulationProfile?
   simulationScenarios   SimulationScenario[]
   simulationJournals    SimulationJournal[]
+  userChecklists        UserChecklist[]
   watchlists            Watchlist[]
   paperTrades           PaperTrade[]
   assistantInteractions AssistantInteraction[]
@@ -200,6 +201,7 @@ model Company {
   paperTrades           PaperTrade[]
   simulationScenarios   SimulationScenario[]
   simulationJournals    SimulationJournal[]
+  userChecklists        UserChecklist[]
   assistantInteractions AssistantInteraction[]
   businessProfiles      CompanyBusinessProfile[]
 
@@ -345,26 +347,27 @@ model MarketPriceUnitMetadata {
 }
 
 model DataSource {
-  id                      String                   @id @default(cuid())
+  id                      String                     @id @default(cuid())
   name                    String
   sourceType              SourceType
-  supportedDataGroups     String                   @default("[]")
-  usageStatus             SourceUsageStatus        @default(unknown)
-  licenseStatus           LegalReviewStatus        @default(not_checked)
-  tosStatus               LegalReviewStatus        @default(not_checked)
-  accessMethod            SourceAccessMethod       @default(unknown)
-  cachingAllowed          PermissionFlag           @default(unknown)
-  redistributionAllowed   PermissionFlag           @default(unknown)
-  runtimeDisplayAllowed   PermissionFlag           @default(unknown)
-  derivedDataAllowed      PermissionFlag           @default(unknown)
+  supportedDataGroups     String                     @default("[]")
+  usageStatus             SourceUsageStatus          @default(unknown)
+  licenseStatus           LegalReviewStatus          @default(not_checked)
+  tosStatus               LegalReviewStatus          @default(not_checked)
+  accessMethod            SourceAccessMethod         @default(unknown)
+  cachingAllowed          PermissionFlag             @default(unknown)
+  redistributionAllowed   PermissionFlag             @default(unknown)
+  runtimeDisplayAllowed   PermissionFlag             @default(unknown)
+  derivedDataAllowed      PermissionFlag             @default(unknown)
   attributionText         String?
   notes                   String?
-  createdAt               DateTime                 @default(now())
-  updatedAt               DateTime                 @updatedAt
-  profileCompanies        Company[]                @relation("CompanyProfileSource")
+  createdAt               DateTime                   @default(now())
+  updatedAt               DateTime                   @updatedAt
+  profileCompanies        Company[]                  @relation("CompanyProfileSource")
   financialStatements     FinancialStatement[]
   marketPrices            MarketPrice[]
   marketIndexObservations MarketIndexObservation[]
+  thinkingScenarios       ThinkingQuestionScenario[]
   sourceEvidence          SourceEvidence[]
 
   @@unique([name, sourceType])
@@ -510,6 +513,110 @@ model Watchlist {
   @@index([userId, status])
   @@index([companyId])
   @@index([dataMode])
+}
+
+model ChecklistItem {
+  id           String            @id @default(cuid())
+  itemCode     String            @unique
+  moduleKey    String
+  question     String
+  evidenceRule String?
+  displayOrder Int               @default(0)
+  version      Int               @default(1)
+  isActive     Boolean           @default(true)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  results      ChecklistResult[]
+
+  @@index([moduleKey, isActive])
+  @@index([displayOrder])
+}
+
+model UserChecklist {
+  id              String            @id @default(cuid())
+  userId          String?
+  companyId       String?
+  ticker          String?
+  status          String            @default("draft")
+  summary         String?
+  readiness       ReadinessStatus   @default(needs_review)
+  contextSnapshot String            @default("{}")
+  startedAt       DateTime          @default(now())
+  completedAt     DateTime?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  user            User?             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company         Company?          @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  results         ChecklistResult[]
+
+  @@index([userId, status])
+  @@index([companyId])
+  @@index([ticker])
+  @@index([readiness])
+}
+
+model ChecklistResult {
+  id                         String                    @id @default(cuid())
+  userChecklistId            String
+  checklistItemId            String?
+  thinkingQuestionScenarioId String?
+  status                     String                    @default("unanswered")
+  answer                     String?
+  evidenceSnapshot           String                    @default("{}")
+  missingFields              String                    @default("[]")
+  warningCodes               String                    @default("[]")
+  evaluatedAt                DateTime                  @default(now())
+  createdAt                  DateTime                  @default(now())
+  updatedAt                  DateTime                  @updatedAt
+  userChecklist              UserChecklist             @relation(fields: [userChecklistId], references: [id], onDelete: Cascade)
+  checklistItem              ChecklistItem?            @relation(fields: [checklistItemId], references: [id], onDelete: Cascade)
+  thinkingQuestionScenario   ThinkingQuestionScenario? @relation(fields: [thinkingQuestionScenarioId], references: [id], onDelete: SetNull)
+
+  @@unique([userChecklistId, checklistItemId])
+  @@unique([userChecklistId, thinkingQuestionScenarioId])
+  @@index([checklistItemId])
+  @@index([thinkingQuestionScenarioId])
+  @@index([status])
+}
+
+model ThinkingQuestionScenario {
+  id                  String            @id @default(cuid())
+  scenarioId          String            @unique
+  ticker              String
+  industryCode        String
+  moduleContext       String
+  sourceModules       String            @default("[]")
+  triggerSignal       String
+  questionType        String
+  questionText        String
+  options             String            @default("[]")
+  correctAnswer       String
+  explanation         String
+  evidenceFields      String            @default("[]")
+  evidenceStatus      String
+  dataQualityStatus   String
+  missingDataBehavior String
+  guardrailNote       String
+  difficulty          String
+  reviewStatus        String
+  needsReview         Boolean           @default(true)
+  productionApproved  Boolean           @default(false)
+  notes               String?
+  sourceLabel         String
+  sourceId            String?
+  importedAt          DateTime          @default(now())
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  source              DataSource?       @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+  checklistResults    ChecklistResult[]
+
+  @@index([ticker, moduleContext])
+  @@index([questionType])
+  @@index([evidenceStatus])
+  @@index([reviewStatus])
+  @@index([needsReview])
+  @@index([productionApproved])
+  @@index([sourceId])
 }
 
 model PaperTrade {
@@ -794,7 +901,7 @@ model IndustryPeerGroup {
 }
 
 model IndustryMetric {
-  id                 String    @id @default(cuid())
+  id                 String   @id @default(cuid())
   industryCode       String
   metricCode         String
   metricName         String
@@ -808,14 +915,14 @@ model IndustryMetric {
   sourceLabel        String
   sourceUrl          String?
   sourceKey          String
-  dataMode           String    @default("research_only")
-  productionApproved Boolean   @default(false)
-  needsReview        Boolean   @default(true)
-  qualityStatus      String    @default("needs_review")
+  dataMode           String   @default("research_only")
+  productionApproved Boolean  @default(false)
+  needsReview        Boolean  @default(true)
+  qualityStatus      String   @default("needs_review")
   missingReason      String?
-  warningCodes       String    @default("[]")
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
+  warningCodes       String   @default("[]")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
   industry       Industry                   @relation(fields: [industryCode], references: [industryCode])
   provenanceRows IndustryMetricProvenance[]

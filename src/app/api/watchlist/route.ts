@@ -1,4 +1,4 @@
-import { DataMode, ReadinessStatus } from "@/generated/prisma/client";
+import { DataMode, ReadinessStatus } from "@/generated/prisma/enums";
 import { apiError, apiInternalError, apiSuccess } from "@/lib/api/response";
 import { getCurrentUser } from "@/lib/auth/session";
 import { prisma } from "@/lib/database/client";

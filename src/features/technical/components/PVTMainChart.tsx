@@ -119,7 +119,7 @@ export function PVTMainChart({
 
   if (!hasChartPoints) {
     return (
-      <section className="overflow-hidden rounded-[8px] border-[1.5px] border-slate-950 bg-white shadow-[8px_8px_0_#0f172a]">
+      <section className="overflow-hidden rounded-[8px] border-[1.5px] border-slate-950 bg-white shadow-[5px_5px_0_rgb(15_23_42_/_0.24)]">
         <header className="border-b border-slate-200 bg-slate-50 px-5 py-4">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
@@ -162,7 +162,7 @@ export function PVTMainChart({
     : null;
 
   return (
-    <section className="overflow-hidden rounded-[8px] border-[1.5px] border-slate-950 bg-white shadow-[8px_8px_0_#0f172a]">
+    <section className="overflow-hidden rounded-[8px] border-[1.5px] border-slate-950 bg-white shadow-[5px_5px_0_rgb(15_23_42_/_0.24)]">
       <header className="border-b border-slate-200 bg-slate-50 px-5 py-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>

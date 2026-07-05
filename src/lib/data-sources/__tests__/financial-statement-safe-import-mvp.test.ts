@@ -224,7 +224,7 @@ const validCsv = () =>
 const importInput = (db: FakeFinancialStatementWriteDb, csvText = validCsv()): FinancialStatementSafeImportMvpInput => ({
   confirmWrite: true,
   csvText,
-  databaseUrl: "file:./dev.db",
+  databaseUrl: "postgresql://user:password@db.example.supabase.co/postgres?sslmode=require",
   db,
 });
 

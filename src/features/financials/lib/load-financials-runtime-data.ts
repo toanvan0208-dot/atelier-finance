@@ -4,13 +4,24 @@ import type {
 } from "../../../lib/data-sources/financial-statement-read-service";
 import {
   adaptFinancialStatementSeries,
+  type AdaptedFinancialStatement,
   type AdaptFinancialStatementSeriesResult,
 } from "./adapt-financial-statement-records";
-import { buildFinancialsUnitMetadata } from "./financials-unit-metadata-contract";
-import type { FinancialsRuntimeData, FinancialsRuntimeDataQuality, FinancialsRuntimeReadPath } from "./financials-runtime-types";
+import {
+  buildFinancialsUnitMetadata,
+  type FinancialsNumericField,
+  type FinancialsUnitMetadataMap,
+} from "./financials-unit-metadata-contract";
+import type {
+  FinancialsIndustryMetricReference,
+  FinancialsRuntimeData,
+  FinancialsRuntimeDataQuality,
+  FinancialsRuntimeReadPath,
+} from "./financials-runtime-types";
 import { financialsAuditFieldKeys, financialsTickerMatches } from "./financials-data-audit";
 import { PHASE109_CONTROLLED_FINANCIALS_SOURCE_LABEL } from "./phase109-controlled-financials-constants";
 import { VNSTOCK_FINANCIALS_CANDIDATE_SOURCE_LABEL } from "../../../lib/data-sources/vnstock-financials-candidate";
+import { LONG_SAFE_FINANCIALS_SOURCE_LABEL } from "./long-safe-financials-csv-import";
 
 export type LoadFinancialsRuntimeDataOptions = {
   ticker?: string;
@@ -34,9 +45,44 @@ const DEFAULT_TICKER = "FPT";
 const DEFAULT_DB_SOURCE_LABEL = PHASE109_CONTROLLED_FINANCIALS_SOURCE_LABEL;
 const DEFAULT_DATA_MODE = "research_only";
 const SAMPLE_SOURCE_LABEL = "static_sample_financials";
+const EXTERNAL_FINANCIALS_SOURCE_LABEL = "External financials review workspace";
+const REVIEWED_PDF_SOURCE_LABEL = "annual_report_2025_pdf_reviewed_preview";
+const EXTERNAL_REVIEW_INFERRED_UNIT_WARNING =
+  "external_review_workspace_unit_metadata_inferred_from_source_package";
+
+const externalReviewWorkspaceUnits: Partial<Record<FinancialsNumericField, "vnd" | "vnd_per_share" | "shares">> = {
+  currentAssets: "vnd",
+  currentLiabilities: "vnd",
+  equity: "vnd",
+  eps: "vnd_per_share",
+  netIncome: "vnd",
+  operatingCashFlow: "vnd",
+  revenue: "vnd",
+  sharesOutstanding: "shares",
+  totalAssets: "vnd",
+  totalDebt: "vnd",
+};
+
+const industryCodeByTicker: Record<string, string> = {
+  HPG: "STEEL_MATERIALS",
+  HSG: "STEEL_MATERIALS",
+  NKG: "STEEL_MATERIALS",
+  MWG: "RETAIL",
+  VNM: "CONSUMER_STAPLES_DAIRY",
+};
 
 const isDbDisabled = (options: LoadFinancialsRuntimeDataOptions): boolean =>
   options.preferDb === false || options.env?.[DB_ENV_FLAG] === "disabled" || process.env[DB_ENV_FLAG] === "disabled";
+
+const preferredSourceLabelsForTicker = (ticker: string): string[] => {
+  if (ticker === "HPG" || ticker === "VNM" || ticker === "MWG") {
+    return [EXTERNAL_FINANCIALS_SOURCE_LABEL, REVIEWED_PDF_SOURCE_LABEL, LONG_SAFE_FINANCIALS_SOURCE_LABEL];
+  }
+  if (ticker === "FPT" || ticker === "MSN") {
+    return [REVIEWED_PDF_SOURCE_LABEL, EXTERNAL_FINANCIALS_SOURCE_LABEL];
+  }
+  return [];
+};
 
 const sampleFallback = ({
   ticker,
@@ -74,6 +120,7 @@ const sampleFallback = ({
     snapshot: null,
     sourceLabel: SAMPLE_SOURCE_LABEL,
   }),
+  industryMetricReference: null,
   readResult: null,
 });
 
@@ -116,8 +163,102 @@ const unavailableResult = ({
   },
   statementSnapshot: null,
   unitMetadata: buildFinancialsUnitMetadata({ dataMode, snapshot: null, sourceLabel }),
+  industryMetricReference: null,
   readResult,
 });
+
+const loadIndustryMetricReference = async (ticker: string): Promise<FinancialsIndustryMetricReference | null> => {
+  const industryCode = industryCodeByTicker[ticker.trim().toUpperCase()];
+  if (!industryCode) return null;
+
+  try {
+    const { loadIndustryMetricSummaryByIndustryCode } = await import("../../industry/lib/load-industry-context");
+    const summary = await loadIndustryMetricSummaryByIndustryCode(industryCode);
+    const metrics = summary.metrics
+      .filter(
+        (metric) =>
+          metric.metricCode === "GROSS_MARGIN_COMPANY_REFERENCE" ||
+          metric.metricCode === "NET_MARGIN_COMPANY_REFERENCE",
+      )
+      .map((metric) => ({
+        metricCode: metric.metricCode as "GROSS_MARGIN_COMPANY_REFERENCE" | "NET_MARGIN_COMPANY_REFERENCE",
+        metricLabelVi: metric.metricLabelVi,
+        value: metric.value,
+        unit: metric.unit,
+        periodLabel: metric.periodLabel,
+        sourceLabel: metric.sourceLabel,
+        sourceKey: metric.sourceKey,
+        provenanceCount: metric.provenanceCount,
+      }));
+
+    return {
+      status: summary.status,
+      industryCode: summary.industryCode,
+      readyForUiDisplay: summary.readyForUiDisplay,
+      rowsWithoutProvenance: summary.rowsWithoutProvenance,
+      metrics,
+      caveats: summary.caveats,
+    };
+  } catch {
+    return {
+      status: "missing",
+      industryCode,
+      readyForUiDisplay: false,
+      rowsWithoutProvenance: 0,
+      metrics: [],
+      caveats: ["Chưa đọc được dữ liệu tham chiếu ngành từ cơ sở dữ liệu."],
+    };
+  }
+};
+
+const fiscalYearFromAdaptedStatement = (statement: AdaptedFinancialStatement): number | null => {
+  const parsed = Number(statement.snapshot.period ?? statement.metadata.period);
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
+const addPreviousYearSnapshotValues = (
+  current: AdaptFinancialStatementSeriesResult,
+  history: AdaptFinancialStatementSeriesResult | null,
+): AdaptFinancialStatementSeriesResult => {
+  if (!current.ok || current.statements.length === 0 || !history?.ok || history.statements.length === 0) {
+    return current;
+  }
+
+  const firstStatement = current.statements[0];
+  const currentYear = fiscalYearFromAdaptedStatement(firstStatement);
+  const previousStatement =
+    currentYear === null
+      ? history.statements[0]
+      : history.statements
+          .filter((statement) => {
+            const year = fiscalYearFromAdaptedStatement(statement);
+            return year !== null && year < currentYear;
+          })
+          .sort((a, b) => (fiscalYearFromAdaptedStatement(b) ?? 0) - (fiscalYearFromAdaptedStatement(a) ?? 0))[0];
+
+  if (!previousStatement) return current;
+
+  return {
+    ...current,
+    statements: current.statements.map((statement, index) =>
+      index === 0
+        ? {
+            ...statement,
+            snapshot: {
+              ...statement.snapshot,
+              previousRevenue: statement.snapshot.previousRevenue ?? previousStatement.snapshot.revenue,
+              previousGrossProfit: statement.snapshot.previousGrossProfit ?? previousStatement.snapshot.grossProfit,
+              previousNetProfit: statement.snapshot.previousNetProfit ?? previousStatement.snapshot.netProfit,
+              previousTotalAssets: statement.snapshot.previousTotalAssets ?? previousStatement.snapshot.totalAssets,
+              previousTotalEquity: statement.snapshot.previousTotalEquity ?? previousStatement.snapshot.totalEquity,
+              previousOperatingCashFlow:
+                statement.snapshot.previousOperatingCashFlow ?? previousStatement.snapshot.operatingCashFlow,
+            },
+          }
+        : statement,
+    ),
+  };
+};
 
 const dbBackedResult = ({
   ticker,
@@ -126,6 +267,7 @@ const dbBackedResult = ({
   adapted,
   readResult,
   marketPriceRecord,
+  industryMetricReference,
 }: {
   ticker: string;
   sourceLabel: string;
@@ -133,6 +275,7 @@ const dbBackedResult = ({
   adapted: AdaptFinancialStatementSeriesResult;
   readResult: FinancialStatementSeriesResult;
   marketPriceRecord: { closePrice: unknown } | null;
+  industryMetricReference: FinancialsIndustryMetricReference | null;
 }): FinancialsRuntimeData => {
   const firstStatement = adapted.statements[0];
   const firstRecord = readResult.records[0];
@@ -149,6 +292,22 @@ const dbBackedResult = ({
     sourceLabel: firstStatement?.metadata.sourceLabel ?? sourceLabel,
     dataMode: firstStatement?.metadata.dataMode ?? dataMode,
   };
+  const usesExternalReviewInferredUnits =
+    source.sourceLabel === EXTERNAL_FINANCIALS_SOURCE_LABEL && statementSnapshot !== null;
+  const unitMetadata: FinancialsUnitMetadataMap =
+    usesExternalReviewInferredUnits
+      ? buildFinancialsUnitMetadata({
+          dataMode: source.dataMode,
+          explicitUnits: externalReviewWorkspaceUnits,
+          snapshot: statementSnapshot,
+          sourceLabel: source.sourceLabel,
+        })
+      : firstStatement?.unitMetadata ??
+        buildFinancialsUnitMetadata({
+          dataMode: source.dataMode,
+          snapshot: statementSnapshot,
+          sourceLabel: source.sourceLabel,
+        });
 
   return {
     runtimeStatus: "db_backed",
@@ -166,17 +325,14 @@ const dbBackedResult = ({
     dataQuality: {
       status: adapted.status,
       missingFields: adapted.missingFields,
-      warnings: adapted.warnings,
+      warnings: usesExternalReviewInferredUnits
+        ? [...adapted.warnings, EXTERNAL_REVIEW_INFERRED_UNIT_WARNING]
+        : adapted.warnings,
       errors: adapted.errors,
     },
     statementSnapshot,
-    unitMetadata:
-      firstStatement?.unitMetadata ??
-      buildFinancialsUnitMetadata({
-        dataMode: source.dataMode,
-        snapshot: statementSnapshot,
-        sourceLabel: source.sourceLabel,
-      }),
+    unitMetadata,
+    industryMetricReference,
     readResult,
   };
 };
@@ -211,21 +367,19 @@ export const loadFinancialsRuntimeData = async (
     let adapted = adaptSeries(readResult);
 
     if (!options.sourceLabel || options.sourceLabel.trim() === "") {
-      if (ticker === "HPG" || ticker === "VNM" || ticker === "FPT" || ticker === "MSN" || ticker === "MWG") {
-        const externalResult = await readSeries({ ticker, sourceLabel: "External financials review workspace", dataMode: "research_only", limit: 8 });
-        const externalAdapted = adaptSeries(externalResult);
-        if (externalAdapted.ok && externalAdapted.statements.length > 0) {
-          readResult = externalResult;
-          adapted = externalAdapted;
-          sourceLabel = "External financials review workspace";
-        } else {
-          const pdfResult = await readSeries({ ticker, sourceLabel: "annual_report_2025_pdf_reviewed_preview", dataMode: "research_only", limit: 8 });
-          const pdfAdapted = adaptSeries(pdfResult);
-          if (pdfAdapted.ok && pdfAdapted.statements.length > 0) {
-            readResult = pdfResult;
-            adapted = pdfAdapted;
-            sourceLabel = "annual_report_2025_pdf_reviewed_preview";
-          }
+      for (const candidateSourceLabel of preferredSourceLabelsForTicker(ticker)) {
+        const candidateResult = await readSeries({
+          ticker,
+          sourceLabel: candidateSourceLabel,
+          dataMode: "research_only",
+          limit: 8,
+        });
+        const candidateAdapted = adaptSeries(candidateResult);
+        if (candidateAdapted.ok && candidateAdapted.statements.length > 0) {
+          readResult = candidateResult;
+          adapted = candidateAdapted;
+          sourceLabel = candidateSourceLabel;
+          break;
         }
       }
     }
@@ -263,7 +417,21 @@ export const loadFinancialsRuntimeData = async (
           readResult,
         });
       }
-      return dbBackedResult({ ticker, sourceLabel, dataMode, adapted, readResult, marketPriceRecord });
+      if (sourceLabel === EXTERNAL_FINANCIALS_SOURCE_LABEL && (ticker === "HPG" || ticker === "VNM" || ticker === "MWG")) {
+        try {
+          const historyResult = await readSeries({
+            ticker,
+            sourceLabel: LONG_SAFE_FINANCIALS_SOURCE_LABEL,
+            dataMode: "research_only",
+            limit: 8,
+          });
+          adapted = addPreviousYearSnapshotValues(adapted, adaptSeries(historyResult));
+        } catch {
+          // Giữ kỳ chính 2025; nếu lịch sử lỗi thì chỉ bỏ phần tăng trưởng.
+        }
+      }
+      const industryMetricReference = await loadIndustryMetricReference(adaptedTicker ?? ticker);
+      return dbBackedResult({ ticker, sourceLabel, dataMode, adapted, readResult, marketPriceRecord, industryMetricReference });
     }
 
     const warnings = [

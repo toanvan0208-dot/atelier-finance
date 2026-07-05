@@ -155,12 +155,12 @@ describe("IndustryPage runtime read path", () => {
       }),
     );
 
-    expect(html).toContain("Dữ liệu ngành đang đọc từ hệ thống");
-    expect(html).toContain("Đã đọc mapping DB");
+    expect(html).not.toContain("Dữ liệu ngành đang đọc từ hệ thống");
+    expect(html).not.toContain("Đã đọc mapping DB");
     expect(html).toContain("HPG");
     expect(html).toContain("STEEL_MATERIALS");
-    expect(html).toContain("Chưa có bối cảnh ngành có nguồn");
-    expect(html).toContain("Chưa có metric ngành");
+    expect(html).not.toContain("Chưa có bối cảnh ngành có nguồn");
+    expect(html).not.toContain("Chưa có metric ngành");
     expect(html).not.toContain("IndustryContext is available");
   });
 
@@ -276,16 +276,20 @@ describe("IndustryPage runtime read path", () => {
       }),
     );
 
-    expect(html).toContain("Nguồn dữ liệu Layer 4");
-    expect(html).toContain("Có nguồn");
-    expect(html).toContain("Thẻ này chỉ giữ nguồn và trạng thái dữ liệu");
-    expect(html).toContain("Steel businesses transform raw materials");
-    expect(html).toContain("Revenue depends on shipped volume");
-    expect(html).toContain("Construction and infrastructure demand");
-    expect(html).toContain("Weak demand cycles");
-    expect(html).toContain("World Steel Association");
-    expect(html).toContain("https://worldsteel.org/wp-content/uploads/Fact-sheet-raw-materials-2023-1.pdf");
-    expect(html).toContain("Chưa có metric ngành");
+    expect(html).not.toContain("Nguồn dữ liệu Layer 4");
+    expect(html).not.toContain("Thẻ này chỉ giữ nguồn và trạng thái dữ liệu");
+    expect(html).toContain("Ngành thép cần đọc qua cung cầu thép");
+    expect(html).toContain("Doanh thu đến từ sản lượng bán ra");
+    expect(html).toContain("Nhu cầu xây dựng và đầu tư hạ tầng trong nước");
+    expect(html).toContain("Nhu cầu bất động sản hoặc xây dựng yếu");
+    expect(html).toContain("Động lực ngành");
+    expect(html).not.toContain("World Steel Association");
+    expect(html).not.toContain("https://worldsteel.org/wp-content/uploads/Fact-sheet-raw-materials-2023-1.pdf");
+    expect(html).not.toContain("Chưa có metric ngành");
+    expect(html).not.toContain("Steel businesses transform raw materials");
+    expect(html).not.toContain("Revenue depends on shipped volume");
+    expect(html).not.toContain("Construction and infrastructure demand");
+    expect(html).not.toContain("Weak demand cycles");
     expect(html).not.toContain("Layer 4 dang thieu");
   });
 
@@ -405,20 +409,19 @@ describe("IndustryPage runtime read path", () => {
       }),
     );
 
-    expect(html).toContain("Ghi chú cách đọc số liệu ngành");
-    expect(html).toContain("Có metric DB");
-    expect(html).toContain("Sản lượng thép thô toàn cầu");
-    expect(html).toContain("159,9 triệu tấn");
-    expect(html).toContain("Số này nói gì");
-    expect(html).toContain("Cần soi tiếp");
-    expect(html).toContain("Sản lượng bán hàng của doanh nghiệp có đi cùng chiều thị trường không");
-    expect(html).toContain("Chỉ số nên tự tìm thêm");
-    expect(html).toContain("Xem ghi chú");
-    expect(html).toContain("chưa phải metric trong DB");
+    expect(html).toContain("Xem ghi chú cách đọc số liệu ngành");
+    expect(html).not.toContain("Có metric DB");
+    expect(html).not.toContain("Sản lượng thép thô toàn cầu");
+    expect(html).not.toContain("159,9 triệu tấn");
+    expect(html).not.toContain("Số này nói gì");
+    expect(html).not.toContain("Cần soi tiếp");
+    expect(html).not.toContain("Sản lượng bán hàng của doanh nghiệp có đi cùng chiều thị trường không");
+    expect(html).not.toContain("Chỉ số nên tự tìm thêm");
+    expect(html).not.toContain("chưa phải metric trong DB");
     expect(html).not.toContain("Sản lượng thép Việt Nam");
-    expect(html).toContain("Local PDF - Steel market Q1 2026");
-    expect(html).toContain("productionApproved=false");
-    expect(html).toContain("Chỉ là ghi chú đọc số");
+    expect(html).not.toContain("Local PDF - Steel market Q1 2026");
+    expect(html).not.toContain("productionApproved=false");
+    expect(html).not.toContain("Chỉ là ghi chú đọc số");
   });
 
   it("renders Vietnamese display copy for PDF-backed Layer 4 context without changing source metadata", () => {
@@ -533,12 +536,12 @@ describe("IndustryPage runtime read path", () => {
       }),
     );
 
-    expect(html).toContain("Bản hiển thị tiếng Việt");
+    expect(html).not.toContain("Bản hiển thị tiếng Việt");
     expect(html).toContain("Ngành thép cần đọc qua cung cầu thép");
     expect(html).toContain("Doanh thu đến từ sản lượng bán ra");
     expect(html).toContain("Nhu cầu xây dựng và đầu tư hạ tầng trong nước");
-    expect(html).toContain("Phase 158D PDF Layer 4 - Local PDF - Bao cao thi truong thep Quy I 2026");
-    expect(html).toContain("local-pdf://bao-cao-thi-truong-thep-quy-i-2026-20260505095914229.pdf");
+    expect(html).not.toContain("Phase 158D PDF Layer 4 - Local PDF - Bao cao thi truong thep Quy I 2026");
+    expect(html).not.toContain("local-pdf://bao-cao-thi-truong-thep-quy-i-2026-20260505095914229.pdf");
     expect(html).not.toContain("Steel and construction-material businesses are exposed");
   });
 });

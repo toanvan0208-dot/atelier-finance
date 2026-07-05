@@ -25,6 +25,7 @@ type AssistantApiResponse = {
   answer: string | null;
   llmStatus: string;
   message: string;
+  providerResponse?: unknown;
   validation?: { isValid: boolean } | null;
   violations?: Array<{ code: string }>;
   refusal?: string | null;
@@ -248,6 +249,33 @@ describe("POST /api/assistant", () => {
     expect(json.llmStatus).toBe("completed");
     expect(json.answer).toContain("mock");
     expect(json.validation?.isValid).toBe(true);
+  });
+
+  it("answers DCF formula questions directly without calling the provider", async () => {
+    const handler = createAssistantPostHandler({
+      provider: new MockAssistantProvider({
+        throwError: true,
+        error: "Provider should not be called for deterministic DCF formula education.",
+      }),
+    });
+
+    const response = await postJson(
+      {
+        question: "công thức dcf",
+        activeModule: "valuation",
+        ticker: "HPG",
+      },
+      handler,
+    );
+    const json = await readJson<AssistantApiResponse>(response);
+
+    expect(response.status).toBe(200);
+    expect(json.ok).toBe(true);
+    expect(json.llmStatus).toBe("completed");
+    expect(json.answer).toContain("DCF là cách quy đổi dòng tiền tương lai về hiện tại");
+    expect(json.answer).toContain("không tự tạo kết luận đầu tư");
+    expect(json.providerResponse).toBeNull();
+    expect(json.violations).toEqual([]);
   });
 
   it("openai env mode without API key is not configured and does not generate an answer", async () => {

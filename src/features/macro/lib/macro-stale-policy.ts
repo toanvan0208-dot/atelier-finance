@@ -28,17 +28,17 @@ export function evaluateMacroObservationFreshness({
   if (!observationDate) {
     return {
       staleStatus: "unknown",
-      reason: "Chưa có dữ liệu quan sát trong hệ thống",
+      reason: "Chưa có dữ liệu quan sát trong hệ thống.",
     };
   }
 
   const obsDate = new Date(observationDate);
   const now = asOfDate ? new Date(asOfDate) : new Date();
-  
-  if (isNaN(obsDate.getTime())) {
+
+  if (Number.isNaN(obsDate.getTime())) {
     return {
       staleStatus: "unknown",
-      reason: "Ngày quan sát không hợp lệ",
+      reason: "Ngày quan sát không hợp lệ.",
     };
   }
 
@@ -49,19 +49,19 @@ export function evaluateMacroObservationFreshness({
 
   switch (expectedFrequency) {
     case "daily":
-      maxAgeDays = 5; // Allow for weekends/holidays
+      maxAgeDays = 5;
       break;
     case "weekly":
       maxAgeDays = 14;
       break;
     case "monthly":
-      maxAgeDays = 60; // Up to 2 months
+      maxAgeDays = 60;
       break;
     case "quarterly":
-      maxAgeDays = 150; // Up to 5 months
+      maxAgeDays = 150;
       break;
     case "annual":
-      maxAgeDays = 450; // Up to 15 months to account for publishing delays
+      maxAgeDays = 450;
       break;
     case "event_based":
     case "unknown":
@@ -69,7 +69,7 @@ export function evaluateMacroObservationFreshness({
       return {
         staleStatus: "unknown",
         ageDays,
-        reason: "Tần suất không xác định hoặc dựa trên sự kiện, không thể tự động đánh giá độ trễ.",
+        reason: "Tần suất không xác định hoặc phụ thuộc sự kiện, nên chưa thể tự động đánh giá độ mới.",
       };
   }
 
@@ -78,7 +78,7 @@ export function evaluateMacroObservationFreshness({
       staleStatus: "stale",
       ageDays,
       maxAgeDays,
-      reason: `Dữ liệu đã cũ (${ageDays} ngày), vượt quá giới hạn cho phép (${maxAgeDays} ngày).`,
+      reason: `Dữ liệu đã cũ (${ageDays} ngày), vượt quá ngưỡng đọc nhanh (${maxAgeDays} ngày).`,
     };
   }
 
@@ -86,6 +86,6 @@ export function evaluateMacroObservationFreshness({
     staleStatus: "fresh",
     ageDays,
     maxAgeDays,
-    reason: `Dữ liệu vẫn trong giới hạn cập nhật (${ageDays}/${maxAgeDays} ngày).`,
+    reason: `Dữ liệu vẫn trong ngưỡng cập nhật (${ageDays}/${maxAgeDays} ngày).`,
   };
 }

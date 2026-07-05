@@ -1,9 +1,9 @@
-export type FinancialStatementLocalDatabaseMode = "local_sqlite_dev" | "local_postgres_dev" | "unknown" | "rejected";
+export type FinancialStatementLocalDatabaseMode = "postgres_dev" | "postgres_supabase" | "unknown" | "rejected";
 
 export type FinancialStatementLocalWriteGuardResult =
   | {
       accepted: true;
-      databaseMode: "local_sqlite_dev" | "local_postgres_dev";
+      databaseMode: "postgres_dev" | "postgres_supabase";
       safeDatabaseUrlDisplay: string;
       warnings: string[];
       errors: [];
@@ -16,9 +16,10 @@ export type FinancialStatementLocalWriteGuardResult =
       errors: string[];
     };
 
-const REMOTE_DATABASE_PREFIXES = ["postgres://", "postgresql://", "mysql://", "sqlserver://"];
+const REMOTE_DATABASE_PREFIXES = ["mysql://", "sqlserver://"];
 const PRODUCTION_KEYWORDS = ["production", "prod"];
 const LOCAL_HOST_KEYWORDS = ["localhost", "127.0.0.1"];
+const SUPABASE_HOST_KEYWORDS = ["supabase.co", "supabase.com", "pooler.supabase.com"];
 
 const redactUrl = (databaseUrl: string | undefined): string => {
   if (!databaseUrl) return "<missing>";
@@ -53,7 +54,7 @@ export const assessFinancialStatementLocalWriteDatabaseUrl = (
       databaseMode: "unknown",
       safeDatabaseUrlDisplay,
       warnings: [],
-      errors: ["DATABASE_URL is required before a local financial statement write trial."],
+      errors: ["DATABASE_URL is required before a confirmed financial statement write."],
     };
   }
 
@@ -65,28 +66,24 @@ export const assessFinancialStatementLocalWriteDatabaseUrl = (
       databaseMode: "rejected",
       safeDatabaseUrlDisplay,
       warnings: [],
-      errors: ["DATABASE_URL contains production-like wording and is rejected for local write trials."],
+      errors: ["DATABASE_URL contains production-like wording and is rejected for confirmed research writes."],
     };
   }
 
   const isPostgres = lower.startsWith("postgresql://") || lower.startsWith("postgres://");
   
   if (isPostgres) {
-    if (!isLocalHostUrl(trimmed)) {
-      return {
-        accepted: false,
-        databaseMode: "rejected",
-        safeDatabaseUrlDisplay,
-        warnings: [],
-        errors: ["Remote PostgreSQL database URLs are rejected. Only local disposable containers (localhost) are allowed."],
-      };
-    }
+    const isSupabase = SUPABASE_HOST_KEYWORDS.some((keyword) => lower.includes(keyword));
 
     return {
       accepted: true,
-      databaseMode: "local_postgres_dev",
+      databaseMode: isLocalHostUrl(trimmed) ? "postgres_dev" : "postgres_supabase",
       safeDatabaseUrlDisplay,
-      warnings: ["DATABASE_URL accepted as a local PostgreSQL database for controlled research write trial."],
+      warnings: [
+        isSupabase
+          ? "DATABASE_URL accepted as Supabase/PostgreSQL for confirmed research write."
+          : "DATABASE_URL accepted as PostgreSQL for confirmed research write. Confirm this is the intended Supabase/research database.",
+      ],
       errors: [],
     };
   }
@@ -97,25 +94,25 @@ export const assessFinancialStatementLocalWriteDatabaseUrl = (
       databaseMode: "rejected",
       safeDatabaseUrlDisplay,
       warnings: [],
-      errors: ["Remote database URLs are rejected for financial statement local write trials."],
+      errors: ["Only PostgreSQL/Supabase DATABASE_URL values are accepted for confirmed financial statement writes."],
     };
   }
 
-  if (!lower.startsWith("file:")) {
+  if (lower.startsWith("file:")) {
     return {
       accepted: false,
-      databaseMode: "unknown",
+      databaseMode: "rejected",
       safeDatabaseUrlDisplay,
       warnings: [],
-      errors: ["Only local file: or localhost postgresql: DATABASE_URL values are accepted for this write trial."],
+      errors: ["SQLite/file DATABASE_URL values are disabled. Use the Supabase/PostgreSQL DATABASE_URL."],
     };
   }
 
   return {
-    accepted: true,
-    databaseMode: "local_sqlite_dev",
+    accepted: false,
+    databaseMode: "unknown",
     safeDatabaseUrlDisplay,
-    warnings: ["DATABASE_URL accepted as a local SQLite/dev database for controlled research write trial."],
-    errors: [],
+    warnings: [],
+    errors: ["Only PostgreSQL/Supabase DATABASE_URL values are accepted for confirmed financial statement writes."],
   };
 };

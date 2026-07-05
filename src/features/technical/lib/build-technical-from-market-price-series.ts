@@ -78,7 +78,7 @@ export const buildTechnicalFromMarketPriceSeries = (
     periodType: "unknown",
     sourceName: adapter.pvtInput.sourceName,
     dataMode: adapter.dataMode,
-    collectedAt: adapter.pvtInput.collectedAt,
+    collectedAt: adapter.pvtInput.collectedAt ?? latestDate,
     closePrice: adapter.pvtInput.closePrice,
     previousClosePrice: adapter.pvtInput.previousClosePrice,
     volume: adapter.pvtInput.volume,

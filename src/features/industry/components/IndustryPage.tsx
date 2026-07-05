@@ -174,15 +174,11 @@ const pdfBackedVietnameseDisplayByIndustryCode: Record<string, Omit<Layer4Displa
   },
 };
 
-const isPdfBackedLayer4Context = (
-  context: NonNullable<IndustryContextRuntimePayload["context"]>,
-): boolean => context.sourceLabel.startsWith("Phase 158D PDF Layer 4 - ");
-
 const layer4DisplayContext = (
   context: NonNullable<IndustryContextRuntimePayload["context"]>,
 ): Layer4DisplayContext => {
   const pdfDisplay = context.industryCode ? pdfBackedVietnameseDisplayByIndustryCode[context.industryCode] : null;
-  if (isPdfBackedLayer4Context(context) && pdfDisplay) {
+  if (pdfDisplay) {
     return {
       ...pdfDisplay,
       translationMode: "pdf_vi_display",
@@ -253,6 +249,8 @@ const metricDisplayLabel = (metricCode: string, fallback: string): string => {
     RETAIL_SALES_VALUE_YOY_CURRENT_PRICE: "Tăng trưởng tổng mức bán lẻ danh nghĩa",
     STEEL_GLOBAL_CRUDE_STEEL_PRODUCTION: "Sản lượng thép thô toàn cầu",
     STEEL_GLOBAL_CRUDE_STEEL_PRODUCTION_YOY: "Tăng trưởng sản lượng thép thô toàn cầu YoY",
+    GROSS_MARGIN_COMPANY_REFERENCE: "Biên gộp tham chiếu một doanh nghiệp",
+    NET_MARGIN_COMPANY_REFERENCE: "Biên ròng tham chiếu một doanh nghiệp",
   };
 
   return labelByMetricCode[metricCode] ?? fallback;
@@ -446,6 +444,34 @@ const metricReadingGuide = (
       ],
       watchCase:
         "Nếu tăng trưởng thực chậm lại, doanh nghiệp bán lẻ cần được kiểm tra kỹ về lượng khách, hàng tồn và áp lực khuyến mãi.",
+    };
+  }
+
+  if (metricCode === "GROSS_MARGIN_COMPANY_REFERENCE") {
+    return {
+      meaning:
+        "Đây là biên gộp của một doanh nghiệp đại diện đang có dữ liệu rõ, dùng để đặt câu hỏi so sánh sơ bộ. Đây chưa phải trung vị ngành hay benchmark định giá.",
+      companyChecks: [
+        "So với biên gộp của chính doanh nghiệp qua 3-5 năm",
+        "Kiểm tra cơ cấu sản phẩm và giá vốn có khác doanh nghiệp tham chiếu không",
+        "Đọc cùng biên ròng, tồn kho và dòng tiền vận hành",
+      ],
+      watchCase:
+        "Nếu doanh nghiệp lệch mạnh so với con số tham chiếu, cần tìm nguyên nhân vận hành hoặc cơ cấu sản phẩm; không tự kết luận tốt/xấu từ chênh lệch này.",
+    };
+  }
+
+  if (metricCode === "NET_MARGIN_COMPANY_REFERENCE") {
+    return {
+      meaning:
+        "Đây là biên ròng của một doanh nghiệp đại diện đang có dữ liệu rõ, giúp nhìn sau chi phí vận hành, tài chính và thuế. Đây chưa phải chuẩn ngành.",
+      companyChecks: [
+        "So với biên ròng lịch sử của chính doanh nghiệp",
+        "Kiểm tra chi phí bán hàng, quản lý và lãi vay",
+        "Đọc cùng CFO/LNST để xem lợi nhuận có chuyển thành tiền không",
+      ],
+      watchCase:
+        "Biên ròng thấp hơn tham chiếu có thể do mô hình kinh doanh, chu kỳ, chi phí hoặc cấu trúc vốn khác nhau; cần giải thích nguyên nhân trước khi đánh giá.",
     };
   }
 
@@ -663,9 +689,21 @@ function IndustryMetricReadPathPanel({
   const hasMetrics = metricSummary?.status === "available" && metrics.length > 0;
   const futureMetricGuides = expectedIndustryCode ? futureMetricGuidesByIndustryCode[expectedIndustryCode] ?? [] : [];
   const [showFutureMetricGuide, setShowFutureMetricGuide] = useState(false);
+  const [showMetricReadPath, setShowMetricReadPath] = useState(false);
 
   return (
-    <section>
+    <section className="flex flex-col items-start gap-3">
+      <button
+        type="button"
+        className="rounded-[4px] border-[1.5px] border-border bg-surface px-4 py-2 text-xs font-bold text-ink shadow-hard-sm transition hover:-translate-y-0.5 hover:bg-surface-hover"
+        aria-expanded={showMetricReadPath}
+        onClick={() => setShowMetricReadPath((value) => !value)}
+      >
+        {showMetricReadPath ? "Ẩn ghi chú cách đọc số liệu ngành" : "Xem ghi chú cách đọc số liệu ngành"}
+      </button>
+
+      {showMetricReadPath ? (
+      <>
       <SectionHeader
         eyebrow="Layer 5"
         title="Ghi chú cách đọc số liệu ngành"
@@ -796,6 +834,8 @@ function IndustryMetricReadPathPanel({
           </p>
         </CardBody>
       </Card>
+      </>
+      ) : null}
     </section>
   );
 }
@@ -849,18 +889,6 @@ export function IndustryPage({ initialIndustryContexts, onNavigate }: IndustryPa
         selectedIndustry={selectedIndustry}
         onSelectIndustry={setSelectedIndustryId}
       />
-      <IndustryRuntimeReadPathPanel
-        runtimeContexts={runtimeContexts}
-        selectedIndustry={selectedIndustry}
-      />
-      <IndustryLayer4ContextPanel
-        runtimeContexts={runtimeContexts}
-        selectedIndustry={selectedIndustry}
-      />
-      <IndustryMetricReadPathPanel
-        runtimeContexts={runtimeContexts}
-        selectedIndustry={selectedIndustry}
-      />
       <IndustryQuickPicture
         layer4Context={selectedLayer4Context}
         selectedIndustry={selectedIndustry}
@@ -887,6 +915,10 @@ export function IndustryPage({ initialIndustryContexts, onNavigate }: IndustryPa
       <IndustryCompanyMapSection
         selectedIndustry={selectedIndustry}
         onNavigate={onNavigate}
+      />
+      <IndustryMetricReadPathPanel
+        runtimeContexts={runtimeContexts}
+        selectedIndustry={selectedIndustry}
       />
     </div>
   );

@@ -30,6 +30,7 @@ export function SimulationTabs({ modes, activeMode, onSelect }: SimulationTabsPr
               }`}
               type="button"
               onClick={() => onSelect(mode.id)}
+              aria-pressed={active}
             >
               <div className="flex items-center gap-2">
                 <p className="text-sm font-bold">{shortTitle[mode.id]}</p>

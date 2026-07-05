@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
 import { ScreeningPage } from "../ScreeningPage";
+import { screeningRedesignData } from "../../data/screeningRedesign.data";
 import type { ScreeningCandidatePayload } from "../../lib/screening-candidate-read-path";
 
 const buildMetric = (
@@ -124,17 +125,23 @@ describe("ScreeningPage restored card layout", () => {
     expect(html).toContain("Có CFO");
     expect(html).toContain("Có thanh khoản");
     expect(html).toContain("Xóa lọc");
-    expect(html).toContain("Kết quả sau lọc");
+    expect(html).toContain("Danh sách sau lọc");
+    expect(html).toContain("Các mã phù hợp với bộ lọc hiện tại");
     expect(html).toContain("Kết luận và bước tiếp theo");
     expect(html).not.toContain("Nguồn từ module Ngành");
-    expect(html).not.toContain("Bộ lọc đang áp dụng");
+    expect(html).toContain("Bộ lọc đang áp dụng");
+    expect(html).toContain("Ngành &amp; phạm vi");
+    expect(html).toContain("Định giá sơ bộ");
+    expect(html).toContain("Dòng tiền");
+    expect(html).toContain("Thanh khoản");
+    expect(html).toContain("Trạng thái dữ liệu");
     expect(html).not.toContain("Phễu kiểm tra dữ liệu");
     expect(html).not.toContain("Quy trình lọc theo mức đủ dữ liệu");
     expect(html).not.toContain("Bảng screening compact");
   });
 
   it("keeps HSG/NKG visible as screening candidate cards and TVN absent", () => {
-    expect(html).toContain("Ứng viên Screening từ bảng riêng");
+    expect(html).toContain("Các mã phù hợp với bộ lọc hiện tại");
     expect(html).toContain("HSG");
     expect(html).toContain("Hoa Sen Group");
     expect(html).toContain("NKG");
@@ -149,10 +156,14 @@ describe("ScreeningPage restored card layout", () => {
     expect(html).not.toContain("full_analysis");
   });
 
-  it("keeps user-facing metric caveats visible without source-period details", () => {
-    expect(html).toContain("14.72");
-    expect(html).toContain("P/E là ảnh chụp tỷ số thị trường từ nhà cung cấp");
-    expect(html).toContain("CFO lấy từ nguồn lưu chuyển tiền tệ hợp nhất");
+  it("shows the applied screening method instead of raw metric cards", () => {
+    expect(html).toContain("Có dữ liệu P/E, P/B hoặc giá đóng cửa");
+    expect(html).toContain("Có CFO để kiểm tra dòng tiền");
+    expect(html).toContain("Có dữ liệu giá/khối lượng/thanh khoản");
+    expect(html).toContain("Phân tích tiếp");
+    expect(html).not.toContain("14.72");
+    expect(html).not.toContain("P/E là ảnh chụp tỷ số thị trường từ nhà cung cấp");
+    expect(html).not.toContain("CFO lấy từ nguồn lưu chuyển tiền tệ hợp nhất");
     expect(html).not.toContain("2026-Q2");
     expect(html).not.toContain("VNStock Fundamental equity ratio");
     expect(html).not.toContain("Manual consolidated cash-flow source");
@@ -165,5 +176,24 @@ describe("ScreeningPage restored card layout", () => {
     }
     expect(normalized).not.toContain("ranking");
     expect(normalized).not.toContain("scoring");
+  });
+
+  it("derives the result title from the actual candidate universe", () => {
+    const dynamicHtml = renderToStaticMarkup(
+      createElement(ScreeningPage, {
+        initialData: {
+          candidates: [
+            { ...screeningRedesignData.candidates[0], ticker: "FPT" },
+            { ...screeningRedesignData.candidates[0], ticker: "HPG" },
+            { ...screeningRedesignData.candidates[0], ticker: "MWG" },
+            { ...screeningRedesignData.candidates[0], ticker: "VNM" },
+          ],
+          screeningCandidates: [],
+        },
+      })
+    );
+
+    expect(dynamicHtml).toContain("Bảng mức đủ dữ liệu của 4 mã trong phạm vi hiện tại (FPT, HPG, MWG, VNM)");
+    expect(dynamicHtml).not.toContain("Bảng mức đủ dữ liệu của FPT, MWG và VNM");
   });
 });

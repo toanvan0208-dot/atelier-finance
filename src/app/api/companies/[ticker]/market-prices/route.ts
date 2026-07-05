@@ -1,5 +1,5 @@
 import { DataMode } from "@/generated/prisma/client";
-import { apiError, apiInternalError, apiSuccess } from "@/lib/api/response";
+import { apiDataReadError, apiError, apiSuccess } from "@/lib/api/response";
 import { getLatestMarketPrice, getMarketPricesByTicker } from "@/lib/database";
 
 type MarketPricesRouteContext = {
@@ -81,7 +81,7 @@ export const GET = async (
         reason: prices.length === 0 ? "No persisted market prices matched the requested ticker." : undefined,
       },
     });
-  } catch {
-    return apiInternalError();
+  } catch (error) {
+    return apiDataReadError(error);
   }
 };

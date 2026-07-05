@@ -33,7 +33,7 @@ export function PVTSignalLayers({ layers }: PVTSignalLayersProps) {
                 className={[
                   "group flex items-center gap-3 rounded-[8px] border px-3 py-3 text-left transition",
                   layer.id === activeLayer.id
-                    ? "border-slate-950 bg-white shadow-[4px_4px_0_#0f172a]"
+                    ? "border-slate-950 bg-white shadow-[3px_3px_0_rgb(15_23_42_/_0.20)]"
                     : "border-slate-200 bg-white hover:border-slate-400",
                 ].join(" ")}
                 type="button"

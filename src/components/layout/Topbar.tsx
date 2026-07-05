@@ -26,7 +26,7 @@ export function Topbar({ title, brandName, profileAction }: TopbarProps) {
         {title}
       </div>
 
-      <div className="hidden items-center justify-end gap-2 border-l-[1.5px] border-border px-5 md:flex">
+      <div className="absolute right-3 top-2 flex items-center justify-end gap-2 md:static md:border-l-[1.5px] md:border-border md:px-5">
         {profileAction}
       </div>
     </header>

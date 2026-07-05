@@ -65,3 +65,16 @@ export const apiError = (
 
 export const apiInternalError = (): Response =>
   apiError("INTERNAL_ERROR", "Unable to complete the request.", { status: 500 });
+
+const sanitizeErrorReason = (error: unknown): string | undefined => {
+  if (!(error instanceof Error)) return undefined;
+  return error.message
+    .replace(/postgres(?:ql)?:\/\/\S+/gi, "[redacted-database-url]")
+    .replace(/DATABASE_URL=\\S+/gi, "DATABASE_URL=[redacted]");
+};
+
+export const apiDataReadError = (error: unknown): Response =>
+  apiError("DATA_READ_ERROR", "Unable to read the requested data.", {
+    status: 500,
+    reason: sanitizeErrorReason(error),
+  });

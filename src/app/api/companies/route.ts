@@ -1,5 +1,5 @@
 import { DataMode } from "@/generated/prisma/client";
-import { apiError, apiInternalError, apiSuccess } from "@/lib/api/response";
+import { apiDataReadError, apiError, apiSuccess } from "@/lib/api/response";
 import { listCompanies } from "@/lib/database";
 
 const dataModes = new Set(Object.values(DataMode));
@@ -40,7 +40,7 @@ export const GET = async (request: Request): Promise<Response> => {
         fallback: false,
       },
     });
-  } catch {
-    return apiInternalError();
+  } catch (error) {
+    return apiDataReadError(error);
   }
 };

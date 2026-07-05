@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 
+import { requirePostgresDatabaseUrl } from "./lib/supabase-env";
 export type RawPreviewData = {
   ticker: string;
   field: string;
@@ -86,9 +87,7 @@ export function buildDryRunImport(rawPreviews: RawPreviewData[]): NormalizedImpo
 }
 
 async function analyzeCollisions(rows: NormalizedImportRow[]) {
-  if (!process.env.DATABASE_URL) {
-    process.env.DATABASE_URL = "file:./dev.db";
-  }
+  requirePostgresDatabaseUrl("dry-run-fpt-pdf-reviewed-import.ts");
   const { prisma } = await import("../src/lib/database/client");
   for (const row of rows) {
     const existing = await prisma.financialStatement.findMany({
@@ -105,9 +104,7 @@ async function analyzeCollisions(rows: NormalizedImportRow[]) {
 }
 
 async function run() {
-  if (!process.env.DATABASE_URL) {
-    process.env.DATABASE_URL = "file:./dev.db";
-  }
+  requirePostgresDatabaseUrl("dry-run-fpt-pdf-reviewed-import.ts");
   console.log("Phase 139I — FPT PDF reviewed preview-to-import dry-run only");
   console.log("=================================================================\n");
 

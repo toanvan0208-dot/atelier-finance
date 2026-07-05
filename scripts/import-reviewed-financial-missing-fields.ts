@@ -13,7 +13,7 @@ if (hasFlag("--help")) {
     [
       "Usage: npx tsx scripts/import-reviewed-financial-missing-fields.ts --file docs/product/data/phase116_reviewed_financial_missing_fields.csv [--confirm-write] [--verify-runtime-read] [--json]",
       "",
-      "Dry-run is the default. Confirmed writes require --confirm-write, ATELIER_LOCAL_IMPORTS_ENABLED=true, and DATABASE_URL=file:./dev.db.",
+      "Dry-run is the default. Confirmed writes require --confirm-write, ATELIER_LOCAL_IMPORTS_ENABLED=true, and a PostgreSQL/Supabase DATABASE_URL.",
     ].join("\n"),
   );
   process.exit(0);

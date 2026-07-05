@@ -20,6 +20,7 @@ export type ValuationStatementSnapshot = {
   capitalExpenditure?: number | null;
   freeCashFlow?: number | null;
   ebitda?: number | null;
+  enterpriseValue?: number | null;
   sharesOutstanding?: number | null;
   eps?: number | null;
   bvps?: number | null;
@@ -46,6 +47,7 @@ export const mapValuationToLogicInput = (snapshot: ValuationStatementSnapshot): 
   capitalExpenditure: snapshot.capitalExpenditure,
   freeCashFlow: snapshot.freeCashFlow,
   ebitda: snapshot.ebitda,
+  enterpriseValue: snapshot.enterpriseValue,
   sharesOutstanding: snapshot.sharesOutstanding,
   eps: snapshot.eps,
   bvps: snapshot.bvps,

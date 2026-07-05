@@ -49,6 +49,114 @@ describe("runAssistant", () => {
     );
   });
 
+  it("normalizes raw markdown markers before returning provider answers", async () => {
+    const result = await runAssistant({
+      question: "Rui ro chinh can doc la gi?",
+      activeModule: "risk",
+      provider: new MockAssistantProvider({
+        answer:
+          "### Rui ro can kiem tra\n\n**Dong tien:** Can doc CFO, no vay va von luu dong.",
+      }),
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.llmStatus).toBe("completed");
+    expect(result.answer).toBe("Rui ro can kiem tra\n\nDong tien: Can doc CFO, no vay va von luu dong.");
+  });
+
+  it("does not block answers when numeric guardrails only produce non-critical warnings", async () => {
+    const result = await runAssistant({
+      question: "PVT dung de lam gi?",
+      activeModule: "technical",
+      contextPacket: {
+        ticker: "HPG",
+        activeModule: "technical",
+        moduleContext: { moduleKey: "technical", ticker: "HPG" },
+        dataQuality: {
+          dataMode: "research_only",
+          productionApproved: false,
+          sourceName: null,
+          sourceLabel: null,
+          asOf: null,
+          period: null,
+          warnings: [],
+        },
+        missingFields: [],
+        allowedNumericValues: [],
+        visibleFacts: ["Active module: technical", "Ticker: HPG"],
+        constraints: ["Do not infer missing values."],
+      },
+      provider: new MockAssistantProvider({
+        answer: "PVT gom 3 diem doc: gia, khoi luong va thoi gian.",
+      }),
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.llmStatus).toBe("completed");
+    expect(result.validation?.severity).toBe("warning");
+    expect(result.violations).toEqual([]);
+  });
+
+  it("answers current market price directly from grounded market price context", async () => {
+    const result = await runAssistant({
+      question: "giá cổ phiếu hiện tại hpg",
+      activeModule: "valuation",
+      ticker: "HPG",
+      moduleContext: {
+        moduleKey: "valuation",
+        ticker: "HPG",
+        marketPriceContext: {
+          available: true,
+          ticker: "HPG",
+          latestMarketPrice: {
+            marketDate: "2026-07-04T00:00:00.000Z",
+            closePrice: "23.5",
+            sourceLabel: "Local market price",
+            dataMode: "research_only",
+            productionApproved: false,
+          },
+          provenance: {
+            available: true,
+            productionApproved: false,
+            needsReview: true,
+          },
+        },
+      },
+      provider: new MockAssistantProvider({
+        throwError: true,
+        error: "Provider should not be called for grounded market price lookups.",
+      }),
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.llmStatus).toBe("completed");
+    expect(result.providerResponse).toBeNull();
+    expect(result.answer).toContain("Giá đóng cửa gần nhất của HPG");
+    expect(result.answer).toContain("23,5");
+    expect(result.answer).toContain("không phải kết luận định giá");
+    expect(result.violations).toEqual([]);
+  });
+
+  it("answers DCF formula questions directly as safe education", async () => {
+    const result = await runAssistant({
+      question: "công thức dcf",
+      activeModule: "valuation",
+      ticker: "HPG",
+      provider: new MockAssistantProvider({
+        throwError: true,
+        error: "Provider should not be called for deterministic DCF formula education.",
+      }),
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.llmStatus).toBe("completed");
+    expect(result.providerResponse).toBeNull();
+    expect(result.answer).toContain("DCF là cách quy đổi dòng tiền tương lai về hiện tại");
+    expect(result.answer).toContain("FCF");
+    expect(result.answer).toContain("không tự tạo kết luận đầu tư");
+    expect(result.violations).toEqual([]);
+  });
+
   it("blocks fake fair value or target price when context does not allow it", async () => {
     const result = await runAssistant({
       question: "Fair value la bao nhieu?",
@@ -174,6 +282,41 @@ describe("runAssistant", () => {
     expect(disclosed.answer).toContain("Doanh thu dang tang.");
     expect(disclosed.violations).toEqual([]);
     expect(safe.llmStatus).toBe("completed");
+  });
+
+  it("replaces recoverable valuation-conclusion wording with a safe screening explanation", async () => {
+    const result = await runAssistant({
+      question: "Tieu chi loc co phai thesis khong?",
+      activeModule: "screening",
+      contextPacket: {
+        ticker: null,
+        activeModule: "screening",
+        moduleContext: { moduleKey: "screening" },
+        dataQuality: {
+          dataMode: "research_only",
+          productionApproved: false,
+          sourceName: null,
+          sourceLabel: null,
+          asOf: null,
+          period: null,
+          warnings: [],
+        },
+        missingFields: [],
+        allowedNumericValues: [],
+        visibleFacts: ["Bước 3 - Lọc theo mức độ đủ dữ liệu"],
+        constraints: ["Screening is not a ranking."],
+      },
+      provider: new MockAssistantProvider({
+        answer: "P/E thap co the lam co phieu hap dan hon.",
+      }),
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.llmStatus).toBe("completed");
+    expect(result.message).toContain("safe educational fallback");
+    expect(result.answer).toContain("Tiêu chí lọc không phải là thesis");
+    expect(result.answer).toContain("đủ/thiếu dữ liệu");
+    expect(result.violations).toEqual([]);
   });
 
   it("API route still does not generate a fake answer", async () => {

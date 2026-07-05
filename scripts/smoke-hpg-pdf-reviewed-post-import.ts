@@ -3,10 +3,9 @@ import { buildRiskFinancialsRuntimeReadiness } from "../src/features/risk/lib/ri
 import { buildValuationFinancialsRuntimeReadiness } from "../src/features/valuation/lib/valuation-financials-runtime-readiness";
 import { buildAssistantScreenContextPacket } from "../src/components/layout/assistant-screen-context";
 
+import { requirePostgresDatabaseUrl } from "./lib/supabase-env";
 async function main() {
-  if (!process.env.DATABASE_URL) {
-    process.env.DATABASE_URL = "file:./dev.db";
-  }
+  requirePostgresDatabaseUrl("smoke-hpg-pdf-reviewed-post-import.ts");
 
   console.log("=== PHASE 139E: HPG POST-IMPORT PRODUCT SMOKE ===");
 

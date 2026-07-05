@@ -493,18 +493,41 @@ function CoreMacroMetricCard({ metric }: { metric: MacroCompassMetric }) {
             {missingValueNote ? <p className="mt-1 font-semibold text-ink">{missingValueNote}</p> : null}
           </div>
         ) : null}
-        <p>
-          <span className="font-bold text-ink">Đọc nhanh: </span>
-          {metric.simpleMeaning}
-        </p>
-        <p>
-          <span className="font-bold text-ink">Tác động: </span>
-          {metric.marketImpact}
-        </p>
-        <p>
-          <span className="font-bold text-ink">Cần kiểm tra tiếp: </span>
-          {metric.whatToCheckNext}
-        </p>
+        {metric.practicalReading ? (
+          <div className="rounded-[5px] border border-border-soft bg-canvas p-3">
+            <p>
+              <span className="font-bold text-ink">Con số này nói gì: </span>
+              {metric.practicalReading.current}
+            </p>
+            <p className="mt-1">
+              <span className="font-bold text-ink">Mốc đọc nhanh: </span>
+              {metric.practicalReading.benchmark}
+            </p>
+            <p className="mt-1">
+              <span className="font-bold text-ink">Ảnh hưởng thực tế: </span>
+              {metric.practicalReading.impact}
+            </p>
+            <p className="mt-1">
+              <span className="font-bold text-ink">Đừng kết luận vội: </span>
+              {metric.practicalReading.caveat}
+            </p>
+          </div>
+        ) : (
+          <>
+            <p>
+              <span className="font-bold text-ink">Đọc nhanh: </span>
+              {metric.simpleMeaning}
+            </p>
+            <p>
+              <span className="font-bold text-ink">Tác động: </span>
+              {metric.marketImpact}
+            </p>
+            <p>
+              <span className="font-bold text-ink">Cần kiểm tra tiếp: </span>
+              {metric.whatToCheckNext}
+            </p>
+          </>
+        )}
       </div>
 
       <div className="mt-4 grid gap-2 rounded-[5px] border border-border-soft bg-canvas p-3 text-xs leading-5 text-muted">
@@ -661,6 +684,9 @@ export function MacroIndicatorUniverseSection({ data }: { data: MacroCompassData
                       {latestObservations.map((observation: MacroIndicatorDbObservation) => (
                         <div key={`${observation.sourceLabel}-${observation.unit}-${observation.observationDate}`} className="rounded border border-border-soft bg-surface p-2">
                           <p className="text-sm font-bold">{observation.value} {observation.unit}</p>
+                          {observation.observationDate ? (
+                            <p className="mt-1">Ngày dữ liệu: {observation.observationDate.slice(0, 10)}</p>
+                          ) : null}
                           <p className="mt-1">Dữ liệu đang được rà soát.</p>
                           {observation.provenance?.semanticCaveats?.map((caveat: string) => (
                             <p key={caveat} className="mt-1 text-muted">{caveat}</p>
@@ -717,14 +743,36 @@ function MetricGrid({ metrics }: { metrics: MacroCompassMetric[] }) {
             <Chip variant={toneChip[metric.tone]}>{macroCompassMetricStatusLabel(metric)}</Chip>
           </div>
           <div className="mt-4 grid gap-3 text-sm leading-6 text-muted">
-            <p>
-              <span className="font-bold text-ink">Cách hiểu đơn giản: </span>
-              {metric.simpleMeaning}
-            </p>
-            <p>
-              <span className="font-bold text-ink">Tác động đến thị trường: </span>
-              {metric.marketImpact}
-            </p>
+            {metric.freshness?.staleStatus === "stale" ? (
+              <div className="rounded-[5px] border border-warning bg-warning/10 p-3 text-sm leading-6">
+                <p className="font-bold text-ink">Cảnh báo độ mới dữ liệu</p>
+                <p className="mt-1 text-muted">{metric.freshness.reason}</p>
+                {metric.asOf ? <p className="mt-1 text-muted">Ngày dữ liệu: {metric.asOf}</p> : null}
+              </div>
+            ) : null}
+            {metric.practicalReading ? (
+              <div className="rounded-[5px] border border-border-soft bg-canvas p-3">
+                <p>
+                  <span className="font-bold text-ink">Con số này nói gì: </span>
+                  {metric.practicalReading.current}
+                </p>
+                <p className="mt-1">
+                  <span className="font-bold text-ink">Mốc đọc nhanh: </span>
+                  {metric.practicalReading.benchmark}
+                </p>
+              </div>
+            ) : (
+              <>
+                <p>
+                  <span className="font-bold text-ink">Cách hiểu đơn giản: </span>
+                  {metric.simpleMeaning}
+                </p>
+                <p>
+                  <span className="font-bold text-ink">Tác động đến thị trường: </span>
+                  {metric.marketImpact}
+                </p>
+              </>
+            )}
           </div>
           <details className="mt-4">
             <summary className="cursor-pointer list-none text-xs font-bold text-ink underline-offset-4 hover:underline">

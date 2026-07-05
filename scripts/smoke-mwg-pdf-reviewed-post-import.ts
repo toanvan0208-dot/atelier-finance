@@ -3,10 +3,9 @@ import { loadFinancialsRuntimeData } from "../src/features/financials/lib/load-f
 import { buildRiskFinancialsRuntimeReadiness } from "../src/features/risk/lib/risk-financials-runtime-readiness";
 import { buildValuationFinancialsRuntimeReadiness } from "../src/features/valuation/lib/valuation-financials-runtime-readiness";
 
+import { requirePostgresDatabaseUrl } from "./lib/supabase-env";
 async function run() {
-  if (!process.env.DATABASE_URL) {
-    process.env.DATABASE_URL = "file:./dev.db";
-  }
+  requirePostgresDatabaseUrl("smoke-mwg-pdf-reviewed-post-import.ts");
 
   const runtime = await loadFinancialsRuntimeData({
     ticker: "MWG",

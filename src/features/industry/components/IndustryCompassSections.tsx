@@ -748,7 +748,7 @@ export function IndustryConditionalConclusion({
     ? [
         { title: "Bối cảnh ngành", content: layer4Context.industryOverview ?? "N/A" },
         { title: "Kiếm tiền", content: layer4Context.howIndustryMakesMoney ?? "N/A" },
-        { title: "Drivers", content: layer4Context.keyDrivers.join("; ") || "N/A" },
+        { title: "Động lực ngành", content: layer4Context.keyDrivers.join("; ") || "N/A" },
         { title: "Rủi ro", content: layer4Context.industryRisks.join("; ") || "N/A" },
         { title: "Cần kiểm tra", content: layer4Context.nextChecks.join("; ") || "N/A" },
       ]

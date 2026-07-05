@@ -7,6 +7,7 @@ import type { CheckThinkingData } from "../types";
 export type LoadChecklistRuntimeDataOptions = {
   ticker?: string;
   preferDb?: boolean;
+  allowFinancialsFallback?: boolean;
 };
 
 export const loadChecklistRuntimeData = async (
@@ -52,6 +53,7 @@ export const loadChecklistRuntimeData = async (
   const financialsData = await loadFinancialsRuntimeData({
     ticker,
     preferDb: options.preferDb,
+    allowFallback: options.allowFinancialsFallback,
   });
 
   const snapshot = financialsData.statementSnapshot;

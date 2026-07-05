@@ -4,7 +4,42 @@ export type RiskRedesignStatus =
   | "Có thể kiểm tra tiếp"
   | "Cần kiểm tra thêm"
   | "Chưa đủ dữ liệu"
-  | "Dữ liệu nghiên cứu";
+  | "Dữ liệu nghiên cứu"
+  | "Đã có nguồn"
+  | "Thiếu nguồn"
+  | "Cần rà soát"
+  | "Không đủ cơ sở";
+
+export type RiskDisclosureReview = {
+  ticker: string;
+  auditor: string | null;
+  auditOpinion: string | null;
+  reportPublishedDate: string | null;
+  filingStatus: "available" | "missing" | "needs_review" | "unknown";
+  relatedPartyNotes: string | null;
+  fieldEvidence?: RiskDisclosureFieldEvidence[];
+  sourceUrl: string | null;
+  sourceType: "company_disclosure" | "exchange" | "official" | "unknown";
+  needsReview: true;
+  productionApproved: false;
+};
+
+export type RiskDisclosureFieldEvidence = {
+  field: "auditor" | "auditOpinion" | "reportPublishedDate" | "relatedPartyNotes";
+  label: string;
+  status: "backed_by_pdf" | "not_found" | "needs_review";
+  source: string;
+  page: number | null;
+  note: string;
+};
+
+export type RiskDisclosureReadiness = {
+  status: "Đã có nguồn" | "Thiếu nguồn" | "Cần rà soát" | "Không đủ cơ sở";
+  tone: RiskRedesignTone;
+  availableFields: string[];
+  missingFields: string[];
+  reviewNotes: string[];
+};
 
 export type CriticalRisk = {
   id: string;
@@ -33,6 +68,7 @@ export type RiskSource = {
   warnings?: string[];
   missingData: string[];
   relatedMetrics?: string[];
+  evidenceDetails?: RiskDisclosureFieldEvidence[];
   nextChecks?: string[];
   sourceModules: string[];
   action: {
@@ -96,10 +132,11 @@ export type RiskRedesignData = {
   industry: string;
   overall: {
     status: string;
-    score: number | null;
     tone: RiskRedesignTone;
     conclusion: string;
   };
+  disclosureReview: RiskDisclosureReview;
+  disclosureReadiness: RiskDisclosureReadiness;
   missingDataSummary: MissingDataRiskSummary;
   topRisks: CriticalRisk[];
   missingEvidence: string[];

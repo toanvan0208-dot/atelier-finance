@@ -1,5 +1,5 @@
 import { DataMode } from "@/generated/prisma/client";
-import { apiError, apiInternalError, apiSuccess } from "@/lib/api/response";
+import { apiDataReadError, apiError, apiSuccess } from "@/lib/api/response";
 import {
   getFinancialStatementsByTicker,
   getLatestFinancialStatement,
@@ -84,7 +84,7 @@ export const GET = async (
         reason: statements.length === 0 ? "No persisted financial statements matched the requested ticker." : undefined,
       },
     });
-  } catch {
-    return apiInternalError();
+  } catch (error) {
+    return apiDataReadError(error);
   }
 };

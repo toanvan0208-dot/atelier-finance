@@ -11,6 +11,7 @@ export type FinancialsStatementSnapshot = {
   revenue?: number | null;
   previousRevenue?: number | null;
   grossProfit?: number | null;
+  previousGrossProfit?: number | null;
   operatingProfit?: number | null;
   netProfit?: number | null;
   previousNetProfit?: number | null;
@@ -53,6 +54,7 @@ export const mapFinancialsToLogicInput = (snapshot: FinancialsStatementSnapshot)
   revenue: snapshot.revenue,
   previousRevenue: snapshot.previousRevenue,
   grossProfit: snapshot.grossProfit,
+  previousGrossProfit: snapshot.previousGrossProfit,
   operatingProfit: snapshot.operatingProfit,
   netProfit: snapshot.netProfit,
   previousNetProfit: snapshot.previousNetProfit,

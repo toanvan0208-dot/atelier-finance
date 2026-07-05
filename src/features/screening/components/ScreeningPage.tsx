@@ -9,7 +9,7 @@ import {
   type ScreeningMetricKey,
 } from "../data/screeningRedesign.data";
 import type { ScreeningRuntimeData } from "../lib/load-screening-runtime-data";
-import type { ScreeningCandidateMetricPayload, ScreeningCandidatePayload } from "../lib/screening-candidate-read-path";
+import type { ScreeningCandidatePayload } from "../lib/screening-candidate-read-path";
 import type { ScreeningCandidateGroupKey, ScreeningGuideTone } from "../types";
 
 type ScreeningPageProps = {
@@ -179,14 +179,19 @@ function ScreeningGuideDrawer({ open, onClose }: { open: boolean; onClose: () =>
 function TickerQuickCheck({
   onAnalyze,
   candidatesByTicker,
+  screeningCandidatesByTicker,
+  onInspectScreeningCandidate,
 }: {
   onAnalyze: (candidate: RedesignedScreeningCandidate) => void;
   candidatesByTicker: Record<string, RedesignedScreeningCandidate>;
+  screeningCandidatesByTicker: Record<string, ScreeningCandidatePayload>;
+  onInspectScreeningCandidate: (ticker: string) => void;
 }) {
   const [tickerInput, setTickerInput] = useState("");
   const [error, setError] = useState("");
   const [checkedTicker, setCheckedTicker] = useState<string | null>(null);
   const candidate = checkedTicker ? candidatesByTicker[checkedTicker] : null;
+  const screeningCandidate = checkedTicker ? screeningCandidatesByTicker[checkedTicker] : null;
   const { quickCheck } = screeningRedesignData;
 
   function submitTicker(event: FormEvent<HTMLFormElement>) {
@@ -200,9 +205,9 @@ function TickerQuickCheck({
       return;
     }
 
-    if (!candidatesByTicker[normalizedTicker]) {
+    if (!candidatesByTicker[normalizedTicker] && !screeningCandidatesByTicker[normalizedTicker]) {
       setCheckedTicker(null);
-      setError(quickCheck.missingError);
+      setError("Screener chưa có mã này trong phạm vi lọc hiện tại.");
       return;
     }
 
@@ -268,6 +273,36 @@ function TickerQuickCheck({
                 <GateList label="Dữ liệu còn thiếu" items={candidate.missingFields} tone="warning" />
                 <GateList label="Cần kiểm tra tiếp" items={candidate.whatToCheckNext} tone="neutral" fallback="Chưa có dữ liệu" />
               </div>
+            </div>
+          </section>
+        ) : null}
+
+        {!candidate && screeningCandidate ? (
+          <section className="rounded-[4px] border-[1.5px] border-border bg-surface-soft">
+            <div className="flex flex-col gap-3 border-b border-border-soft px-4 py-4 lg:flex-row lg:items-start lg:justify-between">
+              <div>
+                <p className="text-[11px] font-bold uppercase text-subtle">Kiểm tra nhanh trong danh sách screening</p>
+                <h2 className="mt-1 text-xl font-bold text-ink">
+                  {screeningCandidate.ticker} · {screeningCandidate.companyName ?? "N/A"}
+                </h2>
+                <p className="mt-1 text-xs leading-5 text-muted">
+                  Mã này nằm trong danh sách lọc hiện tại. Kết quả chỉ nói về mức đủ dữ liệu, không phải khuyến nghị đầu tư.
+                </p>
+              </div>
+              <Chip variant={screeningCandidate.analysisEligible ? "success" : "warning"}>
+                {screeningCandidate.analysisEligible ? "Có thể phân tích tiếp" : "Chưa mở phân tích sâu"}
+              </Chip>
+            </div>
+            <div className="grid gap-3 px-4 py-4 sm:grid-cols-2 lg:grid-cols-4">
+              <InfoBlock label="Chế độ dữ liệu" value={dataModeLabel(screeningCandidate.dataMode)} />
+              <InfoBlock label="Phân tích sâu" value={screeningCandidate.fullAnalysisEnabled ? "Đã mở" : "Chưa mở"} />
+              <InfoBlock label="Rà soát" value={screeningCandidate.needsReview ? "Cần rà soát" : "Đã đủ"} />
+              <InfoBlock label="Benchmark" value={screeningCandidate.isValuationRiskBenchmarkEligible ? "Có thể dùng" : "Không dùng để so sánh"} />
+            </div>
+            <div className="border-t border-border-soft px-4 py-3">
+              <Button size="sm" variant="secondary" onClick={() => onInspectScreeningCandidate(screeningCandidate.ticker)}>
+                Lọc danh sách theo mã này
+              </Button>
             </div>
           </section>
         ) : null}
@@ -484,12 +519,16 @@ function ScreeningResults({
   candidates: RedesignedScreeningCandidate[];
 }) {
   const { resultGroups } = screeningRedesignData;
+  const tickerList = formatTickerList(candidates.map((candidate) => candidate.ticker));
+  const resultTitle = tickerList
+    ? `Bảng mức đủ dữ liệu của ${tickerList}`
+    : "Bảng mức đủ dữ liệu của các mã trong phạm vi hiện tại";
 
   return (
     <section className="space-y-4">
       <div>
         <Chip variant="accent">Kết quả sau lọc</Chip>
-        <h2 className="mt-2 text-2xl font-bold text-ink">Bảng mức đủ dữ liệu của FPT, MWG và VNM</h2>
+        <h2 className="mt-2 text-2xl font-bold text-ink">{resultTitle}</h2>
         <p className="mt-1 max-w-3xl text-sm leading-6 text-muted">
           Thứ tự này chỉ phản ánh mức độ đủ dữ liệu, không phải xếp hạng đầu tư.
         </p>
@@ -543,21 +582,59 @@ function ScreeningResults({
   );
 }
 
-function formatMetricValue(metric: ScreeningCandidateMetricPayload): string {
-  if (metric.value === null) return "N/A - cần rà soát";
-  if (metric.metricCode === "CFO") return `${Math.round(metric.value).toLocaleString("vi-VN")} ${metric.unit ?? ""}`.trim();
-  if (metric.metricCode === "LIQUIDITY") return `${Math.round(metric.value).toLocaleString("vi-VN")} ${metric.unit ?? ""}`.trim();
-  return `${metric.value} ${metric.unit ?? ""}`.trim();
+function formatTickerList(tickers: string[]): string {
+  const uniqueTickers = Array.from(new Set(tickers.map((ticker) => ticker.trim().toUpperCase()).filter(Boolean))).sort();
+
+  if (uniqueTickers.length <= 3) {
+    return uniqueTickers.join(", ").replace(/, ([^,]*)$/, " và $1");
+  }
+
+  return `${uniqueTickers.length} mã trong phạm vi hiện tại (${uniqueTickers.join(", ")})`;
 }
 
-function metricCaveat(metric: ScreeningCandidateMetricPayload): string {
-  if (metric.metricCode === "PE" && metric.sourceType === "provider_snapshot") {
-    return "P/E là ảnh chụp tỷ số thị trường từ nhà cung cấp, không phải dữ liệu kiểm toán.";
-  }
-  if (metric.metricCode === "CFO" && metric.statementScope === "consolidated") {
-    return "CFO lấy từ nguồn lưu chuyển tiền tệ hợp nhất đã nhập thủ công.";
-  }
-  return metric.needsReview ? "Dữ liệu nghiên cứu, cần rà soát." : "Cần xem ghi chú nguồn.";
+function hasCandidateMetric(candidate: ScreeningCandidatePayload, metricCodes: string[]): boolean {
+  return candidate.metrics.some((metric) => metricCodes.includes(metric.metricCode) && metric.value !== null);
+}
+
+function buildScreeningMethodRows(candidate: ScreeningCandidatePayload) {
+  const hasIndustry = Boolean(candidate.industryCode);
+  const hasValuationInput = hasCandidateMetric(candidate, ["PE", "PB", "CLOSE_PRICE"]);
+  const hasCashFlow = hasCandidateMetric(candidate, ["CFO"]);
+  const hasTradingData = hasCandidateMetric(candidate, ["LIQUIDITY", "VOLUME", "CLOSE_PRICE"]);
+  const hasReviewStatus = candidate.dataMode === "research_only" || candidate.needsReview || !candidate.productionApproved;
+
+  return [
+    {
+      label: "Ngành & phạm vi",
+      value: hasIndustry ? `${candidate.industryCode} · ${coverageLevelLabel(candidate.coverageLevel)}` : "Chưa có ngành",
+      help: "Dùng để biết mã này thuộc nhóm ngành nào trước khi đọc sâu.",
+      available: hasIndustry,
+    },
+    {
+      label: "Định giá sơ bộ",
+      value: hasValuationInput ? "Có dữ liệu P/E, P/B hoặc giá đóng cửa" : "Chưa có dữ liệu định giá sơ bộ",
+      help: "Chỉ kiểm tra có dữ liệu đầu vào để đọc tiếp, không kết luận rẻ hay đắt.",
+      available: hasValuationInput,
+    },
+    {
+      label: "Dòng tiền",
+      value: hasCashFlow ? "Có CFO để kiểm tra dòng tiền" : "Chưa có CFO",
+      help: "CFO giúp xem lợi nhuận có đi kèm tiền thật hay không.",
+      available: hasCashFlow,
+    },
+    {
+      label: "Thanh khoản",
+      value: hasTradingData ? "Có dữ liệu giá/khối lượng/thanh khoản" : "Chưa có dữ liệu giao dịch",
+      help: "Dùng để biết mã có dữ liệu thị trường đủ đọc tiếp hay chưa.",
+      available: hasTradingData,
+    },
+    {
+      label: "Trạng thái dữ liệu",
+      value: hasReviewStatus ? "Dữ liệu nghiên cứu, cần rà soát" : "Dữ liệu đã sẵn sàng hơn",
+      help: "Nhắc người dùng không biến kết quả lọc thành kết luận đầu tư.",
+      available: true,
+    },
+  ];
 }
 
 function dataModeLabel(dataMode: string): string {
@@ -568,10 +645,6 @@ function coverageLevelLabel(coverageLevel: string): string {
   if (coverageLevel === "screening_candidate") return "Ứng viên sàng lọc";
   if (coverageLevel === "full_analysis") return "Phân tích đầy đủ";
   return coverageLevel;
-}
-
-function productionApprovedLabel(productionApproved: boolean): string {
-  return productionApproved ? "Đã rà soát đầy đủ" : "Dữ liệu nghiên cứu";
 }
 
 function candidateCaveatLabel(caveat: string): string {
@@ -603,24 +676,39 @@ function candidateMatchesCriteria(candidate: ScreeningCandidatePayload, filters:
   );
 }
 
-function ScreeningCandidateUniverse({ candidates }: { candidates: ScreeningCandidatePayload[] }) {
+function ScreeningCandidateUniverse({
+  candidates,
+  onNavigate,
+}: {
+  candidates: ScreeningCandidatePayload[];
+  onNavigate?: (moduleKey: string) => void;
+}) {
+  const analysisReadyCount = candidates.filter((candidate) => candidate.analysisEligible).length;
+  const reviewCount = candidates.filter((candidate) => candidate.needsReview).length;
+
   return (
     <section className="space-y-4">
-      <div>
-        <Chip variant="warning">Ứng viên sàng lọc</Chip>
-        <h2 className="mt-2 text-2xl font-bold text-ink">Ứng viên Screening từ bảng riêng</h2>
-        <p className="mt-1 max-w-3xl text-sm leading-6 text-muted">
-          Các mã này chỉ xuất hiện trong Screening để kiểm tra dữ liệu ứng viên. Chúng chưa mở phân tích sâu và không
-          dùng làm benchmark định giá/rủi ro.
-        </p>
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <Chip variant="warning">Danh sách sau lọc</Chip>
+          <h2 className="mt-2 text-2xl font-bold text-ink">Các mã phù hợp với bộ lọc hiện tại</h2>
+          <p className="mt-1 max-w-3xl text-sm leading-6 text-muted">
+            Mỗi card chỉ kiểm tra mức đủ dữ liệu và trạng thái đi tiếp. Kết quả này không phải xếp hạng hay khuyến nghị đầu tư.
+          </p>
+        </div>
+        <div className="grid gap-2 sm:grid-cols-3 lg:min-w-[420px]">
+          <InfoBlock label="Đang hiển thị" value={`${candidates.length} mã`} />
+          <InfoBlock label="Có thể đi tiếp" value={`${analysisReadyCount} mã`} />
+          <InfoBlock label="Cần rà soát" value={`${reviewCount} mã`} />
+        </div>
       </div>
 
       <div className="grid gap-3 lg:grid-cols-2">
         {candidates.length > 0 ? (
           candidates.map((candidate) => (
-          <article key={candidate.ticker} className="rounded-[4px] border-[1.5px] border-border bg-surface px-4 py-4 shadow-soft">
+          <article key={candidate.ticker} className="min-w-0 rounded-[4px] border-[1.5px] border-border bg-surface px-4 py-4 shadow-soft">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div>
+              <div className="min-w-0">
                 <p className="text-2xl font-bold leading-none text-ink">{candidate.ticker}</p>
                 <p className="mt-2 text-xs font-semibold leading-5 text-muted">
                   {candidate.companyName ?? "N/A"} · {candidate.industryCode ?? "N/A"}
@@ -634,46 +722,55 @@ function ScreeningCandidateUniverse({ candidates }: { candidates: ScreeningCandi
               </div>
             </div>
 
-            <div className="mt-3 grid gap-2 sm:grid-cols-2">
-              <InfoBlock label="Chế độ dữ liệu" value={dataModeLabel(candidate.dataMode)} />
-              <InfoBlock label="Phân tích sâu" value={candidate.fullAnalysisEnabled ? "Đã mở" : "Chưa mở"} />
-              <InfoBlock label="So sánh định giá/rủi ro" value={candidate.isValuationRiskBenchmarkEligible ? "Có thể dùng" : "Không dùng để so sánh"} />
-              <InfoBlock label="Rà soát" value={candidate.needsReview ? "Cần rà soát" : "Đã đủ"} />
-            </div>
-
-            <div className="mt-3 rounded-[4px] border border-warning bg-warning/10 px-3 py-2">
-              <p className="text-xs font-bold text-ink">Ghi chú bắt buộc</p>
-              <p className="mt-1 text-xs leading-5 text-muted">
-                Ứng viên sàng lọc · dữ liệu nghiên cứu · cần rà soát · không phải khuyến nghị đầu tư · chưa mở phân tích sâu · không phải benchmark định giá/rủi ro.
-              </p>
-              <p className="mt-1 text-xs leading-5 text-muted">
-                HSG/NKG chưa được dùng trong luồng phân tích sâu Business/Financials/Valuation/Risk.
-              </p>
-            </div>
-
-            <div className="mt-3 grid gap-2">
-              {candidate.metrics.map((metric) => (
-                <div key={`${candidate.ticker}-${metric.metricCode}`} className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-2">
-                  <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
-                    <div>
-                      <p className="text-[11px] font-bold uppercase text-subtle">{metric.metricCode}</p>
-                      <p className="mt-1 text-sm font-bold text-ink">{formatMetricValue(metric)}</p>
-                    </div>
-                    <Chip size="sm" variant={metric.productionApproved ? "danger" : "neutral"}>
-                      {productionApprovedLabel(metric.productionApproved)}
-                    </Chip>
-                  </div>
-                  <p className="mt-2 text-xs leading-5 text-muted">{metricCaveat(metric)}</p>
+            <div className="mt-3 rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <p className="text-xs font-bold text-ink">Bộ lọc đang áp dụng</p>
+                  <p className="mt-1 text-xs leading-5 text-muted">
+                    Card này chỉ kiểm tra cổ phiếu có đủ dữ liệu để đọc tiếp hay chưa, không kết luận cổ phiếu tốt/xấu.
+                  </p>
                 </div>
-              ))}
+                <Chip size="sm" variant={candidate.analysisEligible ? "success" : "warning"}>
+                  {candidate.analysisEligible ? "Đủ điều kiện đi tiếp" : "Chưa mở phân tích sâu"}
+                </Chip>
+              </div>
+              <div className="mt-3 grid gap-2 md:grid-cols-2">
+                {buildScreeningMethodRows(candidate).map((row) => (
+                  <div
+                    key={row.label}
+                    className="min-w-0 rounded-[4px] border border-border-soft bg-surface px-3 py-2"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-[11px] font-bold uppercase text-subtle">{row.label}</p>
+                      <Chip size="sm" variant={row.available ? "success" : "warning"}>
+                        {row.available ? "Có dữ liệu" : "Cần bổ sung"}
+                      </Chip>
+                    </div>
+                    <p className="mt-1 text-sm font-bold leading-5 text-ink">{row.value}</p>
+                    <p className="mt-1 text-xs leading-5 text-muted">{row.help}</p>
+                  </div>
+                ))}
+              </div>
+              <p className="mt-3 rounded-[4px] border border-warning bg-warning/10 px-3 py-2 text-xs leading-5 text-muted">
+                Lưu ý: đây là bộ lọc mức đủ dữ liệu, không phải khuyến nghị đầu tư, không phải xếp hạng và không phải benchmark định giá/rủi ro.
+              </p>
             </div>
 
-            <div className="mt-3 flex flex-wrap gap-2">
-              {candidate.caveats.map((caveat) => (
-                <Chip key={caveat} size="sm" variant="neutral">
-                  {candidateCaveatLabel(caveat)}
-                </Chip>
-              ))}
+            <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-wrap gap-2">
+                {candidate.caveats.map((caveat) => (
+                  <Chip key={caveat} size="sm" variant="neutral">
+                    {candidateCaveatLabel(caveat)}
+                  </Chip>
+                ))}
+              </div>
+              <Button
+                size="sm"
+                disabled={!candidate.analysisEligible}
+                onClick={() => goToModule("business", onNavigate, candidate.ticker)}
+              >
+                Phân tích tiếp
+              </Button>
             </div>
           </article>
           ))
@@ -761,6 +858,31 @@ function ScreeningStockCard({
   );
 }
 
+function ScreeningRuntimeSourceNotice({
+  status,
+}: {
+  status: ScreeningRuntimeData["screeningCandidatesStatus"];
+}) {
+  if (!status) return null;
+
+  const variant = status.status === "ready" ? "success" : status.status === "error" ? "danger" : "warning";
+
+  return (
+    <div className="rounded-[4px] border-[1.5px] border-border bg-surface px-4 py-3">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-sm font-bold text-ink">Nguồn dữ liệu lọc cổ phiếu</p>
+          <p className="mt-1 text-sm leading-6 text-muted">{status.message}</p>
+          {status.error ? (
+            <p className="mt-1 text-xs leading-5 text-danger">Lỗi đọc dữ liệu: {status.error}</p>
+          ) : null}
+        </div>
+        <Chip variant={variant}>{status.count} mã</Chip>
+      </div>
+    </div>
+  );
+}
+
 function AnalysisPathDrawer({
   candidate,
   onClose,
@@ -838,9 +960,18 @@ export function ScreeningPage({ onNavigate, initialData }: ScreeningPageProps) {
   const [inputSource] = useState(readScreeningInputSource);
 
   const candidates = initialData?.candidates ?? screeningRedesignData.candidates;
-  const dedicatedScreeningCandidates = initialData?.screeningCandidates ?? [];
+  const dedicatedScreeningCandidates = useMemo(
+    () => initialData?.screeningCandidates ?? [],
+    [initialData?.screeningCandidates]
+  );
+  const screeningCandidatesStatus = initialData?.screeningCandidatesStatus;
   const filteredScreeningCandidates = dedicatedScreeningCandidates.filter((candidate) =>
     candidateMatchesCriteria(candidate, criteriaFilters)
+  );
+  const hasRuntimeScreeningCandidates = dedicatedScreeningCandidates.length > 0;
+  const screeningCandidatesByTicker = useMemo(
+    () => Object.fromEntries(dedicatedScreeningCandidates.map((c) => [c.ticker, c])),
+    [dedicatedScreeningCandidates]
   );
   const activeCandidatesByTicker = useMemo(
     () => Object.fromEntries(candidates.map((c) => [c.ticker, c])),
@@ -848,14 +979,22 @@ export function ScreeningPage({ onNavigate, initialData }: ScreeningPageProps) {
   );
 
   const priorityCount = useMemo(
-    () => candidates.filter((candidate) => candidate.group === "priority").length,
-    [candidates]
+    () =>
+      hasRuntimeScreeningCandidates
+        ? filteredScreeningCandidates.filter((candidate) => candidate.analysisEligible).length
+        : candidates.filter((candidate) => candidate.group === "priority").length,
+    [candidates, filteredScreeningCandidates, hasRuntimeScreeningCandidates]
   );
 
   return (
     <div className="mx-auto w-[calc(100vw-40px)] max-w-[1180px] min-w-0 space-y-8 overflow-x-hidden md:w-full">
       <ScreeningHeader onGuideOpen={() => setGuideOpen(true)} />
-      <TickerQuickCheck onAnalyze={setActiveCandidate} candidatesByTicker={activeCandidatesByTicker} />
+      <TickerQuickCheck
+        onAnalyze={setActiveCandidate}
+        candidatesByTicker={activeCandidatesByTicker}
+        screeningCandidatesByTicker={screeningCandidatesByTicker}
+        onInspectScreeningCandidate={(ticker) => setCriteriaFilters({ ...defaultCriteriaFilters, search: ticker })}
+      />
       <ScreeningCriteriaCard
         filters={criteriaFilters}
         inputSource={inputSource}
@@ -864,13 +1003,14 @@ export function ScreeningPage({ onNavigate, initialData }: ScreeningPageProps) {
         onNavigate={onNavigate}
         onResetFilters={() => setCriteriaFilters(defaultCriteriaFilters)}
       />
-      <ScreeningCandidateUniverse candidates={filteredScreeningCandidates} />
+      <ScreeningRuntimeSourceNotice status={screeningCandidatesStatus} />
+      <ScreeningCandidateUniverse candidates={filteredScreeningCandidates} onNavigate={onNavigate} />
       <div className="rounded-[4px] border-[1.5px] border-border bg-accent-soft px-4 py-3">
         <p className="text-sm font-bold text-ink">
-          Sau kiểm tra dữ liệu có {priorityCount} mã đủ dữ liệu để phân tích tiếp. Đây không phải xếp hạng đầu tư.
+          Sau kiểm tra dữ liệu có {priorityCount} mã đủ điều kiện mở bước phân tích tiếp. Đây không phải xếp hạng đầu tư.
         </p>
       </div>
-      <ScreeningResults onAnalyze={setActiveCandidate} candidates={candidates} />
+      {!hasRuntimeScreeningCandidates ? <ScreeningResults onAnalyze={setActiveCandidate} candidates={candidates} /> : null}
       <NextStepPanel />
       <ScreeningGuideDrawer open={guideOpen} onClose={() => setGuideOpen(false)} />
       <AnalysisPathDrawer

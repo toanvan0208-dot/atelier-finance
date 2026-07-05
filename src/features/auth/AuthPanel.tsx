@@ -85,7 +85,7 @@ export function AuthPanel() {
   }
 
   return (
-    <aside className="rounded-[2rem] border border-slate-900 bg-white p-6 shadow-[8px_8px_0_#0f172a] sm:p-8">
+    <aside className="rounded-[2rem] border border-slate-900 bg-white p-6 shadow-[5px_5px_0_rgb(15_23_42_/_0.24)] sm:p-8">
       <div className="mb-8">
         <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">{copy.eyebrow}</p>
         <h2 className="mt-3 text-3xl font-black tracking-[-0.05em] text-slate-950">{copy.title}</h2>

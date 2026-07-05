@@ -455,6 +455,9 @@ export type FinancialDeskMetric = {
   howToRead: string;
   goodSignal: string;
   badSignal: string;
+  currentInterpretation?: string;
+  benchmarkGuide?: string;
+  peerComparison?: string;
   dataQuality?: string;
   warning?: string | null;
   missingFields?: string[];
@@ -484,12 +487,26 @@ export type FinancialReadingStep = {
   detailTitle: string;
 };
 
+export type FinancialStatementLineStatus = "available" | "derived" | "missing";
+
+export type FinancialStatementLineItem = {
+  label: string;
+  value: string;
+  status: FinancialStatementLineStatus;
+  note?: string;
+};
+
 export type FinancialStatementDeskItem = {
   id: string;
   title: string;
   mainQuestion: string;
   keyLines: string[];
   relatedMetricIds: string[];
+  readSummary?: string;
+  sourceLines?: FinancialStatementLineItem[];
+  dataPoints?: string[];
+  interpretation?: string;
+  watchOut?: string;
 };
 
 export type FinancialConclusionReadiness =

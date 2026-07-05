@@ -1,4 +1,9 @@
-import type { MissingDataRiskSummary, RiskRedesignData } from "../types";
+import type {
+  MissingDataRiskSummary,
+  RiskDisclosureReadiness,
+  RiskDisclosureReview,
+  RiskRedesignData,
+} from "../types";
 import type { RiskStatementSnapshot } from "./map-risk-to-logic-input";
 
 const unique = (items: string[]): string[] => Array.from(new Set(items.filter(Boolean)));
@@ -71,6 +76,81 @@ const whatToCheckNext = [
   "Kiểm tra bối cảnh ngành và vĩ mô trước khi viết nhận định.",
 ];
 
+const groupedMissingSummary = (
+  summary: MissingDataRiskSummary,
+  disclosureReadiness: RiskDisclosureReadiness,
+): string => {
+  const groups = [
+    ...(summary.missingFinancialFields.length ? ["dữ liệu tài chính đầu vào"] : []),
+    ...(summary.unavailableValuationMetrics.length ? ["chỉ số định giá chưa thể tính"] : []),
+    ...(disclosureReadiness.missingFields.length ? ["nguồn minh bạch/công bố thông tin"] : []),
+  ];
+
+  return groups.length
+    ? `Cần bổ sung: ${groups.join(", ")}.`
+    : "Chưa ghi nhận trường tài chính hoặc minh bạch thiếu trong snapshot hiện tại.";
+};
+
+const groupedMissingDetail = (
+  summary: MissingDataRiskSummary,
+  disclosureReadiness: RiskDisclosureReadiness,
+): string[] =>
+  unique([
+    ...summary.missingFinancialFields,
+    ...summary.unavailableValuationMetrics.map((metric) => `${metric} chưa thể tính`),
+    ...summary.incompleteContextAreas,
+    ...disclosureReadiness.missingFields.map((field) => `Minh bạch: ${field}`),
+  ]);
+
+const fallbackDisclosureReview = (ticker: string | null | undefined): RiskDisclosureReview => ({
+  ticker: ticker ?? "UNKNOWN",
+  auditor: null,
+  auditOpinion: null,
+  reportPublishedDate: null,
+  filingStatus: "unknown",
+  relatedPartyNotes: null,
+  sourceUrl: null,
+  sourceType: "unknown",
+  needsReview: true,
+  productionApproved: false,
+});
+
+const buildDisclosureReadiness = (review: RiskDisclosureReview): RiskDisclosureReadiness => {
+  const fields = [
+    ["Kiểm toán viên", review.auditor],
+    ["Ý kiến kiểm toán", review.auditOpinion],
+    ["Ngày công bố báo cáo", review.reportPublishedDate],
+    ["Ghi chú giao dịch liên quan", review.relatedPartyNotes],
+    ["Đường dẫn nguồn công bố", review.sourceUrl],
+  ] as const;
+  const availableFields = fields.filter(([, value]) => hasValue(value)).map(([label]) => label);
+  const missingFields = fields.filter(([, value]) => !hasValue(value)).map(([label]) => label);
+  const hasDisclosureSource = hasValue(review.sourceUrl) && review.sourceType !== "unknown";
+  const status: RiskDisclosureReadiness["status"] =
+    !hasDisclosureSource
+      ? "Thiếu nguồn"
+      : review.filingStatus === "available" && missingFields.length === 0
+        ? "Đã có nguồn"
+        : review.filingStatus === "missing"
+          ? "Không đủ cơ sở"
+          : "Cần rà soát";
+  const tone: RiskDisclosureReadiness["tone"] =
+    status === "Đã có nguồn" ? "check" : status === "Thiếu nguồn" || status === "Không đủ cơ sở" ? "missing" : "check";
+
+  return {
+    status,
+    tone,
+    availableFields,
+    missingFields,
+    reviewNotes: unique([
+      review.productionApproved === false ? "Nguồn minh bạch chỉ dùng để rà soát, chưa phải cơ sở kết luận." : "",
+      review.needsReview ? "Cần người dùng rà soát nguồn công bố trước khi viết nhận định." : "",
+      !hasDisclosureSource ? "Chưa có URL nguồn công bố để đối chiếu." : "",
+      review.filingStatus !== "available" ? "Trạng thái công bố chưa đủ rõ để dùng làm kết luận." : "",
+    ]),
+  };
+};
+
 export const buildMissingDataRiskSummary = (
   snapshot: RiskStatementSnapshot,
 ): MissingDataRiskSummary => {
@@ -108,23 +188,29 @@ export const buildMissingDataRiskSummary = (
 export const buildRiskDeskData = (
   baseData: RiskRedesignData,
   snapshot: RiskStatementSnapshot,
+  disclosureReview: RiskDisclosureReview = baseData.disclosureReview ?? fallbackDisclosureReview(snapshot.ticker),
 ): RiskRedesignData => {
   const summary = buildMissingDataRiskSummary(snapshot);
-  const missingEvidence = unique([
-    ...summary.missingFinancialFields,
-    ...summary.unavailableValuationMetrics.map((metric) => `${metric} chưa thể tính`),
-    ...summary.incompleteContextAreas,
-  ]);
+  const normalizedDisclosureReview: RiskDisclosureReview = {
+    ...fallbackDisclosureReview(snapshot.ticker),
+    ...disclosureReview,
+    ticker: snapshot.ticker ?? disclosureReview.ticker,
+    needsReview: true,
+    productionApproved: false,
+  };
+  const disclosureReadiness = buildDisclosureReadiness(normalizedDisclosureReview);
+  const missingEvidence = groupedMissingDetail(summary, disclosureReadiness);
 
   return {
     ...baseData,
     ticker: summary.ticker,
     companyName: summary.companyName,
     industry: snapshot.industry ?? "Bối cảnh ngành cần kiểm tra",
+    disclosureReview: normalizedDisclosureReview,
+    disclosureReadiness,
     missingDataSummary: summary,
     overall: {
       status: summary.riskSummaryLabel,
-      score: null,
       tone: summary.overallDataReadiness === "ready" ? "check" : "missing",
       conclusion:
         "Phần này tổng hợp dữ liệu còn thiếu, nguồn cần kiểm tra và các điểm dễ kết luận vội. Đây không phải đánh giá cổ phiếu tốt/xấu và không phải khuyến nghị đầu tư.",
@@ -155,6 +241,18 @@ export const buildRiskDeskData = (
               (metric) => `${metric}: chỉ số này chưa thể tính vì thiếu dữ liệu đầu vào.`,
             )
           : ["Các chỉ số định giá chính có thể đọc tiếp nhưng vẫn cần kiểm tra nguồn."],
+      },
+      {
+        id: "disclosure-transparency-review",
+        title: "Minh bạch công bố thông tin cần rà soát",
+        whyItMatters:
+          "Trang Risk cần biết nguồn công bố, ý kiến kiểm toán và ghi chú liên quan đã có đủ để kiểm tra hay chưa.",
+        priority: disclosureReadiness.status === "Đã có nguồn" ? "Theo dõi" : "Bổ sung dữ liệu",
+        affectedModules: ["Công bố thông tin", "Checklist"],
+        targetModule: "checklist",
+        earlyWarnings: disclosureReadiness.missingFields.length
+          ? disclosureReadiness.missingFields.map((field) => `${field}: Chưa đủ dữ liệu.`)
+          : disclosureReadiness.reviewNotes,
       },
       {
         id: "source-context-review",
@@ -223,6 +321,23 @@ export const buildRiskDeskData = (
         warnings: summary.sourceWarnings,
       },
       {
+        id: "disclosure-transparency",
+        title: "Minh bạch công bố thông tin",
+        status: disclosureReadiness.status,
+        tone: disclosureReadiness.tone,
+        defaultOpen: true,
+        mainRisk:
+          "Cần có nguồn công bố, kiểm toán và ghi chú liên quan đủ rõ trước khi dùng phần minh bạch để hỗ trợ nhận định.",
+        evidence: disclosureReadiness.availableFields.length
+          ? disclosureReadiness.availableFields
+          : ["Chưa ghi nhận trường minh bạch đã có nguồn."],
+        missingData: disclosureReadiness.missingFields,
+        evidenceDetails: normalizedDisclosureReview.fieldEvidence,
+        sourceModules: ["Công bố thông tin", "Checklist"],
+        action: { label: "Ghi vào checklist minh bạch", moduleKey: "checklist" },
+        warnings: disclosureReadiness.reviewNotes,
+      },
+      {
         id: "unavailable-metrics",
         title: "Chỉ số chưa thể tính",
         status: summary.unavailableValuationMetrics.length
@@ -275,6 +390,15 @@ export const buildRiskDeskData = (
         dataToCheck: ["Nguồn dữ liệu", "Thời điểm dữ liệu", "Kỳ dữ liệu", "Trạng thái dữ liệu"],
       },
       {
+        id: "disclosure-review",
+        title: "Minh bạch công bố",
+        status: disclosureReadiness.status,
+        tone: disclosureReadiness.tone,
+        whyItMatters:
+          "Thiếu nguồn công bố/kiểm toán khiến Risk chỉ được dùng như hàng đợi xác minh, không phải kết luận quản trị.",
+        dataToCheck: disclosureReadiness.missingFields,
+      },
+      {
         id: "context-review",
         title: "Bối cảnh",
         status: "Cần kiểm tra thêm",
@@ -288,6 +412,7 @@ export const buildRiskDeskData = (
       "Dừng kết luận nếu EPS, totalDebt, equity, sharesOutstanding hoặc market price còn thiếu.",
       "Dừng kết luận nếu P/E, P/B, BVPS, marketCap hoặc P/S còn N/A.",
       "Dừng kết luận nếu nguồn hoặc thời điểm dữ liệu chưa rõ.",
+      "Dừng kết luận nếu nguồn công bố, ý kiến kiểm toán hoặc ghi chú liên quan chưa được rà soát.",
       "Dừng kết luận nếu bối cảnh ngành/vĩ mô chưa được rà soát.",
     ],
     riskTimeline: {
@@ -304,9 +429,7 @@ export const buildRiskDeskData = (
     finalConclusion: {
       biggestRisk:
         "Điểm cần chú ý nhất là dữ liệu thiếu hoặc nguồn chưa đủ rõ có thể dẫn tới kết luận vội.",
-      missingData: summary.missingFinancialFields.length
-        ? `Cần bổ sung: ${summary.missingFinancialFields.join(", ")}.`
-        : "Chưa ghi nhận trường tài chính thiếu trong snapshot hiện tại.",
+      missingData: groupedMissingSummary(summary, disclosureReadiness),
       thesisBreaker:
         "Nếu chỉ số chưa thể tính hoặc nguồn chưa rõ, nhận định phải dừng ở mức dữ liệu cần kiểm tra.",
       readiness: summary.riskSummaryLabel,

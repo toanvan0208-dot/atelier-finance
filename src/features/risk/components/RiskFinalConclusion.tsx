@@ -13,22 +13,21 @@ export function RiskFinalConclusion({
   onNavigate,
 }: RiskFinalConclusionProps) {
   const rows = [
-    { label: "Điểm dễ kết luận vội nhất", value: conclusion.biggestRisk },
-    { label: "Dữ liệu còn thiếu", value: conclusion.missingData },
-    { label: "Điều kiện làm nhận định sai", value: conclusion.thesisBreaker },
-    { label: "Mức sẵn sàng dữ liệu", value: conclusion.readiness },
-    { label: "Bước tiếp theo", value: conclusion.nextStep },
+    { label: "Lý do chưa kết luận", value: conclusion.biggestRisk },
+    { label: "Khoảng trống chính", value: conclusion.missingData },
+    { label: "Điều kiện dừng", value: conclusion.thesisBreaker },
+    { label: "Hành động tiếp theo", value: conclusion.nextStep },
   ];
 
   return (
     <Card>
       <CardHeader
-        title="Kết luận dữ liệu có điều kiện"
-        description="Tổng hợp ngắn để biết cần quay lại kiểm tra dữ liệu nào trước khi hình thành nhận định."
+        title="Chốt phiên kiểm tra"
+        description="Kết luận của trang Risk chỉ là có được đi tiếp hay phải quay lại module nguồn."
         chip={<Chip variant="warning">Chưa đủ cơ sở kết luận</Chip>}
       />
       <CardBody className="space-y-4">
-        <div className="grid gap-3 md:grid-cols-2">
+        <div className="grid gap-3 lg:grid-cols-4">
           {rows.map((row) => (
             <div key={row.label} className="rounded-[4px] border border-border-soft bg-surface-soft p-4">
               <p className="text-[11px] font-bold uppercase text-subtle">{row.label}</p>

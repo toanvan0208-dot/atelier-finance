@@ -149,6 +149,28 @@ describe("market price read service", () => {
     expect(result.rows[0].tradingValue).not.toBe(0);
   });
 
+  it("normalizes legacy vnstock_python prices from thousand VND to VND on the read path", async () => {
+    db.marketPrices.push(
+      row({
+        sourceLabel: "vnstock_python_market_pvt_auto",
+        openPrice: 23.1,
+        highPrice: 23.8,
+        lowPrice: 23,
+        closePrice: 23.5,
+      }),
+    );
+
+    const result = await getMarketPriceSeries(params({ sourceLabel: "vnstock_python_market_pvt_auto" }), { db });
+
+    expect(result.rows[0]).toMatchObject({
+      open: 23100,
+      high: 23800,
+      low: 23000,
+      close: 23500,
+    });
+    expect(result.warnings).toContain("NORMALIZED_LEGACY_THOUSAND_VND_PRICE_TO_VND");
+  });
+
   it("maps old market price rows without sidecar metadata to unknown_unit", async () => {
     db.marketPrices.push(row({ closePrice: 105, marketCap: 5_000_000_000, unitMetadata: [] }));
 

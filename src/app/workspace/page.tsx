@@ -8,6 +8,8 @@ import { loadScreeningRuntimeData } from "@/features/screening/lib/load-screenin
 import { loadLearningRuntimeData } from "@/features/learning";
 import { loadMacroRuntimeData } from "@/features/macro/lib/load-macro-runtime-data";
 import { loadIndustryContextRuntimeByTicker } from "@/features/industry/lib/load-industry-context";
+import { loadRiskDisclosureReview } from "@/features/risk/lib/load-risk-disclosure-review";
+import { loadUserWatchlistItems } from "@/features/watchlist/lib/load-user-watchlist-items";
 import { getCurrentUser } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
@@ -24,6 +26,15 @@ const boolParam = (value: string | string[] | undefined): boolean | undefined =>
   if (resolved === "true") return true;
   if (resolved === "false") return false;
   return undefined;
+};
+
+const safeLoad = async <T,>(label: string, loader: Promise<T> | T, fallback: T): Promise<T> => {
+  try {
+    return await loader;
+  } catch (error) {
+    console.error(`[workspace] ${label} runtime load failed`, error);
+    return fallback;
+  }
 };
 
 export default async function WorkspacePage({ searchParams }: WorkspacePageProps) {
@@ -47,24 +58,36 @@ export default async function WorkspacePage({ searchParams }: WorkspacePageProps
     initialLearningData,
     initialMacroData,
     initialIndustryContexts,
+    initialRiskDisclosureReview,
+    initialWatchlistItems,
   ] = await Promise.all([
-    getCurrentUser(),
-    loadTechnicalRuntimeData({
-      ticker: technicalTicker,
-      from: technicalFrom,
-      to: technicalTo,
-      sourceLabel: technicalSourceLabel,
-      preferDb: technicalPreferDb,
-    }),
-    loadFinancialsRuntimeData({ ticker }),
-    loadPortfolioReadiness(),
-    loadChecklistRuntimeData({ ticker }),
-    loadScreeningRuntimeData(),
-    loadLearningRuntimeData(),
-    loadMacroRuntimeData(),
-    Promise.all(["FPT", "MWG", "VNM", "HPG", "VCB", "MSN"].map(loadIndustryContextRuntimeByTicker)).then(
-      (contexts) => Object.fromEntries(contexts.map((context) => [context.ticker, context])),
+    safeLoad("auth", getCurrentUser(), null),
+    safeLoad(
+      "technical",
+      loadTechnicalRuntimeData({
+        ticker: technicalTicker,
+        from: technicalFrom,
+        to: technicalTo,
+        sourceLabel: technicalSourceLabel,
+        preferDb: technicalPreferDb,
+      }),
+      undefined,
     ),
+    safeLoad("financials", loadFinancialsRuntimeData({ ticker, allowFallback: false }), undefined),
+    safeLoad("portfolio readiness", loadPortfolioReadiness(), undefined),
+    safeLoad("checklist", loadChecklistRuntimeData({ ticker, allowFinancialsFallback: false }), undefined),
+    safeLoad("screening", loadScreeningRuntimeData({ allowFinancialsFallback: false }), undefined),
+    safeLoad("learning", loadLearningRuntimeData(), undefined),
+    safeLoad("macro", loadMacroRuntimeData(), undefined),
+    safeLoad(
+      "industry contexts",
+      Promise.all(["FPT", "MWG", "VNM", "HPG", "VCB", "MSN"].map(loadIndustryContextRuntimeByTicker)).then(
+        (contexts) => Object.fromEntries(contexts.map((context) => [context.ticker, context])),
+      ),
+      {},
+    ),
+    safeLoad("risk disclosure", loadRiskDisclosureReview(ticker), undefined),
+    safeLoad("watchlist", loadUserWatchlistItems(), []),
   ]);
 
   return (
@@ -77,9 +100,11 @@ export default async function WorkspacePage({ searchParams }: WorkspacePageProps
       initialIndustryContexts={initialIndustryContexts}
       initialModule={initialModule}
       initialPortfolioReadiness={initialPortfolioReadiness}
+      initialRiskDisclosureReview={initialRiskDisclosureReview}
       initialScreeningData={initialScreeningData}
       initialTechnicalData={initialTechnicalData}
       initialValuationScenario={valuationScenario}
+      initialWatchlistItems={initialWatchlistItems}
     />
   );
 }

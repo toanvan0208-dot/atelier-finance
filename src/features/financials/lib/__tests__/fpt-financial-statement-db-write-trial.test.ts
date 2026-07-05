@@ -410,7 +410,7 @@ describe("controlled FPT financial statement DB write trial", () => {
 
     expect(fixture.every((row) => row.sourceDocumentRef === "phase78-inline-test-fixture-no-raw-csv")).toBe(true);
     expect(built.acceptedRows).toHaveLength(1);
-    expect(built.databaseUrl).toBe("file:./dev.db");
+    expect(built.databaseUrl).not.toBe("file:./dev.db");
     expect(db.financialStatements).toEqual([]);
   });
 });

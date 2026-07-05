@@ -126,8 +126,8 @@ const writeReport = (): FinancialStatementLocalWriteTrialReport => ({
   productionApproved: false,
   databaseGuard: {
     accepted: true,
-    databaseMode: "local_sqlite_dev",
-    safeDatabaseUrlDisplay: "file:./dev.db",
+    databaseMode: "postgres_supabase",
+    safeDatabaseUrlDisplay: "postgresql://user:<redacted>@db.example.supabase.co/postgres?sslmode=require",
     warnings: [],
     errors: [],
   },
@@ -152,7 +152,7 @@ describe("financial statements write-trial CLI", () => {
     const result = await runFinancialStatementWriteTrialCli(["--file", "./tmp.csv", "--source-label", "x"], {
       runDryRun: async () => dryRunReport(),
       runWriteTrial: async () => writeReport(),
-      databaseUrl: "file:./dev.db",
+      databaseUrl: "postgresql://user:password@db.example.supabase.co/postgres?sslmode=require",
     });
 
     expect(result.exitCode).toBe(1);
@@ -172,7 +172,7 @@ describe("financial statements write-trial CLI", () => {
         calls.push("write");
         return writeReport();
       },
-      databaseUrl: "file:./dev.db",
+      databaseUrl: "postgresql://user:password@db.example.supabase.co/postgres?sslmode=require",
     });
 
     expect(result.exitCode).toBe(0);
@@ -184,7 +184,7 @@ describe("financial statements write-trial CLI", () => {
     const result = await runFinancialStatementWriteTrialCli(requiredArgs, {
       runDryRun: async () => dryRunReport([]),
       runWriteTrial: async () => writeReport(),
-      databaseUrl: "file:./dev.db",
+      databaseUrl: "postgresql://user:password@db.example.supabase.co/postgres?sslmode=require",
     });
 
     expect(result.exitCode).toBe(1);

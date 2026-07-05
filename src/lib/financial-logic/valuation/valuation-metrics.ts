@@ -122,22 +122,32 @@ export const calculatePsRatio = (input: FinancialStatementInput): FinancialMetri
 export const calculateEnterpriseValue = (input: FinancialStatementInput): FinancialMetricResult => {
   const marketCap = calculateMarketCap(input).value;
   const debt = resolveTotalDebt(input);
-  const value = isFiniteNumber(marketCap) && isFiniteNumber(debt) && isFiniteNumber(input.cashAndEquivalents)
+  const derived = isFiniteNumber(marketCap) && isFiniteNumber(debt) && isFiniteNumber(input.cashAndEquivalents)
     ? marketCap + debt - input.cashAndEquivalents
     : null;
+  const value = isFiniteNumber(input.enterpriseValue) ? input.enterpriseValue : derived;
+  const usedDirectEnterpriseValue = isFiniteNumber(input.enterpriseValue);
+  const derivedMissingFields = [
+    ...(isFiniteNumber(marketCap) ? [] : ["marketCap"]),
+    ...(isFiniteNumber(debt) ? [] : ["totalDebt"]),
+    ...getMissingFields(input, ["cashAndEquivalents"]),
+  ];
+
   return buildMetricResult({
     key: "enterpriseValue",
     label: "Enterprise Value",
     value,
     unit: "vnd",
-    formula: "marketCap + totalDebt - cashAndEquivalents",
-    inputFields: ["marketCap", "totalDebt", "cashAndEquivalents"],
-    missingFields: [
-      ...(isFiniteNumber(marketCap) ? [] : ["marketCap"]),
-      ...(isFiniteNumber(debt) ? [] : ["totalDebt"]),
-      ...getMissingFields(input, ["cashAndEquivalents"]),
-    ],
+    formula: "enterpriseValue hoặc marketCap + totalDebt - cashAndEquivalents",
+    inputFields: ["enterpriseValue", "marketCap", "totalDebt", "cashAndEquivalents"],
+    missingFields: value === null ? ["enterpriseValue", ...derivedMissingFields] : [],
     level: value === null ? "unknown" : "neutral",
+    dataQuality: usedDirectEnterpriseValue ? "sufficient" : value === null ? "missing" : "low_confidence",
+    warning: usedDirectEnterpriseValue
+      ? null
+      : value === null
+        ? "Chưa có EV trực tiếp và chưa đủ market cap, nợ vay, tiền mặt để suy ra EV."
+        : "EV được suy ra từ vốn hóa, nợ vay và tiền mặt; cần kiểm tra nguồn tiền mặt/nợ vay.",
     moduleUsage: ["valuation"],
     period: input.period,
     periodType: input.periodType,
@@ -145,8 +155,13 @@ export const calculateEnterpriseValue = (input: FinancialStatementInput): Financ
 };
 
 export const calculateEvToEbitda = (input: FinancialStatementInput): FinancialMetricResult => {
-  const ev = calculateEnterpriseValue(input).value;
+  const enterpriseValue = calculateEnterpriseValue(input);
+  const ev = enterpriseValue.value;
   const value = isFiniteNumber(ev) && hasPositiveNumber(input.ebitda) ? safeDivide(ev, input.ebitda) : null;
+  const ebitdaMissing = getMissingFields(input, ["ebitda"]);
+  const missingFields = [...ebitdaMissing, ...(isFiniteNumber(ev) ? [] : enterpriseValue.missingFields)];
+  const ebitdaNotPositive = isFiniteNumber(input.ebitda) && input.ebitda <= 0;
+
   return buildMetricResult({
     key: "evToEbitda",
     label: "EV/EBITDA",
@@ -154,9 +169,14 @@ export const calculateEvToEbitda = (input: FinancialStatementInput): FinancialMe
     unit: "x",
     formula: "enterpriseValue / ebitda",
     inputFields: ["enterpriseValue", "ebitda"],
-    missingFields: getMissingFields(input, ["ebitda"]).concat(isFiniteNumber(ev) ? [] : ["enterpriseValue"]),
-    level: !hasPositiveNumber(input.ebitda) ? "not_applicable" : value === null ? "unknown" : "neutral",
-    warning: !hasPositiveNumber(input.ebitda) ? "EBITDA không dương nên EV/EBITDA không phù hợp để diễn giải." : "EV/EBITDA cần đọc cùng capex, nợ và chu kỳ ngành.",
+    missingFields,
+    level: ebitdaNotPositive ? "not_applicable" : value === null ? "unknown" : "neutral",
+    dataQuality: value === null ? (missingFields.length > 0 ? "missing" : "partial") : "sufficient",
+    warning: ebitdaNotPositive
+      ? "EBITDA không dương nên EV/EBITDA không phù hợp để diễn giải."
+      : value === null
+        ? "Chưa đủ EV và EBITDA để tính EV/EBITDA. Cần EBITDA rõ nguồn và EV trực tiếp hoặc đủ vốn hóa, nợ vay, tiền mặt."
+        : "EV/EBITDA cần đọc cùng capex, nợ và chu kỳ ngành.",
     moduleUsage: ["valuation"],
     period: input.period,
     periodType: input.periodType,

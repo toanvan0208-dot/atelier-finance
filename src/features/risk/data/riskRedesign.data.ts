@@ -1,4 +1,4 @@
-import type { MissingDataRiskSummary, RiskRedesignData } from "../types";
+import type { MissingDataRiskSummary, RiskDisclosureReview, RiskRedesignData } from "../types";
 import { buildRiskDeskData } from "../lib/build-risk-desk-data";
 import type { RiskStatementSnapshot } from "../lib/map-risk-to-logic-input";
 
@@ -23,10 +23,28 @@ export const baseRiskRedesignData: RiskRedesignData = {
   industry: "Bối cảnh ngành cần kiểm tra",
   overall: {
     status: "Chưa đủ dữ liệu",
-    score: null,
     tone: "missing",
     conclusion:
       "Phần này tổng hợp dữ liệu còn thiếu, nguồn cần kiểm tra và các điểm dễ kết luận vội. Đây không phải khuyến nghị đầu tư.",
+  },
+  disclosureReview: {
+    ticker: "UNKNOWN",
+    auditor: null,
+    auditOpinion: null,
+    reportPublishedDate: null,
+    filingStatus: "unknown",
+    relatedPartyNotes: null,
+    sourceUrl: null,
+    sourceType: "unknown",
+    needsReview: true,
+    productionApproved: false,
+  },
+  disclosureReadiness: {
+    status: "Không đủ cơ sở",
+    tone: "missing",
+    availableFields: [],
+    missingFields: [],
+    reviewNotes: ["Chưa có dữ liệu minh bạch/công bố thông tin để kiểm tra."],
   },
   missingDataSummary: emptySummary,
   topRisks: [],
@@ -86,6 +104,23 @@ export const riskStatementSnapshotsByTicker: Record<string, RiskStatementSnapsho
     eps: null,
     closePrice: null,
   },
+  HPG: {
+    ticker: "HPG",
+    companyName: "CTCP Tập đoàn Hòa Phát",
+    companyType: "non_financial",
+    industry: "Thép / vật liệu cơ bản",
+    periodType: "annual",
+    sourceName: null,
+    collectedAt: null,
+    revenue: null,
+    netProfit: null,
+    operatingCashFlow: null,
+    totalDebt: null,
+    totalEquity: null,
+    sharesOutstanding: null,
+    eps: null,
+    closePrice: null,
+  },
   VNM: {
     ticker: "VNM",
     companyName: "CTCP Sữa Việt Nam",
@@ -105,10 +140,165 @@ export const riskStatementSnapshotsByTicker: Record<string, RiskStatementSnapsho
   },
 };
 
+export const riskDisclosureReviewsByTicker: Record<string, RiskDisclosureReview> = {
+  FPT: {
+    ticker: "FPT",
+    auditor: null,
+    auditOpinion: null,
+    reportPublishedDate: null,
+    filingStatus: "missing",
+    relatedPartyNotes: null,
+    sourceUrl: null,
+    sourceType: "company_disclosure",
+    needsReview: true,
+    productionApproved: false,
+  },
+  MWG: {
+    ticker: "MWG",
+    auditor: "Công ty TNHH Ernst & Young Việt Nam",
+    auditOpinion:
+      "Ý kiến chấp nhận toàn phần: báo cáo tài chính hợp nhất phản ánh trung thực và hợp lý trên các khía cạnh trọng yếu.",
+    reportPublishedDate: "2026-03-23",
+    filingStatus: "needs_review",
+    relatedPartyNotes: null,
+    fieldEvidence: [
+      {
+        field: "auditor",
+        label: "Kiểm toán viên",
+        status: "backed_by_pdf",
+        source: "MWG_annual_report_2025.pdf",
+        page: 73,
+        note: "Trang báo cáo tài chính ghi Ernst & Young Việt Nam là kiểm toán viên của Công ty.",
+      },
+      {
+        field: "auditOpinion",
+        label: "Ý kiến kiểm toán",
+        status: "backed_by_pdf",
+        source: "MWG_annual_report_2025.pdf",
+        page: 77,
+        note: "Trang ý kiến kiểm toán ghi báo cáo tài chính hợp nhất phản ánh trung thực và hợp lý trên các khía cạnh trọng yếu.",
+      },
+      {
+        field: "reportPublishedDate",
+        label: "Ngày báo cáo",
+        status: "backed_by_pdf",
+        source: "MWG_annual_report_2025.pdf",
+        page: 77,
+        note: "Báo cáo kiểm toán độc lập ký ngày 23/03/2026.",
+      },
+      {
+        field: "relatedPartyNotes",
+        label: "Giao dịch bên liên quan",
+        status: "not_found",
+        source: "MWG_annual_report_2025.pdf",
+        page: null,
+        note: "Chưa trích được thuyết minh giao dịch bên liên quan đủ cụ thể từ annual report local.",
+      },
+    ],
+    sourceUrl: "D:/AtelierFinanceFinancialsReview/annual-reports/MWG_annual_report_2025.pdf",
+    sourceType: "company_disclosure",
+    needsReview: true,
+    productionApproved: false,
+  },
+  HPG: {
+    ticker: "HPG",
+    auditor: "Công ty TNHH Kiểm toán Deloitte Việt Nam",
+    auditOpinion:
+      "Ý kiến chấp nhận toàn phần: báo cáo tài chính hợp nhất phản ánh trung thực và hợp lý trên các khía cạnh trọng yếu.",
+    reportPublishedDate: "2026-03-24",
+    filingStatus: "needs_review",
+    relatedPartyNotes: null,
+    fieldEvidence: [
+      {
+        field: "auditor",
+        label: "Kiểm toán viên",
+        status: "backed_by_pdf",
+        source: "HPG_annual_report_2025.pdf",
+        page: 89,
+        note: "Trang bìa báo cáo tài chính hợp nhất đã kiểm toán hiển thị Deloitte.",
+      },
+      {
+        field: "auditOpinion",
+        label: "Ý kiến kiểm toán",
+        status: "backed_by_pdf",
+        source: "HPG_annual_report_2025.pdf",
+        page: 94,
+        note: "Trang ý kiến kiểm toán ghi báo cáo tài chính hợp nhất phản ánh trung thực và hợp lý trên các khía cạnh trọng yếu.",
+      },
+      {
+        field: "reportPublishedDate",
+        label: "Ngày báo cáo",
+        status: "backed_by_pdf",
+        source: "HPG_annual_report_2025.pdf",
+        page: 94,
+        note: "Báo cáo kiểm toán độc lập ký ngày 24/03/2026.",
+      },
+      {
+        field: "relatedPartyNotes",
+        label: "Giao dịch bên liên quan",
+        status: "not_found",
+        source: "HPG_annual_report_2025.pdf",
+        page: null,
+        note: "Chưa trích được thuyết minh giao dịch bên liên quan đủ cụ thể từ annual report local.",
+      },
+    ],
+    sourceUrl: "D:/AtelierFinanceFinancialsReview/annual-reports/HPG_annual_report_2025.pdf",
+    sourceType: "company_disclosure",
+    needsReview: true,
+    productionApproved: false,
+  },
+  VNM: {
+    ticker: "VNM",
+    auditor: "Chi nhánh Công ty TNHH KPMG Việt Nam",
+    auditOpinion: null,
+    reportPublishedDate: "2026-02-27",
+    filingStatus: "needs_review",
+    relatedPartyNotes: null,
+    fieldEvidence: [
+      {
+        field: "auditor",
+        label: "Kiểm toán viên",
+        status: "backed_by_pdf",
+        source: "VNM_annual_report_2025.pdf",
+        page: 106,
+        note: "Trang thông tin công ty ghi Chi nhánh Công ty TNHH KPMG Việt Nam là công ty kiểm toán.",
+      },
+      {
+        field: "auditOpinion",
+        label: "Ý kiến kiểm toán",
+        status: "not_found",
+        source: "VNM_annual_report_2025.pdf",
+        page: 107,
+        note: "Annual report local chỉ ghi báo cáo kiểm toán độc lập được trích từ BCTC đã kiểm toán; chưa thấy đoạn ý kiến đầy đủ.",
+      },
+      {
+        field: "reportPublishedDate",
+        label: "Ngày báo cáo",
+        status: "backed_by_pdf",
+        source: "VNM_annual_report_2025.pdf",
+        page: 106,
+        note: "Báo cáo của Ban Điều hành ghi ngày 27/02/2026.",
+      },
+      {
+        field: "relatedPartyNotes",
+        label: "Giao dịch bên liên quan",
+        status: "not_found",
+        source: "VNM_annual_report_2025.pdf",
+        page: null,
+        note: "Chưa trích được thuyết minh giao dịch bên liên quan đủ cụ thể từ annual report local.",
+      },
+    ],
+    sourceUrl: "D:/AtelierFinanceFinancialsReview/annual-reports/VNM_annual_report_2025.pdf",
+    sourceType: "company_disclosure",
+    needsReview: true,
+    productionApproved: false,
+  },
+};
+
 export const riskRedesignDataByTicker: Record<string, RiskRedesignData> = Object.fromEntries(
   Object.entries(riskStatementSnapshotsByTicker).map(([ticker, snapshot]) => [
     ticker,
-    buildRiskDeskData(baseRiskRedesignData, snapshot),
+    buildRiskDeskData(baseRiskRedesignData, snapshot, riskDisclosureReviewsByTicker[ticker]),
   ]),
 ) as Record<string, RiskRedesignData>;
 

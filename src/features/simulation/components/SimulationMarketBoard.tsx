@@ -10,10 +10,10 @@ type SimulationMarketBoardProps = {
 
 export function SimulationMarketBoard({ quotes, selectedSymbol, onSelect }: SimulationMarketBoardProps) {
   return (
-    <Card className="h-full">
+    <Card className="h-full overflow-hidden">
       <CardHeader
-        title="Bảng điện thị trường"
-        description="Giá và thanh khoản lấy từ dữ liệu thị trường hiện có; chọn mã để tạo tình huống mô phỏng."
+        title="Chọn tình huống từ bảng điện"
+        description="Dữ liệu lấy từ MarketPrice mới nhất trong DB. Chọn một mã để mô phỏng, không dùng dữ liệu giả thay thế."
         chip={<Chip variant="accent">Dữ liệu thị trường</Chip>}
       />
       <CardBody className="p-0">
@@ -22,65 +22,79 @@ export function SimulationMarketBoard({ quotes, selectedSymbol, onSelect }: Simu
             <div className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-5">
               <p className="text-sm font-bold text-ink">Chưa có dữ liệu bảng điện</p>
               <p className="mt-2 text-sm leading-6 text-muted">
-                Khi hệ thống có MarketPrice mới nhất trong DB, giá và thanh khoản sẽ hiện ở đây. Không dùng dữ liệu giả thay thế.
+                Khi hệ thống có MarketPrice mới nhất trong DB, giá và thanh khoản sẽ hiện ở đây.
               </p>
             </div>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-          <table className="min-w-[1120px] w-full border-collapse text-left text-xs">
-            <thead className="sticky top-0 bg-surface-soft text-[11px] uppercase text-subtle">
-              <tr>
-                {["Mã", "Tên doanh nghiệp", "Ngành", "Giá hiện tại", "+/-", "%", "Khối lượng", "GTGD", "Thanh khoản", "MA20", "MA50", "Volume/TB20", "Trạng thái"].map((header) => (
-                  <th key={header} className="border-b border-border-soft px-3 py-3 font-bold">
-                    {header}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
+          <div className="max-h-[560px] overflow-auto p-3">
+            <div className="grid gap-2">
               {quotes.map((quote) => {
                 const selected = selectedSymbol === quote.symbol;
 
                 return (
-                  <tr
+                  <button
                     key={quote.symbol}
-                    className={`cursor-pointer border-b border-border-soft transition hover:bg-accent-soft/40 ${
-                      selected ? "bg-accent-soft/70" : "bg-surface"
+                    className={`grid gap-3 rounded-[4px] border px-3 py-3 text-left transition ${
+                      selected ? "border-border bg-accent-soft shadow-soft" : "border-border-soft bg-surface hover:border-border hover:bg-surface-soft"
                     }`}
+                    type="button"
                     onClick={() => onSelect(quote)}
                   >
-                    <td className="px-3 py-3">
-                      <p className="font-bold text-ink">{quote.symbol}</p>
-                      <p className="text-[10px] text-subtle">{quote.exchange}</p>
-                    </td>
-                    <td className="max-w-[220px] px-3 py-3 font-semibold text-ink">{quote.name}</td>
-                    <td className="px-3 py-3 text-muted">{quote.industry}</td>
-                    <td className="px-3 py-3 font-bold text-ink">{formatNumber(quote.price)}</td>
-                    <td className={`px-3 py-3 font-semibold ${toneFromSignedValue(quote.change)}`}>{formatNumber(quote.change)}</td>
-                    <td className={`px-3 py-3 font-semibold ${toneFromSignedValue(quote.changePercent)}`}>{formatPercent(quote.changePercent)}</td>
-                    <td className="px-3 py-3 text-muted">{formatNumber(quote.volume)}</td>
-                    <td className="px-3 py-3 text-muted">{formatCompactCurrency(quote.tradingValue)}</td>
-                    <td className="px-3 py-3">
-                      <Chip size="sm" variant={quote.liquidityLabel === "Thấp" ? "warning" : quote.liquidityLabel === "Cao" ? "success" : "neutral"}>
-                        {quote.liquidityLabel}
-                      </Chip>
-                    </td>
-                    <td className="px-3 py-3 text-muted">{quote.ma20Status}</td>
-                    <td className="px-3 py-3 text-muted">{quote.ma50Status}</td>
-                    <td className="px-3 py-3 text-muted">{quote.volumeVsAvg20.toFixed(1).replace(".", ",")}x</td>
-                    <td className="px-3 py-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex min-w-0 items-start gap-3">
+                        <span className={`grid size-9 shrink-0 place-items-center rounded-[4px] border text-sm font-bold ${
+                          selected ? "border-border bg-accent text-ink" : "border-border-soft bg-surface-soft text-ink"
+                        }`}>
+                          {quote.symbol.slice(0, 1)}
+                        </span>
+                        <div className="min-w-0">
+                          <p className="font-bold text-ink">{quote.symbol}</p>
+                          <p className="mt-0.5 truncate text-[11px] text-muted">{quote.name}</p>
+                        </div>
+                      </div>
                       <Chip size="sm" variant={statusVariant(quote.status)}>{stockStatusLabel(quote.status)}</Chip>
-                    </td>
-                  </tr>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <QuoteMetric label="Giá" value={formatNumber(quote.price)} />
+                      <QuoteMetric
+                        label="Phiên gần nhất"
+                        value={formatPercent(quote.changePercent)}
+                        valueClassName={toneFromSignedValue(quote.changePercent)}
+                      />
+                      <QuoteMetric label="Thanh khoản" value={quote.liquidityLabel} />
+                    </div>
+
+                    <div className="grid gap-1 border-t border-border-soft pt-2 text-[11px] text-muted">
+                      <p>{quote.ma20Status} · {quote.ma50Status}</p>
+                      <p>{formatNumber(quote.volume)} cp · {formatCompactCurrency(quote.tradingValue)}</p>
+                    </div>
+                  </button>
                 );
               })}
-            </tbody>
-          </table>
+            </div>
           </div>
         )}
       </CardBody>
     </Card>
+  );
+}
+
+function QuoteMetric({
+  label,
+  value,
+  valueClassName = "text-ink",
+}: {
+  label: string;
+  value: string;
+  valueClassName?: string;
+}) {
+  return (
+    <div>
+      <p className="text-[10px] font-bold uppercase tracking-[0.03em] text-subtle">{label}</p>
+      <p className={`mt-1 text-sm font-bold ${valueClassName}`}>{value}</p>
+    </div>
   );
 }
 

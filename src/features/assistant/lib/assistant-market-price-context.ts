@@ -1,4 +1,5 @@
 import { prisma } from "../../../lib/database/client";
+import { getLatestMarketPrice } from "../../../lib/database";
 
 const ALLOWED_TICKERS = ["FPT", "HPG", "VNM", "MSN", "MWG"];
 
@@ -35,10 +36,7 @@ export const loadAssistantMarketPriceContext = async (
     };
   }
 
-  const latestMarketPrice = await prisma.marketPrice.findFirst({
-    where: { ticker },
-    orderBy: { tradingDate: "desc" },
-  });
+  const latestMarketPrice = await getLatestMarketPrice(ticker);
 
   if (!latestMarketPrice) {
     return {
@@ -66,7 +64,7 @@ export const loadAssistantMarketPriceContext = async (
         if (Array.isArray(parsed)) {
           warningCodes = parsed.map(String);
         }
-      } catch (e) {
+      } catch {
         warningCodes = [String(provenance.warningCodes)];
       }
     }

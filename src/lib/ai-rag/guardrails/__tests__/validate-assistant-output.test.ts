@@ -149,6 +149,20 @@ describe("validateAssistantOutput", () => {
     );
   });
 
+  it("does not treat numbered list markers as fabricated numeric data", () => {
+    const result = validateAssistantOutput(
+      [
+        "1. PVT chi la quan sat thi truong.",
+        "2. Can doc cung thanh khoan va boi canh.",
+        "3. Khong bien thanh tin hieu hanh dong.",
+      ].join("\n"),
+      { allowedNumericValues: [] },
+    );
+
+    expect(result.isValid).toBe(true);
+    expect(result.violations).toHaveLength(0);
+  });
+
   it("returns valid output for safe educational answer", () => {
     const result = validateAssistantOutput(
       "PVT chi la quan sat thi truong. Can kiem tra them thanh khoan, tai chinh va rui ro truoc khi tu hinh thanh luan diem.",

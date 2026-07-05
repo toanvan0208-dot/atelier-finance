@@ -24,11 +24,30 @@ export type FinancialsRuntimeDataQuality = {
   errors: string[];
 };
 
+export type FinancialsIndustryMetricReference = {
+  status: "available" | "missing";
+  industryCode: string | null;
+  readyForUiDisplay: boolean;
+  rowsWithoutProvenance: number;
+  metrics: Array<{
+    metricCode: "GROSS_MARGIN_COMPANY_REFERENCE" | "NET_MARGIN_COMPANY_REFERENCE";
+    metricLabelVi: string;
+    value: number;
+    unit: string;
+    periodLabel: string;
+    sourceLabel: string;
+    sourceKey: string;
+    provenanceCount: number;
+  }>;
+  caveats: string[];
+};
+
 export type FinancialsRuntimeData = {
   runtimeStatus: FinancialsRuntimeStatus;
   source: FinancialsRuntimeDataSource;
   dataQuality: FinancialsRuntimeDataQuality;
   statementSnapshot: FinancialsStatementSnapshot | null;
   unitMetadata: FinancialsUnitMetadataMap;
+  industryMetricReference?: FinancialsIndustryMetricReference | null;
   readResult: FinancialStatementSeriesResult | null;
 };

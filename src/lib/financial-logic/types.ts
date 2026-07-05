@@ -72,6 +72,7 @@ export type FinancialStatementInput = {
   volume?: number | null;
   avgVolume20d?: number | null;
   avgTradingValue20d?: number | null;
+  enterpriseValue?: number | null;
   dividendPerShare?: number | null;
 };
 

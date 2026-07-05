@@ -136,8 +136,8 @@ describe("buildAssistantPrompt", () => {
       }),
     );
 
-    expect(result.promptText).toContain("Prefer 3 to 5 short bullet points.");
-    expect(result.promptText).toContain("Avoid markdown headings like ###");
+    expect(result.promptText).toContain("at most 3 short bullets");
+    expect(result.promptText).toContain("Do not use markdown headings like ###");
     expect(result.promptText).toContain("Do not mention source labels/page numbers unless the user asks for sources");
   });
 
@@ -184,5 +184,29 @@ describe("buildAssistantPrompt", () => {
     expect(result.promptText).toContain("Allowed numeric values from grounded context:\n- 125\n- 2025");
     expect(result.promptText).toContain("Ticker in workspace URL: FPT");
     expect(result.promptText).toContain("Do not infer missing values.");
+  });
+
+  it("tells the assistant not to overstate missing context for conceptual questions", () => {
+    const result = buildAssistantPrompt(
+      baseInput({
+        activeModule: "screening",
+        userQuestion: "Tiêu chí lọc có phải thesis không?",
+        contextPacket: {
+          ticker: null,
+          activeModule: "screening",
+          moduleContext: { moduleKey: "screening" },
+          dataQuality: { status: "partial" },
+          missingFields: [],
+          allowedNumericValues: [],
+          visibleFacts: ["Bước 3 - Lọc theo mức độ đủ dữ liệu"],
+          constraints: ["Screening is not an investment ranking."],
+        },
+      }),
+    );
+
+    expect(result.promptText).toContain("answer the concept/workflow directly first");
+    expect(result.promptText).toContain("Do not say the active module is missing");
+    expect(result.promptText).toContain("If no ticker is provided, say there is no specific ticker selected");
+    expect(result.promptText).toContain("Packet active module: screening");
   });
 });

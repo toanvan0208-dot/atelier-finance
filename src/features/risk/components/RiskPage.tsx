@@ -3,19 +3,20 @@
 import { useMemo, useSyncExternalStore } from "react";
 import type { FinancialsRuntimeData } from "@/features/financials/lib/financials-runtime-types";
 import {
+  riskDisclosureReviewsByTicker,
   riskRedesignDataByTicker,
   riskStatementSnapshotsByTicker,
 } from "../data/riskRedesign.data";
 import { buildRiskDeskData } from "../lib/build-risk-desk-data";
+import type { RiskDisclosureReviewRuntime } from "../lib/load-risk-disclosure-review";
 import type { RiskStatementSnapshot } from "../lib/map-risk-to-logic-input";
-import { CriticalRiskCards } from "./CriticalRiskCards";
 import { RiskFinalConclusion } from "./RiskFinalConclusion";
 import { RiskHeroSummary } from "./RiskHeroSummary";
 import { RiskSourceMap } from "./RiskSourceMap";
 import { StopConditionPanel } from "./StopConditionPanel";
-import { ThesisBreakerPanel } from "./ThesisBreakerPanel";
 
 type RiskPageProps = {
+  initialDisclosureReview?: RiskDisclosureReviewRuntime;
   initialFinancialsRuntimeData?: FinancialsRuntimeData;
   onNavigate: (key: string) => void;
 };
@@ -64,27 +65,30 @@ const runtimeSnapshotForRisk = (
   };
 };
 
-export function RiskPage({ initialFinancialsRuntimeData, onNavigate }: RiskPageProps) {
+export function RiskPage({ initialDisclosureReview, initialFinancialsRuntimeData, onNavigate }: RiskPageProps) {
   const tickerFromUrl = useRiskTickerFromUrl();
   const ticker = tickerFromUrl ?? normalizeTicker(initialFinancialsRuntimeData?.source.ticker) ?? "FPT";
   const fallbackData = riskRedesignDataByTicker[ticker] ?? riskRedesignDataByTicker.FPT;
   const fallbackSnapshot = riskStatementSnapshotsByTicker[ticker] ?? riskStatementSnapshotsByTicker.FPT;
   const runtimeSnapshot = runtimeSnapshotForRisk(initialFinancialsRuntimeData, fallbackSnapshot);
+  const disclosureReview =
+    normalizeTicker(initialDisclosureReview?.ticker) === ticker
+      ? initialDisclosureReview?.review
+      : riskDisclosureReviewsByTicker[ticker];
   const data = useMemo(
-    () => (runtimeSnapshot ? buildRiskDeskData(fallbackData, runtimeSnapshot) : fallbackData),
-    [fallbackData, runtimeSnapshot],
+    () => buildRiskDeskData(fallbackData, runtimeSnapshot ?? fallbackSnapshot, disclosureReview),
+    [disclosureReview, fallbackData, fallbackSnapshot, runtimeSnapshot],
   );
   return (
     <div className="mx-auto w-full max-w-[1180px] space-y-5">
       <RiskHeroSummary data={data} />
-      <CriticalRiskCards risks={data.topRisks} onNavigate={onNavigate} />
-      <ThesisBreakerPanel items={data.thesisBreakers} onNavigate={onNavigate} />
-      <RiskSourceMap sources={data.riskSources} onNavigate={onNavigate} />
-      <StopConditionPanel
-        stopConditions={data.stopConditions}
-        timeline={data.riskTimeline}
-        reverseRiskNote={data.reverseRiskNote}
-      />
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-start">
+        <RiskSourceMap sources={data.riskSources} onNavigate={onNavigate} />
+        <StopConditionPanel
+          stopConditions={data.stopConditions}
+          reverseRiskNote={data.reverseRiskNote}
+        />
+      </div>
       <RiskFinalConclusion
         conclusion={data.finalConclusion}
         actions={data.nextActions}

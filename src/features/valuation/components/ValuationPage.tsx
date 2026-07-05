@@ -472,13 +472,6 @@ export function ValuationPage({ initialFinancialsRuntimeData, initialScenario, o
       {bridgeState.status === "ready" || bridgeState.status === "insufficient" ? (
         <>
           <ValuationSummaryHero data={bridgeState.data.summary} />
-          <ValuationFinancialsRuntimeNote boundary={runtimeConsumption} dataQuality={valuationDataQuality} />
-          {bridgeState.status === "insufficient" ? (
-            <section className="rounded-[4px] border border-warning bg-warning/15 px-4 py-3 text-sm font-bold leading-6 text-ink">
-              Dữ liệu chưa đủ để tính đầy đủ chỉ số định giá: {bridgeState.result.missingReasons.join(", ")}.
-              Các chỉ số phụ thuộc dữ liệu thiếu sẽ ở trạng thái Chưa đủ dữ liệu hoặc N/A.
-            </section>
-          ) : null}
           <ControlledValuationCalculationPanel boundary={controlledCalculationBoundary} />
           <ValuationAssumptionPanel data={bridgeState.data.assumptions} />
           <ValuationUncertaintyPanel data={bridgeState.data.uncertainties} onNavigate={onNavigate} />

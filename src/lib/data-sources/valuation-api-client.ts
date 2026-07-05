@@ -66,6 +66,7 @@ type FinancialStatementApiRecord = {
   netIncome?: unknown;
   equity?: unknown;
   totalDebt?: unknown;
+  enterpriseValue?: unknown;
   operatingCashFlow?: unknown;
   eps?: unknown;
   bvps?: unknown;
@@ -310,6 +311,7 @@ const buildSnapshot = (
     netProfit: toNullableNumber(financial?.netIncome),
     totalEquity: toNullableNumber(financial?.equity),
     totalDebt: toNullableNumber(financial?.totalDebt),
+    enterpriseValue: toNullableNumber(financial?.enterpriseValue),
     operatingCashFlow: toNullableNumber(financial?.operatingCashFlow),
     sharesOutstanding: eps === null ? null : toNullableNumber(financial?.sharesOutstanding),
     eps,

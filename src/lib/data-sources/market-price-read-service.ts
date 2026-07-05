@@ -103,6 +103,8 @@ const DEFAULT_SOURCE_LABEL = "vnstock";
 const DEFAULT_DATA_MODE = "research_only";
 const SOURCE_BOUNDARY_WARNING =
   "Market price read path is local academic/research only; production approval remains false.";
+const LEGACY_THOUSAND_VND_SOURCE_LABEL = "vnstock_python_market_pvt_auto";
+const LEGACY_THOUSAND_VND_WARNING = "NORMALIZED_LEGACY_THOUSAND_VND_PRICE_TO_VND";
 
 const emptyResult = ({
   status,
@@ -168,6 +170,21 @@ const toNullableNumber = (
     return Number.isFinite(parsed) ? parsed : null;
   }
   return null;
+};
+
+const shouldNormalizeLegacyThousandVnd = (record: StoredMarketPrice): boolean => {
+  if (record.sourceLabel !== LEGACY_THOUSAND_VND_SOURCE_LABEL) return false;
+  const closePrice = toNullableNumber(record.closePrice);
+  return closePrice !== null && closePrice > 0 && closePrice < 1000;
+};
+
+const normalizeLegacyPrice = (
+  value: number | string | ReadableDecimal | null | undefined,
+  normalize: boolean,
+): number | null => {
+  const parsed = toNullableNumber(value);
+  if (parsed === null) return null;
+  return normalize ? parsed * 1000 : parsed;
 };
 
 const resolveDb = async (db: MarketPriceReadDb | undefined): Promise<MarketPriceReadDb> => {
@@ -364,17 +381,22 @@ export const getMarketPriceSeries = async (
       records = await rawMarketPriceRecords({ dataMode, db, fromDate, sourceLabel, ticker, toDate });
     }
 
-    const rows = records.map((record) => ({
-      ticker: record.ticker.trim().toUpperCase(),
-      date: dateOnly(record.tradingDate),
-      open: toNullableNumber(record.openPrice),
-      high: toNullableNumber(record.highPrice),
-      low: toNullableNumber(record.lowPrice),
-      close: toNullableNumber(record.closePrice),
-      volume: toNullableNumber(record.volume),
-      tradingValue: toNullableNumber(record.tradingValue),
-      marketCap: toNullableNumber(record.marketCap),
-    }));
+    const normalizedLegacyRows = records.some(shouldNormalizeLegacyThousandVnd);
+    const rows = records.map((record) => {
+      const normalize = shouldNormalizeLegacyThousandVnd(record);
+
+      return {
+        ticker: record.ticker.trim().toUpperCase(),
+        date: dateOnly(record.tradingDate),
+        open: normalizeLegacyPrice(record.openPrice, normalize),
+        high: normalizeLegacyPrice(record.highPrice, normalize),
+        low: normalizeLegacyPrice(record.lowPrice, normalize),
+        close: normalizeLegacyPrice(record.closePrice, normalize),
+        volume: toNullableNumber(record.volume),
+        tradingValue: toNullableNumber(record.tradingValue),
+        marketCap: toNullableNumber(record.marketCap),
+      };
+    });
 
     if (rows.length === 0) {
       return emptyResult({
@@ -405,7 +427,10 @@ export const getMarketPriceSeries = async (
         to: dateOnly(toDate),
         sourceLabel,
         dataMode,
-        warnings: unitMetadataRead.warnings,
+        warnings: [
+          ...(normalizedLegacyRows ? [LEGACY_THOUSAND_VND_WARNING] : []),
+          ...unitMetadataRead.warnings,
+        ],
       }),
       count: rows.length,
       marketUnitMetadata: unitMetadataRead.marketUnitMetadata,

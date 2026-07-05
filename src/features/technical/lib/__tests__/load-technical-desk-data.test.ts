@@ -339,6 +339,88 @@ describe("loadTechnicalDeskData", () => {
     expect(result.warnings.join(" ")).toContain("static fallback");
   });
 
+  it("uses a legacy vnstock source when the default historical source has no rows", async () => {
+    const readMarketPriceSeries = vi
+      .fn()
+      .mockResolvedValueOnce(
+        series([], {
+          ok: false,
+          status: "not_found",
+          count: 0,
+          rows: [],
+          sourceLabel: "VNStock historical market price",
+          warnings: ["No matching market price rows were found."],
+        }),
+      )
+      .mockResolvedValueOnce(
+        series([], {
+          ok: false,
+          status: "not_found",
+          count: 0,
+          rows: [],
+          sourceLabel: "VNStock market price snapshot",
+          warnings: ["No matching market price rows were found."],
+        }),
+      )
+      .mockResolvedValueOnce(
+        series(
+          [
+            row({
+              ticker: "HPG",
+              date: "2026-06-25",
+              close: 23000,
+              volume: 1000,
+              tradingValue: 23_000_000,
+            }),
+            row({
+              ticker: "HPG",
+              date: "2026-06-26",
+              close: 23500,
+              volume: 1200,
+              tradingValue: 28_200_000,
+            }),
+          ],
+          {
+            ticker: "HPG",
+            sourceLabel: "vnstock_python_market_pvt_auto",
+          },
+        ),
+      );
+
+    const result = await loadTechnicalDeskData(
+      { ticker: "HPG", from: "2026-06-01", to: "2026-07-01", preferDb: true, allowFallback: false },
+      {
+        readMarketPriceSeries,
+        fallbackData: baseData,
+        fallbackDataQuality,
+      },
+    );
+
+    expect(result.ok).toBe(true);
+    expect(result.fallbackUsed).toBe(false);
+    expect(result.source).toMatchObject({
+      sourceType: "local_db_manual_import",
+      provider: "vnstock",
+      sourceLabel: "vnstock_python_market_pvt_auto",
+    });
+    expect(result.data?.ticker).toBe("HPG");
+    expect(result.data?.currentPrice).toBe(23500);
+    expect(readMarketPriceSeries).toHaveBeenNthCalledWith(1, {
+      ticker: "HPG",
+      from: "2026-06-01",
+      to: "2026-07-01",
+      sourceLabel: "VNStock historical market price",
+      dataMode: undefined,
+    });
+    expect(readMarketPriceSeries).toHaveBeenNthCalledWith(3, {
+      ticker: "HPG",
+      from: "2026-06-01",
+      to: "2026-07-01",
+      sourceLabel: "vnstock_python_market_pvt_auto",
+      dataMode: undefined,
+    });
+  });
+
   it("returns unavailable for explicit ticker no-data states when fallback is disabled", async () => {
     const readMarketPriceSeries = vi.fn().mockResolvedValue(
       series([], {
@@ -371,7 +453,7 @@ describe("loadTechnicalDeskData", () => {
     expect(result.warnings.join(" ")).toContain("fallback is disabled");
   });
 
-  it("falls back safely when DB rows fail Market/PVT unit metadata checks", async () => {
+  it("keeps DB-backed rows visible with warnings when Market/PVT unit metadata is not ready", async () => {
     const readMarketPriceSeries = vi.fn().mockResolvedValue(
       series(
         [
@@ -404,11 +486,11 @@ describe("loadTechnicalDeskData", () => {
     );
 
     expect(result.ok).toBe(true);
-    expect(result.fallbackUsed).toBe(true);
-    expect(result.source.sourceType).toBe("sample_static_fallback");
+    expect(result.fallbackUsed).toBe(false);
+    expect(result.source.sourceType).toBe("local_db_manual_import");
     expect(result.source.productionApproved).toBe(false);
-    expect(result.warnings.join(" ")).toContain("unit metadata checks");
     expect(result.warnings).toContain("marketPrice_market_pvt_unit_metadata_not_ready");
+    expect(result.data?.currentPrice).toBe(110);
   });
 
   it("handles invalid input without reading DB and falls back with warnings", async () => {

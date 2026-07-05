@@ -443,4 +443,85 @@ ON CONFLICT("id") DO UPDATE SET
   "generatedAt" = CURRENT_TIMESTAMP,
   "calculationVersion" = excluded."calculationVersion";
 
+INSERT INTO "ChecklistItem" (
+  "id",
+  "itemCode",
+  "moduleKey",
+  "question",
+  "evidenceRule",
+  "displayOrder",
+  "version",
+  "isActive",
+  "createdAt",
+  "updatedAt"
+) VALUES
+(
+  'seed-checklist-business-model',
+  'business_model_understood',
+  'business',
+  'Nguoi dung da mo ta duoc doanh nghiep kiem tien bang cach nao chua?',
+  'Can co business profile hoac ghi chu nguon ve mo hinh kinh doanh; khong suy luan tu gia co phieu.',
+  10,
+  1,
+  true,
+  CURRENT_TIMESTAMP,
+  CURRENT_TIMESTAMP
+),
+(
+  'seed-checklist-financial-cashflow',
+  'financial_cashflow_checked',
+  'financials',
+  'Loi nhuan co di kem dong tien hoat dong hay khong?',
+  'Can co netIncome va operatingCashFlow cung ky; neu thieu thi giu trang thai needs_review.',
+  20,
+  1,
+  true,
+  CURRENT_TIMESTAMP,
+  CURRENT_TIMESTAMP
+),
+(
+  'seed-checklist-valuation-assumptions',
+  'valuation_assumptions_checked',
+  'valuation',
+  'Nguoi dung da kiem tra gia dinh dinh gia va bien an toan chua?',
+  'Chi su dung chi so co du EPS/BVPS/gia va metadata don vi; khong tao khuyen nghi giao dich.',
+  30,
+  1,
+  true,
+  CURRENT_TIMESTAMP,
+  CURRENT_TIMESTAMP
+),
+(
+  'seed-checklist-risk-breaker',
+  'risk_breaker_checked',
+  'risk',
+  'Co rui ro nao co the lam sai luan diem ban dau khong?',
+  'Can ghi nhan rui ro kinh doanh, tai chinh, minh bach va cac truong du lieu con thieu.',
+  40,
+  1,
+  true,
+  CURRENT_TIMESTAMP,
+  CURRENT_TIMESTAMP
+),
+(
+  'seed-checklist-technical-context',
+  'technical_context_checked',
+  'technical',
+  'Gia, thanh khoan va thoi diem co chi duoc doc nhu boi canh quan sat khong?',
+  'PVT chi la quan sat thi truong; khong sinh tin hieu mua ban nam giu.',
+  50,
+  1,
+  true,
+  CURRENT_TIMESTAMP,
+  CURRENT_TIMESTAMP
+)
+ON CONFLICT("itemCode") DO UPDATE SET
+  "moduleKey" = excluded."moduleKey",
+  "question" = excluded."question",
+  "evidenceRule" = excluded."evidenceRule",
+  "displayOrder" = excluded."displayOrder",
+  "version" = excluded."version",
+  "isActive" = excluded."isActive",
+  "updatedAt" = CURRENT_TIMESTAMP;
+
 COMMIT;

@@ -1,3 +1,4 @@
+import { requirePostgresDatabaseUrl } from "./lib/supabase-env";
 import {
   runVnstockFinancialsPreview,
   VNSTOCK_FINANCIALS_PROBE_TICKERS,
@@ -13,9 +14,7 @@ const valueAfter = (argv: string[], key: string): string | undefined => {
 };
 
 const main = async (): Promise<void> => {
-  if (!process.env.DATABASE_URL) {
-    process.env.DATABASE_URL = "file:./dev.db";
-  }
+  const databaseUrl = requirePostgresDatabaseUrl("import-vnstock-financials-candidate.ts");
   const argv = process.argv.slice(2);
   const isConfirmWrite = argv.includes("--confirm-write");
   const isDryRun = !isConfirmWrite;
@@ -99,7 +98,7 @@ const main = async (): Promise<void> => {
       confirmReviewedDryRun: true,
       confirmNoProductionDatabase: true,
     },
-    databaseUrl: process.env.DATABASE_URL || "file:./dev.db"
+    databaseUrl
   });
 
   console.log(JSON.stringify({

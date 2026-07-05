@@ -18,12 +18,11 @@ type SimulationOrderTicketProps = {
 };
 
 const reasonHints = [
-  "Breakout",
-  "Pullback",
-  "Gần hỗ trợ",
-  "Vượt MA20/MA50",
-  "Dòng tiền vào ngành",
-  "Kiểm tra chiến lược cá nhân",
+  "Kiểm tra thesis",
+  "Giá về vùng quan sát",
+  "Thanh khoản cải thiện",
+  "Giá trên MA20/MA50",
+  "Cần luyện kỷ luật mốc cảnh báo",
   "Khác",
 ];
 
@@ -52,7 +51,7 @@ export function SimulationOrderTicket({
     const reward = targetPrice > 0 ? targetPrice - price : 0;
     const riskReward = risk > 0 && reward > 0 ? reward / risk : undefined;
 
-    return { value, fee, tax, total, riskReward };
+    return { fee, riskReward, tax, total, value };
   }, [quantity, selectedStock?.price, side, stopLoss, target]);
 
   const cashWarning = side === "buy" && values.total > availableCash;
@@ -71,25 +70,28 @@ export function SimulationOrderTicket({
   return (
     <Card className="h-full">
       <CardHeader
-        title="Bảng tình huống"
-        description="tạo tình huống mô phỏng để luyện quy trình, không phải đặt tình huống thật."
-        chip={<Chip variant="warning">Mô phỏng</Chip>}
+        title="Tạo tình huống mô phỏng"
+        description="Ghi rõ giả định, mốc cảnh báo và lý do trước khi đưa tình huống vào nhật ký."
+        chip={<Chip variant="warning">Không phải lệnh thật</Chip>}
       />
       <CardBody className="space-y-4">
         {!selectedStock ? (
           <div className="rounded-[4px] border border-border-soft bg-surface-soft px-4 py-6 text-sm leading-6 text-muted">
-            Chọn một mã trong Bảng điện mô phỏng để tạo tình huống.
+            Chọn một mã trong bảng điện để bắt đầu mô phỏng.
           </div>
         ) : (
           <>
-            <div className="rounded-[4px] border border-border-soft bg-accent-soft/50 px-3 py-3">
-              <p className="text-xs font-bold text-subtle">Mã đang chọn</p>
-              <div className="mt-1 flex items-end justify-between gap-3">
+            <div className="rounded-[4px] border border-border bg-ink px-4 py-4 text-white">
+              <p className="text-[11px] font-bold uppercase tracking-[0.04em] text-white/60">Đang chọn</p>
+              <div className="mt-2 flex items-end justify-between gap-3">
                 <div>
-                  <p className="text-xl font-bold text-ink">{selectedStock.symbol}</p>
-                  <p className="text-xs leading-5 text-muted">{selectedStock.name}</p>
+                  <p className="text-2xl font-bold">{selectedStock.symbol}</p>
+                  <p className="mt-1 text-xs leading-5 text-white/70">{selectedStock.name}</p>
                 </div>
-                <p className="text-base font-bold text-ink">{formatNumber(selectedStock.price)}</p>
+                <div className="text-right">
+                  <p className="text-xl font-bold">{formatNumber(selectedStock.price)}</p>
+                  <p className="text-xs text-white/60">{selectedStock.exchange}</p>
+                </div>
               </div>
             </div>
 
@@ -103,7 +105,7 @@ export function SimulationOrderTicket({
             </div>
 
             <label className="grid gap-1 text-xs font-bold text-ink">
-              Khối lượng
+              Khối lượng giả lập
               <input
                 className="h-10 rounded-[3px] border border-border bg-surface px-3 text-sm font-semibold outline-none focus:border-accent"
                 min={0}
@@ -113,21 +115,21 @@ export function SimulationOrderTicket({
               />
             </label>
 
-            <div className="grid gap-2 sm:grid-cols-2">
-              <label className="grid gap-1 text-xs font-bold text-ink">
-                Mốc cảnh báo giả lập
+            <div className="grid gap-2">
+              <label className="grid min-w-0 gap-1 text-xs font-bold text-ink">
+                Mốc cảnh báo
                 <input
-                  className="h-10 rounded-[3px] border border-border bg-surface px-3 text-sm outline-none focus:border-accent"
+                  className="h-10 min-w-0 rounded-[3px] border border-border bg-surface px-3 text-sm outline-none focus:border-accent"
                   placeholder="Ví dụ 87500"
                   type="number"
                   value={stopLoss}
                   onChange={(event) => setStopLoss(event.target.value)}
                 />
               </label>
-              <label className="grid gap-1 text-xs font-bold text-ink">
-                Mốc theo dõi giả lập
+              <label className="grid min-w-0 gap-1 text-xs font-bold text-ink">
+                Mốc theo dõi
                 <input
-                  className="h-10 rounded-[3px] border border-border bg-surface px-3 text-sm outline-none focus:border-accent"
+                  className="h-10 min-w-0 rounded-[3px] border border-border bg-surface px-3 text-sm outline-none focus:border-accent"
                   placeholder="Ví dụ 102000"
                   type="number"
                   value={target}
@@ -137,20 +139,18 @@ export function SimulationOrderTicket({
             </div>
 
             <div className="grid gap-2 rounded-[4px] border border-border-soft bg-surface-soft px-3 py-3 text-xs text-muted">
-              <p className="flex justify-between gap-3"><span>Độ ưu tiên</span><strong className="text-ink">{formatCurrency(values.value)}</strong></p>
-              <p className="flex justify-between gap-3"><span>Phí ước tính</span><strong className="text-ink">{formatCurrency(values.fee)}</strong></p>
-              {side === "sell" ? (
-                <p className="flex justify-between gap-3"><span>Thuế ước tính</span><strong className="text-ink">{formatCurrency(values.tax)}</strong></p>
-              ) : null}
-              <p className="flex justify-between gap-3"><span>Tổng giá trị dự kiến</span><strong className="text-ink">{formatCurrency(values.total)}</strong></p>
-              <p className="flex justify-between gap-3"><span>Tỷ lệ giả định</span><strong className="text-ink">{values.riskReward ? `${values.riskReward.toFixed(2)}:1` : "Chưa đủ dữ liệu"}</strong></p>
+              <PreviewRow label="Giá trị mô phỏng" value={formatCurrency(values.value)} />
+              <PreviewRow label="Phí ước tính" value={formatCurrency(values.fee)} />
+              {side === "sell" ? <PreviewRow label="Thuế ước tính" value={formatCurrency(values.tax)} /> : null}
+              <PreviewRow label="Tổng giá trị dự kiến" value={formatCurrency(values.total)} strong />
+              <PreviewRow label="Tỷ lệ theo dõi" value={values.riskReward ? `${values.riskReward.toFixed(2)}:1` : "Chưa đủ dữ liệu"} />
             </div>
 
             <div className="flex flex-wrap gap-2">
               {reasonHints.map((hint) => (
                 <button
                   key={hint}
-                  className="rounded-[3px] border border-border-soft bg-surface-soft px-2 py-1 text-[11px] font-semibold text-muted hover:border-border"
+                  className="rounded-[3px] border border-border-soft bg-surface-soft px-2 py-1 text-[11px] font-semibold text-muted transition hover:border-border hover:text-ink"
                   type="button"
                   onClick={() => setReason((current) => (current ? `${current}; ${hint}` : hint))}
                 >
@@ -160,20 +160,20 @@ export function SimulationOrderTicket({
             </div>
 
             <label className="grid gap-1 text-xs font-bold text-ink">
-              Lý do mở tình huống
+              Lý do tạo tình huống
               <textarea
                 className="min-h-24 rounded-[3px] border border-border bg-surface px-3 py-2 text-sm font-normal leading-6 outline-none focus:border-accent"
-                placeholder="Viết ngắn lý do bạn tạo tình huống mô phỏng này..."
+                placeholder="Viết ngắn lý do bạn muốn mô phỏng tình huống này..."
                 value={reason}
                 onChange={(event) => setReason(event.target.value)}
               />
             </label>
 
             <div className="space-y-2">
-              {cashWarning ? <WarningText>Độ ưu tiên vượt tiền mặt giả lập hiện có.</WarningText> : null}
-              {sellWarning ? <WarningText>Tình huống giảm giả lập yêu cầu đã có theo dõi trước đó.</WarningText> : null}
-              {lowRiskReward ? <WarningText>Tỷ lệ giả định chưa đủ rõ, hãy kiểm tra lại kế hoạch.</WarningText> : null}
-              {!reason.trim() ? <WarningText>Lý do mở tình huống cần được ghi rõ trước khi tạo tình huống.</WarningText> : null}
+              {cashWarning ? <WarningText>Giá trị mô phỏng vượt tiền mặt giả lập hiện có.</WarningText> : null}
+              {sellWarning ? <WarningText>Giả định giảm cần có theo dõi đang mở trước đó.</WarningText> : null}
+              {lowRiskReward ? <WarningText>Tỷ lệ theo dõi chưa rõ, hãy kiểm tra lại mốc cảnh báo và mốc theo dõi.</WarningText> : null}
+              {!reason.trim() ? <WarningText>Cần ghi lý do trước khi tạo tình huống.</WarningText> : null}
             </div>
 
             <div className="flex flex-wrap gap-2 border-t border-border-soft pt-3">
@@ -194,6 +194,15 @@ export function SimulationOrderTicket({
         )}
       </CardBody>
     </Card>
+  );
+}
+
+function PreviewRow({ label, strong = false, value }: { label: string; strong?: boolean; value: string }) {
+  return (
+    <p className="flex justify-between gap-3">
+      <span>{label}</span>
+      <strong className={strong ? "text-sm text-ink" : "text-ink"}>{value}</strong>
+    </p>
   );
 }
 

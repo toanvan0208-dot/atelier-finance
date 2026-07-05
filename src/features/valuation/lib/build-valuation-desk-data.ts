@@ -2,6 +2,7 @@ import {
   assessDataQuality,
   buildBasicValuationSummary,
   calculateBvps,
+  calculateEps,
   calculateEnterpriseValue,
   calculateEvToEbitda,
   calculateMarketCap,
@@ -33,6 +34,27 @@ const valuationMetricDisplay = (
 
 const compactMissingFields = (fields: string[]): string => (fields.length > 0 ? fields.join(", ") : "không có");
 
+const evEbitdaMissingExplanation = (evToEbitda: FinancialMetricResult, enterpriseValue: FinancialMetricResult): string => {
+  if (evToEbitda.value !== null) {
+    return "EV/EBITDA đã có đủ EV và EBITDA, nhưng vẫn cần đọc cùng CAPEX, nợ vay và chu kỳ ngành.";
+  }
+
+  const missing = new Set([...evToEbitda.missingFields, ...enterpriseValue.missingFields]);
+  const reasons = [
+    missing.has("ebitda") ? "thiếu EBITDA rõ nguồn" : null,
+    missing.has("enterpriseValue") && missing.has("cashAndEquivalents")
+      ? "chưa có EV trực tiếp và thiếu tiền mặt để tự suy ra EV"
+      : null,
+    missing.has("enterpriseValue") && !missing.has("cashAndEquivalents") ? "chưa có Enterprise Value" : null,
+    missing.has("marketCap") ? "thiếu vốn hóa" : null,
+    missing.has("totalDebt") ? "thiếu nợ vay" : null,
+  ].filter(Boolean);
+
+  return reasons.length > 0
+    ? `Chưa tính được vì ${reasons.join("; ")}. EV/EBITDA cần EV và EBITDA; có P/E, P/B, P/S không đồng nghĩa đủ dữ liệu cho EV/EBITDA.`
+    : "Chưa tính được EV/EBITDA vì dữ liệu đầu vào chưa đạt điều kiện diễn giải.";
+};
+
 const confidenceLabel = (confidence: CoreValuationConfidence): "Cao" | "Trung bình" | "Thấp" => {
   if (confidence === "high") return "Cao";
   if (confidence === "medium") return "Trung bình";
@@ -51,6 +73,82 @@ const lowerConfidenceForWeakSource = (
 
 const firstWarning = (metric: FinancialMetricResult, fallback: string): string => metric.warning ?? fallback;
 
+const isPositiveNumber = (value: number | null | undefined): value is number =>
+  typeof value === "number" && Number.isFinite(value) && value > 0;
+
+const formatPrice = (value: number): string => `${Math.round(value).toLocaleString("vi-VN")} đ/cp`;
+
+const formatPriceBand = (low: number, high: number): string => `${formatPrice(low)} - ${formatPrice(high)}`;
+
+const buildSensitivityBand = (basePrice: number) => ({
+  low: basePrice * 0.9,
+  base: basePrice,
+  high: basePrice * 1.1,
+});
+
+const buildPeFormulaPriceRange = (
+  eps: number | null | undefined,
+  peRatio: FinancialMetricResult,
+) => {
+  if (!isPositiveNumber(eps) || !isPositiveNumber(peRatio.value)) return undefined;
+  const peBand = buildSensitivityBand(peRatio.value);
+  const priceBand = {
+    low: eps * peBand.low,
+    base: eps * peBand.base,
+    high: eps * peBand.high,
+  };
+
+  return {
+    formula: "EPS x P/E tham chiếu",
+    ...priceBand,
+    label: formatPriceBand(priceBand.low, priceBand.high),
+    assumption: `P/E tham chiếu minh họa ${peBand.low.toFixed(1)}x - ${peBand.high.toFixed(1)}x quanh P/E hiện tại ${peRatio.value.toFixed(1)}x.`,
+  };
+};
+
+const buildPbFormulaPriceRange = (
+  bvps: FinancialMetricResult,
+  pbRatio: FinancialMetricResult,
+) => {
+  if (!isPositiveNumber(bvps.value) || !isPositiveNumber(pbRatio.value)) return undefined;
+  const pbBand = buildSensitivityBand(pbRatio.value);
+  const priceBand = {
+    low: bvps.value * pbBand.low,
+    base: bvps.value * pbBand.base,
+    high: bvps.value * pbBand.high,
+  };
+
+  return {
+    formula: "BVPS x P/B tham chiếu",
+    ...priceBand,
+    label: formatPriceBand(priceBand.low, priceBand.high),
+    assumption: `P/B tham chiếu minh họa ${pbBand.low.toFixed(1)}x - ${pbBand.high.toFixed(1)}x quanh P/B hiện tại ${pbRatio.value.toFixed(1)}x.`,
+  };
+};
+
+const buildPsFormulaPriceRange = (
+  inputRevenue: number | null | undefined,
+  inputShares: number | null | undefined,
+  psRatio: FinancialMetricResult,
+) => {
+  if (!isPositiveNumber(inputRevenue) || !isPositiveNumber(inputShares) || !isPositiveNumber(psRatio.value)) return undefined;
+  const revenuePerShare = inputRevenue / inputShares;
+  if (!isPositiveNumber(revenuePerShare)) return undefined;
+  const psBand = buildSensitivityBand(psRatio.value);
+  const priceBand = {
+    low: revenuePerShare * psBand.low,
+    base: revenuePerShare * psBand.base,
+    high: revenuePerShare * psBand.high,
+  };
+
+  return {
+    formula: "Doanh thu/cp x P/S tham chiếu",
+    ...priceBand,
+    label: formatPriceBand(priceBand.low, priceBand.high),
+    assumption: `P/S tham chiếu minh họa ${psBand.low.toFixed(1)}x - ${psBand.high.toFixed(1)}x quanh P/S hiện tại ${psRatio.value.toFixed(1)}x.`,
+  };
+};
+
 export const buildValuationDeskData = (
   baseData: ValuationRefactoredData,
   snapshot: ValuationStatementSnapshot,
@@ -65,8 +163,19 @@ export const buildValuationDeskData = (
   const marketCap = calculateMarketCap(logicInput);
   const enterpriseValue = calculateEnterpriseValue(logicInput);
   const evToEbitda = calculateEvToEbitda(logicInput);
+  const eps = calculateEps(logicInput);
   const bvps = calculateBvps(logicInput);
   const peDisplay = valuationMetricDisplay(peRatio, logicInput.eps);
+  const peFormulaPriceRange = buildPeFormulaPriceRange(eps.value, peRatio);
+  const pbFormulaPriceRange = buildPbFormulaPriceRange(bvps, pbRatio);
+  const psFormulaPriceRange = buildPsFormulaPriceRange(logicInput.revenue ?? null, logicInput.sharesOutstanding ?? null, psRatio);
+  const formulaPriceRanges = [peFormulaPriceRange, pbFormulaPriceRange, psFormulaPriceRange].filter(
+    (range): range is NonNullable<typeof range> => Boolean(range),
+  );
+  const combinedFormulaLow =
+    formulaPriceRanges.length > 0 ? Math.min(...formulaPriceRanges.map((range) => range.low)) : 0;
+  const combinedFormulaHigh =
+    formulaPriceRanges.length > 0 ? Math.max(...formulaPriceRanges.map((range) => range.high)) : 0;
 
   const readinessWarnings = [
     ...summary.readiness.warnings,
@@ -85,8 +194,8 @@ export const buildValuationDeskData = (
       companyName: baseData.summary.companyName,
       currentPrice,
       fairValueRange: {
-        low: 0,
-        high: 0,
+        low: combinedFormulaLow,
+        high: combinedFormulaHigh,
         status: "Cần kiểm tra thêm",
         marginOfSafety: "Không rõ",
         confidence: confidenceLabel(adjustedConfidence),
@@ -170,7 +279,7 @@ export const buildValuationDeskData = (
       {
         name: "EV/EBITDA",
         role: "Chỉ tham khảo",
-        explanation: `${metricDisplay(evToEbitda)}. ${firstWarning(evToEbitda, "EV/EBITDA cần đọc cùng capex, nợ và chu kỳ ngành khi nguồn đủ rõ.")}`,
+        explanation: `${metricDisplay(evToEbitda)}. ${evEbitdaMissingExplanation(evToEbitda, enterpriseValue)}`,
         confidence: evToEbitda.value === null ? "Thấp" : "Trung bình",
       },
       {
@@ -187,6 +296,7 @@ export const buildValuationDeskData = (
           method: "P/E",
           keyAssumption: firstWarning(peRatio, "Chỉ đọc khi EPS dương và lợi nhuận không bị bóp méo bởi yếu tố bất thường."),
           range: peDisplay,
+          formulaPriceRange: peFormulaPriceRange,
           confidence: peRatio.value === null ? "Thấp" : confidenceLabel(adjustedConfidence),
           risk: `Thiếu hoặc yếu: ${compactMissingFields(peRatio.missingFields)}.`,
         },
@@ -194,6 +304,7 @@ export const buildValuationDeskData = (
           method: "P/B",
           keyAssumption: firstWarning(pbRatio, "Chỉ đọc khi BVPS và vốn chủ sở hữu dương."),
           range: metricDisplay(pbRatio),
+          formulaPriceRange: pbFormulaPriceRange,
           confidence: pbRatio.value === null ? "Thấp" : "Trung bình",
           risk: `BVPS: ${metricDisplay(bvps)}. Thiếu hoặc yếu: ${compactMissingFields(pbRatio.missingFields)}.`,
         },
@@ -201,15 +312,21 @@ export const buildValuationDeskData = (
           method: "P/S",
           keyAssumption: firstWarning(psRatio, "Cần đọc cùng biên lợi nhuận và dòng tiền."),
           range: metricDisplay(psRatio),
+          formulaPriceRange: psFormulaPriceRange,
           confidence: psRatio.value === null ? "Thấp" : "Trung bình",
           risk: `Vốn hóa: ${metricDisplay(marketCap)}. Thiếu hoặc yếu: ${compactMissingFields(psRatio.missingFields)}.`,
         },
         {
           method: "EV/EBITDA",
-          keyAssumption: firstWarning(evToEbitda, "Chỉ đọc khi EV và EBITDA dương, dữ liệu nợ và tiền mặt rõ ràng."),
+          keyAssumption:
+            evToEbitda.value === null
+              ? evEbitdaMissingExplanation(evToEbitda, enterpriseValue)
+              : firstWarning(evToEbitda, "Chỉ đọc khi EV và EBITDA dương, dữ liệu nợ và tiền mặt rõ ràng."),
           range: metricDisplay(evToEbitda),
           confidence: evToEbitda.value === null ? "Thấp" : "Trung bình",
-          risk: `EV: ${metricDisplay(enterpriseValue)}. Thiếu hoặc yếu: ${compactMissingFields(evToEbitda.missingFields)}.`,
+          risk: `EV: ${metricDisplay(enterpriseValue)}. Thiếu hoặc yếu: ${compactMissingFields([
+            ...new Set([...evToEbitda.missingFields, ...enterpriseValue.missingFields]),
+          ])}.`,
         },
         {
           method: "DCF/WACC",
@@ -219,9 +336,12 @@ export const buildValuationDeskData = (
           risk: "Không tạo kết quả mô hình khi dữ liệu nền chưa đủ.",
         },
       ],
-      combinedRange: "Chưa đủ dữ liệu để tổng hợp chỉ số nâng cao",
+      combinedRange:
+        formulaPriceRanges.length > 0
+          ? `Vùng công thức đang hiển thị: ${formatPriceBand(combinedFormulaLow, combinedFormulaHigh)}`
+          : "Chưa đủ dữ liệu để tổng hợp chỉ số nâng cao",
       explanation:
-        "Bảng này hiển thị các chỉ số tương đối từ financial logic core. Mô hình nâng cao chỉ mở khi dữ liệu nền hợp lệ, đơn vị rõ và độ tin cậy đủ kiểm tra.",
+        "Bảng này hiển thị cả chỉ số tương đối và vùng giá tham chiếu được suy ra từ công thức. Các vùng này dùng giả định minh họa quanh bội số hiện tại để học cách đọc độ nhạy, không phải giá mục tiêu hay khuyến nghị hành động.",
     },
     scenarios: {
       currentPrice,

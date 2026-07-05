@@ -64,6 +64,13 @@ const STATIC_FALLBACK_WARNING =
 
 const LOCAL_RESEARCH_WARNING =
   "Technical/PVT DB-backed data is local academic/research only; production approval remains false.";
+const DEFAULT_MARKET_PRICE_SOURCE_LABEL = "VNStock historical market price";
+const MARKET_PRICE_SOURCE_FALLBACKS = [
+  "VNStock market price snapshot",
+  "vnstock_python_market_pvt_auto",
+  "vnstock_research_candidate",
+  "vnstock",
+] as const;
 
 const stringOrNull = (value: string | Date | null | undefined): string | null => {
   if (!value) return null;
@@ -278,6 +285,50 @@ const unitMetadataErrors = (series: MarketPriceSeriesResult): string[] => {
   });
 };
 
+const readFirstUsableMarketPriceSeries = async ({
+  dataMode,
+  from,
+  readMarketPriceSeries,
+  sourceLabel,
+  ticker,
+  to,
+}: {
+  dataMode?: string;
+  from: string;
+  readMarketPriceSeries: typeof getMarketPriceSeries;
+  sourceLabel?: string;
+  ticker: string;
+  to: string;
+}): Promise<MarketPriceSeriesResult> => {
+  const firstSeries = await readMarketPriceSeries({
+    ticker,
+    from,
+    to,
+    sourceLabel: sourceLabel ?? DEFAULT_MARKET_PRICE_SOURCE_LABEL,
+    dataMode,
+  });
+
+  if (sourceLabel || firstSeries.count > 1) return firstSeries;
+
+  const candidates: MarketPriceSeriesResult[] = [firstSeries];
+  for (const candidateSourceLabel of MARKET_PRICE_SOURCE_FALLBACKS) {
+    const candidate = await readMarketPriceSeries({
+      ticker,
+      from,
+      to,
+      sourceLabel: candidateSourceLabel,
+      dataMode,
+    });
+    candidates.push(candidate);
+
+    if (candidate.ok && candidate.count > 1) {
+      return candidate;
+    }
+  }
+
+  return candidates.find((candidate) => candidate.ok && candidate.count > 0) ?? firstSeries;
+};
+
 export const loadTechnicalDeskData = async (
   input: LoadTechnicalDeskDataInput,
   dependencies: LoadTechnicalDeskDataDependencies = {},
@@ -326,28 +377,14 @@ export const loadTechnicalDeskData = async (
   const readIssuerMetadata = dependencies.readIssuerMetadata ?? getIssuerMetadata;
   const buildFromMarketPriceSeries =
     dependencies.buildFromMarketPriceSeries ?? buildTechnicalFromMarketPriceSeries;
-  let series = await readMarketPriceSeries({
+  const series = await readFirstUsableMarketPriceSeries({
     ticker: input.ticker,
     from: input.from,
     to: input.to,
-    sourceLabel: input.sourceLabel ?? "VNStock historical market price",
+    sourceLabel: input.sourceLabel,
     dataMode: input.dataMode,
+    readMarketPriceSeries,
   });
-
-  if ((!series.ok || series.count <= 1) && !input.sourceLabel) {
-    const fallbackSeries = await readMarketPriceSeries({
-      ticker: input.ticker,
-      from: input.from,
-      to: input.to,
-      sourceLabel: "VNStock market price snapshot",
-      dataMode: input.dataMode,
-    });
-    
-    if (fallbackSeries.ok && fallbackSeries.count > 0) {
-      // Use the snapshot if it has data, but the historical series did not have enough points.
-      series = fallbackSeries;
-    }
-  }
 
   if (!series.ok || series.count === 0) {
     if (allowFallback) {
@@ -412,7 +449,7 @@ export const loadTechnicalDeskData = async (
       source: "Du lieu gia tham khao tu nguon nghien cuu",
       asOf: latestSeriesDate,
       isDemoData: false,
-      missingFields: built.adapter.warnings,
+      missingFields: built.data.logicSummary?.missingFields ?? [],
     },
     source: {
       sourceType: "local_db_manual_import",
@@ -428,6 +465,7 @@ export const loadTechnicalDeskData = async (
     warnings: [
       LOCAL_RESEARCH_WARNING,
       ...series.warnings,
+      ...metadataErrors,
       ...built.adapter.warnings,
       ...issuerMetadata.warnings,
     ],

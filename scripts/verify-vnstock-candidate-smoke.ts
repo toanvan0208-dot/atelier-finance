@@ -6,10 +6,9 @@ import { buildAssistantScreenContextPacket } from "../src/components/layout/assi
 import { buildAssistantPrompt } from "../src/lib/ai-rag/prompts/build-assistant-prompt";
 
 
+import { requirePostgresDatabaseUrl } from "./lib/supabase-env";
 const run = async () => {
-  if (!process.env.DATABASE_URL) {
-    process.env.DATABASE_URL = "file:./dev.db";
-  }
+  requirePostgresDatabaseUrl("verify-vnstock-candidate-smoke.ts");
   const tickers = ["FPT", "MWG", "VNM", "HPG", "VCB", "MSN"];
 
   console.log("=== PHASE 138I VERIFICATION SCRIPT ===\n");

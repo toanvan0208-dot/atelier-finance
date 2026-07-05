@@ -1,4 +1,4 @@
-import { DataMode, PaperTradeAction, PaperTradeStatus, ReadinessStatus } from "@/generated/prisma/client";
+import { DataMode, PaperTradeAction, PaperTradeStatus, ReadinessStatus } from "@/generated/prisma/enums";
 import { apiError, apiInternalError, apiSuccess } from "@/lib/api/response";
 import { getCurrentUser } from "@/lib/auth/session";
 import { prisma } from "@/lib/database/client";
@@ -41,6 +41,54 @@ const findCompanyByTicker = async (ticker: string) =>
       ticker: true,
     },
   });
+
+const syncWatchlistFromPaperTrade = async ({
+  company,
+  status,
+  thesisSnapshot,
+  ticker,
+  userId,
+}: {
+  company: NonNullable<Awaited<ReturnType<typeof findCompanyByTicker>>>;
+  status: PaperTradeStatus;
+  thesisSnapshot: string | null;
+  ticker: string;
+  userId: string;
+}) => {
+  const existing = await prisma.watchlist.findFirst({
+    where: {
+      companyId: company.id,
+      userId,
+    },
+    select: { id: true, notes: true, thesisSummary: true },
+  });
+  const watchlistStatus = status === PaperTradeStatus.planned ? "Sẵn sàng mô phỏng" : "Đang mô phỏng";
+  const data = {
+    dataMode: DataMode.user_input,
+    notes: existing?.notes ?? thesisSnapshot ?? "Tự động thêm từ mô phỏng giả lập.",
+    priority: "high",
+    readiness: ReadinessStatus.needs_review,
+    status: watchlistStatus,
+    thesisSummary: existing?.thesisSummary ?? thesisSnapshot ?? null,
+  };
+
+  if (existing) {
+    await prisma.watchlist.update({
+      where: { id: existing.id },
+      data,
+    });
+    return;
+  }
+
+  await prisma.watchlist.create({
+    data: {
+      ...data,
+      companyId: company.id,
+      ticker,
+      userId,
+    },
+  });
+};
 
 const loadLatestPrice = async (ticker: string): Promise<number | null> => {
   const price = await prisma.marketPrice.findFirst({
@@ -177,6 +225,7 @@ export const POST = async (request: Request): Promise<Response> => {
     const action = readText(body.action) === PaperTradeAction.observe_position
       ? PaperTradeAction.observe_position
       : PaperTradeAction.open_position;
+    const thesisSnapshot = readText(body.thesisSnapshot) ?? null;
 
     const trade = await prisma.paperTrade.create({
       data: {
@@ -189,12 +238,13 @@ export const POST = async (request: Request): Promise<Response> => {
         reflection: readText(body.reflection) ?? null,
         sourceMode: DataMode.user_input,
         status,
-        thesisSnapshot: readText(body.thesisSnapshot) ?? null,
+        thesisSnapshot,
         ticker,
         userId: user.id,
       },
       include: { company: true },
     });
+    await syncWatchlistFromPaperTrade({ company, status, thesisSnapshot, ticker, userId: user.id });
     const mapped = await mapPaperTrade(trade);
 
     return apiSuccess(mapped, {

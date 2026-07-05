@@ -37,9 +37,12 @@ const blockedMetricLabel = (metric: string): string =>
     .replace("marketCap:sharesOutstanding_unavailable", "vốn hóa thiếu số cổ phiếu")
     .replace("marketCap:marketPrice_unavailable", "vốn hóa thiếu giá thị trường")
     .replace("bvps:sharesOutstanding_unavailable", "BVPS thiếu số cổ phiếu")
+    .replace("bvps:equity_unavailable", "BVPS thiếu vốn chủ")
     .replace("pb:sharesOutstanding_unavailable", "P/B thiếu số cổ phiếu")
     .replace("pb:marketPrice_unavailable", "P/B thiếu giá thị trường")
+    .replace("pb:equity_unavailable", "P/B thiếu vốn chủ")
     .replace("ps:marketCap_unavailable", "P/S cần thêm vốn hóa hoặc doanh thu")
+    .replace("ps:revenue_unavailable", "P/S thiếu doanh thu")
     .replaceAll("_", " ");
 
 const coverageLabel = (field: string): string => (field === "operatingCashFlow" ? "CFO" : field);
@@ -70,6 +73,7 @@ const sourceDecisionNote = (
 };
 
 function ReadinessRow({ item }: { item: PortfolioReadinessItem }) {
+  const marketPrice = item.marketPrice ?? { sourceLabel: "unavailable", status: "unavailable" as const, value: null };
   const missingInputs = item.missingInputs.length ? item.missingInputs.join(", ") : "Không còn thiếu đầu vào chính";
   const blockedMetrics = item.blockedMetrics.length
     ? item.blockedMetrics.map(blockedMetricLabel).join("; ")
@@ -97,11 +101,13 @@ function ReadinessRow({ item }: { item: PortfolioReadinessItem }) {
           <p className="text-[11px] leading-5 text-muted">Metadata local phục vụ nghiên cứu, chưa phê duyệt sản xuất.</p>
         </div>
         <div className="rounded-[3px] border border-border-soft bg-surface px-2 py-2">
-          <p className="text-[11px] font-bold text-subtle">Giá/khối lượng</p>
+          <p className="text-[11px] font-bold text-subtle">Giá thị trường</p>
           <p className="mt-1 text-xs font-semibold text-ink">
-            {item.technical.provider.toUpperCase()} · {readableStatus(item.technical.status)}
+            {readableStatus(marketPrice.status)} · {valueOrUnavailable(marketPrice.value)}
           </p>
-          <p className="text-[11px] leading-5 text-muted">Dữ liệu nghiên cứu từ VNStock candidate; chưa phê duyệt sản xuất.</p>
+          <p className="text-[11px] leading-5 text-muted">
+            Nguồn: {marketPrice.sourceLabel}. Dữ liệu nghiên cứu, chưa phê duyệt sản xuất.
+          </p>
         </div>
         <div className="rounded-[3px] border border-border-soft bg-surface px-2 py-2">
           <p className="text-[11px] font-bold text-subtle">Báo cáo tài chính</p>
@@ -201,7 +207,7 @@ export function PortfolioReadinessPanel({ data }: PortfolioReadinessPanelProps) 
       />
       <CardBody className="space-y-3">
         <div className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-2 text-xs leading-5 text-muted">
-          Hệ thống đã có dữ liệu giá/khối lượng, báo cáo tài chính, nợ vay, EPS và số cổ phiếu cho nhóm mã này.
+          Hệ thống đang kiểm tra giá thị trường, báo cáo tài chính, nợ vay, EPS và số cổ phiếu cho nhóm mã này.
           Các bản ghi dùng cho nghiên cứu và chưa phê duyệt sản xuất; đây không phải kết luận đầu tư.
         </div>
         <div className="grid gap-3">

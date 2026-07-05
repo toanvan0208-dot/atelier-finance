@@ -248,6 +248,12 @@ export type MacroCompassMetric = {
   confidence: string;
   whatToCheckNext: string;
   warnings: readonly string[];
+  practicalReading?: {
+    current: string;
+    benchmark: string;
+    impact: string;
+    caveat: string;
+  };
   supportStatus?: string;
   freshness?: {
     staleStatus: "fresh" | "stale" | "unknown";
@@ -306,6 +312,24 @@ export type MacroConclusionBlock = {
   tone: MacroCompassTone;
 };
 
+export type MacroIndicatorRuntimeEntry = {
+  indicatorCode: string;
+  displayName?: string;
+  description?: string;
+  supportStatus?: string;
+  inCurrentFrontend?: boolean;
+  latestObservation?: {
+    provenance?: {
+      semanticCaveats?: string[];
+    } | null;
+  } | null;
+  latestObservations?: unknown[];
+  limitations: string[];
+  freshness?: {
+    staleStatus: "fresh" | "stale" | "unknown";
+  };
+};
+
 export type MacroCompassData = {
   header: {
     title: string;
@@ -333,8 +357,8 @@ export type MacroCompassData = {
     actions: MacroCompassAction[];
   };
   // General indicator universe runtime structure
-  indicatorUniverse?: any[];
-  indicatorsByCategory?: Record<string, any[]>;
+  indicatorUniverse?: MacroIndicatorRuntimeEntry[];
+  indicatorsByCategory?: Record<string, MacroIndicatorRuntimeEntry[]>;
   dbBackedIndicators?: string[];
   plannedIndicators?: string[];
   sourceAssessmentNeededIndicators?: string[];

@@ -1,10 +1,9 @@
 import { loadFinancialsRuntimeData } from "../src/features/financials/lib/load-financials-runtime-data";
 import { getLatestMarketPrice } from "../src/lib/database/services/market-price-service";
 
+import { requirePostgresDatabaseUrl } from "./lib/supabase-env";
 const run = async () => {
-  if (!process.env.DATABASE_URL) {
-    process.env.DATABASE_URL = "file:./dev.db";
-  }
+  requirePostgresDatabaseUrl("verify-vnstock-candidate-runtime.ts");
   const tickers = ["FPT", "MWG", "VNM", "HPG", "VCB", "MSN"];
 
   console.log("=== RUNTIME CANDIDATE READ PATH VERIFICATION ===");

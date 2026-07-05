@@ -5,6 +5,7 @@ import { MACRO_INDICATOR_UNIVERSE } from "./macro-indicator-registry";
 import { evaluateMacroObservationFreshness } from "./macro-stale-policy";
 import { DOMESTIC_RATE_FRONTEND_INDICATOR_CODE } from "./macro-domestic-rate-semantic-mapping";
 import { formatMacroCompassMetricValue } from "./macro-compass-data-contract";
+import { buildMacroPracticalReading as buildSharedMacroPracticalReading } from "./macro-practical-reading";
 
 type MacroObservationRuntimeRow = Awaited<ReturnType<typeof loadLatestMacroObservations>>["observations"][number];
 type MacroIndicatorRegistryItem = (typeof MACRO_INDICATOR_UNIVERSE)[number];
@@ -77,6 +78,12 @@ const isReviewedStaticMetric = (metric: MacroCompassMetric): boolean =>
 const isReadableMetric = (metric: MacroCompassMetric | undefined): metric is MacroCompassMetric =>
   Boolean(metric && metric.value !== null && metric.status !== "missing");
 
+const hydratePracticalReadings = (data: MacroCompassData): void => {
+  for (const metric of [...data.worldMetrics, ...data.vietnamMetrics]) {
+    metric.practicalReading = buildSharedMacroPracticalReading(metric);
+  }
+};
+
 const hydrateCurrentPictureFromMetrics = (data: MacroCompassData): void => {
   const metricById = new Map(data.vietnamMetrics.map((metric) => [metric.id, metric]));
   const gdp = metricById.get("gdp");
@@ -101,7 +108,9 @@ const hydrateCurrentPictureFromMetrics = (data: MacroCompassData): void => {
       isReadableMetric(gdp)
         ? {
             label: "Tăng trưởng GDP",
-            value: `${formatMacroCompassMetricValue(gdp)}. Dùng như nền tham chiếu cho sức khỏe kinh tế chung, không phải kết luận riêng cho một cổ phiếu.`,
+            value:
+              gdp.practicalReading?.current ??
+              `${formatMacroCompassMetricValue(gdp)}. Dùng như nền tham chiếu cho sức khỏe kinh tế chung, không phải kết luận riêng cho một cổ phiếu.`,
             tone: "support",
           }
         : {
@@ -112,7 +121,9 @@ const hydrateCurrentPictureFromMetrics = (data: MacroCompassData): void => {
       isReadableMetric(creditGrowth)
         ? {
             label: "Tín dụng",
-            value: `${formatMacroCompassMetricValue(creditGrowth)}. Cần đọc cùng chất lượng tín dụng và nhu cầu vay thật.`,
+            value:
+              creditGrowth.practicalReading?.current ??
+              `${formatMacroCompassMetricValue(creditGrowth)}. Cần đọc cùng chất lượng tín dụng và nhu cầu vay thật.`,
             tone: "watch",
           }
         : {
@@ -123,7 +134,9 @@ const hydrateCurrentPictureFromMetrics = (data: MacroCompassData): void => {
       isReadableMetric(publicInvestment)
         ? {
             label: "Đầu tư công",
-            value: `${formatMacroCompassMetricValue(publicInvestment)}. Cần đối chiếu tiến độ giải ngân với doanh thu ngành liên quan.`,
+            value:
+              publicInvestment.practicalReading?.current ??
+              `${formatMacroCompassMetricValue(publicInvestment)}. Cần đối chiếu tiến độ giải ngân với doanh thu ngành liên quan.`,
             tone: "watch",
           }
         : {
@@ -136,7 +149,9 @@ const hydrateCurrentPictureFromMetrics = (data: MacroCompassData): void => {
       isReadableMetric(usdVnd)
         ? {
             label: "USD/VND",
-            value: `${formatMacroCompassMetricValue(usdVnd)}. Đây là biến cần theo dõi với doanh nghiệp nhập khẩu, vay ngoại tệ hoặc chịu tác động dòng vốn.`,
+            value:
+              usdVnd.practicalReading?.current ??
+              `${formatMacroCompassMetricValue(usdVnd)}. Đây là biến cần theo dõi với doanh nghiệp nhập khẩu, vay ngoại tệ hoặc chịu tác động dòng vốn.`,
             tone: "watch",
           }
         : {
@@ -147,7 +162,9 @@ const hydrateCurrentPictureFromMetrics = (data: MacroCompassData): void => {
       isReadableMetric(cpi)
         ? {
             label: "CPI",
-            value: `${formatMacroCompassMetricValue(cpi)}. Cần đọc cùng sức mua, giá đầu vào và biên lợi nhuận từng ngành.`,
+            value:
+              cpi.practicalReading?.current ??
+              `${formatMacroCompassMetricValue(cpi)}. Cần đọc cùng sức mua, giá đầu vào và biên lợi nhuận từng ngành.`,
             tone: "watch",
           }
         : {
@@ -158,7 +175,9 @@ const hydrateCurrentPictureFromMetrics = (data: MacroCompassData): void => {
       isReadableMetric(foreignFlow)
         ? {
             label: "Dòng vốn ngoại",
-            value: `${formatMacroCompassMetricValue(foreignFlow)}. Cần đọc cùng thanh khoản và nhóm vốn hóa lớn.`,
+            value:
+              foreignFlow.practicalReading?.current ??
+              `${formatMacroCompassMetricValue(foreignFlow)}. Cần đọc cùng thanh khoản và nhóm vốn hóa lớn.`,
             tone: "watch",
           }
         : {
@@ -171,26 +190,69 @@ const hydrateCurrentPictureFromMetrics = (data: MacroCompassData): void => {
       {
         label: "Lãi suất",
         value: isReadableMetric(domesticRate)
-          ? `${formatMacroCompassMetricValue(domesticRate)}. Cần đọc cùng chi phí vay và chính sách tiền tệ.`
+          ? (domesticRate.practicalReading?.current ??
+            `${formatMacroCompassMetricValue(domesticRate)}. Cần đọc cùng chi phí vay và chính sách tiền tệ.`)
           : "Chưa đủ dữ liệu để mô tả bối cảnh lãi suất hiện tại.",
         tone: isReadableMetric(domesticRate) ? "watch" : "neutral",
       },
       {
         label: "PMI",
         value: isReadableMetric(pmi)
-          ? `${formatMacroCompassMetricValue(pmi)}. Cần đọc cùng đơn hàng mới và sản xuất thực tế.`
+          ? (pmi.practicalReading?.current ??
+            `${formatMacroCompassMetricValue(pmi)}. Cần đọc cùng đơn hàng mới và sản xuất thực tế.`)
           : "Chưa đủ dữ liệu để biết trạng thái sản xuất gần nhất.",
         tone: isReadableMetric(pmi) ? "watch" : "neutral",
       },
       {
         label: "Dòng vốn ngoại",
         value: isReadableMetric(foreignFlow)
-          ? `${formatMacroCompassMetricValue(foreignFlow)}. Cần theo dõi thêm để tránh đọc một kỳ dữ liệu như xu hướng chắc chắn.`
+          ? (foreignFlow.practicalReading?.caveat ??
+            `${formatMacroCompassMetricValue(foreignFlow)}. Cần theo dõi thêm để tránh đọc một kỳ dữ liệu như xu hướng chắc chắn.`)
           : "Chưa đủ dữ liệu để xác nhận xu hướng dòng vốn ngoại.",
         tone: isReadableMetric(foreignFlow) ? "watch" : "neutral",
       },
     ],
   };
+};
+
+const surfaceMacroFreshnessWarnings = (data: MacroCompassData): void => {
+  const staleMetrics = [...data.vietnamMetrics, ...data.worldMetrics].filter(
+    (metric) => metric.freshness?.staleStatus === "stale",
+  );
+
+  if (staleMetrics.length === 0) return;
+
+  const staleNames = staleMetrics.map((metric) => metric.name).slice(0, 4).join(", ");
+  const staleReason = staleMetrics[0]?.freshness?.reason ?? "Một số dữ liệu vĩ mô có thể đã cũ.";
+
+  data.currentPicture = {
+    ...data.currentPicture,
+    tone: data.currentPicture.tone === "support" ? "watch" : data.currentPicture.tone,
+    summary: `${data.currentPicture.summary} Lưu ý dữ liệu: ${staleNames} có thể đã cũ; không nên dùng như bức tranh hiện tại nếu chưa cập nhật hoặc đối chiếu nguồn mới hơn.`,
+    unconfirmed: [
+      {
+        label: "Độ mới dữ liệu",
+        value: `${staleNames} cần cập nhật/đối chiếu trước khi kết luận bối cảnh hiện tại. ${staleReason}`,
+        tone: "watch",
+      },
+      ...data.currentPicture.unconfirmed,
+    ],
+  };
+
+  data.warnings = [
+    {
+      id: "macro-stale-runtime-data",
+      title: "Một số dữ liệu vĩ mô có thể đã cũ",
+      level: "Chưa đủ dữ liệu",
+      tone: "watch",
+      why: `${staleNames} đang vượt ngưỡng cập nhật nhanh. Đây là cảnh báo chất lượng dữ liệu, không phải kết luận thị trường.`,
+      confirmingData: "Cần cập nhật nguồn mới hơn hoặc đối chiếu lại ngày quan sát trước khi dùng để diễn giải hiện tại.",
+      affected: ["Vĩ mô", "Ngành", "Lọc cổ phiếu"],
+      nextAction: "Cập nhật nguồn dữ liệu hoặc đọc kèm ngày quan sát/asOf trong từng card chỉ số.",
+      isPrimary: true,
+    },
+    ...data.warnings.filter((warning) => warning.id !== "macro-stale-runtime-data"),
+  ];
 };
 
 export async function loadMacroRuntimeData(): Promise<MacroCompassData> {
@@ -203,6 +265,23 @@ export async function loadMacroRuntimeData(): Promise<MacroCompassData> {
   });
 
   const cloned = JSON.parse(JSON.stringify(macroCompassData)) as MacroCompassData;
+
+  if (dbResult.error) {
+    cloned.warnings = [
+      {
+        id: "macro-observation-read-error",
+        title: "Không đọc được dữ liệu vĩ mô từ cơ sở dữ liệu",
+        level: "Chưa đủ dữ liệu",
+        tone: "watch",
+        why: "Hệ thống không xác nhận được dữ liệu vĩ mô hiện tại từ bảng MacroObservation.",
+        confirmingData: dbResult.error,
+        affected: ["Vĩ mô", "Ngành", "Lọc cổ phiếu"],
+        nextAction: "Kiểm tra kết nối Supabase và bảng MacroObservation trước khi kết luận bối cảnh hiện tại.",
+        isPrimary: true,
+      },
+      ...cloned.warnings,
+    ];
+  }
 
   const indicatorUniverse: MacroIndicatorRuntimeItem[] = [];
   const dbBackedIndicators: string[] = [];
@@ -407,7 +486,9 @@ export async function loadMacroRuntimeData(): Promise<MacroCompassData> {
     }
   }
 
+  hydratePracticalReadings(cloned);
   hydrateCurrentPictureFromMetrics(cloned);
+  surfaceMacroFreshnessWarnings(cloned);
 
   return cloned;
 }

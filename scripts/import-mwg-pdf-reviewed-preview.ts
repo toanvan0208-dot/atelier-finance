@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { requirePostgresDatabaseUrl } from "./lib/supabase-env";
 
 import {
   buildMwgPdfReviewedImportDryRun,
@@ -23,9 +24,7 @@ export type MwgImportExecutionSummary = {
 export async function runMwgPdfReviewedImport(
   argv = process.argv.slice(2),
 ): Promise<MwgImportExecutionSummary> {
-  if (!process.env.DATABASE_URL) {
-    process.env.DATABASE_URL = "file:./dev.db";
-  }
+  const databaseUrl = requirePostgresDatabaseUrl("import-mwg-pdf-reviewed-preview.ts");
   const isConfirmWrite = argv.includes("--confirm-write");
   const mode = isConfirmWrite ? "confirm_write" : "dry_run";
   const jsonPath = path.join(process.cwd(), MWG_IMPORT_ARTIFACT_PATH);
@@ -111,7 +110,7 @@ export async function runMwgPdfReviewedImport(
       confirmReviewedDryRun: true,
       confirmNoProductionDatabase: true,
     },
-    databaseUrl: process.env.DATABASE_URL,
+    databaseUrl,
   });
 
   console.log("\n=== CONFIRM WRITE RESULT ===");

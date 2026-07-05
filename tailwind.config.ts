@@ -27,9 +27,9 @@ const config: Config = {
         brand: ["Be Vietnam Pro", "Inter", "ui-sans-serif", "system-ui", "sans-serif"],
       },
       boxShadow: {
-        soft: "0 1px 0 rgba(11, 31, 42, 0.12), 4px 4px 0 rgba(11, 31, 42, 0.18)",
-        hard: "4px 4px 0 rgba(11, 31, 42, 0.18)",
-        "hard-sm": "2px 2px 0 rgba(11, 31, 42, 0.16)",
+        soft: "0 1px 0 rgba(11, 31, 42, 0.08), 3px 3px 0 rgba(11, 31, 42, 0.10)",
+        hard: "3px 3px 0 rgba(11, 31, 42, 0.12)",
+        "hard-sm": "1px 1px 0 rgba(11, 31, 42, 0.12)",
       },
     },
   },

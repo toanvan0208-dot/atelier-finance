@@ -6,7 +6,7 @@ export const baseValuationRefactoredData: ValuationRefactoredData = {
   isLoading: false,
   loading: {
     title: "Đang chuẩn bị dữ liệu định giá",
-    content: "Hệ thống đang gom dữ liệu mẫu để minh họa vùng giá tham khảo.",
+    content: "Hệ thống đang đọc dữ liệu runtime; nếu chưa có dữ liệu thì chỉ hiển thị khung minh họa.",
   },
   emptyState: {
     title: "Chưa có doanh nghiệp để định giá",
@@ -225,9 +225,9 @@ const valuationStatementSnapshot: ValuationStatementSnapshot = {
   ticker: "MWG",
   companyType: "non_financial",
   industry: "retail",
-  period: "TTM/FY2024 mẫu",
+  period: "TTM/FY2024 demo",
   periodType: "ttm",
-  sourceName: "Mock financial statement snapshot",
+  sourceName: "Demo financial statement snapshot",
   collectedAt: "2026-06-01",
   revenue: 118_400_000_000_000,
   netProfit: 4_200_000_000_000,

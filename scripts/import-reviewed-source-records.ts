@@ -15,7 +15,7 @@ if (hasFlag("--help")) {
     [
       "Usage: npm run source-records:reviewed:import -- --file docs/product/data/phase114_reviewed_source_records_candidate.csv [--confirm-write] [--verify-runtime-read] [--json]",
       "",
-      "Dry-run is the default. Confirmed writes require --confirm-write, ATELIER_LOCAL_IMPORTS_ENABLED=true, and DATABASE_URL=file:./dev.db.",
+      "Dry-run is the default. Confirmed writes require --confirm-write, ATELIER_LOCAL_IMPORTS_ENABLED=true, and a PostgreSQL/Supabase DATABASE_URL.",
     ].join("\n"),
   );
   process.exit(0);

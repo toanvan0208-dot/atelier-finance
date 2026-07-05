@@ -31,7 +31,7 @@ export function ValuationHeader({
             <p className="text-sm font-bold text-ink">{data.industry}</p>
           </div>
           <div className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-2">
-            <p className="text-[11px] font-bold uppercase text-subtle">Giá thị trường mẫu</p>
+            <p className="text-[11px] font-bold uppercase text-subtle">Giá thị trường</p>
             <p className="text-sm font-bold text-ink">{data.marketPrice}</p>
           </div>
           <div className="rounded-[4px] border border-border-soft bg-surface-soft px-3 py-2">

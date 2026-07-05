@@ -5,10 +5,9 @@ import { buildAssistantScreenContextPacket } from "../src/components/layout/assi
 import { buildAssistantPrompt } from "../src/lib/ai-rag/prompts/build-assistant-prompt";
 import { buildRiskFinancialsRuntimeReadiness } from "../src/features/risk/lib/risk-financials-runtime-readiness";
 
+import { requirePostgresDatabaseUrl } from "./lib/supabase-env";
 const run = async () => {
-  if (!process.env.DATABASE_URL) {
-    process.env.DATABASE_URL = "file:./dev.db";
-  }
+  requirePostgresDatabaseUrl("smoke-six-ticker-beginner-journey.ts");
   const tickers = ["FPT", "MWG", "VNM", "HPG", "VCB", "MSN"];
 
   console.log("=== PHASE 138J END-TO-END PRODUCT SMOKE ===\n");

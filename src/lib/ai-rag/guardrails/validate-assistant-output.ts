@@ -149,8 +149,20 @@ const collectContextViolations = (
 const normalizeNumericToken = (value: string): string => value.replace(/[,\s_]/g, "").replace(/\.$/, "");
 
 const extractNumericTokens = (answer: string): string[] => {
-  const matches = answer.match(/\b\d[\d.,_]*%?\b/g);
-  return matches ?? [];
+  const tokens: string[] = [];
+
+  for (const line of answer.split(/\r?\n/)) {
+    const listNumberMatch = line.match(/^\s*(?:[-*]\s*)?(\d+)[.)]\s+/);
+    const ignoredListNumber = listNumberMatch?.[1] ?? null;
+    const matches = line.match(/\b\d[\d.,_]*%?\b/g) ?? [];
+
+    for (const match of matches) {
+      if (ignoredListNumber && match === ignoredListNumber) continue;
+      tokens.push(match);
+    }
+  }
+
+  return tokens;
 };
 
 const sanitizeAnswer = (answer: string, violations: GuardrailViolation[]): string | undefined => {

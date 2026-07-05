@@ -143,6 +143,13 @@ const dbResultForTicker = (ticker: string): LoadTechnicalDeskDataResult => ({
   },
 });
 
+const expectedDefaultToDate = () => new Date().toISOString().slice(0, 10);
+const expectedDefaultFromDate = () => {
+  const d = new Date();
+  d.setFullYear(d.getFullYear() - 1);
+  return d.toISOString().slice(0, 10);
+};
+
 describe("loadTechnicalRuntimeData", () => {
   it("defaults to the static fallback path with DB preference disabled", async () => {
     const loadDeskData = vi.fn().mockResolvedValue(fallbackResult);
@@ -153,12 +160,12 @@ describe("loadTechnicalRuntimeData", () => {
     });
 
     expect(loadDeskData).toHaveBeenCalledWith({
-      ticker: "FPT",
-      from: "2025-06-02",
-      to: "2025-06-30",
-      sourceLabel: "vnstock_research_candidate",
+      ticker: "HPG",
+      from: expectedDefaultFromDate(),
+      to: expectedDefaultToDate(),
+      sourceLabel: undefined,
       preferDb: false,
-      allowFallback: true,
+      allowFallback: false,
     });
     expect(result.fallbackUsed).toBe(true);
     expect(result.source.sourceType).toBe("sample_static_fallback");
@@ -174,12 +181,12 @@ describe("loadTechnicalRuntimeData", () => {
     });
 
     expect(loadDeskData).toHaveBeenCalledWith({
-      ticker: "FPT",
-      from: "2025-06-02",
-      to: "2025-06-30",
-      sourceLabel: "vnstock_research_candidate",
+      ticker: "HPG",
+      from: expectedDefaultFromDate(),
+      to: expectedDefaultToDate(),
+      sourceLabel: undefined,
       preferDb: true,
-      allowFallback: true,
+      allowFallback: false,
     });
     expect(result.fallbackUsed).toBe(false);
     expect(result.source).toMatchObject({
@@ -204,7 +211,7 @@ describe("loadTechnicalRuntimeData", () => {
       ticker: "MWG",
       from: "2025-02-01",
       to: "2025-02-28",
-      sourceLabel: "vnstock_research_candidate",
+      sourceLabel: undefined,
       preferDb: false,
       allowFallback: false,
     });
@@ -243,9 +250,9 @@ describe("loadTechnicalRuntimeData", () => {
 
       expect(loadDeskData).toHaveBeenCalledWith({
         ticker,
-        from: "2025-06-02",
-        to: "2025-06-30",
-        sourceLabel: "vnstock_research_candidate",
+        from: expectedDefaultFromDate(),
+        to: expectedDefaultToDate(),
+        sourceLabel: undefined,
         preferDb: true,
         allowFallback: false,
       });

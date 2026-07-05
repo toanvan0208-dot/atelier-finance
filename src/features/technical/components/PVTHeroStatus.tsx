@@ -34,7 +34,7 @@ export function PVTHeroStatus({ data }: PVTHeroStatusProps) {
   ];
 
   return (
-    <section className="overflow-hidden rounded-[8px] border-[1.5px] border-slate-950 bg-white shadow-[8px_8px_0_#0f172a]">
+    <section className="overflow-hidden rounded-[8px] border-[1.5px] border-slate-950 bg-white shadow-[5px_5px_0_rgb(15_23_42_/_0.24)]">
       <div className="grid gap-0 2xl:grid-cols-[minmax(0,1fr)_380px]">
         <div className="relative px-6 py-7 sm:px-8">
           <div className="absolute right-8 top-8 hidden h-28 w-28 rounded-full border border-amber-300 bg-amber-200/40 blur-2xl lg:block" />

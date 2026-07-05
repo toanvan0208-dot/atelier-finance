@@ -6,6 +6,7 @@ import { shellConfig } from "@/config/shell.config";
 import { BusinessPage } from "@/features/business";
 import { ChecklistPage } from "@/features/checklist";
 import { FinancialsPage } from "@/features/financials/components/FinancialsPage";
+import { LogoutButton } from "@/features/auth/LogoutButton";
 import { IndustryPage } from "@/features/industry";
 import { LearningPage, type LearningRuntimeData } from "@/features/learning";
 import { MacroPage } from "@/features/macro";
@@ -35,11 +36,13 @@ import {
   shouldNormalizeInvalidModule,
 } from "./app-shell-routing";
 import type { FinancialsRuntimeData } from "@/features/financials/lib/financials-runtime-types";
+import type { RiskDisclosureReviewRuntime } from "@/features/risk/lib/load-risk-disclosure-review";
 import type { TechnicalPageRuntimeData } from "@/features/technical";
 import type {
   PortfolioReadinessItem,
   PortfolioReadinessResult,
 } from "@/features/watchlist/lib/load-portfolio-readiness";
+import type { UserWatchlistItem } from "@/features/watchlist/lib/load-user-watchlist-items";
 import type { CheckThinkingData } from "@/features/checklist/types";
 import type { ScreeningRuntimeData } from "@/features/screening";
 import type { MacroCompassData } from "@/features/macro/types";
@@ -67,6 +70,7 @@ type AppShellProps = {
   initialFinancialsRuntimeData?: FinancialsRuntimeData;
   initialModule?: string | null;
   initialPortfolioReadiness?: PortfolioReadinessResult;
+  initialRiskDisclosureReview?: RiskDisclosureReviewRuntime;
   initialTechnicalData?: TechnicalPageRuntimeData;
   initialValuationScenario?: ValuationUnitAwareReadyMetricsScenarioId | null;
   initialChecklistData?: CheckThinkingData;
@@ -74,6 +78,7 @@ type AppShellProps = {
   initialLearningData?: LearningRuntimeData;
   initialMacroData?: MacroCompassData;
   initialIndustryContexts?: Record<string, IndustryContextRuntimePayload>;
+  initialWatchlistItems?: UserWatchlistItem[];
 };
 
 export function AppShell({
@@ -81,6 +86,7 @@ export function AppShell({
   initialFinancialsRuntimeData,
   initialModule,
   initialPortfolioReadiness,
+  initialRiskDisclosureReview,
   initialTechnicalData,
   initialValuationScenario,
   initialChecklistData,
@@ -88,6 +94,7 @@ export function AppShell({
   initialLearningData,
   initialMacroData,
   initialIndustryContexts,
+  initialWatchlistItems,
 }: AppShellProps) {
   return (
     <PersonalAnalysisProfileProvider>
@@ -97,12 +104,14 @@ export function AppShell({
         initialFinancialsRuntimeData={initialFinancialsRuntimeData}
         initialModule={initialModule}
         initialPortfolioReadiness={initialPortfolioReadiness}
+        initialRiskDisclosureReview={initialRiskDisclosureReview}
         initialTechnicalData={initialTechnicalData}
         initialValuationScenario={initialValuationScenario}
         initialScreeningData={initialScreeningData}
         initialLearningData={initialLearningData}
         initialMacroData={initialMacroData}
         initialIndustryContexts={initialIndustryContexts}
+        initialWatchlistItems={initialWatchlistItems}
       />
     </PersonalAnalysisProfileProvider>
   );
@@ -113,6 +122,7 @@ function AppShellContent({
   initialFinancialsRuntimeData,
   initialModule,
   initialPortfolioReadiness,
+  initialRiskDisclosureReview,
   initialTechnicalData,
   initialValuationScenario,
   initialChecklistData,
@@ -120,6 +130,7 @@ function AppShellContent({
   initialLearningData,
   initialMacroData,
   initialIndustryContexts,
+  initialWatchlistItems,
 }: AppShellProps) {
   const { openDrawer } = usePersonalAnalysisProfile();
   const moduleKeys = useMemo(
@@ -200,7 +211,12 @@ function AppShellContent({
       <Topbar
         actions={shellConfig.topbarActions}
         brandName={shellConfig.brandName}
-        profileAction={<PersonalAnalysisProfileButton />}
+        profileAction={
+          <>
+            <LogoutButton currentUser={currentUser} />
+            <PersonalAnalysisProfileButton />
+          </>
+        }
         title={shellConfig.title}
       />
       <PersonalAnalysisProfileButton placement="floating" />
@@ -226,6 +242,7 @@ function AppShellContent({
           <OverviewPage
             currentUser={currentUser}
             initialFinancialsRuntimeData={initialFinancialsRuntimeData}
+            initialWatchlistItems={initialWatchlistItems}
             portfolioReadiness={initialPortfolioReadiness}
             onNavigate={handleNavigate}
           />
@@ -267,15 +284,13 @@ function AppShellContent({
         {activeModule === "risk" ? (
           <RiskPage
             initialFinancialsRuntimeData={initialFinancialsRuntimeData}
+            initialDisclosureReview={initialRiskDisclosureReview}
             onNavigate={handleNavigate}
           />
         ) : null}
         {activeModule === "simulation" ? <SimulationPage /> : null}
         {activeModule === "watchlist" ? (
-          <WatchlistPage
-            onNavigate={handleNavigate}
-            portfolioReadiness={initialPortfolioReadiness}
-          />
+          <WatchlistPage initialItems={initialWatchlistItems} onNavigate={handleNavigate} />
         ) : null}
         {activeModule === "checklist" ? (
           <ChecklistPage onNavigate={handleNavigate} initialChecklistData={initialChecklistData} />

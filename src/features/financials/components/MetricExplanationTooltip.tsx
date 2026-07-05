@@ -30,14 +30,15 @@ const statusBorder: Record<FinancialDeskMetric["status"], string> = {
   unknown: "border-border-soft bg-neutral",
 };
 
+const shouldShowUnit = (metric: FinancialDeskMetric) =>
+  Boolean(metric.unit) &&
+  metric.status !== "unknown" &&
+  !metric.value.toLowerCase().includes("chưa") &&
+  !metric.value.toLowerCase().includes("không");
+
 export function MetricExplanationTooltip({ metric }: MetricExplanationTooltipProps) {
   return (
-    <details
-      className={cn(
-        "group rounded-[6px] border p-3 transition open:shadow-hard-sm",
-        statusBorder[metric.status]
-      )}
-    >
+    <details className={cn("group rounded-[6px] border p-3 transition open:shadow-hard-sm", statusBorder[metric.status])}>
       <summary className="flex cursor-pointer list-none items-start justify-between gap-3">
         <span className="min-w-0">
           <span className="block text-sm font-bold text-ink">{metric.label}</span>
@@ -46,13 +47,37 @@ export function MetricExplanationTooltip({ metric }: MetricExplanationTooltipPro
         <span className="flex shrink-0 items-center gap-2">
           <span className="text-right text-base font-extrabold text-ink">
             {metric.value}
-            {metric.unit ? <span className="ml-1 text-xs font-bold text-muted">{metric.unit}</span> : null}
+            {shouldShowUnit(metric) ? <span className="ml-1 text-xs font-bold text-muted">{metric.unit}</span> : null}
           </span>
           <Chip size="sm" variant={statusChip[metric.status]}>
             {statusLabel[metric.status]}
           </Chip>
         </span>
       </summary>
+
+      {metric.currentInterpretation || metric.peerComparison || metric.benchmarkGuide ? (
+        <div className="mt-3 space-y-2 rounded-[4px] border border-border-soft bg-surface px-3 py-2 text-xs leading-5 text-muted">
+          {metric.currentInterpretation ? (
+            <p>
+              <span className="font-bold text-ink">Con số này nói gì? </span>
+              {metric.currentInterpretation}
+            </p>
+          ) : null}
+          {metric.peerComparison ? (
+            <p>
+              <span className="font-bold text-ink">So với mẫu tham chiếu: </span>
+              {metric.peerComparison}
+            </p>
+          ) : null}
+          {metric.benchmarkGuide ? (
+            <p>
+              <span className="font-bold text-ink">Mốc đọc nhanh: </span>
+              {metric.benchmarkGuide}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+
       <div className="mt-3 grid gap-2 text-xs leading-5 text-muted sm:grid-cols-2">
         <p>
           <span className="font-bold text-ink">Là gì? </span>
@@ -71,6 +96,7 @@ export function MetricExplanationTooltip({ metric }: MetricExplanationTooltipPro
           {metric.badSignal}
         </p>
       </div>
+
       {metric.warning || metric.missingFields?.length || metric.dataQuality ? (
         <div className="mt-3 space-y-2 rounded-[4px] border border-border-soft bg-surface px-3 py-2 text-xs leading-5 text-muted">
           {metric.dataQuality ? (

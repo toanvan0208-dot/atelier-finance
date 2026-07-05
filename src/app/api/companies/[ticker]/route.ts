@@ -1,4 +1,4 @@
-import { apiError, apiInternalError, apiSuccess } from "@/lib/api/response";
+import { apiDataReadError, apiError, apiSuccess } from "@/lib/api/response";
 import { getCompanyByTicker } from "@/lib/database";
 import { loadCompanyBusinessProfile } from "@/features/business/lib/load-company-business-profile";
 import { loadMacroContext } from "@/features/macro/lib/load-macro-context";
@@ -52,7 +52,7 @@ export const GET = async (
         fallback: false,
       },
     });
-  } catch {
-    return apiInternalError();
+  } catch (error) {
+    return apiDataReadError(error);
   }
 };

@@ -478,10 +478,9 @@ export const runReviewedSourceRecordImport = async ({
   if (confirmWrite && !isLocalImportsEnabled()) errors.push("Local imports guard is disabled.");
   if (confirmWrite) {
     const trimmed = databaseUrl?.trim() || "";
-    const isDevDb = trimmed === "file:./dev.db";
-    const isLocalPostgres = (trimmed.startsWith("postgresql://") || trimmed.startsWith("postgres://")) && (trimmed.includes("localhost") || trimmed.includes("127.0.0.1"));
-    if (!isDevDb && !isLocalPostgres) {
-      errors.push("DATABASE_URL must be local file:./dev.db or localhost postgresql for intended local app DB writes.");
+    const isPostgres = trimmed.startsWith("postgresql://") || trimmed.startsWith("postgres://");
+    if (!isPostgres) {
+      errors.push("DATABASE_URL must be PostgreSQL/Supabase for confirmed reviewed source record writes.");
     }
   }
   if (confirmWrite && !databaseGuard.accepted) errors.push(...databaseGuard.errors);

@@ -66,6 +66,7 @@ const adaptRecord = (
     revenue: record.values.revenue,
     previousRevenue: previous?.values.revenue ?? null,
     grossProfit: record.values.grossProfit,
+    previousGrossProfit: previous?.values.grossProfit ?? null,
     operatingProfit: record.values.operatingIncome,
     netProfit: record.values.netIncome,
     previousNetProfit: previous?.values.netIncome ?? null,

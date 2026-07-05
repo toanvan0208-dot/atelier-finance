@@ -52,6 +52,41 @@ describe("buildValuationDeskData", () => {
     expect(peRow.range).toBe("N/A");
     expect(peRow.keyAssumption).toContain("EPS");
     expect(peRow.range).not.toBe("0x");
+    expect(peRow.formulaPriceRange).toBeUndefined();
+  });
+
+  it("shows formula-derived reference price bands when valuation inputs are available", () => {
+    const data = buildValuationDeskData(baseValuationRefactoredData, completeSnapshot);
+    const peRow = getRange(data, "P/E");
+    const pbRow = getRange(data, "P/B");
+    const psRow = getRange(data, "P/S");
+
+    expect(peRow.formulaPriceRange).toMatchObject({
+      formula: "EPS x P/E tham chiếu",
+      low: 45,
+      base: 50,
+      high: 55,
+    });
+    expect(pbRow.formulaPriceRange?.formula).toBe("BVPS x P/B tham chiếu");
+    expect(psRow.formulaPriceRange?.formula).toBe("Doanh thu/cp x P/S tham chiếu");
+    expect(data.summary.fairValueRange.low).toBeGreaterThan(0);
+    expect(data.ranges.combinedRange).toContain("Vùng công thức");
+  });
+
+  it("explains missing EV/EBITDA inputs instead of treating missing EBITDA as negative EBITDA", () => {
+    const data = buildValuationDeskData(baseValuationRefactoredData, {
+      ...completeSnapshot,
+      cashAndEquivalents: null,
+      enterpriseValue: null,
+      ebitda: null,
+    });
+
+    const evEbitdaRow = getRange(data, "EV/EBITDA");
+    expect(evEbitdaRow.range).toBe("Chưa đủ dữ liệu");
+    expect(evEbitdaRow.keyAssumption).toContain("thiếu EBITDA");
+    expect(evEbitdaRow.keyAssumption).toContain("thiếu tiền mặt");
+    expect(evEbitdaRow.keyAssumption).not.toContain("EBITDA không dương");
+    expect(evEbitdaRow.risk).toContain("cashAndEquivalents");
   });
 
   it("does not calculate P/B when BVPS and total equity are negative", () => {

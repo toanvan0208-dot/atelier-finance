@@ -9,9 +9,8 @@ import {
   LoadingState,
 } from "@/components/ui";
 import {
-  fetchFinancialStatementsByTicker,
+  fetchFinancialsRuntimeByTicker,
   FinancialsApiError,
-  type FinancialsApiStatement,
 } from "@/lib/data-sources/financials-api-client";
 import { financialReadingDeskData } from "../data/financialReadingDesk.data";
 import { financialsPageData } from "../data/financials.data";
@@ -44,12 +43,6 @@ type RuntimeReadyState = {
 type FinancialsBridgeState =
   | { status: "loading"; ticker: string }
   | RuntimeReadyState
-  | {
-      status: "ready";
-      statement: FinancialsApiStatement;
-      deskData: FinancialReadingDeskData;
-      pageData: FinancialsPageData;
-    }
   | { status: "empty"; ticker: string }
   | { status: "error"; ticker: string; message: string };
 
@@ -73,7 +66,6 @@ const useFinancialsTickerFromUrl = () =>
 
 const bridgeStateTicker = (state: FinancialsBridgeState): string | null => {
   if (state.status === "runtime") return state.runtimeData.source.ticker;
-  if (state.status === "ready") return state.statement.metadata.ticker;
   if (state.status === "loading" || state.status === "empty" || state.status === "error") {
     return state.ticker;
   }
@@ -134,17 +126,6 @@ const reconcileReviewedInputs = (
   };
 };
 
-const readinessToHeaderStatus = (
-  readiness: FinancialsApiStatement["metadata"]["readiness"],
-) => {
-  if (readiness === "ready")
-    return "Đầy đủ" as FinancialsPageData["header"]["dataStatus"];
-  if (readiness === "not_ready" || readiness === "insufficient_data") {
-    return "Thiếu dữ liệu" as FinancialsPageData["header"]["dataStatus"];
-  }
-  return "Cần kiểm tra thêm" as FinancialsPageData["header"]["dataStatus"];
-};
-
 const runtimeStatusToHeaderStatus = (
   status: FinancialsRuntimeData["dataQuality"]["status"],
 ) => {
@@ -202,72 +183,6 @@ const filterLogicDeskData = (
   };
 };
 
-const buildBridgeDeskData = (
-  statement: FinancialsApiStatement,
-): FinancialReadingDeskData => {
-  const next = buildFinancialReadingDeskData(
-    financialReadingDeskData,
-    statement.snapshot,
-  );
-  const firstMetricStep =
-    next.readingSteps.find((step) =>
-      step.metricIds.some((metricId) => logicMetricIds.has(metricId)),
-    )?.id ?? next.nextReadingStep.stepId;
-  const sourceWarnings = [
-    ...(statement.metadata.warningCodes.length > 0
-      ? [
-          {
-            id: "api-source-warnings",
-            title: "Dữ liệu cần rà soát",
-            severity: "watch" as const,
-            summary: `Nguồn dữ liệu có ${statement.metadata.warningCodes.length} cảnh báo cần kiểm tra.`,
-            cause: "Nguồn hoặc trạng thái dữ liệu chưa hoàn chỉnh.",
-            targetStepId: firstMetricStep,
-          },
-        ]
-      : []),
-    ...(statement.dataQuality.missingFields?.length
-      ? [
-          {
-            id: "api-missing-fields",
-            title: "Thiếu trường dữ liệu",
-            severity: "watch" as const,
-            summary: `Nguồn hiện tại còn thiếu ${statement.dataQuality.missingFields.length} trường dữ liệu.`,
-            cause: "Các trường thiếu được giữ là Chưa đủ dữ liệu, không thay bằng 0.",
-            targetStepId: firstMetricStep,
-          },
-        ]
-      : []),
-  ];
-
-  return {
-    ...filterLogicDeskData(next, sourceWarnings),
-    ticker: statement.snapshot.ticker ?? statement.metadata.ticker,
-    companyName: statement.snapshot.ticker ?? statement.metadata.ticker,
-    period: statement.snapshot.period ?? statement.metadata.period,
-  };
-};
-
-const buildBridgePageData = (
-  statement: FinancialsApiStatement,
-  deskData: FinancialReadingDeskData,
-): FinancialsPageData => ({
-  ...financialsPageData,
-  header: {
-    ...financialsPageData.header,
-    ticker: statement.metadata.ticker,
-    companyName: deskData.companyName,
-    industry: statement.snapshot.companyType ?? "Chưa đủ dữ liệu",
-    reportPeriod: statement.metadata.period,
-    dataStatus: readinessToHeaderStatus(statement.metadata.readiness),
-    previousModuleLink:
-      "Dữ liệu đang được đọc từ bản ghi đã lưu trong hệ thống và vẫn giữ trạng thái nghiên cứu.",
-  },
-  disclaimer: {
-    ...financialsPageData.disclaimer,
-  },
-});
-
 const buildRuntimeDeskData = (
   runtimeData: FinancialsRuntimeData,
 ): FinancialReadingDeskData | null => {
@@ -276,6 +191,7 @@ const buildRuntimeDeskData = (
   const next = buildFinancialReadingDeskData(
     financialReadingDeskData,
     runtimeData.statementSnapshot,
+    runtimeData.industryMetricReference,
   );
   const firstMetricStep =
     next.readingSteps.find((step) =>
@@ -386,11 +302,10 @@ export function FinancialsPage({
 
     let isActive = true;
 
-    fetchFinancialStatementsByTicker({ ticker: activeTicker, limit: 2 })
-      .then((statements) => {
+    fetchFinancialsRuntimeByTicker(activeTicker)
+      .then((runtimeData) => {
         if (!isActive) return;
-        const statement = statements[0];
-        if (!statement) {
+        if (!runtimeData.statementSnapshot) {
           setTickerInput(activeTicker);
           setRequest(null);
           setBridgeState({ status: "empty", ticker: activeTicker });
@@ -398,8 +313,8 @@ export function FinancialsPage({
         }
 
         if (
-          !financialsTickerMatches(activeTicker, statement.metadata.ticker) ||
-          !financialsTickerMatches(activeTicker, statement.snapshot.ticker)
+          !financialsTickerMatches(activeTicker, runtimeData.source.ticker) ||
+          !financialsTickerMatches(activeTicker, runtimeData.statementSnapshot.ticker)
         ) {
           setTickerInput(activeTicker);
           setRequest(null);
@@ -412,12 +327,14 @@ export function FinancialsPage({
           return;
         }
 
-        const deskData = buildBridgeDeskData(statement);
-        const pageData = buildBridgePageData(statement, deskData);
+        const nextState = buildRuntimeState(runtimeData);
         setTickerInput(activeTicker);
         setRequest(null);
-        setActiveStepId(deskData.nextReadingStep.stepId);
-        setBridgeState({ status: "ready", statement, deskData, pageData });
+        setActiveStepId(
+          nextState.deskData?.nextReadingStep.stepId ??
+            financialReadingDeskData.nextReadingStep.stepId,
+        );
+        setBridgeState(nextState);
       })
       .catch((error: unknown) => {
         if (!isActive) return;
@@ -594,14 +511,6 @@ export function FinancialsPage({
         </>
       ) : null}
 
-      {bridgeState.status === "ready" ? (
-        <>
-          {renderFinancialsExperience(
-            bridgeState.deskData,
-            bridgeState.pageData,
-          )}
-        </>
-      ) : null}
     </div>
   );
 }

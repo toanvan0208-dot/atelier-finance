@@ -506,6 +506,14 @@ export type ValuationRangeRow = {
   method: string;
   keyAssumption: string;
   range: string;
+  formulaPriceRange?: {
+    formula: string;
+    low: number;
+    base: number;
+    high: number;
+    label: string;
+    assumption: string;
+  };
   confidence: "Cao" | "Trung bình" | "Thấp" | "Thấp đến trung bình";
   risk: string;
 };

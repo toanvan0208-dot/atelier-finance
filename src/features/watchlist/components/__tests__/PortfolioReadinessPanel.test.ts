@@ -48,6 +48,11 @@ const portfolioReadiness: PortfolioReadinessResult = {
       status: "partial",
     },
     industry: "controlled industry",
+    marketPrice: {
+      sourceLabel: "phase109_controlled_local_financials",
+      status: "unavailable",
+      value: null,
+    },
     missingInputs: ["sharesOutstanding", "eps", "totalDebt"],
     risk: {
       canClaimRiskDbBacked: false,

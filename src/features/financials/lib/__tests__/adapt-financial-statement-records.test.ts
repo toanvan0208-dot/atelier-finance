@@ -112,6 +112,43 @@ describe("adaptFinancialStatementSeries", () => {
     expect(result.warnings.join(" ")).toContain("No local financial statement records");
   });
 
+  it("passes previous gross profit into the latest snapshot for margin trend reading", () => {
+    const base = resultBase().records[0];
+    const previousRecord = {
+      ...base,
+      id: "fs-0",
+      fiscalYear: 2024,
+      period: "2024",
+      values: {
+        ...base.values,
+        revenue: 900,
+        grossProfit: 120,
+      },
+    };
+    const latestRecord = {
+      ...base,
+      id: "fs-1",
+      fiscalYear: 2025,
+      period: "2025",
+      values: {
+        ...base.values,
+        revenue: 1000,
+        grossProfit: 157,
+      },
+    };
+
+    const result = adaptFinancialStatementSeries(resultBase({
+      records: [latestRecord, previousRecord],
+    }));
+
+    expect(result.statements[0].snapshot).toMatchObject({
+      revenue: 1000,
+      grossProfit: 157,
+      previousRevenue: 900,
+      previousGrossProfit: 120,
+    });
+  });
+
   it("does not emit prohibited recommendation or trading-signal wording", () => {
     const result = adaptFinancialStatementSeries(resultBase());
     const output = JSON.stringify(result).toLowerCase();
